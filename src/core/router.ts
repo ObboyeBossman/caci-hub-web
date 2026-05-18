@@ -16,8 +16,10 @@
 import { getRoutes }     from './registry'
 import { runMiddleware } from './middleware'
 import type { PageModule } from '../types/module.types'
+import { mountShell, mountFullscreen } from '../shell/Shell'
 
 let _activePage: PageModule | null = null
+let _currentPresentation: string = 'shell'
 
 /**
  * Start the hash router. Call this LAST in the boot sequence —
@@ -68,6 +70,17 @@ async function _resolve(): Promise<void> {
   // Lazy-load the page module (Vite code-splits each dynamic import).
   const { default: page } = await matched.page()
   _activePage = page
+
+  // Layout handling (Presentation switch)
+  const targetPresentation = matched.presentation || 'shell'
+  if (targetPresentation !== _currentPresentation) {
+    if (targetPresentation === 'fullscreen') {
+      mountFullscreen()
+    } else {
+      mountShell()
+    }
+    _currentPresentation = targetPresentation
+  }
 
   // Pass route params via dataset — pages read them inside render().
   const params    = _extractParams(matched.path, path)
