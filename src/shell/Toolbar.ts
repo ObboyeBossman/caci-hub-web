@@ -1,12 +1,10 @@
 // src/shell/Toolbar.ts
-// Top toolbar: assembly context, avatar dropdown, notification bell, mobile menu.
-// Mirrors: mobile_top_nav.dart, sidebar_bottom.dart profile popup, assembly_popover.dart
+// Renders the topnav bar: toggle button, logo, assembly info popover.
+// Mirrors: new shell design (topnav pattern).
 
-import { getCurrentUser, getActiveAssemblyId } from '@core/auth'
-import { navigate } from '@core/router'
-import { toggleMobileDrawer } from './Shell'
-
-let _profileOverlay: HTMLElement | null = null
+import { getCurrentUser } from '@core/auth'
+import { navigate }       from '@core/router'
+import { toggleDrawer }   from './Shell'
 
 export class Toolbar {
   private _el: HTMLElement
@@ -16,43 +14,48 @@ export class Toolbar {
   }
 
   render(): void {
-    const user = getCurrentUser()
-    const initials = user
-      ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-      : 'U'
+    const now  = new Date()
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+    const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`
 
+    this._el.className = 'topnav'
     this._el.innerHTML = `
-      <button class="toolbar-icon-btn d-md-none" id="mobile-menu-btn" aria-label="Open menu">
-        <i class="bi bi-list" style="font-size:18px"></i>
-      </button>
-
-      <a href="#/" class="toolbar-logo" id="toolbar-logo">
-        <svg class="toolbar-logo-cross" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="9" y="0" width="4" height="22" rx="2" fill="var(--caci-blue)"/>
-          <rect x="0" y="9" width="22" height="4" rx="2" fill="var(--caci-blue)"/>
-        </svg>
-        <span class="toolbar-logo-text">CACI Hub</span>
-      </a>
-
-      <div class="toolbar-spacer"></div>
-
-      <div class="toolbar-actions">
-        <button class="toolbar-assembly" id="assembly-btn" aria-label="Assembly info">
-          <span class="toolbar-assembly-dot"></span>
-          <span>Accra Central Assembly</span>
-          <i class="bi bi-chevron-down" style="font-size:10px;margin-left:2px"></i>
+      <!-- Toggle + Logo -->
+      <div class="topnav-sidebar-area">
+        <button class="topnav-toggle" id="topnav-toggle-btn" title="Toggle sidebar">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
         </button>
+        <a class="logo" href="#/" id="topnav-logo">
+          <div class="logo-cross"></div>
+          CACI Hub
+        </a>
+      </div>
 
-        <div class="notif-bell-wrap">
-          <button class="toolbar-icon-btn" id="notif-btn" aria-label="Notifications">
-            <i class="bi bi-bell" style="font-size:16px"></i>
-          </button>
-          <span class="notif-badge" id="notif-badge" style="display:none">0</span>
-        </div>
+      <!-- Main area: assembly info button -->
+      <div class="topnav-main-area">
+        <button class="topnav-info-btn" id="topnav-info-btn">
+          <div class="info-dot"></div>
+          Accra Central Assembly
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
 
-        <button class="toolbar-avatar-btn" id="profile-btn" aria-label="Profile menu">
-          <div class="caci-avatar" style="width:32px;height:32px;font-size:12px">${initials}</div>
-          <span class="toolbar-avatar-dot"></span>
+          <div class="info-popover" id="infoPopover">
+            <div class="info-popover-row">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <strong>Accra Central Assembly</strong>
+            </div>
+            <div class="info-popover-row">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="popoverDate">${dateStr}</span>
+            </div>
+            <div class="info-popover-row">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span class="ipr-status">All systems operational</span>
+            </div>
+          </div>
         </button>
       </div>
     `
@@ -62,58 +65,59 @@ export class Toolbar {
   }
 
   private _bindEvents(): void {
-    this._el.querySelector('#mobile-menu-btn')?.addEventListener('click', toggleMobileDrawer)
+    // Sidebar toggle
+    this._el.querySelector('#topnav-toggle-btn')?.addEventListener('click', toggleDrawer)
 
-    this._el.querySelector('#profile-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation()
-      showProfilePopup()
-    })
-
-    this._el.querySelector('#assembly-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation()
-      _showAssemblyPopover(e.currentTarget as HTMLElement)
-    })
-
-    this._el.querySelector('#toolbar-logo')?.addEventListener('click', (e) => {
+    // Logo click → navigate home
+    this._el.querySelector('#topnav-logo')?.addEventListener('click', (e) => {
       e.preventDefault()
       navigate('/')
+    })
+
+    // Info popover toggle
+    const infoBtn = this._el.querySelector('#topnav-info-btn') as HTMLElement | null
+    const popover = this._el.querySelector('#infoPopover') as HTMLElement | null
+
+    infoBtn?.addEventListener('click', (e) => {
+      e.stopPropagation()
+      popover?.classList.toggle('show')
+    })
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (infoBtn && !infoBtn.contains(e.target as Node)) {
+        popover?.classList.remove('show')
+      }
     })
   }
 
   private _applyTheme(): void {
     const saved = localStorage.getItem('caci-theme')
-    if (saved) {
-      document.documentElement.dataset['theme'] = saved
-    }
+    if (saved) document.documentElement.dataset['theme'] = saved
   }
 }
 
-/** Show the profile popup overlay (also called from Sidebar) */
-export function showProfilePopup(): void {
-  if (_profileOverlay) {
-    _closeProfilePopup()
-    return
-  }
+/** Profile popup — can also be called from Sidebar */
+let _profileOverlay: HTMLElement | null = null
 
-  const profileBtn = document.getElementById('profile-btn')
-  if (!profileBtn) return
-  const rect = profileBtn.getBoundingClientRect()
-  const user = getCurrentUser()
-  const initials = user
-    ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'U'
+export function showProfilePopup(): void {
+  if (_profileOverlay) { _closeProfilePopup(); return }
+
+  const user     = getCurrentUser()
+  const initials = user ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'U'
   const displayName = user?.fullName ?? 'User'
   const roleLabel   = user?.role?.replace(/_/g, ' ') ?? 'Member'
 
+  // Position relative to sidebar profile area if available, otherwise bottom-right
+  const anchor = document.getElementById('topnav-info-btn') ?? document.body
+  const rect   = anchor.getBoundingClientRect()
+
   const el = document.createElement('div')
   el.className = 'profile-popup'
-  el.style.cssText = `
-    top: ${rect.bottom + 8}px;
-    right: ${window.innerWidth - rect.right}px;
-  `
+  el.style.cssText = `top:${rect.bottom + 8}px;right:${window.innerWidth - rect.right}px;`
   el.innerHTML = `
     <div class="profile-popup-header">
-      <div class="caci-avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0">${initials}</div>
+      <div class="sidebar-avatar" style="width:34px;height:34px;font-size:13px">${initials}</div>
       <div style="overflow:hidden">
         <div class="profile-popup-name">${displayName}</div>
         <div class="profile-popup-role" style="text-transform:capitalize">${roleLabel}</div>
@@ -124,16 +128,10 @@ export function showProfilePopup(): void {
       <button class="profile-menu-item" data-action="profile">
         <i class="bi bi-person" style="font-size:15px"></i>
         <span>My Profile</span>
-        <i class="bi bi-box-arrow-up-right" style="font-size:11px;margin-left:auto;color:var(--text-muted)"></i>
       </button>
       <button class="profile-menu-item" data-action="settings" disabled style="opacity:0.5;cursor:not-allowed">
         <i class="bi bi-gear" style="font-size:15px"></i>
         <span>Settings</span>
-        <span class="soon-chip">SOON</span>
-      </button>
-      <button class="profile-menu-item" data-action="help" disabled style="opacity:0.5;cursor:not-allowed">
-        <i class="bi bi-question-circle" style="font-size:15px"></i>
-        <span>Get Help</span>
         <span class="soon-chip">SOON</span>
       </button>
       <hr style="margin:4px 0;border-color:var(--border-default)">
@@ -147,18 +145,16 @@ export function showProfilePopup(): void {
   document.body.appendChild(el)
   _profileOverlay = el
 
-  // Close on outside click
   setTimeout(() => {
     document.addEventListener('click', _closeProfilePopup, { once: true })
   }, 0)
 
-  // Bind menu actions
   el.querySelectorAll<HTMLElement>('[data-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation()
       const action = btn.dataset['action']
       _closeProfilePopup()
-      if (action === 'logout') _handleLogout()
+      if (action === 'logout')  _handleLogout()
       if (action === 'profile') navigate('/profile')
     })
   })
@@ -169,55 +165,9 @@ function _closeProfilePopup(): void {
   _profileOverlay = null
 }
 
-function _showAssemblyPopover(anchor: HTMLElement): void {
-  // Simple popover showing assembly info
-  const existing = document.getElementById('assembly-popover')
-  if (existing) { existing.remove(); return }
-
-  const rect = anchor.getBoundingClientRect()
-  const now  = new Date()
-  const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-  const weekNum = Math.ceil(
-    (now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)
-  )
-
-  const el = document.createElement('div')
-  el.id = 'assembly-popover'
-  el.className = 'assembly-popover'
-  el.style.cssText = `top:${rect.bottom + 8}px;right:${window.innerWidth - rect.right}px;`
-  el.innerHTML = `
-    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
-      <div style="width:32px;height:32px;border-radius:8px;background:var(--caci-success);
-        display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-house" style="color:white;font-size:16px"></i>
-      </div>
-      <div style="flex:1;overflow:hidden">
-        <div style="font-size:13px;font-weight:600;color:var(--text-primary)">Accra Central Assembly</div>
-        <div style="font-size:11px;color:var(--text-muted)">${dateStr}</div>
-      </div>
-    </div>
-    <hr style="border-color:var(--border-default);margin:0 0 10px">
-    <div style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-secondary)">
-      <i class="bi bi-calendar3" style="color:var(--caci-blue);font-size:13px"></i>
-      ${dateStr} · Week ${weekNum} of 52
-    </div>
-    <hr style="border-color:var(--border-default);margin:10px 0">
-    <div style="display:flex;align-items:center;gap:9px">
-      <i class="bi bi-info-circle" style="color:var(--caci-blue);font-size:13px"></i>
-      <span style="width:7px;height:7px;border-radius:50%;background:var(--caci-success);display:inline-block"></span>
-      <span style="font-size:12px;font-weight:600;color:var(--caci-success)">All systems operational</span>
-    </div>
-  `
-
-  document.body.appendChild(el)
-  setTimeout(() => {
-    document.addEventListener('click', () => el.remove(), { once: true })
-  }, 0)
-}
-
 async function _handleLogout(): Promise<void> {
   try {
-    const { supabase } = await import('@core/supabase')
+    const { supabase }        = await import('@core/supabase')
     const { clearCurrentUser } = await import('@core/auth')
     await supabase.auth.signOut()
     clearCurrentUser()

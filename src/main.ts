@@ -12,6 +12,7 @@
 import './styles/theme.css'
 import './styles/shell.css'
 import './styles/components.css'
+import './styles/auth.css'
 import './styles/utilities.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'

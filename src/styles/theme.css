@@ -94,8 +94,8 @@
   --alert-warning-border: rgba(154, 103, 0, 0.25);
 
   /* Shell layout */
-  --sidebar-width:     240px;
-  --toolbar-height:    56px;
+  --sidebar-width:     220px;
+  --toolbar-height:    52px;
 
   /* Spacing scale — from spacing.dart CaciSpacing */
   --sp-xs:  4px;

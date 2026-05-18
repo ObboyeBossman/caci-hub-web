@@ -4,6 +4,11 @@ import type { RouteDefinition } from '../../types/module.types'
 
 export const routes: RouteDefinition[] = [
   {
+    path: '/',
+    page: () => import('./pages/Dashboard'),
+    middleware: ['auth'],
+  },
+  {
     path: '/login',
     page: () => import('./pages/Login'),
     presentation: 'fullscreen',

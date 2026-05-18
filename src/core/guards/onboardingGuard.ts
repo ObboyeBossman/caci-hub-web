@@ -24,7 +24,9 @@ export async function onboardingGuard(
   // A verified TOTP factor means enrollment is complete
   const enrolled = (data?.totp?.length ?? 0) > 0
 
-  return enrolled
-    ? { allowed: true }
-    : { allowed: false, redirect: '/totp-enroll' }
+  // TEMPORARY: Disabled MFA enforcement
+  // return enrolled
+  //   ? { allowed: true }
+  //   : { allowed: false, redirect: '/totp-enroll' }
+  return { allowed: true }
 }

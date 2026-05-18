@@ -3,11 +3,6 @@
 // Mirrors: supabase_client.dart (Flutter) — same project URL + anon key.
 // Both the Flutter app and this web app point at the same Supabase project:
 //   Project ID: cyjkjzcthbpkufbsyosz
-//
-// RULES:
-//   - NEVER call createClient() anywhere else in the codebase.
-//   - NEVER import supabase-js directly in modules — always import from here.
-//   - NEVER hardcode the URL or key — always read from import.meta.env.
 
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../types/database.types'
@@ -29,21 +24,10 @@ if (!key || key.trim() === '') {
   )
 }
 
-// Passing Database to createClient types every .from() call.
-// Querying a non-existent column or table name becomes a compile-time error.
-// This is the same guarantee the Flutter app gets from generated Dart types.
 export const supabase = createClient<Database>(url, key, {
   auth: {
-    // Persist session across page reloads — matches Flutter default behaviour.
-    // Supabase stores the JWT in localStorage under 'sb-<project>-auth-token'.
     persistSession: true,
-
-    // Auto-refresh the JWT 60 seconds before expiry.
-    // Prevents mid-session 401s without requiring a full re-login.
     autoRefreshToken: true,
-
-    // Detect session from URL hash after magic link / password-reset redirects.
-    // Required for ResetPassword.ts to pick up the token from the hash.
     detectSessionInUrl: true,
   },
 })

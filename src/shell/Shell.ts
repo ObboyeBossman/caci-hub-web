@@ -1,11 +1,8 @@
 // src/shell/Shell.ts
 // The top-level rendering container.
-// Renders toolbar + sidebar + #page-content.
+// Renders topnav + drawer sidebar + #page-content.
 // Reads from the registry — has zero knowledge of which modules exist.
 
-import { getSidebarItems } from '@core/registry'
-import { getCurrentUser, isAuthenticated } from '@core/auth'
-import { hasPermission } from '@core/permissions'
 import { Sidebar } from './Sidebar'
 import { Toolbar } from './Toolbar'
 
@@ -14,25 +11,25 @@ let _toolbar: Toolbar | null = null
 
 /**
  * Mount the shell into #app.
- * Creates the toolbar + sidebar + page-content area.
+ * Creates the topnav + sidebar drawer + page-content area.
  * Called once at boot, before startRouter().
- * For fullscreen routes, the shell is bypassed — the router renders directly.
  */
 export function mountShell(): void {
   const app = document.getElementById('app')
   if (!app) return
 
   app.innerHTML = `
-    <div class="shell-toolbar" id="shell-toolbar"></div>
+    <nav class="topnav" id="shell-topnav"></nav>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
     <div class="shell-layout">
-      <nav class="sidebar" id="shell-sidebar" aria-label="Main navigation"></nav>
-      <div class="sidebar-scrim" id="sidebar-scrim"></div>
+      <aside class="dash-sidebar" id="shell-sidebar" aria-label="Main navigation"></aside>
       <main id="page-content" role="main"></main>
     </div>
+    <div class="toast" id="toast"></div>
   `
 
   // Mount toolbar
-  const toolbarEl = document.getElementById('shell-toolbar')!
+  const toolbarEl = document.getElementById('shell-topnav')!
   _toolbar = new Toolbar(toolbarEl)
   _toolbar.render()
 
@@ -41,14 +38,13 @@ export function mountShell(): void {
   _sidebar = new Sidebar(sidebarEl)
   _sidebar.render()
 
-  // Scrim tap closes mobile drawer
-  const scrim = document.getElementById('sidebar-scrim')!
-  scrim.addEventListener('click', () => closeMobileDrawer())
+  // Backdrop closes drawer
+  const backdrop = document.getElementById('drawerBackdrop')!
+  backdrop.addEventListener('click', () => closeDrawer())
 }
 
 /**
  * Render a fullscreen page (auth, onboarding) — no shell chrome.
- * Replaces the #app content entirely.
  */
 export function mountFullscreen(): void {
   const app = document.getElementById('app')
@@ -58,7 +54,6 @@ export function mountFullscreen(): void {
 
 /**
  * Update the active nav item in the sidebar after each navigation.
- * Called by the router after every successful page render.
  */
 export function updateActiveNav(path: string): void {
   _sidebar?.setActivePath(path)
@@ -71,27 +66,39 @@ export function refreshSidebar(): void {
   _sidebar?.render()
 }
 
-export function openMobileDrawer(): void {
-  const sidebar = document.getElementById('shell-sidebar')
-  const scrim   = document.getElementById('sidebar-scrim')
-  sidebar?.classList.add('mobile-open')
-  scrim?.classList.add('visible')
-  document.body.style.overflow = 'hidden'
-}
-
-export function closeMobileDrawer(): void {
-  const sidebar = document.getElementById('shell-sidebar')
-  const scrim   = document.getElementById('sidebar-scrim')
-  sidebar?.classList.remove('mobile-open')
-  scrim?.classList.remove('visible')
-  document.body.style.overflow = ''
-}
-
-export function toggleMobileDrawer(): void {
-  const sidebar = document.getElementById('shell-sidebar')
-  if (sidebar?.classList.contains('mobile-open')) {
-    closeMobileDrawer()
-  } else {
-    openMobileDrawer()
+export function openDrawer(): void {
+  document.body.classList.add('drawer-open')
+  const bd = document.getElementById('drawerBackdrop')
+  if (bd) {
+    bd.style.display = 'block'
+    requestAnimationFrame(() => bd.classList.add('show'))
   }
+}
+
+export function closeDrawer(): void {
+  document.body.classList.remove('drawer-open')
+  const bd = document.getElementById('drawerBackdrop')
+  if (bd) {
+    bd.classList.remove('show')
+    setTimeout(() => {
+      if (!document.body.classList.contains('drawer-open')) bd.style.display = 'none'
+    }, 260)
+  }
+}
+
+export function toggleDrawer(): void {
+  document.body.classList.contains('drawer-open') ? closeDrawer() : openDrawer()
+}
+
+// Legacy aliases kept for backward compat
+export const openMobileDrawer  = openDrawer
+export const closeMobileDrawer = closeDrawer
+export const toggleMobileDrawer = toggleDrawer
+
+export function showToast(msg: string, duration = 2400): void {
+  const t = document.getElementById('toast')
+  if (!t) return
+  t.textContent = msg
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), duration)
 }
