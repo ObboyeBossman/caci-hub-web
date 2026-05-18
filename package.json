@@ -1,0 +1,46 @@
+{
+  "name": "caci-hub-web",
+  "version": "1.0.0",
+  "description": "CAC Hub — Church Assembly Management Platform",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "gen:types": "supabase gen types typescript --project-id cyjkjzcthbpkufbsyosz > src/types/database.types.ts",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "alpinejs": "^3.14.9",
+    "ag-grid-community": "^33.3.2",
+    "bootstrap": "^5.3.6",
+    "bootstrap-icons": "^1.11.3",
+    "cropperjs": "^1.6.2",
+    "dayjs": "^1.11.13",
+    "dompurify": "^3.2.6",
+    "fuse.js": "^7.1.0",
+    "html2canvas": "^1.4.1",
+    "i18next": "^25.1.2",
+    "jspdf": "^3.0.1",
+    "notyf": "^3.10.0",
+    "qrcode": "^1.5.4",
+    "quill": "^2.0.3",
+    "zod": "^3.25.28"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "eslint": "^9.27.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^3.2.1",
+    "workbox-window": "^7.3.0"
+  }
+}
