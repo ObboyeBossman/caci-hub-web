@@ -27,7 +27,7 @@ import { mountShell }                  from './shell/Shell'
 import { initNotificationBell }        from './shell/NotificationBell'
 
 // Phase 3+ module imports (uncomment after auth module is implemented)
-// import AuthModule       from '@modules/auth/index'
+import AuthModule       from './modules/auth/index'
 // import DashboardModule  from '@modules/dashboard/index'
 // import MembershipModule from '@modules/membership/index'
 // import AdminModule      from '@modules/admin/index'
@@ -41,7 +41,7 @@ async function boot(): Promise<void> {
   if (savedTheme) document.documentElement.dataset['theme'] = savedTheme
 
   // ── 1. Register modules ─────────────────────────────────────────────────
-  // registerModule(AuthModule)
+  registerModule(AuthModule)
   // registerModule(DashboardModule)
   // registerModule(MembershipModule)
   // registerModule(AdminModule)
