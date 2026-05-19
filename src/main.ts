@@ -1,37 +1,37 @@
 // src/main.ts
-// CAC Hub Web — App Entry Point (updated for Phase 2)
+// CAC Hub Web — App Entry Point
 //
 // Boot sequence (strict order):
 //   1. Apply saved theme
 //   2. Register modules
 //   3. Load current user
-//   4. Mount shell (or fullscreen for auth routes)
+//   4. Mount shell
 //   5. Initialize modules
 //   6. Start router
 
 import './styles/theme.css'
 import './styles/shell.css'
 import './styles/components.css'
-import './styles/auth.css'
+import './modules/auth/styles/auth.css'
 import './styles/utilities.css'
+import './modules/membership/styles/membership.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'notyf/notyf.min.css'
 
 import { registerModule, initModules } from '@core/registry'
-import { startRouter }                 from '@core/router'
+import { startRouter } from '@core/router'
 import { loadCurrentUser, getCurrentUser } from '@core/auth'
-import { supabase }                    from '@core/supabase'
-import { emit, on }                    from '@core/events'
-import { hasPermission }               from '@core/permissions'
-import { mountShell }                  from './shell/Shell'
-import { initNotificationBell }        from './shell/NotificationBell'
+import { supabase } from '@core/supabase'
+import { emit, on } from '@core/events'
+import { hasPermission } from '@core/permissions'
+import { mountShell } from './shell/Shell'
+import { initNotificationBell } from './shell/NotificationBell'
 
-// Phase 3+ module imports (uncomment after auth module is implemented)
-import AuthModule       from './modules/auth/index'
+import AuthModule from './modules/auth/index'
+import MembershipModule from './modules/membership/index'
+import AdminModule from './modules/admin/index'
 // import DashboardModule  from '@modules/dashboard/index'
-// import MembershipModule from '@modules/membership/index'
-// import AdminModule      from '@modules/admin/index'
 // import SettingsModule   from '@modules/settings/index'
 
 async function boot(): Promise<void> {
@@ -43,9 +43,9 @@ async function boot(): Promise<void> {
 
   // ── 1. Register modules ─────────────────────────────────────────────────
   registerModule(AuthModule)
+  registerModule(MembershipModule)
+  registerModule(AdminModule)       // enabled: false — skipped silently
   // registerModule(DashboardModule)
-  // registerModule(MembershipModule)
-  // registerModule(AdminModule)
   // registerModule(SettingsModule)
 
   // ── 2. Load authenticated user ──────────────────────────────────────────
@@ -54,15 +54,13 @@ async function boot(): Promise<void> {
   console.log('[main] Auth state:', user ? `user=${user.id}` : 'unauthenticated')
 
   // ── 3. Mount shell ──────────────────────────────────────────────────────
-  // For fullscreen routes (auth) the router will call mountFullscreen()
-  // when it detects presentation: 'fullscreen'. For now, always mount the shell.
   mountShell()
   initNotificationBell()
 
   // ── 4. Initialize modules ───────────────────────────────────────────────
   await initModules({
     supabase,
-    eventBus:    { emit, on },
+    eventBus: { emit, on },
     permissions: { hasPermission },
     currentUser: getCurrentUser,
   })
