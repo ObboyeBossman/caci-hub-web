@@ -86,7 +86,7 @@ export class Sidebar {
     const modules = [
       {
         label: 'Members',
-        href: 'caci_members_module.html',
+        route: '/members',
         svg: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
       },
       {
@@ -118,13 +118,24 @@ export class Sidebar {
         <line x1="10" y1="14" x2="21" y2="3"/>
       </svg>`
 
-    return modules.map(m => `
-      <div class="mod-placeholder" data-href="${m.href}">
-        <svg viewBox="0 0 24 24">${m.svg}</svg>
-        <span class="mod-placeholder-label">${m.label}</span>
-        ${extIcon}
-      </div>
-    `).join('')
+    return modules.map(m => {
+      if ('route' in m) {
+        // Internal SPA route — no external link icon
+        return `
+          <div class="mod-placeholder" data-mod-route="${m.route}">
+            <svg viewBox="0 0 24 24">${m.svg}</svg>
+            <span class="mod-placeholder-label">${m.label}</span>
+          </div>
+        `
+      }
+      return `
+        <div class="mod-placeholder" data-href="${m.href}">
+          <svg viewBox="0 0 24 24">${m.svg}</svg>
+          <span class="mod-placeholder-label">${m.label}</span>
+          ${extIcon}
+        </div>
+      `
+    }).join('')
   }
 
   private _renderQuickLinks(): string {
@@ -157,12 +168,20 @@ export class Sidebar {
   }
 
   private _bindEvents(): void {
-    // Module tiles — navigate to their hrefs
+    // Module tiles — external hrefs
     this._el.querySelectorAll<HTMLElement>('.mod-placeholder[data-href]').forEach(el => {
       el.addEventListener('click', () => {
         const href = el.dataset['href']
         if (href) window.location.href = href
         closeDrawer()
+      })
+    })
+
+    // Module tiles — internal SPA routes
+    this._el.querySelectorAll<HTMLElement>('.mod-placeholder[data-mod-route]').forEach(el => {
+      el.addEventListener('click', () => {
+        const route = el.dataset['modRoute']
+        if (route) { closeDrawer(); navigate(route) }
       })
     })
 

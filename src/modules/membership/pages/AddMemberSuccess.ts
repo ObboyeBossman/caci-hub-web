@@ -1,13 +1,13 @@
 // src/modules/membership/pages/AddMemberSuccess.ts
 // Success/confirmation page after member registration.
 
-import type { PageModule } from '../../types/module.types'
+import type { PageModule } from '../../../types/module.types'
 import { navigate } from '@core/router'
 import { getMember } from '../repository'
 import { avatarColor, initials, injectMembershipCSS } from '../member-helpers'
 
 const AddMemberSuccess: PageModule = {
-  async render(container) {
+  async render(container: HTMLElement) {
     injectMembershipCSS()
 
     const memberId       = container.dataset['id']

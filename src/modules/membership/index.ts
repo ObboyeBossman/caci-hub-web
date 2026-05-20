@@ -40,14 +40,6 @@ const MembershipModule: ModuleManifest = {
 
   routes: membershipRoutes,
 
-  // Sidebar entry — visible to all roles with membership.view permission
-  sidebar: {
-    label:      'Members',
-    icon:       'people',
-    path:       '/members',
-    permission: 'membership.view',
-    order:      10,
-  },
 
   capabilities: ['dashboard-widgets', 'search', 'reports'],
 

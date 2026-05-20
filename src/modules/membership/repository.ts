@@ -566,8 +566,8 @@ export async function listHouseholds(
 
     const rows = data ?? []
 
-    // Step 2: resolve primary contact names in a single batch query
-    const contactIds = [...new Set(rows.map(r => r.primary_contact_id).filter(Boolean))] as string[]
+    // Step 2: resolve primary contact names in a single batch uery
+    const contactIds = [...new Set((rows as any[]).map(r => r.primary_contact_id).filter(Boolean))] as string[]
     const contactMap = new Map<string, string>()
     if (contactIds.length > 0) {
       const { data: contacts } = await supabase

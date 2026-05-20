@@ -1,0 +1,230 @@
+
+<style>
+.form-wrap { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.form-header { background: #1a3a5c; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
+.section-bar { background: var(--color-background-secondary); border-top: 0.5px solid var(--color-border-tertiary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 8px 24px; display: flex; align-items: center; gap: 8px; }
+.section-bar span { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-secondary); }
+.section-num { width: 20px; height: 20px; border-radius: 50%; background: #1a3a5c; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #fff; flex-shrink: 0; }
+.fields { padding: 16px 24px; display: grid; gap: 14px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g1 { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+.req { color: #c0392b; margin-left: 2px; }
+.write-line { height: 34px; border: none; border-bottom: 1.5px solid var(--color-border-secondary); border-radius: 0; background: transparent; color: var(--color-text-primary); font-size: 13px; padding: 0 2px; width: 100%; outline: none; }
+.write-line:focus { border-bottom-color: #1a3a5c; }
+.check-row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.check-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-primary); }
+.check-item input[type=checkbox], .check-item input[type=radio] { width: 15px; height: 15px; accent-color: #1a3a5c; cursor: pointer; }
+.form-footer { padding: 16px 24px; border-top: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; }
+.sig-block { display: flex; flex-direction: column; gap: 4px; }
+.sig-line { width: 160px; height: 1px; background: var(--color-border-secondary); }
+.ref-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 11px; color: var(--color-text-secondary); }
+.print-btn { background: #1a3a5c; color: #fff; border: none; border-radius: var(--border-radius-md); padding: 8px 18px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+</style>
+
+<div class="form-wrap">
+
+  <div class="form-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="file:///home/obboye/dev/caci-hub-web/src/caci-logo.jpeg" alt="CACI Logo" style="height:48px;width:48px;object-fit:contain;border-radius:4px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#d4a853;letter-spacing:0.04em;text-transform:uppercase;">Christ Apostolic Church International</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.8);letter-spacing:0.02em;margin-top:4px;">Assakae Central, Takoradi</div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:14px;font-weight:500;color:#fff;">Visitor / Member Registration</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;">For secretary use — transfer to CACI Hub system</div>
+    </div>
+  </div>
+
+  <div style="padding:10px 24px;display:flex;gap:16px;align-items:center;border-bottom:0.5px solid var(--color-border-tertiary);">
+    <div class="field" style="flex:1;">
+      <label style="font-size:12px;color:var(--color-text-secondary);font-weight:500;">Date of visit<span class="req">*</span></label>
+      <input type="text" class="write-line" placeholder="DD / MM / YYYY" style="max-width:160px;">
+    </div>
+    <div class="field" style="flex:1;">
+      <label style="font-size:12px;color:var(--color-text-secondary);font-weight:500;">Form ref. no.</label>
+      <input type="text" class="write-line" placeholder="Auto-assigned" style="max-width:140px;" readonly>
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:6px;">Status<span class="req">*</span></label>
+      <div class="check-row">
+        <label class="check-item"><input type="radio" name="status" value="visitor"> Visitor</label>
+        <label class="check-item"><input type="radio" name="status" value="member"> Member</label>
+        <label class="check-item"><input type="radio" name="status" value="prospect"> Prospect</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-bar">
+    <div class="section-num">1</div>
+    <span>Personal information</span>
+  </div>
+  <div class="fields g3">
+    <div class="field">
+      <label>First name<span class="req">*</span></label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+    <div class="field">
+      <label>Middle name</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+    <div class="field">
+      <label>Last name<span class="req">*</span></label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+  </div>
+  <div class="fields g3" style="padding-top:0;">
+    <div class="field">
+      <label>Date of birth</label>
+      <input class="write-line" type="text" placeholder="DD / MM / YYYY">
+    </div>
+    <div class="field">
+      <label>Gender<span class="req">*</span></label>
+      <div class="check-row" style="margin-top:8px;">
+        <label class="check-item"><input type="radio" name="gender"> Male</label>
+        <label class="check-item"><input type="radio" name="gender"> Female</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Marital status</label>
+      <div class="check-row" style="margin-top:8px;gap:10px;">
+        <label class="check-item"><input type="radio" name="marital"> Single</label>
+        <label class="check-item"><input type="radio" name="marital"> Married</label>
+        <label class="check-item"><input type="radio" name="marital"> Other</label>
+      </div>
+    </div>
+  </div>
+  <div class="fields g2" style="padding-top:0;">
+    <div class="field">
+      <label>Occupation</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+    <div class="field">
+      <label>Nationality</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+  </div>
+
+  <div class="section-bar">
+    <div class="section-num">2</div>
+    <span>Contact details</span>
+  </div>
+  <div class="fields g3">
+    <div class="field">
+      <label>Phone number<span class="req">*</span></label>
+      <input class="write-line" type="text" placeholder="+233">
+    </div>
+    <div class="field">
+      <label>Alternative phone</label>
+      <input class="write-line" type="text" placeholder="+233">
+    </div>
+    <div class="field">
+      <label>WhatsApp number</label>
+      <input class="write-line" type="text" placeholder="+233">
+    </div>
+  </div>
+  <div class="fields g2" style="padding-top:0;">
+    <div class="field">
+      <label>Email address</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+    <div class="field">
+      <label>Residential address</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+  </div>
+  <div class="fields g2" style="padding-top:0;">
+    <div class="field">
+      <label>City / Town</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+    <div class="field">
+      <label>Region</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+  </div>
+
+  <div class="section-bar">
+    <div class="section-num">3</div>
+    <span>Church information</span>
+  </div>
+  <div class="fields g2">
+    <div class="field">
+      <label>Date joined<span class="req">*</span></label>
+      <input class="write-line" type="text" placeholder="DD / MM / YYYY">
+    </div>
+    <div class="field">
+      <label>Branch / Assembly</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+  </div>
+  <div class="fields g2" style="padding-top:0;">
+    <div class="field">
+      <label>How did you hear about us?</label>
+      <div class="check-row" style="margin-top:6px;gap:12px;">
+        <label class="check-item"><input type="radio" name="heard"> Friend / Family</label>
+        <label class="check-item"><input type="radio" name="heard"> Social media</label>
+        <label class="check-item"><input type="radio" name="heard"> Walk-in</label>
+        <label class="check-item"><input type="radio" name="heard"> Other</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Referred by (name)</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+  </div>
+
+  <div class="section-bar">
+    <div class="section-num">4</div>
+    <span>Emergency contact</span>
+  </div>
+  <div class="fields g3">
+    <div class="field">
+      <label>Contact name</label>
+      <input class="write-line" type="text" placeholder="">
+    </div>
+    <div class="field">
+      <label>Contact phone</label>
+      <input class="write-line" type="text" placeholder="+233">
+    </div>
+    <div class="field">
+      <label>Relationship</label>
+      <div class="check-row" style="margin-top:8px;gap:10px;">
+        <label class="check-item"><input type="radio" name="rel"> Spouse</label>
+        <label class="check-item"><input type="radio" name="rel"> Parent</label>
+        <label class="check-item"><input type="radio" name="rel"> Sibling</label>
+        <label class="check-item"><input type="radio" name="rel"> Other</label>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="form-footer">
+    <div style="display:flex;gap:32px;">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Visitor's signature</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;">Secretary's signature</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+      <div class="ref-box">
+        <div style="font-size:10px;font-weight:500;margin-bottom:2px;">For office use only</div>
+        <div>Entered into system: <span style="display:inline-block;width:60px;border-bottom:1px solid var(--color-border-secondary);"></span></div>
+        <div style="margin-top:4px;">By: <span style="display:inline-block;width:80px;border-bottom:1px solid var(--color-border-secondary);"></span></div>
+      </div>
+      <button class="print-btn" onclick="window.print()">
+        <i class="ti ti-printer" style="font-size:15px;" aria-hidden="true"></i> Print form
+      </button>
+    </div>
+  </div>
+
+</div>
