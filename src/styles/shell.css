@@ -118,6 +118,13 @@ ul { list-style: none; }
 .logo-cross::before { width: 4px; height: 100%; left: 50%; transform: translateX(-50%); }
 .logo-cross::after  { height: 4px; width: 100%; top: 50%; transform: translateY(-50%); }
 
+.logo-img {
+  height: 30px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
 /* ── Info popover button ──────────────────────────────────────────────────── */
 .topnav-info-btn {
   margin-left: auto;

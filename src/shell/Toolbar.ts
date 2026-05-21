@@ -30,8 +30,7 @@ export class Toolbar {
           </svg>
         </button>
         <a class="logo" href="#/" id="topnav-logo">
-          <div class="logo-cross"></div>
-          CACI Hub
+          <img src="/src/assets/caci-logo.png" alt="CACI Hub" class="logo-img" />
         </a>
       </div>
 
@@ -108,13 +107,10 @@ export function showProfilePopup(): void {
   const displayName = user?.fullName ?? 'User'
   const roleLabel   = user?.role?.replace(/_/g, ' ') ?? 'Member'
 
-  // Position relative to sidebar profile area if available, otherwise bottom-right
-  const anchor = document.getElementById('topnav-info-btn') ?? document.body
-  const rect   = anchor.getBoundingClientRect()
-
+  // Always position at top-right of screen, just below the topnav
   const el = document.createElement('div')
   el.className = 'profile-popup'
-  el.style.cssText = `top:${rect.bottom + 8}px;right:${window.innerWidth - rect.right}px;`
+  el.style.cssText = `position:fixed;top:56px;right:16px;z-index:9999;`
   el.innerHTML = `
     <div class="profile-popup-header">
       <div class="sidebar-avatar" style="width:34px;height:34px;font-size:13px">${initials}</div>
