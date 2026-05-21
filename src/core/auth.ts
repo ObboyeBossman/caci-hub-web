@@ -30,11 +30,13 @@ export async function loadCurrentUser(): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
+    console.log('[auth] No session user found in loadCurrentUser')
     _currentUser = null
     _activeAssemblyId = null
     return
   }
 
+  console.log('[auth] Loading profile for user.id:', user.id)
   const { data: profile, error } = await supabase
     .from('user_profiles')
     .select('*')
@@ -43,11 +45,14 @@ export async function loadCurrentUser(): Promise<void> {
 
   if (error || !profile) {
     // PGRST116 = no row found — user exists in auth but not provisioned yet
-    console.warn('[auth] user_profiles row not found for', user.id, error?.code)
+    console.error('[auth] user_profiles row not found or error for', user.id, error)
     _currentUser = null
     _activeAssemblyId = null
     return
   }
+
+  console.log('[auth] Profile loaded successfully:', profile)
+
 
   // Mirrors: auth_repository.dart _mapProfile()
   const p = profile as any // Fallback to any if inference fails, but use correct property names

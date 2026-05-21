@@ -3,74 +3,88 @@
 //
 // Public page (no auth required) where users pick their church assembly.
 // Stores the selection in sessionStorage so Login can display branded UI.
-// Ported from: src/splash/caci_assembly_selection_v3.html
 
 import { supabase } from '../../../core/supabase'
 import { navigate }  from '../../../core/router'
 import type { PageModule } from '../../../types/module.types'
 
 interface Assembly {
-  id:               string
-  name:             string
-  assembly_code:    string
-  address:          string | null
+  id:             string
+  name:           string
+  assembly_code:  string
+  address:        string | null
 }
 
 let _container: HTMLElement | null = null
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Sync the toggle button's icon + label to the current theme. */
+function syncThemeToggle(root: HTMLElement) {
+  const isDark = document.documentElement.dataset['theme'] === 'dark'
+  const icon   = root.querySelector<HTMLElement>('.auth-toggle-icon')
+  const lbl    = root.querySelector<HTMLElement>('.auth-toggle-label')
+  if (icon) icon.textContent = isDark ? '🌙' : '☀️'
+  if (lbl)  lbl.textContent  = isDark ? 'Dark' : 'Light'
+
+  // auth.css keys off `.auth-root.dark` — keep it in sync with html[data-theme]
+  root.classList.toggle('dark', isDark)
+}
 
 export const AssemblySelection: PageModule = {
 
   async render(container: HTMLElement) {
     _container = container
 
-    // Fetch assemblies (public read — no auth needed) ─────────────────────────
-    console.log('[AssemblySelection] Fetching assemblies...')
-    
-    let data: any[] | null = null
-    let error: any = null
+    // ── Fetch assemblies (public read — no auth needed) ───────────────────────
+    console.log('[AssemblySelection] Fetching assemblies…')
+
+    let data: Assembly[] | null = null
+    let fetchError: unknown     = null
 
     try {
-      // Race the supabase fetch against a 5 second timeout
       const result = await Promise.race([
         supabase
           .from('assemblies')
           .select('id, name, address, assembly_code')
           .eq('is_active', true)
           .order('name'),
-        new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Fetch timeout')), 5000))
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Fetch timeout')), 5000)
+        ),
       ])
-      data = result.data
-      error = result.error
+      data       = result.data as Assembly[] | null
+      fetchError = result.error
     } catch (e) {
       console.error('[AssemblySelection] Fetch failed or timed out:', e)
-      error = e
+      fetchError = e
     }
 
-    console.log('[AssemblySelection] Fetch complete', { count: data?.length, error })
-    const assemblies: Assembly[] = (data ?? []) as Assembly[]
-
-
-    if (error) {
-      console.error('[AssemblySelection] fetch failed:', error)
-    }
+    console.log('[AssemblySelection] Fetch complete', { count: data?.length, fetchError })
+    const assemblies: Assembly[] = data ?? []
 
     // ── Render ────────────────────────────────────────────────────────────────
     container.innerHTML = `
       <div class="auth-root" id="asm-root">
 
+        <!-- Header -->
         <div class="auth-header">
           <a class="auth-logo" href="#" aria-label="CACI Hub home">
             <div class="auth-cross" aria-hidden="true"></div>
             <div class="auth-logo-text">CACI Hub</div>
           </a>
-          <div class="auth-theme-toggle" id="asm-theme-toggle" role="button" tabindex="0" aria-label="Toggle theme">
+          <div class="auth-theme-toggle" id="asm-theme-toggle"
+               role="button" tabindex="0" aria-label="Toggle theme">
             <span class="auth-toggle-icon">☀️</span>
-            <div class="auth-toggle-track"><div class="auth-toggle-thumb"></div></div>
+            <div class="auth-toggle-track">
+              <div class="auth-toggle-thumb"></div>
+            </div>
             <span class="auth-toggle-label">Light</span>
           </div>
         </div>
         <div class="red-bar"></div>
 
+        <!-- Body -->
         <div class="auth-container">
           <div class="auth-box">
 
@@ -79,19 +93,21 @@ export const AssemblySelection: PageModule = {
               <div class="auth-subtitle">Choose the assembly you belong to</div>
             </div>
 
-            ${error ? `
+            ${fetchError ? `
               <div class="auth-alert auth-alert-error" style="margin-bottom:16px;">
                 Could not load assemblies. Please check your connection and refresh.
               </div>` : ''}
 
             <div class="auth-card">
 
+              <!-- Search -->
               <div class="auth-field" style="margin-bottom:16px;">
                 <label class="auth-label" for="asm-search">Search assemblies</label>
                 <div class="auth-input-wrap">
-                  <svg class="auth-input-icon" width="14" height="14" viewBox="0 0 16 16" fill="none"
-                    stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <circle cx="6.5" cy="6.5" r="5"/><path d="M11 11l3 3"/>
+                  <svg class="auth-input-icon" width="14" height="14" viewBox="0 0 16 16"
+                    fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <circle cx="6.5" cy="6.5" r="5"/>
+                    <path d="M11 11l3 3"/>
                   </svg>
                   <input class="auth-input" type="text" id="asm-search"
                     placeholder="Name or location…" autocomplete="off" />
@@ -100,72 +116,82 @@ export const AssemblySelection: PageModule = {
 
               <span class="section-label">Available assemblies</span>
 
+              <!-- Assembly list -->
               <div id="asm-list" class="assembly-list">
-                ${assemblies.length === 0 && !error ? `
-                  <p style="text-align:center;color:var(--auth-text-secondary);font-size:13px;padding:20px 0;">
+                ${assemblies.length === 0 && !fetchError ? `
+                  <p style="text-align:center;color:var(--auth-text-secondary);
+                             font-size:13px;padding:20px 0;margin:0;">
                     No assemblies found.
                   </p>` : ''}
+
                 ${assemblies.map(a => `
-                  <div class="assembly-item" data-id="${a.id}"
-                    data-name="${a.name}"
-                    data-code="${a.assembly_code}"
-                    data-loc="${a.address ?? ''}"
+                  <div class="assembly-item"
+                    data-id="${a.id}"
+                    data-name="${escapeAttr(a.name)}"
+                    data-code="${escapeAttr(a.assembly_code)}"
+                    data-loc="${escapeAttr(a.address ?? '')}"
                     role="button" tabindex="0"
-                    aria-label="Select ${a.name}">
+                    aria-label="Select ${escapeAttr(a.name)}">
+
                     <div class="assembly-avatar">
-                      <span>${a.name.slice(0, 2).toUpperCase()}</span>
+                      ${getInitials(a.name)}
                     </div>
+
                     <div class="assembly-info">
-                      <p class="assembly-name">${a.name}</p>
+                      <p class="assembly-name">${escapeHtml(a.name)}</p>
+
                       <p class="assembly-loc">
-                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none"
-                          stroke="currentColor" stroke-width="2" aria-hidden="true">
-                          <path d="M8 2C5.79 2 4 3.79 4 6c0 3.5 4 8 4 8s4-4.5 4-8c0-2.21-1.79-4-4-4z"/>
-                          <circle cx="8" cy="6" r="1.5"/>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
                         </svg>
-                        ${a.address ?? 'Location unknown'}
+                        ${escapeHtml(a.address ?? 'Location unknown')}
                       </p>
                     </div>
+
                     <div class="assembly-check">
-                      <svg class="assembly-check-icon" width="10" height="10"
-                        viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2"
-                        style="display:none" aria-hidden="true">
-                        <polyline points="2 6 5 9 10 3"/>
-                      </svg>
+                      <i>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </i>
                     </div>
+
                   </div>
                 `).join('')}
               </div>
 
-
-              <div id="asm-empty" style="display:none;text-align:center;padding:20px 0;">
+              <!-- No-results message (shown by JS) -->
+              <div id="asm-empty" class="empty-state" style="display:none;padding:20px 0;text-align:center;">
                 <p style="font-size:13px;color:var(--auth-text-secondary);margin:0;">
                   No assemblies match "<span id="asm-empty-term"></span>"
                 </p>
               </div>
 
-              <button id="asm-continue-btn" class="auth-btn auth-btn-primary" disabled
-                style="margin-top:16px;">
+              <button id="asm-continue-btn" class="auth-btn auth-btn-primary" disabled>
                 Continue
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"
-                  stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path d="M3 8h10M9 4l4 4-4 4"/>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
               </button>
 
-            </div>
+            </div><!-- /.auth-card -->
 
             <div class="auth-card" style="text-align:center;padding:14px 20px;">
               <span style="color:var(--auth-text-secondary);font-size:13px;">
                 Can't find your assembly?
-                <a class="auth-link" href="mailto:support@cacihub.org" style="margin-left:4px;font-size:13px;">
+                <a class="auth-link" href="mailto:support@cacihub.org"
+                   style="margin-left:4px;font-size:13px;">
                   Contact support
                 </a>
               </span>
             </div>
 
-          </div>
-        </div>
+          </div><!-- /.auth-box -->
+        </div><!-- /.auth-container -->
 
         <div class="auth-footer">
           <div class="auth-footer-links">
@@ -175,92 +201,93 @@ export const AssemblySelection: PageModule = {
           </div>
         </div>
 
-      </div>
+      </div><!-- /.auth-root -->
     `
 
-    // ── Interaction ───────────────────────────────────────────────────────────
-    const items      = container.querySelectorAll<HTMLElement>('.assembly-item')
-    const searchEl   = container.querySelector<HTMLInputElement>('#asm-search')!
-    const continueBtn= container.querySelector<HTMLButtonElement>('#asm-continue-btn')!
-    const emptyEl    = container.querySelector<HTMLElement>('#asm-empty')!
-    const emptyTerm  = container.querySelector<HTMLElement>('#asm-empty-term')!
+    // ── Query elements ────────────────────────────────────────────────────────
+    const root        = container.querySelector<HTMLElement>('#asm-root')!
+    const items       = container.querySelectorAll<HTMLElement>('.assembly-item')
+    const searchEl    = container.querySelector<HTMLInputElement>('#asm-search')!
+    const continueBtn = container.querySelector<HTMLButtonElement>('#asm-continue-btn')!
+    const emptyEl     = container.querySelector<HTMLElement>('#asm-empty')!
+    const emptyTerm   = container.querySelector<HTMLElement>('#asm-empty-term')!
+
     let selectedId: string | null = null
 
-    // Select item
+    // ── Select an item ────────────────────────────────────────────────────────
     const selectItem = (item: HTMLElement) => {
-      // Deselect previously selected
-      items.forEach(i => {
-        i.classList.remove('selected')
-        const icon = i.querySelector<HTMLElement>('.assembly-check-icon')
-        const circle = i.querySelector<HTMLElement>('.assembly-check')
-        if (icon)   icon.style.display = 'none'
-        if (circle) { circle.style.background = 'transparent'; circle.style.borderColor = 'var(--auth-card-border)' }
-      })
-      // Mark selected
-      item.classList.add('selected')
-      const icon   = item.querySelector<HTMLElement>('.assembly-check-icon')
-      const circle = item.querySelector<HTMLElement>('.assembly-check')
-      if (icon)   icon.style.display = 'block'
-      if (circle) { circle.style.background = 'var(--auth-btn-primary)'; circle.style.borderColor = 'var(--auth-btn-primary)' }
+      // Remove selected state from all items — CSS handles visual diff
+      items.forEach(i => i.classList.remove('selected'))
 
+      // Apply selected state — CSS (.assembly-item.selected) takes over styling
+      item.classList.add('selected')
       selectedId = item.dataset.id!
 
-      // Persist to sessionStorage for Login branding
+      // Persist for Login branding
       sessionStorage.setItem('selectedAssembly', JSON.stringify({
-        id:              item.dataset.id,
-        name:            item.dataset.name,
-        assembly_code:   item.dataset.code,
-        address:         item.dataset.loc   || null,
+        id:           item.dataset.id,
+        name:         item.dataset.name,
+        assembly_code: item.dataset.code,
+        address:      item.dataset.loc || null,
       }))
 
       continueBtn.disabled = false
     }
 
-
     items.forEach(item => {
       item.addEventListener('click', () => selectItem(item))
-      item.addEventListener('keydown', e => { if ((e as KeyboardEvent).key === 'Enter') selectItem(item) })
-    })
-
-    // Search filter
-    searchEl.addEventListener('input', () => {
-      const q = searchEl.value.toLowerCase()
-      let visible = 0
-      items.forEach(item => {
-        const matches = !q ||
-          item.dataset.name!.toLowerCase().includes(q) ||
-          item.dataset.loc!.toLowerCase().includes(q)
-        item.style.display = matches ? '' : 'none'
-        if (matches) visible++
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          selectItem(item)
+        }
       })
-      emptyTerm.textContent  = searchEl.value
-      emptyEl.style.display  = visible === 0 && q ? 'block' : 'none'
     })
 
-    // Continue → Login
+    // ── Search filter ─────────────────────────────────────────────────────────
+    searchEl.addEventListener('input', () => {
+      const q = searchEl.value.trim().toLowerCase()
+      let visible = 0
+
+      items.forEach(item => {
+        const nameMatch = item.dataset.name!.toLowerCase().includes(q)
+        const locMatch  = item.dataset.loc!.toLowerCase().includes(q)
+        const show      = !q || nameMatch || locMatch
+        item.style.display = show ? '' : 'none'
+        if (show) visible++
+      })
+
+      emptyTerm.textContent = searchEl.value
+      emptyEl.style.display = visible === 0 && q ? 'block' : 'none'
+    })
+
+    // ── Continue → Login ──────────────────────────────────────────────────────
     continueBtn.addEventListener('click', () => {
       if (selectedId) navigate('/login')
     })
 
-    // Theme toggle (mirrors auth.css pattern)
+    // ── Theme toggle ──────────────────────────────────────────────────────────
+    // html[data-theme] drives theme.css; .auth-root.dark drives auth.css —
+    // we keep both in sync here.
     const themeBtn = container.querySelector<HTMLElement>('#asm-theme-toggle')
-    themeBtn?.addEventListener('click', () => {
-      const html = document.documentElement
-      const next = html.dataset['theme'] === 'dark' ? 'light' : 'dark'
-      html.dataset['theme'] = next
+
+    const applyTheme = (next: 'light' | 'dark') => {
+      document.documentElement.dataset['theme'] = next
       localStorage.setItem('caci-theme', next)
-      const icon  = container.querySelector<HTMLElement>('.auth-toggle-icon')
-      const lbl   = container.querySelector<HTMLElement>('.auth-toggle-label')
-      if (icon)  icon.textContent  = next === 'dark' ? '🌙' : '☀️'
-      if (lbl)   lbl.textContent   = next === 'dark' ? 'Dark' : 'Light'
+      syncThemeToggle(root)
+    }
+
+    themeBtn?.addEventListener('click', () => {
+      const current = document.documentElement.dataset['theme'] === 'dark' ? 'dark' : 'light'
+      applyTheme(current === 'dark' ? 'light' : 'dark')
     })
 
-    // Sync theme indicator on mount
-    const theme = document.documentElement.dataset['theme'] ?? 'light'
-    const icon  = container.querySelector<HTMLElement>('.auth-toggle-icon')
-    const lbl   = container.querySelector<HTMLElement>('.auth-toggle-label')
-    if (icon)  icon.textContent  = theme === 'dark' ? '🌙' : '☀️'
-    if (lbl)   lbl.textContent   = theme === 'dark' ? 'Dark' : 'Light'
+    themeBtn?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); themeBtn.click() }
+    })
+
+    // Sync toggle indicator to current theme on mount
+    syncThemeToggle(root)
   },
 
   destroy() {
@@ -269,3 +296,21 @@ export const AssemblySelection: PageModule = {
 }
 
 export default AssemblySelection
+
+// ── Tiny helpers (keep at module level) ──────────────────────────────────────
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function escapeAttr(s: string): string {
+  return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+function getInitials(name: string): string {
+  return name.split(' ')
+    .filter(n => n.length > 0)
+    .map(n => n[0].toUpperCase())
+    .slice(0, 2)
+    .join('')
+}

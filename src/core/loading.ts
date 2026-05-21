@@ -69,13 +69,16 @@ export async function runLoading(): Promise<void> {
     setProgress(20, 'Loading your profile…')
     await loadCurrentUser()
     const user = getCurrentUser()
+    console.log('[loading] Profile load result:', { userId: user?.id, role: user?.role })
 
     if (!user) {
       // No valid profile → kick back to login
+      console.warn('[loading] No valid profile found. Redirecting to login.')
       startRouter()
       navigate('/login')
       return
     }
+
 
     // Step 2: Register modules ───────────────────────────────────────────────
     setProgress(40, 'Registering modules…')
@@ -98,9 +101,22 @@ export async function runLoading(): Promise<void> {
     })
 
     // Step 5: Kick off router ────────────────────────────────────────────────
+    console.log('[loading] Step 5: Ready. Starting router.')
     setProgress(100, 'Ready')
     emit('app:ready')
+
+    // If we're still on an auth-related page (login, select-assembly),
+    // or if the hash is empty, redirect to the dashboard (/).
+    const path = location.hash.slice(1)
+    const isAuthPage = !path || path === '/' || path.startsWith('/login') || path.startsWith('/select-assembly') || path.startsWith('/forgot-password')
+    
+    if (isAuthPage) {
+      console.log('[loading] On auth page, redirecting to /')
+      location.hash = '#/'
+    }
+
     startRouter()
+
 
   } catch (err) {
     console.error('[loading] Boot failed:', err)
