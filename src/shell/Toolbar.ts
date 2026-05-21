@@ -108,10 +108,20 @@ export function showProfilePopup(): void {
   const displayName = user?.fullName ?? 'User'
   const roleLabel   = user?.role?.replace(/_/g, ' ') ?? 'Member'
 
-  // Always position at top-right of screen, just below the topnav
+  // Anchor above the sidebar profile button, aligned to its left edge
+  const anchor = document.getElementById('sidebar-profile-btn')
+  let css = 'position:fixed; z-index:9999;'
+  if (anchor) {
+    const rect = anchor.getBoundingClientRect()
+    const bottom = window.innerHeight - rect.top + 8
+    css += `bottom:${bottom}px; left:${rect.left}px;`
+  } else {
+    css += `bottom:20px; left:20px;` // Fallback
+  }
+
   const el = document.createElement('div')
   el.className = 'profile-popup'
-  el.style.cssText = `position:fixed;top:56px;right:16px;z-index:9999;`
+  el.style.cssText = css
   el.innerHTML = `
     <div class="profile-popup-header">
       <div class="sidebar-avatar" style="width:34px;height:34px;font-size:13px">${initials}</div>
