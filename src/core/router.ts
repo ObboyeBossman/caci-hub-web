@@ -59,6 +59,17 @@ async function _resolve(): Promise<void> {
     return
   }
 
+  // Redirect-only routes (no page) — e.g. '/' → '/members'
+  if (matched.redirect) {
+    navigate(matched.redirect)
+    return
+  }
+
+  if (!matched.page) {
+    console.error(`[router] Route ${matched.path} has neither page nor redirect`)
+    return
+  }
+
   // Destroy the current page before loading the next one.
   // Mirrors: Flutter Navigator.pop + new route push lifecycle.
   try {
@@ -68,7 +79,7 @@ async function _resolve(): Promise<void> {
   }
 
   // Lazy-load the page module (Vite code-splits each dynamic import).
-  const { default: page } = await matched.page()
+  const { default: page } = await matched.page!()
   _activePage = page
 
   // Layout handling (Presentation switch)

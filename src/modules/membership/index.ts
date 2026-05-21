@@ -40,6 +40,13 @@ const MembershipModule: ModuleManifest = {
 
   routes: membershipRoutes,
 
+  sidebar: {
+    label:      'Members',
+    path:       '/members',
+    icon:       'people-fill',
+    permission: 'membership.view',
+    order:      10,
+  },
 
   capabilities: ['dashboard-widgets', 'search', 'reports'],
 

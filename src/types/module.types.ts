@@ -77,7 +77,8 @@ export interface WidgetDefinition {
 // it reads these definitions from the registry.
 export interface RouteDefinition {
   path:          string
-  page:          () => Promise<{ default: PageModule }>
+  page?:         () => Promise<{ default: PageModule }>
+  redirect?:     string             // if set, router immediately navigates here instead
   middleware?:   string[]           // guard keys e.g. ['auth', 'permissions']
   permission?:   string             // evaluated by permissionGuard
   presentation?: PresentationMode
