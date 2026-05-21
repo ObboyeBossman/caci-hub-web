@@ -24,7 +24,14 @@ const _modules: ModuleManifest[] = []
  */
 export function registerModule(mod: ModuleManifest): void {
   if (!mod.enabled) return
-  _modules.push(mod)
+  
+  const existingIndex = _modules.findIndex(m => m.name === mod.name)
+  if (existingIndex !== -1) {
+    // Replace existing module (useful for HMR)
+    _modules[existingIndex] = mod
+  } else {
+    _modules.push(mod)
+  }
 }
 
 /**
