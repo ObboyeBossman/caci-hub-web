@@ -5,6 +5,7 @@ import { authService, mapAuthError } from '../services/authService'
 import { navigate }                  from '../../../core/router'
 import { loadCurrentUser }           from '../../../core/auth'
 import type { PageModule }           from '../../../types/module.types'
+import logoUrl from '../../../assets/caci-logo.png'
 
 let _container:    HTMLElement | null = null
 let _isEnrollment: boolean            = false
@@ -153,8 +154,8 @@ export const Totp: PageModule = {
         <!-- Header -->
         <div class="auth-header">
           <a class="auth-logo" href="#/login">
-            <div class="auth-cross"></div>
-            <div class="auth-logo-text">CACI Hub</div>
+             <img src="${logoUrl}" alt="CACI Logo" class="auth-logo-img">
+             <div class="auth-logo-text">CACI Hub</div>
           </a>
         </div>
 

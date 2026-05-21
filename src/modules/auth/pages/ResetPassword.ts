@@ -3,6 +3,7 @@
 
 import { authService, mapAuthError } from '../services/authService'
 import type { PageModule }           from '../../../types/module.types'
+import logoUrl from '../../../assets/caci-logo.png'
 
 let _container: HTMLElement | null = null
 
@@ -119,7 +120,7 @@ export const ResetPassword: PageModule = {
         <!-- Header -->
         <div class="auth-header">
           <a class="auth-logo" href="#/login">
-            <div class="auth-cross"></div>
+            <img src="${logoUrl}" alt="CACI Logo" class="auth-logo-img">
             <div class="auth-logo-text">CACI Hub</div>
           </a>
         </div>
