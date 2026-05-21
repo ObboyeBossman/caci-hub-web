@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in to CACI Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bl:#004BA0;--bld:#003578;--rd:#C60026;
+  --g50:#f6f8fa;--g100:#eaeef2;--g200:#d0d7de;
+  --g400:#8c959f;--g600:#656d76;--g700:#57606a;--g800:#24292f;--g900:#1b1f23;
+  --focus:#0969da;--focus-bg:#ddf4ff;
+}
+body{
+  font-family:'Segoe UI','Helvetica Neue',system-ui,sans-serif;
+  font-size:14px;
+  color:var(--g900);
+  background:var(--g50);
+  line-height:1.5;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+.header{
+  background:#fff;
+  border-bottom:1px solid var(--g200);
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  text-decoration:none;
+}
+.cross{
+  width:24px;
+  height:24px;
+  position:relative;
+  flex-shrink:0;
+}
+.cross::before,.cross::after{
+  content:'';
+  position:absolute;
+  background:var(--bl);
+  border-radius:2px;
+}
+.cross::before{
+  width:3px;
+  height:100%;
+  left:50%;
+  transform:translateX(-50%);
+}
+.cross::after{
+  height:3px;
+  width:100%;
+  top:50%;
+  transform:translateY(-50%);
+}
+.logo-text{
+  font-size:15px;
+  font-weight:600;
+  color:var(--g900);
+  letter-spacing:-.2px;
+}
+
+/* MAIN CONTAINER */
+.container{
+  flex:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:40px 16px 60px;
+}
+.box{
+  width:100%;
+  max-width:340px;
+}
+
+/* HEADING */
+.heading{
+  text-align:center;
+  margin-bottom:24px;
+}
+.h1{
+  font-size:24px;
+  font-weight:300;
+  color:var(--g900);
+  letter-spacing:-.5px;
+  margin-bottom:4px;
+}
+.subtitle{
+  font-size:14px;
+  color:var(--g600);
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border:1px solid var(--g200);
+  border-radius:6px;
+  padding:20px;
+  margin-bottom:16px;
+}
+
+/* FORM */
+.field{
+  margin-bottom:15px;
+}
+.field:last-of-type{
+  margin-bottom:0;
+}
+.label{
+  display:block;
+  font-size:14px;
+  font-weight:600;
+  color:var(--g900);
+  margin-bottom:7px;
+}
+.input{
+  width:100%;
+  height:32px;
+  border:1px solid var(--g200);
+  border-radius:6px;
+  padding:0 12px;
+  font-size:14px;
+  color:var(--g900);
+  background:#fff;
+  outline:none;
+  font-family:inherit;
+  transition:border-color .2s,box-shadow .2s;
+}
+.input:focus{
+  border-color:var(--focus);
+  box-shadow:0 0 0 3px var(--focus-bg);
+}
+.input::placeholder{
+  color:var(--g400);
+}
+.input-group{
+  display:flex;
+}
+.input-prefix{
+  display:flex;
+  align-items:center;
+  padding:0 12px;
+  background:var(--g50);
+  border:1px solid var(--g200);
+  border-right:none;
+  border-radius:6px 0 0 6px;
+  font-size:14px;
+  color:var(--g700);
+  white-space:nowrap;
+  height:32px;
+}
+.input-group .input{
+  border-radius:0 6px 6px 0;
+}
+.hint{
+  font-size:12px;
+  color:var(--g600);
+  margin-top:6px;
+  line-height:1.4;
+}
+.field-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:7px;
+}
+.link{
+  font-size:12px;
+  color:var(--bl);
+  text-decoration:none;
+}
+.link:hover{
+  text-decoration:underline;
+}
+select.input{
+  cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23656d76' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  padding-right:32px;
+}
+
+/* BUTTONS */
+.btn{
+  width:100%;
+  height:32px;
+  border-radius:6px;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  border:1px solid;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:background .15s;
+}
+.btn-primary{
+  background:var(--bl);
+  color:#fff;
+  border-color:rgba(0,75,160,.2);
+}
+.btn-primary:hover{
+  background:var(--bld);
+}
+.btn-primary:disabled{
+  background:#94d3a2;
+  border-color:#94d3a2;
+  color:rgba(255,255,255,.8);
+  cursor:not-allowed;
+}
+.btn-secondary{
+  background:#fff;
+  color:var(--g900);
+  border-color:var(--g200);
+}
+.btn-secondary:hover{
+  background:var(--g50);
+  border-color:var(--g400);
+}
+
+/* DIVIDER */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:16px 0;
+}
+.divider::before,
+.divider::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--g200);
+}
+.divider-text{
+  font-size:12px;
+  color:var(--g600);
+  text-transform:lowercase;
+}
+
+/* ALERT */
+.alert{
+  border-radius:6px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:16px;
+  border:1px solid;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+.alert-info{
+  background:#ddf4ff;
+  color:#0969da;
+  border-color:rgba(9,105,218,.2);
+}
+.alert-warning{
+  background:#fff8c5;
+  color:#9a6700;
+  border-color:rgba(154,103,0,.25);
+}
+.alert-icon{
+  flex-shrink:0;
+  margin-top:1px;
+}
+
+/* ROLE CARDS */
+.roles{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:16px;
+}
+.role{
+  border:1px solid var(--g200);
+  border-radius:6px;
+  padding:12px;
+  cursor:pointer;
+  transition:all .15s;
+  background:#fff;
+}
+.role:hover{
+  border-color:var(--bl);
+  background:var(--g50);
+}
+.role.selected{
+  border-color:var(--bl);
+  background:#dbeafe;
+}
+.role-name{
+  font-size:13px;
+  font-weight:600;
+  color:var(--g900);
+  margin-bottom:4px;
+}
+.role.selected .role-name{
+  color:var(--bl);
+}
+.role-desc{
+  font-size:11px;
+  color:var(--g600);
+  line-height:1.4;
+}
+
+/* CHECKBOX */
+.checkbox-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom:16px;
+}
+.checkbox-row input[type=checkbox]{
+  width:16px;
+  height:16px;
+  margin-top:2px;
+  accent-color:var(--bl);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.checkbox-label{
+  font-size:13px;
+  color:var(--g700);
+  line-height:1.5;
+}
+.checkbox-label a{
+  color:var(--bl);
+  text-decoration:none;
+}
+.checkbox-label a:hover{
+  text-decoration:underline;
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  padding:20px 16px;
+  font-size:13px;
+  color:var(--g600);
+}
+.footer a{
+  color:var(--bl);
+  text-decoration:none;
+}
+.footer a:hover{
+  text-decoration:underline;
+}
+
+/* TABS */
+.tabs{
+  display:flex;
+  gap:0;
+  border-bottom:1px solid var(--g200);
+  margin-bottom:20px;
+}
+.tab{
+  flex:1;
+  padding:10px 16px;
+  font-size:14px;
+  font-weight:500;
+  text-align:center;
+  cursor:pointer;
+  color:var(--g600);
+  border:none;
+  background:none;
+  border-bottom:2px solid transparent;
+  transition:color .15s;
+  font-family:inherit;
+}
+.tab:hover{
+  color:var(--g900);
+}
+.tab.active{
+  color:var(--g900);
+  border-bottom-color:var(--rd);
+}
+
+/* PANELS */
+.panel{
+  display:none;
+}
+.panel.active{
+  display:block;
+}
+
+/* FORM SWIPE CONTAINER */
+.form-swipe-container{
+  position:relative;
+}
+.swipe-form{
+  transition:opacity .3s cubic-bezier(0.4, 0, 0.2, 1), transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.swipe-form.hidden{
+  display:none;
+}
+.swipe-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  color:var(--bl);
+  text-decoration:none;
+  cursor:pointer;
+  margin-bottom:16px;
+  font-weight:500;
+}
+.swipe-toggle:hover{
+  text-decoration:underline;
+}
+.swipe-toggle svg{
+  transition:transform .2s;
+}
+.swipe-toggle:hover svg{
+  transform:translateX(-2px);
+}
+
+/* SUCCESS STATE */
+.success{
+  text-align:center;
+  padding:24px 20px;
+}
+.success-icon{
+  width:48px;
+  height:48px;
+  background:#dafbe1;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 16px;
+}
+.success-title{
+  font-size:16px;
+  font-weight:600;
+  color:var(--g900);
+  margin-bottom:8px;
+}
+.success-text{
+  font-size:14px;
+  color:var(--g600);
+  line-height:1.6;
+  margin-bottom:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="#" class="logo">
+    <div class="cross"></div>
+    <span class="logo-text">CACI Hub</span>
+  </a>
+</div>
+
+<div class="container">
+  <div class="box">
+    
+    <div class="heading">
+      <h1 class="h1">Sign in to CACI Hub</h1>
+      <p class="subtitle">Christ Apostolic Church International · Ghana</p>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign in</button>
+        <button class="tab" id="tab-request" onclick="switchTab('request')">Request access</button>
+      </div>
+
+      <!-- SIGN IN PANEL -->
+      <div class="panel active" id="panel-signin">
+        <div class="form-swipe-container">
+          
+          <!-- EMAIL LOGIN FORM -->
+          <div class="swipe-form" id="email-form">
+            <div class="field">
+              <label class="label" for="username">Member ID or email</label>
+              <input type="text" id="username" class="input" placeholder="CACI-ACC-00001 or you@example.com" />
+            </div>
+
+            <div class="field">
+              <div class="field-header">
+                <label class="label" for="password">Password</label>
+                <a href="#" class="link" onclick="showForgot(); return false;">Forgot?</a>
+              </div>
+              <input type="password" id="password" class="input" placeholder="Enter your password" />
+            </div>
+
+            <div style="margin-top:20px;">
+              <button class="btn btn-primary" onclick="handleSignIn(this)">Sign in</button>
+            </div>
+
+            <div class="divider">
+              <span class="divider-text">or</span>
+            </div>
+
+            <button class="btn btn-secondary" onclick="handleSSO(this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Assembly Admin SSO
+            </button>
+
+            <div style="margin-top:12px;">
+              <button class="btn btn-secondary" onclick="togglePhoneLogin()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                Sign in with phone
+              </button>
+            </div>
+          </div>
+
+          <!-- PHONE LOGIN FORM -->
+          <div class="swipe-form hidden" id="phone-form">
+            <a href="#" class="swipe-toggle" onclick="togglePhoneLogin(); return false;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Login with email
+            </a>
+
+            <div class="field">
+              <label class="label" for="phone">Phone number</label>
+              <div class="input-group">
+                <div class="input-prefix">+233</div>
+                <input type="tel" id="phone" class="input" placeholder="24 123 4567" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-header">
+                <label class="label" for="phone-password">Password</label>
+                <a href="#" class="link" onclick="showForgot(); return false;">Forgot?</a>
+              </div>
+              <input type="password" id="phone-password" class="input" placeholder="Enter your password" />
+            </div>
+
+            <div style="margin-top:20px;">
+              <button class="btn btn-primary" onclick="handlePhoneSignIn(this)">Sign in</button>
+            </div>
+
+            <div class="divider">
+              <span class="divider-text">or</span>
+            </div>
+
+            <button class="btn btn-secondary" onclick="handleSSO(this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Assembly Admin SSO
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD PANEL -->
+      <div class="panel" id="panel-forgot">
+        <div class="alert alert-info">
+          <svg class="alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"/></svg>
+          <span>Enter your email address and we'll send you a link to reset your password.</span>
+        </div>
+
+        <div class="field">
+          <label class="label" for="reset-email">Email address</label>
+          <input type="email" id="reset-email" class="input" placeholder="you@example.com" />
+        </div>
+
+        <div style="margin-top:20px;">
+          <button class="btn btn-primary" onclick="handleReset(this)">Send reset link</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button class="btn btn-secondary" onclick="backToSignIn()">Back to sign in</button>
+        </div>
+      </div>
+
+      <!-- REQUEST ACCESS PANEL -->
+      <div class="panel" id="panel-request">
+        <div class="alert alert-warning">
+          <svg class="alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575zm1.763.707a.25.25 0 00-.44 0L1.698 13.132a.25.25 0 00.22.368h12.164a.25.25 0 00.22-.368zm.53 3.996v2.5a.75.75 0 01-1.5 0v-2.5a.75.75 0 011.5 0zM9 11a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+          <span>Requests are reviewed by your Assembly Secretary within 24 hours.</span>
+        </div>
+
+        <div class="field">
+          <label class="label" for="fullname">Full name</label>
+          <input type="text" id="fullname" class="input" placeholder="Emmanuel Asante Boateng" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="email">Email address</label>
+          <input type="email" id="email" class="input" placeholder="you@example.com" />
+        </div>
+
+        <div class="field">
+          <div class="field-header">
+            <label class="label" for="memberid">Member ID</label>
+            <span class="link" style="cursor:default;color:var(--g600);">Optional</span>
+          </div>
+          <div class="input-group">
+            <div class="input-prefix">CACI-</div>
+            <input type="text" id="memberid" class="input" placeholder="ACC-00001" />
+          </div>
+          <div class="hint">Find your ID on your membership card or contact your Secretary.</div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="assembly">Assembly / Branch</label>
+          <select id="assembly" class="input">
+            <option value="">Select your assembly…</option>
+            <optgroup label="Greater Accra Region">
+              <option>CACI Headquarters — Accra</option>
+              <option>CACI Tema District</option>
+              <option>CACI Adenta Assembly</option>
+            </optgroup>
+            <optgroup label="Ashanti Region">
+              <option>CACI Kumasi Central</option>
+              <option>CACI Kumasi North District</option>
+            </optgroup>
+            <optgroup label="Western Region">
+              <option>CACI Takoradi District</option>
+              <option>CACI Sekondi Assembly</option>
+            </optgroup>
+            <optgroup label="Volta Region">
+              <option>CACI Ho District</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="label" style="margin-bottom:10px;">Requesting access as</label>
+          <div class="roles" id="roles">
+            <div class="role selected" onclick="selectRole(this)">
+              <div class="role-name">General Member</div>
+              <div class="role-desc">Hymns, events & personal giving records</div>
+            </div>
+            <div class="role" onclick="selectRole(this)">
+              <div class="role-name">Secretary</div>
+              <div class="role-desc">Member registration & branch reports</div>
+            </div>
+            <div class="role" onclick="selectRole(this)">
+              <div class="role-name">Pastor / Overseer</div>
+              <div class="role-desc">Branch oversight & ministry admin</div>
+            </div>
+            <div class="role" onclick="selectRole(this)">
+              <div class="role-name">Super Admin</div>
+              <div class="role-desc">National platform administration</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="agree" />
+          <label class="checkbox-label" for="agree">I confirm I am a registered CACI Ghana member and agree to the <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>.</label>
+        </div>
+
+        <button class="btn btn-primary" onclick="handleRequest(this)">Submit request</button>
+      </div>
+
+      <!-- SUCCESS PANEL -->
+      <div class="panel" id="panel-success">
+        <div class="success">
+          <div class="success-icon">
+            <svg width="24" height="24" viewBox="0 0 16 16" fill="#1a7f37"><path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/></svg>
+          </div>
+          <div class="success-title">Request submitted</div>
+          <div class="success-text">Your access request has been sent to your Assembly Secretary. You'll receive an email once approved, usually within 24 hours.</div>
+          <button class="btn btn-secondary" onclick="backToSignIn()">Back to sign in</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      Need help? Contact your Assembly Secretary or <a href="mailto:support@cacihub.org">support@cacihub.org</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  // Update tab buttons
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  
+  // Update panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function showForgot() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-forgot').classList.add('active');
+}
+
+function backToSignIn() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-signin').classList.add('active');
+  
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-signin').classList.add('active');
+  
+  // Reset to email form when going back
+  document.getElementById('email-form').classList.remove('hidden');
+  document.getElementById('phone-form').classList.add('hidden');
+}
+
+function togglePhoneLogin() {
+  const emailForm = document.getElementById('email-form');
+  const phoneForm = document.getElementById('phone-form');
+  
+  emailForm.classList.toggle('hidden');
+  phoneForm.classList.toggle('hidden');
+}
+
+function selectRole(el) {
+  document.querySelectorAll('.role').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function handleSignIn(btn) {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  
+  if (!username || !password) {
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }, 1800);
+}
+
+function handlePhoneSignIn(btn) {
+  const phone = document.getElementById('phone').value.trim();
+  const password = document.getElementById('phone-password').value.trim();
+  
+  if (!phone || !password) {
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }, 1800);
+}
+
+function handleSSO(btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/></svg> Redirecting…';
+  
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/></svg> Assembly Admin SSO';
+  }, 1800);
+}
+
+function handleReset(btn) {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) return;
+  
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Send reset link';
+  }, 1500);
+}
+
+function handleRequest(btn) {
+  const agreed = document.getElementById('agree').checked;
+  
+  if (!agreed) {
+    document.getElementById('agree').focus();
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Submit request';
+    
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-success').classList.add('active');
+  }, 1600);
+}
+</script>
+
+</body>
+</html>

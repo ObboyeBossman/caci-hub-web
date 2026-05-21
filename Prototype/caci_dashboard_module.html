@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub – Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+button{font-family:inherit;cursor:pointer;}
+a{text-decoration:none;}
+input,select,textarea{font-family:inherit;}
+ul{list-style:none;}
+
+/* ═══ LIGHT THEME ═══ */
+:root{
+  --red:#C60026;--red-dim:#a8001f;--red-glow:rgba(198,0,38,.12);
+  --blue:#004BA0;--blue-mid:#1a5fb4;--blue-dark:#003578;--blue-light:#dbeafe;
+  --gold:#FBBF24;--gold-bg:#fff8c5;
+  --green:#1a7f37;--green-bg:#dafbe1;
+  --purple:#7c3aed;--purple-bg:#f3e8ff;
+  --orange:#bc4c00;--orange-bg:#fff1e5;
+
+  --nav-bg:var(--blue);--nav-border:var(--blue-dark);
+  --nav-link-color:rgba(255,255,255,0.72);
+  --nav-link-hover-bg:rgba(255,255,255,.12);
+  --nav-link-active-bg:rgba(255,255,255,.2);
+  --nav-link-active-color:#fff;
+
+  --bg-base:#f0f2f5;--bg-card:#ffffff;--bg-card2:#f6f8fa;
+  --bg-hover:#eaeef2;--bg-inset:#f6f8fa;
+  --border:#d0d7de;--border-subtle:#eaeef2;
+
+  --text-primary:#1b1f23;--text-secondary:#656d76;--text-muted:#8c959f;
+
+  --badge-bg:#eaeef2;--badge-color:#656d76;
+  --badge-red-bg:#ffeef0;--badge-red-color:var(--red);
+  --badge-green-bg:#dafbe1;--badge-green-color:#1a7f37;
+  --badge-yellow-bg:#fff8c5;--badge-yellow-color:#9a6700;
+  --badge-blue-bg:#ddf4ff;--badge-blue-color:#0969da;
+  --badge-purple-bg:#f3e8ff;--badge-purple-color:#7c3aed;
+
+  --sidebar-bg:#ffffff;--sidebar-border:#d0d7de;
+  --sidebar-active-bg:#f0f4ff;--sidebar-active-color:var(--blue);
+  --sidebar-active-border:var(--blue);
+
+  --input-bg:#fff;--input-border:#d0d7de;--input-focus:#004BA0;
+  --input-shadow:rgba(0,75,160,.12);
+
+  --stat-bar-bg:#eaeef2;
+  --toggle-track:#d0d7de;
+  --table-header-bg:#f6f8fa;--table-row-hover:#f0f4ff;
+
+  --bottom-nav-bg:#fff;--bottom-nav-border:#d0d7de;
+  --bottom-nav-active:var(--blue);--bottom-nav-inactive:#8c959f;
+
+  --overlay-bg:rgba(0,0,0,.45);
+  --detail-panel-bg:#fff;
+
+  /* Module accent colours */
+  --mod-members:#004BA0;
+  --mod-finance:#1a7f37;
+  --mod-events:#7c3aed;
+  --mod-comms:#bc4c00;
+  --mod-auth:#C60026;
+
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:0 2px 8px rgba(0,0,0,.10);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.12);
+}
+
+/* ═══ DARK THEME ═══ */
+[data-theme="dark"]{
+  --red:#E8003A;--red-dim:#C60026;--red-glow:rgba(232,0,58,.15);
+  --blue:#4D9FFF;--blue-mid:#1a6fc4;--blue-dark:#004BA0;--blue-light:rgba(77,159,255,.15);
+  --gold:#FBBF24;--gold-bg:rgba(251,191,36,.12);
+  --green:#3fb950;--green-bg:rgba(63,185,80,.12);
+  --purple:#c084fc;--purple-bg:rgba(192,132,252,.1);
+  --orange:#f0883e;--orange-bg:rgba(240,136,62,.1);
+
+  --nav-bg:#010409;--nav-border:#21262d;
+  --nav-link-color:#8b949e;--nav-link-hover-bg:#21262d;
+  --nav-link-active-bg:rgba(255,255,255,.06);--nav-link-active-color:#e6edf3;
+
+  --bg-base:#0d1117;--bg-card:#161b22;--bg-card2:#1c2128;
+  --bg-hover:#21262d;--bg-inset:#1c2128;
+  --border:#30363d;--border-subtle:#21262d;
+
+  --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#484f58;
+
+  --badge-bg:#21262d;--badge-color:#8b949e;
+  --badge-red-bg:rgba(232,0,58,.15);--badge-red-color:var(--red);
+  --badge-green-bg:rgba(26,127,55,.2);--badge-green-color:#3fb950;
+  --badge-yellow-bg:rgba(154,103,0,.2);--badge-yellow-color:#d29922;
+  --badge-blue-bg:rgba(9,105,218,.2);--badge-blue-color:#79c0ff;
+  --badge-purple-bg:rgba(124,58,237,.2);--badge-purple-color:#c084fc;
+
+  --sidebar-bg:#161b22;--sidebar-border:#30363d;
+  --sidebar-active-bg:rgba(77,159,255,.1);--sidebar-active-color:var(--blue);
+  --sidebar-active-border:var(--blue);
+
+  --input-bg:#161b22;--input-border:#30363d;--input-focus:#4D9FFF;
+  --input-shadow:rgba(77,159,255,.12);
+
+  --stat-bar-bg:#21262d;
+  --toggle-track:#388bfd;
+  --table-header-bg:#1c2128;--table-row-hover:rgba(77,159,255,.06);
+
+  --bottom-nav-bg:#161b22;--bottom-nav-border:#30363d;
+  --bottom-nav-active:var(--blue);--bottom-nav-inactive:#484f58;
+
+  --overlay-bg:rgba(0,0,0,.65);
+  --detail-panel-bg:#161b22;
+
+  --mod-members:#4D9FFF;
+  --mod-finance:#3fb950;
+  --mod-events:#c084fc;
+  --mod-comms:#f0883e;
+  --mod-auth:#E8003A;
+
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 2px 8px rgba(0,0,0,.35);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.4);
+}
+
+/* ═══ BASE ═══ */
+body{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:14px;color:var(--text-primary);
+  background:var(--bg-base);
+  transition:background .25s,color .25s;
+  line-height:1.5;
+}
+
+/* ═══ TOP NAV ═══ */
+.topnav{
+  background:var(--nav-bg);
+  display:flex;align-items:stretch;height:52px;
+  border-bottom:1px solid var(--nav-border);
+  transition:background .25s,border-color .25s;
+  position:sticky;top:0;z-index:300;
+}
+/* Left section — mirrors the sidebar width */
+.topnav-sidebar-area{
+  width:220px;flex-shrink:0;
+  display:flex;align-items:center;
+  border-right:1px solid var(--nav-border);
+  transition:width .25s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+  min-width:52px;
+}
+/* Right section — fills remaining space */
+.topnav-main-area{
+  flex:1;min-width:0;
+  display:flex;align-items:center;
+  padding:0 16px;
+}
+/* The sidebar toggle button */
+.topnav-toggle{
+  width:52px;height:52px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:none;border:none;
+  cursor:pointer;color:rgba(255,255,255,.7);
+  transition:background .15s,color .15s;
+}
+.topnav-toggle:hover{background:var(--nav-link-hover-bg);color:#fff;}
+.topnav-toggle svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .25s cubic-bezier(.4,0,.2,1);}
+/* Logo sits in the sidebar area, fades out when collapsed */
+.logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:15px;
+  flex-shrink:0;letter-spacing:-.2px;padding-left:4px;
+  white-space:nowrap;transition:opacity .15s;
+}
+/* When sidebar collapses, sidebar area shrinks to 52px */
+.sidebar-collapsed .topnav-sidebar-area{width:52px;}
+.sidebar-collapsed .logo{opacity:0;pointer-events:none;}
+.logo-cross{width:24px;height:24px;position:relative;flex-shrink:0;}
+.logo-cross::before,.logo-cross::after{content:'';position:absolute;background:#fff;border-radius:2px;}
+.logo-cross::before{width:4px;height:100%;left:50%;transform:translateX(-50%);}
+.logo-cross::after{height:4px;width:100%;top:50%;transform:translateY(-50%);}
+
+/* Info popover button (replaces profile in topnav) */
+.topnav-info-btn{
+  margin-left:auto;display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:6px 12px;cursor:pointer;
+  color:rgba(255,255,255,.85);font-size:12px;font-weight:500;
+  transition:background .15s;position:relative;
+  font-family:inherit;
+}
+.topnav-info-btn:hover{background:rgba(255,255,255,.18);}
+.topnav-info-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.topnav-info-btn .info-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  border:1.5px solid var(--nav-bg);flex-shrink:0;
+}
+
+/* Info dropdown */
+.info-popover{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:10px;box-shadow:var(--shadow-lg);
+  padding:14px 16px;min-width:280px;z-index:999;
+  opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:opacity .15s,transform .15s;
+}
+.info-popover.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+.info-popover-row{
+  display:flex;align-items:center;gap:9px;padding:6px 0;
+  border-bottom:1px solid var(--border-subtle);font-size:12px;
+  color:var(--text-secondary);
+}
+.info-popover-row:last-child{border-bottom:none;padding-bottom:0;}
+.info-popover-row:first-child{padding-top:0;}
+.info-popover-row svg{width:13px;height:13px;stroke:var(--blue);fill:none;stroke-width:2;flex-shrink:0;}
+.info-popover-row strong{color:var(--text-primary);font-weight:600;}
+.info-popover-row .ipr-green{color:var(--green);font-weight:600;display:flex;align-items:center;gap:4px;}
+.info-popover-row .ipr-green::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;}
+
+/* keep toggle-track/thumb for sidebar theme toggle */
+.toggle-track{width:30px;height:16px;border-radius:8px;background:var(--toggle-track);position:relative;transition:background .3s;flex-shrink:0;}
+.toggle-thumb{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 3px rgba(0,0,0,.3);}
+[data-theme="dark"] .toggle-thumb{transform:translateX(14px);}
+
+/* ═══ DATE BAR — hidden, info moved to popover ═══ */
+.date-bar{display:none;}
+.date-bar-left{display:flex;align-items:center;gap:14px;}
+.date-bar-assembly{display:flex;align-items:center;gap:5px;font-weight:600;color:var(--text-primary);}
+.date-bar-assembly svg{width:12px;height:12px;stroke:var(--blue);fill:none;stroke-width:2;}
+
+/* ═══ MAIN LAYOUT ═══ */
+.dash-layout{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:0;
+  min-height:calc(100vh - 52px);
+  transition:grid-template-columns .25s cubic-bezier(.4,0,.2,1);
+}
+.dash-layout.sidebar-collapsed{
+  grid-template-columns:52px 1fr;
+}
+
+/* ═══ SIDEBAR ═══ */
+.dash-sidebar{
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--sidebar-border);
+  padding:8px 8px 0;
+  position:sticky;top:52px;height:calc(100vh - 52px);
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
+  transition:background .25s,border-color .25s,width .25s cubic-bezier(.4,0,.2,1);
+  width:220px;
+  display:flex;flex-direction:column;
+}
+.dash-sidebar::-webkit-scrollbar{display:none;}
+
+/* Sidebar scrollable content */
+.sidebar-scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:8px;}
+.sidebar-scroll::-webkit-scrollbar{display:none;}
+
+/* Appbar toggle icon flips when sidebar is collapsed */
+.sidebar-collapsed .topnav-toggle svg{transform:scaleX(-1);}
+
+/* ── Sidebar bottom: theme toggle + profile ── */
+.sidebar-bottom{
+  border-top:1px solid var(--sidebar-border);
+  padding:8px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:2px;
+}
+.sidebar-theme-row{
+  display:flex;align-items:center;gap:9px;padding:7px 8px;
+  border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--text-secondary);
+  transition:background .15s,color .15s;
+  justify-content:space-between;
+  user-select:none;
+}
+.sidebar-theme-row:hover{background:var(--bg-hover);color:var(--text-primary);}
+.sidebar-theme-row-left{display:flex;align-items:center;gap:9px;}
+.sidebar-theme-row svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0;}
+.sidebar-profile-row{
+  display:flex;align-items:center;gap:9px;padding:7px 8px;
+  border-radius:6px;cursor:pointer;
+  transition:background .15s;
+  position:relative;
+}
+.sidebar-profile-row:hover{background:var(--bg-hover);}
+.sidebar-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:11px;font-weight:700;flex-shrink:0;
+}
+.sidebar-profile-info{flex:1;min-width:0;}
+.sidebar-profile-name{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sidebar-profile-role{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sidebar-notif-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;}
+
+/* Collapsed state */
+.dash-layout.sidebar-collapsed .dash-sidebar{width:52px;}
+.dash-layout.sidebar-collapsed .sidebar-section-label{opacity:0;height:0;margin:0;overflow:hidden;pointer-events:none;}
+.dash-layout.sidebar-collapsed .sidebar-item-label{display:none;}
+.dash-layout.sidebar-collapsed .si-badge{display:none;}
+.dash-layout.sidebar-collapsed .si-count{display:none;}
+.dash-layout.sidebar-collapsed .sidebar-divider{margin:6px 0;}
+.dash-layout.sidebar-collapsed .mod-nav-item .mod-label{display:none;}
+.dash-layout.sidebar-collapsed .sidebar-item{justify-content:center;padding:7px 0;}
+.dash-layout.sidebar-collapsed .mod-nav-item{justify-content:center;padding:6px 0;}
+.dash-layout.sidebar-collapsed .mod-placeholder{justify-content:center;padding:7px 0;border:none;background:none;}
+.dash-layout.sidebar-collapsed .mod-placeholder-label{display:none;}
+.dash-layout.sidebar-collapsed .mod-placeholder-badge{display:none;}
+.dash-layout.sidebar-collapsed .mod-placeholder .ext-icon{display:none;}
+
+.dash-layout.sidebar-collapsed .sidebar-theme-row{justify-content:center;padding:7px 0;}
+.dash-layout.sidebar-collapsed .sidebar-theme-row-left{gap:0;}
+.dash-layout.sidebar-collapsed .sidebar-theme-row .toggle-track{display:none;}
+.dash-layout.sidebar-collapsed .sidebar-theme-row span:not(.sidebar-theme-row-left){display:none;}
+.dash-layout.sidebar-collapsed .sidebar-theme-row-label{display:none;}
+.dash-layout.sidebar-collapsed .sidebar-profile-row{justify-content:center;padding:7px 0;}
+.dash-layout.sidebar-collapsed .sidebar-profile-info{display:none;}
+.dash-layout.sidebar-collapsed .sidebar-notif-dot{display:none;}
+
+/* Tooltip on collapsed hover */
+.dash-layout.sidebar-collapsed .sidebar-item{position:relative;}
+.dash-layout.sidebar-collapsed .sidebar-item:hover::after{
+  content:attr(data-label);
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border);border-radius:6px;
+  padding:5px 10px;font-size:12px;font-weight:500;white-space:nowrap;
+  box-shadow:var(--shadow-md);z-index:999;pointer-events:none;
+}
+.dash-layout.sidebar-collapsed .mod-nav-item:hover::after{
+  content:attr(data-label);
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border);border-radius:6px;
+  padding:5px 10px;font-size:12px;font-weight:500;white-space:nowrap;
+  box-shadow:var(--shadow-md);z-index:999;pointer-events:none;
+}
+.dash-layout.sidebar-collapsed .sidebar-theme-row{position:relative;}
+.dash-layout.sidebar-collapsed .sidebar-theme-row:hover::after{
+  content:'Toggle theme';
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border);border-radius:6px;
+  padding:5px 10px;font-size:12px;font-weight:500;white-space:nowrap;
+  box-shadow:var(--shadow-md);z-index:999;pointer-events:none;
+}
+.dash-layout.sidebar-collapsed .sidebar-profile-row{position:relative;}
+.dash-layout.sidebar-collapsed .sidebar-profile-row:hover::after{
+  content:'Rev. Admin';
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border);border-radius:6px;
+  padding:5px 10px;font-size:12px;font-weight:500;white-space:nowrap;
+  box-shadow:var(--shadow-md);z-index:999;pointer-events:none;
+}
+
+.sidebar-section{margin-bottom:20px;}
+.sidebar-section-label{
+  font-size:10px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.8px;padding:0 8px;margin-bottom:6px;
+  white-space:nowrap;overflow:hidden;
+  transition:opacity .15s,height .2s;
+}
+.sidebar-item{
+  display:flex;align-items:center;gap:9px;padding:7px 8px;
+  border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--text-secondary);margin-bottom:1px;
+  transition:background .15s,color .15s,padding .25s,justify-content .25s;position:relative;
+}
+.sidebar-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+.sidebar-item.active{background:var(--sidebar-active-bg);color:var(--sidebar-active-color);}
+.sidebar-item.active::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:20px;border-radius:0 2px 2px 0;background:var(--sidebar-active-border);}
+.sidebar-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0;}
+.sidebar-item .si-badge{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;background:var(--badge-red-bg);color:var(--red);}
+.sidebar-item .si-count{margin-left:auto;font-size:11px;color:var(--text-muted);background:var(--bg-inset);padding:1px 6px;border-radius:8px;border:1px solid var(--border);}
+.sidebar-item .si-summary-chip{
+  font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+  padding:1px 5px;border-radius:3px;margin-left:auto;flex-shrink:0;
+  background:var(--bg-inset);color:var(--text-muted);border:1px solid var(--border);
+  white-space:nowrap;
+}
+.dash-layout.sidebar-collapsed .si-summary-chip{display:none;}
+.sidebar-item-label{white-space:nowrap;overflow:hidden;}
+.sidebar-divider{height:1px;background:var(--border-subtle);margin:8px 0;}
+
+/* Module nav items */
+.mod-nav-item{
+  display:flex;align-items:center;gap:9px;padding:6px 8px;
+  border-radius:6px;cursor:pointer;font-size:12px;
+  color:var(--text-secondary);margin-bottom:1px;
+  transition:background .15s,color .15s,padding .25s;
+  position:relative;
+}
+.mod-nav-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+.mod-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.mod-label{white-space:nowrap;overflow:hidden;}
+
+/* Module placeholder items (external links to real modules) */
+.mod-placeholder{
+  display:flex;align-items:center;gap:9px;padding:7px 8px;
+  border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--text-secondary);margin-bottom:1px;
+  transition:background .15s,color .15s;
+  position:relative;
+  border:1px dashed var(--border);
+  background:var(--bg-inset);
+}
+.mod-placeholder:hover{background:var(--bg-hover);color:var(--text-primary);border-color:var(--blue);}
+.mod-placeholder svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0;}
+.mod-placeholder-label{flex:1;white-space:nowrap;overflow:hidden;}
+.mod-placeholder-badge{
+  font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
+  padding:1px 5px;border-radius:4px;
+  background:var(--badge-bg);color:var(--text-muted);
+  flex-shrink:0;
+}
+.mod-placeholder .ext-icon{width:11px;height:11px;stroke:var(--text-muted);fill:none;stroke-width:2;flex-shrink:0;}
+
+/* ═══ MAIN CONTENT ═══ */
+.dash-main{padding:20px 24px;min-width:0;}
+
+/* ═══ PAGE SECTIONS ═══ */
+.dash-section{display:none;}
+.dash-section.active{display:block;}
+
+/* ═══ WELCOME BANNER ═══ */
+.welcome-banner{
+  background:linear-gradient(135deg,var(--blue) 0%,#1a5fb4 60%,#0969da 100%);
+  border-radius:12px;padding:20px 24px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.welcome-banner::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+}
+.welcome-banner::after{
+  content:'';position:absolute;bottom:-60px;right:80px;
+  width:150px;height:150px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.wb-left{position:relative;z-index:1;}
+.wb-greeting{font-size:11px;font-weight:600;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+.wb-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px;margin-bottom:6px;}
+.wb-sub{font-size:13px;color:rgba(255,255,255,.72);}
+.wb-right{display:flex;gap:10px;position:relative;z-index:1;flex-shrink:0;}
+.wb-btn{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.wb-btn:hover{background:rgba(255,255,255,.25);}
+.wb-btn.primary{background:#fff;color:var(--blue);}
+.wb-btn.primary:hover{background:rgba(255,255,255,.9);}
+
+/* ═══ ALERTS BAR ═══ */
+.alerts-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.alert-pill{
+  display:flex;align-items:center;gap:7px;padding:7px 12px;
+  border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;
+  transition:opacity .15s;flex-shrink:0;
+}
+.alert-pill:hover{opacity:.85;}
+.alert-pill svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.alert-pill.warn{background:var(--badge-yellow-bg);color:#9a6700;border:1px solid rgba(154,103,0,.2);}
+.alert-pill.danger{background:var(--badge-red-bg);color:var(--red);border:1px solid var(--red-glow);}
+.alert-pill.info{background:var(--badge-blue-bg);color:#0969da;border:1px solid rgba(9,105,218,.2);}
+.alert-pill.success{background:var(--badge-green-bg);color:var(--green);border:1px solid rgba(26,127,55,.2);}
+.alert-dismiss{width:16px;height:16px;background:none;border:none;display:flex;align-items:center;justify-content:center;color:inherit;opacity:.5;cursor:pointer;margin-left:2px;}
+.alert-dismiss:hover{opacity:1;}
+.alert-dismiss svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;}
+
+/* ═══ KPI STRIP ═══ */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.kpi-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;
+  transition:border-color .15s,box-shadow .15s,background .25s;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.kpi-card:hover{border-color:var(--card-hover-border,#1a5fb4);box-shadow:var(--shadow-md);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.kpi-card.members::before{background:var(--mod-members);}
+.kpi-card.finance::before{background:var(--mod-finance);}
+.kpi-card.events::before{background:var(--mod-events);}
+.kpi-card.comms::before{background:var(--mod-comms);}
+.kpi-card.pastoral::before{background:var(--red);}
+.kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.kpi-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.kpi-icon.members{background:var(--blue-light);color:var(--mod-members);}
+.kpi-icon.finance{background:var(--green-bg);color:var(--mod-finance);}
+.kpi-icon.events{background:var(--purple-bg);color:var(--mod-events);}
+.kpi-icon.comms{background:var(--orange-bg);color:var(--mod-comms);}
+.kpi-icon.pastoral{background:var(--badge-red-bg);color:var(--red);}
+.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.kpi-value{font-size:24px;font-weight:700;color:var(--text-primary);line-height:1.1;letter-spacing:-.5px;}
+.kpi-sub{font-size:11px;color:var(--text-secondary);margin-top:3px;}
+.kpi-bar{height:3px;border-radius:2px;background:var(--stat-bar-bg);margin-top:10px;overflow:hidden;}
+.kpi-fill{height:3px;border-radius:2px;transition:width .8s ease;}
+.kpi-trend{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;margin-top:3px;}
+.kpi-trend.up{color:var(--green);}
+.kpi-trend.down{color:var(--red);}
+.kpi-trend svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;}
+
+/* ═══ GRID LAYOUT ═══ */
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+.dash-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.dash-grid-wide{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;}
+.dash-grid-wide-r{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:20px;}
+
+/* ═══ CARDS ═══ */
+.card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;
+  transition:background .25s,border-color .25s;
+}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-size:13px;font-weight:600;color:var(--text-primary);}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.card-link{font-size:12px;color:var(--blue);cursor:pointer;font-weight:500;white-space:nowrap;}
+.card-link:hover{text-decoration:underline;}
+
+/* Module label strip */
+.mod-label{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  padding:2px 7px;border-radius:6px;margin-bottom:10px;
+}
+.mod-label.members{background:var(--blue-light);color:var(--mod-members);}
+.mod-label.finance{background:var(--green-bg);color:var(--mod-finance);}
+.mod-label.events{background:var(--purple-bg);color:var(--mod-events);}
+.mod-label.comms{background:var(--orange-bg);color:var(--mod-comms);}
+.mod-label.auth{background:var(--badge-red-bg);color:var(--mod-auth);}
+.mod-label svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ═══ BADGES ═══ */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 7px;border-radius:10px;background:var(--badge-bg);color:var(--badge-color);font-weight:500;white-space:nowrap;}
+.badge.green{background:var(--badge-green-bg);color:var(--badge-green-color);}
+.badge.red{background:var(--badge-red-bg);color:var(--badge-red-color);}
+.badge.yellow{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);}
+.badge.blue{background:var(--badge-blue-bg);color:var(--badge-blue-color);}
+.badge.purple{background:var(--badge-purple-bg);color:var(--badge-purple-color);}
+
+/* ═══ STAT BARS ═══ */
+.stat-bar{height:4px;border-radius:2px;background:var(--stat-bar-bg);overflow:hidden;}
+.stat-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+.bar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.bar-label{font-size:12px;color:var(--text-secondary);}
+.bar-val{font-size:12px;font-weight:600;color:var(--text-primary);}
+
+/* ═══ BUTTONS ═══ */
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;transition:opacity .15s;white-space:nowrap;}
+.btn-primary:hover{opacity:.88;}
+.btn-outline{display:inline-flex;align-items:center;gap:6px;background:var(--bg-card);color:var(--text-secondary);border:1px solid var(--border);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;transition:border-color .15s,color .15s;white-space:nowrap;}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+.btn-ghost{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--text-secondary);font-size:12px;padding:4px 8px;border-radius:6px;transition:background .15s,color .15s;cursor:pointer;}
+.btn-ghost:hover{background:var(--bg-hover);color:var(--text-primary);}
+.btn-ghost svg,.btn-outline svg,.btn-primary svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ═══ MINI AVATAR ═══ */
+.m-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;}
+.m-av.sm{width:26px;height:26px;font-size:9px;}
+
+/* ═══ CHARTS — SVG BAR ═══ */
+.svg-chart-wrap{overflow-x:auto;}
+.chart-svg{display:block;}
+.ch-bar-income{fill:var(--blue);opacity:.8;}
+.ch-bar-expense{fill:var(--red);opacity:.7;}
+.ch-bar-neutral{fill:var(--blue);opacity:.65;}
+.ch-label{fill:var(--text-muted);font-size:10px;font-family:'Inter',sans-serif;}
+.ch-grid{stroke:var(--border-subtle);stroke-width:.8;}
+.ch-axis{stroke:var(--border);stroke-width:1;}
+
+/* Sparkline */
+.sparkline{display:flex;align-items:flex-end;gap:3px;height:36px;}
+.spark-bar{border-radius:2px 2px 0 0;min-width:6px;flex:1;transition:opacity .2s;}
+.spark-bar:hover{opacity:.75;}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:16px;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;flex:1;}
+.donut-leg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-secondary);}
+.donut-leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.donut-leg-val{margin-left:auto;font-weight:600;color:var(--text-primary);font-size:12px;}
+
+/* ═══ TABLE STYLES ═══ */
+.dash-table{width:100%;border-collapse:collapse;font-size:12px;}
+.dash-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);background:var(--table-header-bg);border-bottom:1px solid var(--border);}
+.dash-table td{padding:9px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);vertical-align:middle;}
+.dash-table tr:last-child td{border-bottom:none;}
+.dash-table tr:hover td{background:var(--table-row-hover);}
+.dash-table td:first-child,td.primary{color:var(--text-primary);font-weight:500;}
+
+/* ═══ ACTIVITY FEED ═══ */
+.activity-feed{display:flex;flex-direction:column;gap:0;}
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);position:relative;}
+.activity-item:last-child{border-bottom:none;}
+.act-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.act-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.act-icon.members{background:var(--blue-light);color:var(--mod-members);}
+.act-icon.finance{background:var(--green-bg);color:var(--mod-finance);}
+.act-icon.events{background:var(--purple-bg);color:var(--mod-events);}
+.act-icon.comms{background:var(--orange-bg);color:var(--mod-comms);}
+.act-icon.pastoral{background:var(--badge-red-bg);color:var(--red);}
+.act-icon.auth{background:var(--badge-red-bg);color:var(--red);}
+.act-content{flex:1;min-width:0;}
+.act-text{font-size:13px;color:var(--text-primary);line-height:1.4;}
+.act-text strong{font-weight:600;}
+.act-meta{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.act-time{font-size:11px;color:var(--text-muted);flex-shrink:0;margin-top:2px;}
+
+/* ═══ MODULE SUMMARY CARDS ═══ */
+.mod-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+  transition:border-color .15s,box-shadow .15s,background .25s;cursor:pointer;
+}
+.mod-card:hover{border-color:var(--card-hover-color,#1a5fb4);box-shadow:var(--shadow-md);}
+.mod-card-header{padding:14px 16px 10px;border-bottom:1px solid var(--border-subtle);}
+.mod-card-body{padding:12px 16px;}
+.mod-card-title{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+.mod-card-desc{font-size:12px;color:var(--text-secondary);}
+.mod-stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-subtle);}
+.mod-stat-row:last-child{border-bottom:none;}
+.mod-stat-label{font-size:12px;color:var(--text-secondary);}
+.mod-stat-val{font-size:13px;font-weight:600;color:var(--text-primary);}
+.mod-card-footer{padding:10px 16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;}
+.mod-card-footer-link{font-size:12px;color:var(--blue);font-weight:500;display:flex;align-items:center;gap:4px;}
+.mod-card-footer-link svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;}
+
+/* ═══ UPCOMING EVENTS ═══ */
+.evt-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.evt-item:last-child{border-bottom:none;}
+.evt-date-block{width:38px;height:40px;border-radius:8px;background:var(--bg-inset);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.evt-date-day{font-size:15px;font-weight:700;color:var(--text-primary);line-height:1;}
+.evt-date-mon{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-top:1px;}
+.evt-info{flex:1;min-width:0;}
+.evt-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evt-meta{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.evt-reg{font-size:11px;color:var(--text-secondary);flex-shrink:0;}
+
+/* ═══ PASTORAL FLAGS ═══ */
+.flag-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.flag-item:last-child{border-bottom:none;}
+.flag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.flag-name{font-size:13px;font-weight:500;color:var(--text-primary);}
+.flag-reason{font-size:12px;color:var(--text-secondary);}
+.flag-date{font-size:11px;color:var(--text-muted);}
+
+/* ═══ FINANCE ITEMS ═══ */
+.txn-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.txn-item:last-child{border-bottom:none;}
+.txn-info{flex:1;min-width:0;}
+.txn-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.txn-type{font-size:11px;color:var(--text-muted);}
+.txn-amount{font-size:13px;font-weight:700;flex-shrink:0;}
+.txn-amount.income{color:var(--green);}
+.txn-amount.expense{color:var(--red);}
+
+/* ═══ COMMS ITEMS ═══ */
+.msg-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.msg-item:last-child{border-bottom:none;}
+.msg-info{flex:1;min-width:0;}
+.msg-title{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-meta{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.msg-stat{font-size:11px;font-weight:600;color:var(--green);flex-shrink:0;}
+
+/* ═══ QUICK ACTIONS GRID ═══ */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.qa-btn{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:14px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;transition:border-color .15s,box-shadow .15s,background .25s;
+  text-align:center;
+}
+.qa-btn:hover{border-color:var(--blue);box-shadow:var(--shadow-sm);}
+.qa-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.qa-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.qa-label{font-size:12px;font-weight:500;color:var(--text-primary);line-height:1.3;}
+
+/* ═══ HEALTH SCORE ═══ */
+.health-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.health-item{text-align:center;}
+.health-score-ring{width:56px;height:56px;margin:0 auto 6px;position:relative;}
+.health-score-ring svg{width:56px;height:56px;transform:rotate(-90deg);}
+.health-score-ring circle{fill:none;stroke-width:5;}
+.health-score-ring .bg-ring{stroke:var(--stat-bar-bg);}
+.health-score-ring .fg-ring{stroke-linecap:round;transition:stroke-dashoffset .8s ease;}
+.health-score-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;font-weight:700;color:var(--text-primary);}
+.health-label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+
+/* ═══ MEMBER LIST ═══ */
+.member-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.member-row:last-child{border-bottom:none;}
+.member-info{flex:1;min-width:0;}
+.member-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.member-sub{font-size:11px;color:var(--text-muted);}
+
+/* ═══ SECTION HEADERS ═══ */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-size:15px;font-weight:700;color:var(--text-primary);letter-spacing:-.2px;}
+.section-sub{font-size:12px;color:var(--text-muted);margin-top:1px;}
+
+/* ═══ MOBILE: HEADER (never shown — sidebar used on all sizes) ═══ */
+.mobile-header{display:none!important;}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1b1f23;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;z-index:800;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══ DRAWER OVERLAY (mobile/tablet) ═══ */
+.drawer-backdrop{
+  display:none;position:fixed;inset:0;z-index:399;
+  background:var(--overlay-bg);
+  opacity:0;transition:opacity .25s;
+}
+.drawer-backdrop.show{opacity:1;}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1200px){
+  .kpi-strip{grid-template-columns:repeat(3,1fr);}
+  .dash-grid-3{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:960px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+  .dash-grid-wide,.dash-grid-wide-r{grid-template-columns:1fr;}
+  .qa-grid{grid-template-columns:repeat(4,1fr);}
+  .health-grid{grid-template-columns:repeat(3,1fr);}
+  /* ── Drawer mode: sidebar floats over content ── */
+  .dash-layout{grid-template-columns:1fr;}
+  .dash-layout.sidebar-collapsed{grid-template-columns:1fr;}
+  .topnav-sidebar-area{width:52px;border-right:none;}
+  .logo{opacity:1;pointer-events:auto;}
+  .dash-sidebar{
+    position:fixed;top:52px;left:0;z-index:400;
+    height:calc(100vh - 52px);width:220px!important;
+    transform:translateX(-100%);
+    transition:transform .25s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;
+    box-shadow:var(--shadow-lg);
+  }
+  /* Show all sidebar labels even when desktop-collapsed class is present */
+  .dash-sidebar .sidebar-section-label{opacity:1!important;height:auto!important;margin-bottom:6px!important;overflow:visible!important;pointer-events:auto!important;}
+  .dash-sidebar .sidebar-item-label{display:block!important;}
+  .dash-sidebar .si-badge{display:inline-flex!important;}
+  .dash-sidebar .si-count{display:inline-flex!important;}
+  .dash-sidebar .si-summary-chip{display:inline-flex!important;}
+  .dash-sidebar .sidebar-item{justify-content:flex-start!important;padding:7px 8px!important;}
+  .dash-sidebar .mod-nav-item{justify-content:flex-start!important;padding:6px 8px!important;}
+  .dash-sidebar .mod-nav-item .mod-label{display:block!important;}
+  .dash-sidebar .mod-placeholder{justify-content:flex-start!important;padding:7px 8px!important;border:1px dashed var(--border)!important;background:var(--bg-inset)!important;}
+  .dash-sidebar .mod-placeholder-label{display:block!important;}
+  .dash-sidebar .mod-placeholder-badge{display:inline-flex!important;}
+  .dash-sidebar .mod-placeholder .ext-icon{display:block!important;}
+  .dash-sidebar .sidebar-theme-row{justify-content:space-between!important;padding:7px 8px!important;}
+  .dash-sidebar .sidebar-theme-row-left{gap:9px!important;}
+  .dash-sidebar .sidebar-theme-row .toggle-track{display:block!important;}
+  .dash-sidebar .sidebar-theme-row-label{display:block!important;}
+  .dash-sidebar .sidebar-profile-row{justify-content:flex-start!important;padding:7px 8px!important;}
+  .dash-sidebar .sidebar-profile-info{display:block!important;}
+  .dash-sidebar .sidebar-notif-dot{display:block!important;}
+  /* Open state — triggered by JS adding .drawer-open to body */
+  body.drawer-open .dash-sidebar{transform:translateX(0);}
+  body.drawer-open .drawer-backdrop{display:block;}
+}
+@media(max-width:768px){
+  .dash-main{padding:14px 14px 20px;}
+  .welcome-banner{flex-direction:column;gap:14px;align-items:flex-start;}
+  .wb-right{flex-wrap:wrap;}
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+  .dash-grid-3,.dash-grid-2,.dash-grid-wide,.dash-grid-wide-r{grid-template-columns:1fr;}
+  .qa-grid{grid-template-columns:repeat(2,1fr);}
+  .health-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:480px){
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+  .qa-grid{grid-template-columns:repeat(2,1fr);}
+  .health-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     TOP NAV
+═══════════════════════════════════════════ -->
+<nav class="topnav">
+  <!-- Left: mirrors sidebar width -->
+  <div class="topnav-sidebar-area">
+    <button class="topnav-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    </button>
+    <a class="logo" href="#">
+      <div class="logo-cross"></div>
+      CACI Hub
+    </a>
+  </div>
+  <!-- Right: main app bar -->
+  <div class="topnav-main-area">
+    <button class="topnav-info-btn" onclick="toggleInfoPopover(this)" id="infoBtn">
+      <div class="info-dot"></div>
+      Accra Central Assembly
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="info-popover" id="infoPopover">
+        <div class="info-popover-row">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <strong>Accra Central Assembly</strong>
+        </div>
+        <div class="info-popover-row">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="popoverDate">Friday, 8 May 2026</span> &nbsp;·&nbsp; Week 19 of 52
+        </div>
+        <div class="info-popover-row">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="ipr-green">All systems operational</span>
+        </div>
+
+      </div>
+    </button>
+  </div>
+</nav>
+
+<!-- date-bar removed; info moved to topnav popover -->
+
+
+<!-- Drawer backdrop (mobile/tablet only) -->
+<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════ -->
+<div class="dash-layout">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="dash-sidebar">
+
+    <!-- Scrollable nav area -->
+    <div class="sidebar-scroll">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Dashboard</div>
+        <div class="sidebar-item active" data-label="Overview" onclick="showSection('overview',this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="sidebar-item-label">Overview</span>
+        </div>
+        <div class="sidebar-item" data-label="Analytics" onclick="showSection('analytics',this)">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span class="sidebar-item-label">Analytics</span>
+        </div>
+        <div class="sidebar-item" data-label="Alerts &amp; Actions" onclick="showSection('alerts',this)">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="sidebar-item-label">Alerts &amp; Actions</span>
+          <span class="si-badge">7</span>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Summary</div>
+        <div class="sidebar-item" data-label="Members" onclick="showSection('members-summary',this)">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="sidebar-item-label">Members</span>
+        </div>
+        <div class="sidebar-item" data-label="Finance" onclick="showSection('finance-summary',this)">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="sidebar-item-label">Finance</span>
+        </div>
+        <div class="sidebar-item" data-label="Events" onclick="showSection('events-summary',this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="sidebar-item-label">Events</span>
+        </div>
+        <div class="sidebar-item" data-label="Communication" onclick="showSection('comms-summary',this)">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="sidebar-item-label">Communication</span>
+        </div>
+        <div class="sidebar-item" data-label="Pastoral Care" onclick="showSection('pastoral-summary',this)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="sidebar-item-label">Pastoral Care</span>
+          <span class="si-badge">7</span>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Modules</div>
+        <div class="mod-placeholder" data-label="Members App" onclick="showToast('Members module — integration coming soon')">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="mod-placeholder-label">Members App</span>
+          <span class="mod-placeholder-badge">Soon</span>
+          <svg class="ext-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+        <div class="mod-placeholder" data-label="Finance App" onclick="showToast('Finance module — integration coming soon')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="mod-placeholder-label">Finance App</span>
+          <span class="mod-placeholder-badge">Soon</span>
+          <svg class="ext-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+        <div class="mod-placeholder" data-label="Events App" onclick="showToast('Events module — integration coming soon')">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span class="mod-placeholder-label">Events App</span>
+          <span class="mod-placeholder-badge">Soon</span>
+          <svg class="ext-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+        <div class="mod-placeholder" data-label="Comms App" onclick="showToast('Communication module — integration coming soon')">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="mod-placeholder-label">Comms App</span>
+          <span class="mod-placeholder-badge">Soon</span>
+          <svg class="ext-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+        <div class="mod-placeholder" data-label="Settings" onclick="showToast('Settings — coming soon')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="mod-placeholder-label">Settings</span>
+          <span class="mod-placeholder-badge">Soon</span>
+          <svg class="ext-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Quick Links</div>
+        <div class="sidebar-item" data-label="Add Member" onclick="showToast('Opening Add Member…')">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          <span class="sidebar-item-label">Add Member</span>
+        </div>
+        <div class="sidebar-item" data-label="Record Transaction" onclick="showToast('Opening Record Transaction…')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="sidebar-item-label">Record Transaction</span>
+        </div>
+        <div class="sidebar-item" data-label="New Event" onclick="showToast('Opening New Event…')">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+          <span class="sidebar-item-label">New Event</span>
+        </div>
+        <div class="sidebar-item" data-label="Send Message" onclick="showToast('Opening Compose Message…')">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span class="sidebar-item-label">Send Message</span>
+        </div>
+        <div class="sidebar-item" data-label="Export Reports" onclick="showToast('Opening Export…')">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="sidebar-item-label">Export Reports</span>
+        </div>
+      </div>
+    </div><!-- end sidebar-scroll -->
+
+    <!-- Bottom: theme toggle + profile -->
+    <div class="sidebar-bottom">
+      <div class="sidebar-theme-row" onclick="toggleTheme()">
+        <div class="sidebar-theme-row-left">
+          <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <span class="sidebar-item-label sidebar-theme-row-label" id="sidebarThemeLabel">Light mode</span>
+        </div>
+        <div class="toggle-track sidebar-item-label"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="sidebar-profile-row" onclick="showToast('Profile settings…')">
+        <div class="sidebar-avatar">RA</div>
+        <div class="sidebar-profile-info">
+          <div class="sidebar-profile-name">Rev. Admin</div>
+          <div class="sidebar-profile-role">Super Admin</div>
+        </div>
+        <div class="sidebar-notif-dot"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <div class="dash-main">
+
+    <!-- ░░░ OVERVIEW SECTION ░░░ -->
+    <div class="dash-section active" id="section-overview">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <div class="wb-left">
+          <div class="wb-greeting">Good morning</div>
+          <div class="wb-title">Welcome back, Rev. Admin 👋</div>
+          <div class="wb-sub">Here's what's happening at Accra Central Assembly today · Sunday Service this week — 284 attended last Sunday</div>
+        </div>
+        <div class="wb-right">
+          <button class="wb-btn" onclick="showToast('Generating weekly summary…')">Weekly Summary</button>
+          <button class="wb-btn primary" onclick="showSection('analytics',null)">View Analytics</button>
+        </div>
+      </div>
+
+      <!-- Alert Pills -->
+      <div class="alerts-row" id="alertsRow">
+        <div class="alert-pill danger">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          7 open pastoral flags require attention
+          <button class="alert-dismiss" onclick="dismissAlert(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="alert-pill warn">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          18 members unreachable — invalid contact info
+          <button class="alert-dismiss" onclick="dismissAlert(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="alert-pill warn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          ₵12,400 in pledges outstanding this month
+          <button class="alert-dismiss" onclick="dismissAlert(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="alert-pill info">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Annual Convention 2025 — 78% capacity filled
+          <button class="alert-dismiss" onclick="dismissAlert(this)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+
+      <!-- KPI Strip -->
+      <div class="kpi-strip">
+
+        <div class="kpi-card members" onclick="showSection('members-summary',null)">
+          <div class="kpi-icon members">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="kpi-label">Total Members</div>
+          <div class="kpi-value">347</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>+12 this month</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:89%;background:var(--mod-members);"></div></div>
+        </div>
+
+        <div class="kpi-card finance" onclick="showSection('finance-summary',null)">
+          <div class="kpi-icon finance">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="kpi-label">Net Balance YTD</div>
+          <div class="kpi-value">₵53.4k</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>₵142.8k income</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:60%;background:var(--mod-finance);"></div></div>
+        </div>
+
+        <div class="kpi-card events" onclick="showSection('events-summary',null)">
+          <div class="kpi-icon events">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="kpi-label">Upcoming Events</div>
+          <div class="kpi-value">8</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>148 registered</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:33%;background:var(--mod-events);"></div></div>
+        </div>
+
+        <div class="kpi-card comms" onclick="showSection('comms-summary',null)">
+          <div class="kpi-icon comms">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="kpi-label">Messages Sent (YTD)</div>
+          <div class="kpi-value">3,824</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>94.7% delivery</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:75%;background:var(--mod-comms);"></div></div>
+        </div>
+
+        <div class="kpi-card pastoral" onclick="showSection('pastoral-summary',null)">
+          <div class="kpi-icon pastoral">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div class="kpi-label">Open Pastoral Flags</div>
+          <div class="kpi-value" style="color:var(--red);">7</div>
+          <div class="kpi-trend down"><svg viewBox="0 0 24 24" style="transform:rotate(180deg)"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Needs attention</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:50%;background:var(--red);"></div></div>
+        </div>
+
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="qa-grid">
+        <div class="qa-btn" onclick="showToast('Opening Add Member…')">
+          <div class="qa-icon" style="background:var(--blue-light);color:var(--mod-members);">
+            <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </div>
+          <div class="qa-label">Add Member</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening Record Giving…')">
+          <div class="qa-icon" style="background:var(--green-bg);color:var(--mod-finance);">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="qa-label">Record Giving</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening Mark Attendance…')">
+          <div class="qa-icon" style="background:var(--badge-yellow-bg);color:#9a6700;">
+            <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="qa-label">Mark Attendance</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening Compose Message…')">
+          <div class="qa-icon" style="background:var(--orange-bg);color:var(--mod-comms);">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </div>
+          <div class="qa-label">Send Message</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening New Event…')">
+          <div class="qa-icon" style="background:var(--purple-bg);color:var(--mod-events);">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+          </div>
+          <div class="qa-label">New Event</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening Add Pledge…')">
+          <div class="qa-icon" style="background:var(--badge-blue-bg);color:#0969da;">
+            <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="qa-label">Add Pledge</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening Add Pastoral Flag…')">
+          <div class="qa-icon" style="background:var(--badge-red-bg);color:var(--red);">
+            <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          </div>
+          <div class="qa-label">Flag Member</div>
+        </div>
+        <div class="qa-btn" onclick="showToast('Opening Export Reports…')">
+          <div class="qa-icon" style="background:var(--bg-inset);color:var(--text-secondary);">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div class="qa-label">Export Report</div>
+        </div>
+      </div>
+
+      <!-- Row 1: Church Health + Activity Feed -->
+      <div class="dash-grid-wide">
+
+        <!-- Church Health Score -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Church Health Score</div>
+              <div class="card-sub">Cross-module performance snapshot</div>
+            </div>
+            <button class="btn-ghost" onclick="showSection('analytics',null)">Details →</button>
+          </div>
+          <div class="health-grid" id="healthGrid"></div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;">Overall Score</div>
+              <div style="font-size:26px;font-weight:700;color:var(--text-primary);letter-spacing:-.8px;">81 <span style="font-size:14px;font-weight:400;color:var(--text-muted);">/ 100</span></div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge green" style="font-size:12px;padding:4px 10px;">Healthy</span>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">↑ +3 pts vs last month</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Activity</div>
+            <button class="btn-ghost">View all →</button>
+          </div>
+          <div class="activity-feed" id="activityFeed"></div>
+        </div>
+
+      </div>
+
+      <!-- Row 2: Finance snapshot + Events + Pastoral -->
+      <div class="dash-grid-3">
+
+        <!-- Finance Snapshot -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div>
+              <div class="mod-label finance">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Finance
+              </div>
+              <div class="card-title">Income vs Expenses</div>
+            </div>
+            <button class="btn-ghost" onclick="showSection('finance-summary',null)">→</button>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <div style="flex:1;background:var(--green-bg);border-radius:8px;padding:10px 12px;border:1px solid rgba(26,127,55,.2);">
+              <div style="font-size:16px;font-weight:700;color:var(--green);">₵142.8k</div>
+              <div style="font-size:11px;color:var(--green);margin-top:1px;opacity:.8;">Total Income</div>
+            </div>
+            <div style="flex:1;background:var(--badge-red-bg);border-radius:8px;padding:10px 12px;border:1px solid var(--red-glow);">
+              <div style="font-size:16px;font-weight:700;color:var(--red);">₵89.4k</div>
+              <div style="font-size:11px;color:var(--red);margin-top:1px;opacity:.8;">Total Expenses</div>
+            </div>
+          </div>
+
+          <div class="sparkline" id="finSparkline" style="margin-bottom:8px;"></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">Monthly income (Jan–May 2025)</div>
+
+          <div class="bar-row"><span class="bar-label">Tithes (May)</span><span class="bar-val">₵18,240</span></div>
+          <div class="stat-bar" style="margin-bottom:8px;"><div class="stat-fill" style="width:84%;background:var(--mod-finance);"></div></div>
+          <div class="bar-row"><span class="bar-label">Offerings (May)</span><span class="bar-val">₵6,820</span></div>
+          <div class="stat-bar" style="margin-bottom:8px;"><div class="stat-fill" style="width:45%;background:var(--blue);"></div></div>
+          <div class="bar-row"><span class="bar-label">Building Fund</span><span class="bar-val">₵4,200</span></div>
+          <div class="stat-bar" style="margin-bottom:12px;"><div class="stat-fill" style="width:30%;background:var(--purple);"></div></div>
+
+          <div style="display:flex;gap:6px;">
+            <button class="btn-outline" style="flex:1;justify-content:center;font-size:11px;" onclick="showToast('Opening Finance module…')">View Finance</button>
+            <button class="btn-primary" style="flex:1;justify-content:center;font-size:11px;" onclick="showToast('Opening Record Transaction…')">Record</button>
+          </div>
+        </div>
+
+        <!-- Events Snapshot -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div>
+              <div class="mod-label events">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                Events
+              </div>
+              <div class="card-title">Upcoming Events</div>
+            </div>
+            <button class="btn-ghost" onclick="showSection('events-summary',null)">→</button>
+          </div>
+          <div id="eventsSnapshot"></div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);">
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;text-align:center;padding:8px;background:var(--bg-inset);border-radius:6px;border:1px solid var(--border-subtle);">
+                <div style="font-size:16px;font-weight:700;color:var(--text-primary);">24</div>
+                <div style="font-size:10px;color:var(--text-muted);">Total 2025</div>
+              </div>
+              <div style="flex:1;text-align:center;padding:8px;background:var(--bg-inset);border-radius:6px;border:1px solid var(--border-subtle);">
+                <div style="font-size:16px;font-weight:700;color:var(--text-primary);">148</div>
+                <div style="font-size:10px;color:var(--text-muted);">Registrations</div>
+              </div>
+              <div style="flex:1;text-align:center;padding:8px;background:var(--bg-inset);border-radius:6px;border:1px solid var(--border-subtle);">
+                <div style="font-size:16px;font-weight:700;color:var(--text-primary);">76%</div>
+                <div style="font-size:10px;color:var(--text-muted);">Avg Fill Rate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pastoral + Members Snapshot -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:6px;">
+            <div>
+              <div class="mod-label members">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Members
+              </div>
+              <div class="card-title">Members &amp; Care</div>
+            </div>
+            <button class="btn-ghost" onclick="showSection('members-summary',null)">→</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">
+            <div style="padding:10px;background:var(--bg-inset);border-radius:8px;border:1px solid var(--border-subtle);">
+              <div style="font-size:18px;font-weight:700;color:var(--text-primary);">312</div>
+              <div style="font-size:10px;color:var(--text-muted);">Active</div>
+            </div>
+            <div style="padding:10px;background:var(--bg-inset);border-radius:8px;border:1px solid var(--border-subtle);">
+              <div style="font-size:18px;font-weight:700;color:var(--text-primary);">23</div>
+              <div style="font-size:10px;color:var(--text-muted);">Visitors</div>
+            </div>
+            <div style="padding:10px;background:var(--bg-inset);border-radius:8px;border:1px solid var(--border-subtle);">
+              <div style="font-size:18px;font-weight:700;color:var(--text-primary);">12</div>
+              <div style="font-size:10px;color:var(--text-muted);">New (May)</div>
+            </div>
+            <div style="padding:10px;background:var(--badge-red-bg);border-radius:8px;border:1px solid var(--red-glow);">
+              <div style="font-size:18px;font-weight:700;color:var(--red);">7</div>
+              <div style="font-size:10px;color:var(--red);opacity:.8;">Open Flags</div>
+            </div>
+          </div>
+
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Open Pastoral Flags</div>
+          <div id="pastoralSnapshot"></div>
+          <button class="btn-outline" style="width:100%;margin-top:12px;justify-content:center;font-size:11px;" onclick="showSection('pastoral-summary',null)">View All Flags</button>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Members Growth + Communications -->
+      <div class="dash-grid-2">
+
+        <!-- Members Growth Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Membership Growth — 2025</div>
+              <div class="card-sub">Total registered members per month</div>
+            </div>
+            <button class="btn-ghost" onclick="showSection('members-summary',null)">Members →</button>
+          </div>
+          <div class="svg-chart-wrap">
+            <svg class="chart-svg" viewBox="0 0 480 140" width="100%" height="140">
+              <line class="ch-axis" x1="40" y1="10" x2="40" y2="120"/>
+              <line class="ch-axis" x1="40" y1="120" x2="480" y2="120"/>
+              <line class="ch-grid" x1="40" y1="40" x2="480" y2="40" stroke-dasharray="3,3"/>
+              <line class="ch-grid" x1="40" y1="70" x2="480" y2="70" stroke-dasharray="3,3"/>
+              <line class="ch-grid" x1="40" y1="100" x2="480" y2="100" stroke-dasharray="3,3"/>
+              <text x="36" y="43" class="ch-label" text-anchor="end">330</text>
+              <text x="36" y="73" class="ch-label" text-anchor="end">315</text>
+              <text x="36" y="103" class="ch-label" text-anchor="end">298</text>
+              <!-- Jan:298 Feb:311 Mar:327 Apr:341 May:347 -->
+              <rect x="58"  y="102" width="38" height="18" rx="3" class="ch-bar-neutral"/>
+              <rect x="133" y="76"  width="38" height="44" rx="3" class="ch-bar-neutral"/>
+              <rect x="208" y="46"  width="38" height="74" rx="3" class="ch-bar-neutral"/>
+              <rect x="283" y="24"  width="38" height="96" rx="3" class="ch-bar-neutral"/>
+              <rect x="358" y="18"  width="38" height="102" rx="3" class="ch-bar-income"/>
+              <text x="77"  y="132" class="ch-label" text-anchor="middle">Jan</text>
+              <text x="152" y="132" class="ch-label" text-anchor="middle">Feb</text>
+              <text x="227" y="132" class="ch-label" text-anchor="middle">Mar</text>
+              <text x="302" y="132" class="ch-label" text-anchor="middle">Apr</text>
+              <text x="377" y="132" class="ch-label" text-anchor="middle">May</text>
+              <text x="77"  y="100" class="ch-label" text-anchor="middle" style="fill:var(--text-primary);font-weight:600;">298</text>
+              <text x="152" y="74"  class="ch-label" text-anchor="middle" style="fill:var(--text-primary);font-weight:600;">311</text>
+              <text x="227" y="44"  class="ch-label" text-anchor="middle" style="fill:var(--text-primary);font-weight:600;">327</text>
+              <text x="302" y="22"  class="ch-label" text-anchor="middle" style="fill:var(--text-primary);font-weight:600;">341</text>
+              <text x="377" y="16"  class="ch-label" text-anchor="middle" style="fill:var(--mod-members);font-weight:700;">347</text>
+            </svg>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:10px;">
+            <div style="font-size:12px;color:var(--text-secondary);">Active: <strong style="color:var(--text-primary);">312</strong></div>
+            <div style="font-size:12px;color:var(--text-secondary);">Inactive: <strong style="color:var(--text-primary);">8</strong></div>
+            <div style="font-size:12px;color:var(--text-secondary);">Visitors: <strong style="color:var(--text-primary);">23</strong></div>
+            <div style="font-size:12px;color:var(--text-secondary);">Prospects: <strong style="color:var(--text-primary);">4</strong></div>
+          </div>
+        </div>
+
+        <!-- Communications Snapshot -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Communication Activity</div>
+              <div class="card-sub">Messages &amp; campaigns — YTD</div>
+            </div>
+            <button class="btn-ghost" onclick="showSection('comms-summary',null)">Comms →</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+            <div style="text-align:center;padding:10px 8px;background:var(--bg-inset);border-radius:8px;border:1px solid var(--border-subtle);">
+              <div style="font-size:16px;font-weight:700;color:var(--text-primary);">1,904</div>
+              <div style="font-size:10px;color:var(--text-muted);">SMS Sent</div>
+            </div>
+            <div style="text-align:center;padding:10px 8px;background:var(--bg-inset);border-radius:8px;border:1px solid var(--border-subtle);">
+              <div style="font-size:16px;font-weight:700;color:var(--text-primary);">1,102</div>
+              <div style="font-size:10px;color:var(--text-muted);">Emails</div>
+            </div>
+            <div style="text-align:center;padding:10px 8px;background:var(--bg-inset);border-radius:8px;border:1px solid var(--border-subtle);">
+              <div style="font-size:16px;font-weight:700;color:var(--text-primary);">818</div>
+              <div style="font-size:10px;color:var(--text-muted);">In-App</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">SMS Delivery</span><span class="bar-val" style="color:var(--green);">95.8%</span></div>
+            <div class="stat-bar" style="margin-bottom:8px;"><div class="stat-fill" style="width:95.8%;background:var(--blue);"></div></div>
+            <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">Email Delivery</span><span class="bar-val" style="color:var(--green);">93.1%</span></div>
+            <div class="stat-bar" style="margin-bottom:8px;"><div class="stat-fill" style="width:93.1%;background:var(--purple);"></div></div>
+            <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">Email Open Rate</span><span class="bar-val" style="color:var(--purple);">61.4%</span></div>
+            <div class="stat-bar"><div class="stat-fill" style="width:61.4%;background:var(--purple);"></div></div>
+          </div>
+
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Recent Messages</div>
+          <div id="commsSnapshot"></div>
+        </div>
+
+      </div>
+
+      <!-- Row 4: Recent Transactions + New Members -->
+      <div class="dash-grid-2">
+
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Transactions</div>
+            <button class="btn-ghost" onclick="showSection('finance-summary',null)">Finance →</button>
+          </div>
+          <div id="txnSnapshot"></div>
+        </div>
+
+        <!-- Newest Members -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recently Added Members</div>
+            <button class="btn-ghost" onclick="showSection('members-summary',null)">Members →</button>
+          </div>
+          <div id="newMembersSnapshot"></div>
+        </div>
+
+      </div>
+
+    </div>
+    <!-- END OVERVIEW SECTION -->
+
+
+    <!-- ░░░ ANALYTICS SECTION ░░░ -->
+    <div class="dash-section" id="section-analytics">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Analytics</div>
+          <div class="section-sub">Cross-module performance data for Accra Central Assembly · 2025</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select style="height:32px;border:1px solid var(--input-border);border-radius:6px;padding:0 8px;font-size:12px;color:var(--text-primary);background:var(--input-bg);outline:none;">
+            <option>Year 2025</option><option>Q1 2025</option><option>Q2 2025</option><option>Year 2024</option>
+          </select>
+          <button class="btn-outline" onclick="showToast('Exporting analytics report…')">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Analytics KPIs -->
+      <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="kpi-card members">
+          <div class="kpi-icon members"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div class="kpi-label">Member Retention</div>
+          <div class="kpi-value">94.2%</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>↑ vs last year</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:94%;background:var(--mod-members);"></div></div>
+        </div>
+        <div class="kpi-card finance">
+          <div class="kpi-icon finance"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="kpi-label">Giving per Member</div>
+          <div class="kpi-value">₵412</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>avg / month</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:72%;background:var(--mod-finance);"></div></div>
+        </div>
+        <div class="kpi-card events">
+          <div class="kpi-icon events"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div class="kpi-label">Avg Attendance Rate</div>
+          <div class="kpi-value">81.8%</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>↑ 12% vs Q4</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:82%;background:var(--mod-events);"></div></div>
+        </div>
+        <div class="kpi-card comms">
+          <div class="kpi-icon comms"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="kpi-label">Comms Reach Rate</div>
+          <div class="kpi-value">94.7%</div>
+          <div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>↑ 2.1pp vs 2024</div>
+          <div class="kpi-bar"><div class="kpi-fill" style="width:95%;background:var(--mod-comms);"></div></div>
+        </div>
+      </div>
+
+      <div class="dash-grid-wide">
+        <!-- Finance chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Income vs Expenses — Jan to May 2025</div>
+            <div style="display:flex;gap:10px;font-size:12px;align-items:center;">
+              <span style="display:flex;align-items:center;gap:4px;color:var(--text-secondary);"><span style="width:10px;height:10px;border-radius:2px;background:var(--blue);opacity:.8;display:inline-block;"></span>Income</span>
+              <span style="display:flex;align-items:center;gap:4px;color:var(--text-secondary);"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);opacity:.7;display:inline-block;"></span>Expenses</span>
+            </div>
+          </div>
+          <div class="svg-chart-wrap">
+            <svg class="chart-svg" viewBox="0 0 520 160" width="100%" height="160">
+              <line class="ch-axis" x1="44" y1="10" x2="44" y2="130"/>
+              <line class="ch-axis" x1="44" y1="130" x2="520" y2="130"/>
+              <line class="ch-grid" x1="44" y1="40" x2="520" y2="40" stroke-dasharray="3,3"/>
+              <line class="ch-grid" x1="44" y1="70" x2="520" y2="70" stroke-dasharray="3,3"/>
+              <line class="ch-grid" x1="44" y1="100" x2="520" y2="100" stroke-dasharray="3,3"/>
+              <text x="40" y="43" class="ch-label" text-anchor="end">50k</text>
+              <text x="40" y="73" class="ch-label" text-anchor="end">35k</text>
+              <text x="40" y="103" class="ch-label" text-anchor="end">20k</text>
+              <!-- Jan -->
+              <rect x="58"  y="42" width="28" height="88" rx="3" class="ch-bar-income"/>
+              <rect x="88"  y="74" width="28" height="56" rx="3" class="ch-bar-expense"/>
+              <text x="80"  y="142" class="ch-label" text-anchor="middle">Jan</text>
+              <!-- Feb -->
+              <rect x="148" y="36" width="28" height="94" rx="3" class="ch-bar-income"/>
+              <rect x="178" y="78" width="28" height="52" rx="3" class="ch-bar-expense"/>
+              <text x="170" y="142" class="ch-label" text-anchor="middle">Feb</text>
+              <!-- Mar -->
+              <rect x="238" y="28" width="28" height="102" rx="3" class="ch-bar-income"/>
+              <rect x="268" y="70" width="28" height="60" rx="3" class="ch-bar-expense"/>
+              <text x="260" y="142" class="ch-label" text-anchor="middle">Mar</text>
+              <!-- Apr -->
+              <rect x="328" y="38" width="28" height="92" rx="3" class="ch-bar-income"/>
+              <rect x="358" y="68" width="28" height="62" rx="3" class="ch-bar-expense"/>
+              <text x="350" y="142" class="ch-label" text-anchor="middle">Apr</text>
+              <!-- May -->
+              <rect x="418" y="46" width="28" height="84" rx="3" class="ch-bar-income" opacity=".6"/>
+              <rect x="448" y="74" width="28" height="56" rx="3" class="ch-bar-expense" opacity=".6"/>
+              <text x="440" y="142" class="ch-label" text-anchor="middle">May*</text>
+            </svg>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);text-align:right;margin-top:2px;">*Month in progress</div>
+        </div>
+
+        <!-- Attendance trend -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Sunday Attendance Trend</div>
+          </div>
+          <div class="svg-chart-wrap">
+            <svg class="chart-svg" viewBox="0 0 200 140" width="100%" height="140">
+              <line class="ch-axis" x1="20" y1="10" x2="20" y2="120"/>
+              <line class="ch-axis" x1="20" y1="120" x2="200" y2="120"/>
+              <line class="ch-grid" x1="20" y1="40" x2="200" y2="40" stroke-dasharray="3,3"/>
+              <line class="ch-grid" x1="20" y1="80" x2="200" y2="80" stroke-dasharray="3,3"/>
+              <text x="18" y="43" class="ch-label" text-anchor="end">300</text>
+              <text x="18" y="83" class="ch-label" text-anchor="end">250</text>
+              <!-- bars: 258, 265, 271, 279, 284 -->
+              <rect x="28"  y="82" width="22" height="38" rx="2" class="ch-bar-neutral"/>
+              <rect x="60"  y="76" width="22" height="44" rx="2" class="ch-bar-neutral"/>
+              <rect x="92"  y="70" width="22" height="50" rx="2" class="ch-bar-neutral"/>
+              <rect x="124" y="61" width="22" height="59" rx="2" class="ch-bar-neutral"/>
+              <rect x="156" y="56" width="22" height="64" rx="2" class="ch-bar-income"/>
+              <text x="39"  y="132" class="ch-label" text-anchor="middle">Jan</text>
+              <text x="71"  y="132" class="ch-label" text-anchor="middle">Feb</text>
+              <text x="103" y="132" class="ch-label" text-anchor="middle">Mar</text>
+              <text x="135" y="132" class="ch-label" text-anchor="middle">Apr</text>
+              <text x="167" y="132" class="ch-label" text-anchor="middle">May</text>
+              <text x="167" y="54" class="ch-label" text-anchor="middle" style="fill:var(--mod-members);font-weight:700;">284</text>
+            </svg>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);">
+            <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">Attendance Rate</span><span class="bar-val" style="color:var(--green);">81.8%</span></div>
+            <div class="stat-bar"><div class="stat-fill" style="width:82%;background:var(--mod-members);"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics tables -->
+      <div class="dash-grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Monthly Growth Summary</div></div>
+          <table class="dash-table">
+            <thead>
+              <tr><th>Month</th><th>Members</th><th>New</th><th>Attendance</th><th>Income</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>January</td><td>298</td><td>+9</td><td>258</td><td style="color:var(--green);">₵26.4k</td></tr>
+              <tr><td>February</td><td>311</td><td>+13</td><td>265</td><td style="color:var(--green);">₵28.1k</td></tr>
+              <tr><td>March</td><td>327</td><td>+16</td><td>271</td><td style="color:var(--green);">₵30.8k</td></tr>
+              <tr><td>April</td><td>341</td><td>+14</td><td>279</td><td style="color:var(--green);">₵29.4k</td></tr>
+              <tr><td>May (to date)</td><td>347</td><td>+6</td><td>284</td><td style="color:var(--green);">₵28.1k</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Module Health Scores</div></div>
+          <table class="dash-table">
+            <thead>
+              <tr><th>Module</th><th>Score</th><th>Trend</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Members</td><td><strong>88/100</strong></td><td style="color:var(--green);">↑ +4</td><td><span class="badge green">Healthy</span></td></tr>
+              <tr><td>Finance</td><td><strong>85/100</strong></td><td style="color:var(--green);">↑ +2</td><td><span class="badge green">Healthy</span></td></tr>
+              <tr><td>Events</td><td><strong>79/100</strong></td><td style="color:var(--green);">↑ +6</td><td><span class="badge green">Good</span></td></tr>
+              <tr><td>Communication</td><td><strong>82/100</strong></td><td style="color:var(--green);">↑ +1</td><td><span class="badge green">Good</span></td></tr>
+              <tr><td>Pastoral Care</td><td><strong>71/100</strong></td><td style="color:var(--badge-yellow-color);">→ 0</td><td><span class="badge yellow">Needs Review</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- END ANALYTICS -->
+
+
+    <!-- ░░░ ALERTS SECTION ░░░ -->
+    <div class="dash-section" id="section-alerts">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Alerts &amp; Required Actions</div>
+          <div class="section-sub">7 items requiring attention across all modules</div>
+        </div>
+        <button class="btn-outline" onclick="showToast('All alerts marked as seen')">Mark all seen</button>
+      </div>
+      <div id="fullAlertsList"></div>
+    </div>
+
+
+    <!-- ░░░ MEMBERS SUMMARY SECTION ░░░ -->
+    <div class="dash-section" id="section-members-summary">
+      <div class="section-header">
+        <div>
+          <div class="mod-label members" style="margin-bottom:6px;">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Members Module
+          </div>
+          <div class="section-title">Members Summary</div>
+          <div class="section-sub">Accra Central Assembly — 347 registered members</div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Opening Members module…')">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Members
+        </button>
+      </div>
+      <div id="membersSummaryContent"></div>
+    </div>
+
+
+    <!-- ░░░ FINANCE SUMMARY SECTION ░░░ -->
+    <div class="dash-section" id="section-finance-summary">
+      <div class="section-header">
+        <div>
+          <div class="mod-label finance" style="margin-bottom:6px;">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Finance Module
+          </div>
+          <div class="section-title">Finance Summary</div>
+          <div class="section-sub">Accra Central Assembly — Jan–May 2025</div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Opening Finance module…')">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Finance
+        </button>
+      </div>
+      <div id="financeSummaryContent"></div>
+    </div>
+
+
+    <!-- ░░░ EVENTS SUMMARY SECTION ░░░ -->
+    <div class="dash-section" id="section-events-summary">
+      <div class="section-header">
+        <div>
+          <div class="mod-label events" style="margin-bottom:6px;">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            Events Module
+          </div>
+          <div class="section-title">Events Summary</div>
+          <div class="section-sub">24 events this year · 8 upcoming</div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Opening Events module…')">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Events
+        </button>
+      </div>
+      <div id="eventsSummaryContent"></div>
+    </div>
+
+
+    <!-- ░░░ COMMS SUMMARY SECTION ░░░ -->
+    <div class="dash-section" id="section-comms-summary">
+      <div class="section-header">
+        <div>
+          <div class="mod-label comms" style="margin-bottom:6px;">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Communication Module
+          </div>
+          <div class="section-title">Communication Summary</div>
+          <div class="section-sub">3,824 messages sent YTD · 94.7% delivery rate</div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Opening Communication module…')">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Comms
+        </button>
+      </div>
+      <div id="commsSummaryContent"></div>
+    </div>
+
+
+    <!-- ░░░ PASTORAL SUMMARY SECTION ░░░ -->
+    <div class="dash-section" id="section-pastoral-summary">
+      <div class="section-header">
+        <div>
+          <div class="mod-label auth" style="margin-bottom:6px;">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Pastoral Care
+          </div>
+          <div class="section-title">Pastoral Care Summary</div>
+          <div class="section-sub">7 open flags · 4 first timers in May</div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Opening Members — Pastoral module…')">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Pastoral
+        </button>
+      </div>
+      <div id="pastoralSummaryContent"></div>
+    </div>
+
+  </div><!-- /dash-main -->
+</div><!-- /dash-layout -->
+
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════
+   DATA — sourced from all 5 modules
+════════════════════════════ */
+const DATA = {
+  members: {
+    total:347, active:312, inactive:8, visitors:23, prospects:4,
+    newThisMonth:12, attendanceLastSunday:284, attendanceRate:81.8,
+    list:[
+      { id:'CACI-ACC-00142', name:'Kwame Mensah',    initials:'KM', color:'#004BA0', status:'active',   role:'Elder',        joined:'May 1, 2025',  phone:'+233 24 100 1001', district:'Assakae' },
+      { id:'CACI-ACC-00143', name:'Yaa Asantewaa',   initials:'YA', color:'#C60026', status:'visitor',  role:'Visitor',      joined:'May 1, 2025',  phone:'+233 20 200 2002', district:'Assakae' },
+      { id:'CACI-ACC-00141', name:'Ama Osei',         initials:'AO', color:'#1a5fb4', status:'active',   role:'Deaconess',    joined:'Apr 28, 2025', phone:'+233 24 300 3003', district:'Assakae' },
+      { id:'CACI-ACC-00140', name:'Kwabena Boateng', initials:'KB', color:'#004BA0', status:'active',   role:'Member',       joined:'Apr 25, 2025', phone:'+233 27 400 4004', district:'Assakae' },
+      { id:'CACI-ACC-00139', name:'Abena Darko',      initials:'AD', color:'#7c3aed', status:'active',   role:'Member',       joined:'Apr 20, 2025', phone:'+233 24 500 5005', district:'Assakae' },
+      { id:'CACI-ACC-00138', name:'Kofi Acheampong', initials:'KA', color:'#8c959f', status:'inactive', role:'Member',       joined:'Mar 14, 2025', phone:'+233 50 600 6006', district:'Tema' },
+      { id:'CACI-ACC-00137', name:'Efua Mensah',      initials:'EM', color:'#C60026', status:'active',   role:'Youth Leader', joined:'Mar 3, 2025',  phone:'+233 24 700 7007', district:'Assakae' },
+      { id:'CACI-ACC-00136', name:'Nana Adjei',        initials:'NA', color:'#004BA0', status:'active',   role:'Deacon',       joined:'Feb 18, 2025', phone:'+233 20 800 8008', district:'Accra Central' },
+    ]
+  },
+  finance: {
+    incomeYTD:142850, expensesYTD:89420, balance:53430,
+    tithesMonth:18240, offeringsMonth:6820, buildingFund:4200,
+    pledgesOutstanding:12400,
+    transactions:[
+      { name:'Kwame Mensah',   initials:'KM', color:'#1a5fb4', type:'Tithe',        amount:'+₵350',  dir:'income',  date:'4 May', method:'MTN MoMo' },
+      { name:'Ama Boateng',    initials:'AB', color:'#C60026', type:'Offering',      amount:'+₵200',  dir:'income',  date:'4 May', method:'Cash' },
+      { name:'Kofi Asante',    initials:'KA', color:'#7c3aed', type:'Building Fund', amount:'+₵500',  dir:'income',  date:'3 May', method:'Bank Transfer' },
+      { name:'Electricity Bill',initials:'EC', color:'#8c959f', type:'Expense',       amount:'−₵1,200',dir:'expense', date:'1 May', method:'Approved' },
+      { name:'Abena Owusu',    initials:'AO', color:'#1a7f37', type:'Tithe',          amount:'+₵400',  dir:'income',  date:'1 May', method:'Vodafone' },
+    ]
+  },
+  events: {
+    total2025:24, upcoming:8, registrations:148, avgFill:76,
+    list:[
+      { name:'Sunday Worship Service', date:'11', mon:'May', time:'9:00 AM', category:'Worship', registered:312, capacity:500, status:'upcoming' },
+      { name:'Youth Night',            date:'15', mon:'May', time:'6:00 PM', category:'Youth',   registered:93,  capacity:150, status:'upcoming' },
+      { name:'Elders & Deacons Meeting',date:'19', mon:'May', time:'5:00 PM', category:'Meeting', registered:18,  capacity:20,  status:'upcoming' },
+      { name:"Women's Fellowship",     date:'22', mon:'May', time:'10:00 AM', category:'Fellowship',registered:36, capacity:80, status:'upcoming' },
+      { name:'Annual Convention 2025', date:'2',  mon:'Jun', time:'Jun 2–4',  category:'Convention',registered:934,capacity:1200,status:'planning' },
+    ]
+  },
+  comms: {
+    totalSent:3824, deliveryRate:94.7, emailOpenRate:61.4, unreachable:18,
+    smsSent:1904, emailSent:1102, inAppSent:818,
+    messages:[
+      { title:'Sunday Service Reminder', channel:'SMS',    date:'4 May', recipients:347, deliveryRate:99 },
+      { title:'April Newsletter',        channel:'Email',  date:'1 May', recipients:312, deliveryRate:93 },
+      { title:'Building Fund Update',    channel:'In-App', date:'26 Apr',recipients:347, deliveryRate:98 },
+      { title:'Youth Fellowship Notice', channel:'SMS',    date:'28 Apr',recipients:68,  deliveryRate:97 },
+      { title:'Birthday: Ama Boateng',   channel:'SMS',    date:'30 Apr',recipients:1,   deliveryRate:100 },
+    ]
+  },
+  pastoral: {
+    openFlags:7, firstTimers:4, lifeEvents:3, longAbsent:18,
+    flags:[
+      { member:'Kofi Acheampong',  reason:'Absent 5+ weeks',               type:'absent',    priority:'high',   date:'May 3' },
+      { member:'Akosua Frimpong',  reason:'Prospect — needs follow-up',      type:'followup',  priority:'normal', date:'Apr 29' },
+      { member:'Samuel Adusei',    reason:'Visited twice, no commitment',    type:'first-timer',priority:'normal', date:'Apr 28' },
+      { member:'Yaa Asantewaa',    reason:'Bereavement — lost mother',       type:'life-event',priority:'urgent', date:'May 1' },
+      { member:'Emmanuel Asante',  reason:'May relocate to another assembly',type:'followup',  priority:'normal', date:'Apr 15' },
+      { member:'Aba Mensah',       reason:'Long absent — 4 weeks',           type:'absent',    priority:'normal', date:'May 2' },
+      { member:'Kwesi Boateng',    reason:'Counselling request',             type:'followup',  priority:'high',   date:'May 4' },
+    ]
+  }
+};
+
+/* ════════════════════════════
+   SECTION NAV
+════════════════════════════ */
+function showSection(id, sidebarEl){
+  document.querySelectorAll('.dash-section').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById('section-'+id);
+  if(el) el.classList.add('active');
+  // If no sidebar element passed, find and activate matching one by data-label or section id
+  if(sidebarEl){ setSidebarActive(sidebarEl); }
+  else {
+    const match = document.querySelector(`.sidebar-item[onclick*="'${id}'"]`);
+    if(match) setSidebarActive(match);
+  }
+  // Lazy render
+  const renders = { 'members-summary':renderMembersSummary,'finance-summary':renderFinanceSummary,'events-summary':renderEventsSummary,'comms-summary':renderCommsSummary,'pastoral-summary':renderPastoralSummary,'alerts':renderFullAlerts };
+  if(renders[id]) renders[id]();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setSidebarActive(el){
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+function setNav(el){ document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
+function setBottomNav(el){ document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+function dismissAlert(btn){ btn.closest('.alert-pill').style.display='none'; }
+
+/* ════════════════════════════
+   THEME
+════════════════════════════ */
+const html = document.documentElement;
+function applyTheme(t){
+  html.setAttribute('data-theme',t);
+  const icon=document.getElementById('themeIcon');
+  const label=document.getElementById('sidebarThemeLabel');
+  if(t==='dark'){
+    if(icon) icon.innerHTML='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    if(label) label.textContent='Dark mode';
+  } else {
+    if(icon) icon.innerHTML='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    if(label) label.textContent='Light mode';
+  }
+}
+function toggleTheme(){ applyTheme(html.getAttribute('data-theme')==='dark'?'light':'dark'); }
+if(window.matchMedia('(prefers-color-scheme:dark)').matches) applyTheme('dark');
+
+/* Info popover */
+function toggleInfoPopover(btn){
+  const pop=document.getElementById('infoPopover');
+  if(!pop) return;
+  pop.classList.toggle('show');
+}
+// Close popover on outside click
+document.addEventListener('click',function(e){
+  const btn=document.getElementById('infoBtn');
+  const pop=document.getElementById('infoPopover');
+  if(pop && btn && !btn.contains(e.target)) pop.classList.remove('show');
+});
+
+/* ════════════════════════════
+   TOAST
+════════════════════════════ */
+let _tt;
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),2400); }
+
+/* ════════════════════════════
+   HEALTH GRID
+════════════════════════════ */
+function renderHealthGrid(){
+  const items=[
+    {label:'Members',score:88,color:'var(--mod-members)'},
+    {label:'Finance',score:85,color:'var(--mod-finance)'},
+    {label:'Events', score:79,color:'var(--mod-events)'},
+    {label:'Comms',  score:82,color:'var(--mod-comms)'},
+    {label:'Pastoral',score:71,color:'var(--red)'},
+  ];
+  const r=38,c=28;
+  const circ=2*Math.PI*r;
+  document.getElementById('healthGrid').innerHTML=items.map(item=>{
+    const pct=item.score/100;
+    const dash=circ*pct;
+    return `
+    <div class="health-item">
+      <div class="health-score-ring">
+        <svg viewBox="0 0 56 56">
+          <circle class="bg-ring" cx="28" cy="28" r="${r}" stroke="var(--stat-bar-bg)"/>
+          <circle class="fg-ring" cx="28" cy="28" r="${r}" stroke="${item.color}"
+            stroke-dasharray="${dash} ${circ}" stroke-dashoffset="0"/>
+        </svg>
+        <div class="health-score-num">${item.score}</div>
+      </div>
+      <div class="health-label">${item.label}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════
+   ACTIVITY FEED
+════════════════════════════ */
+function renderActivityFeed(){
+  const acts=[
+    { mod:'members', icon:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>', text:'<strong>Kwame Mensah</strong> was registered as a new member', time:'2m ago' },
+    { mod:'finance', icon:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', text:'<strong>Tithe recorded</strong> — ₵350 from Kwame Mensah via MTN MoMo', time:'12m ago' },
+    { mod:'comms', icon:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>', text:'<strong>Sunday Service Reminder</strong> sent to 347 members — 99% delivery', time:'1h ago' },
+    { mod:'events', icon:'<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>', text:'<strong>Ama Osei</strong> checked in for Sunday Service', time:'2h ago' },
+    { mod:'pastoral', icon:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>', text:'Pastoral flag raised for <strong>Yaa Asantewaa</strong> — bereavement', time:'3h ago' },
+    { mod:'finance', icon:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>', text:'<strong>Electricity Bill</strong> expense of ₵1,200 approved by Treasurer', time:'5h ago' },
+    { mod:'members', icon:'<circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/>', text:'<strong>Kofi Acheampong</strong> marked inactive after 5 weeks absent', time:'Yesterday' },
+    { mod:'events', icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/>', text:'<strong>Annual Convention 2025</strong> event created — Jun 2–4', time:'Yesterday' },
+  ];
+  document.getElementById('activityFeed').innerHTML=acts.map(a=>`
+  <div class="activity-item">
+    <div class="act-icon ${a.mod}"><svg viewBox="0 0 24 24">${a.icon}</svg></div>
+    <div class="act-content">
+      <div class="act-text">${a.text}</div>
+      <div class="act-meta">${a.mod.charAt(0).toUpperCase()+a.mod.slice(1)} module</div>
+    </div>
+    <div class="act-time">${a.time}</div>
+  </div>`).join('');
+}
+
+/* ════════════════════════════
+   FINANCE SPARKLINE
+════════════════════════════ */
+function renderFinanceSparkline(){
+  const vals=[26400,28100,30800,29400,28100];
+  const max=Math.max(...vals);
+  const colors=['var(--blue)','var(--blue)','var(--blue)','var(--blue)','var(--mod-finance)'];
+  document.getElementById('finSparkline').innerHTML=vals.map((v,i)=>`
+  <div class="spark-bar" style="height:${Math.round(v/max*100)}%;background:${colors[i]};"></div>`).join('');
+}
+
+/* ════════════════════════════
+   EVENTS SNAPSHOT
+════════════════════════════ */
+function renderEventsSnapshot(){
+  const el=document.getElementById('eventsSnapshot');
+  if(!el) return;
+  const catColors={Worship:'var(--blue)',Youth:'var(--purple)',Fellowship:'var(--green)',Meeting:'var(--text-muted)',Convention:'var(--red)',Outreach:'var(--gold)'};
+  el.innerHTML=DATA.events.list.slice(0,4).map(e=>`
+  <div class="evt-item">
+    <div class="evt-date-block">
+      <div class="evt-date-day">${e.date}</div>
+      <div class="evt-date-mon">${e.mon}</div>
+    </div>
+    <div class="evt-info">
+      <div class="evt-name">${e.name}</div>
+      <div class="evt-meta">${e.time} · <span style="color:${catColors[e.category]||'var(--blue)'};">${e.category}</span></div>
+    </div>
+    <div class="evt-reg"><span class="badge ${e.status==='planning'?'yellow':'green'}">${e.status==='planning'?'Planning':'Upcoming'}</span></div>
+  </div>`).join('');
+}
+
+/* ════════════════════════════
+   PASTORAL SNAPSHOT
+════════════════════════════ */
+function renderPastoralSnapshot(){
+  const el=document.getElementById('pastoralSnapshot');
+  if(!el) return;
+  const typeColor={absent:'var(--red)',followup:'var(--blue)','life-event':'var(--purple)','first-timer':'var(--green)'};
+  el.innerHTML=DATA.pastoral.flags.slice(0,3).map(f=>`
+  <div class="flag-item">
+    <div class="flag-dot" style="background:${typeColor[f.type]||'var(--blue)'}"></div>
+    <div style="flex:1;min-width:0;">
+      <div class="flag-name">${f.member}${f.priority==='urgent'?'<span class="badge red" style="margin-left:6px;font-size:10px;">Urgent</span>':f.priority==='high'?'<span class="badge red" style="margin-left:6px;font-size:10px;">High</span>':''}</div>
+      <div class="flag-reason">${f.reason}</div>
+    </div>
+    <div class="flag-date" style="flex-shrink:0;">${f.date}</div>
+  </div>`).join('');
+}
+
+/* ════════════════════════════
+   TRANSACTIONS SNAPSHOT
+════════════════════════════ */
+function renderTxnSnapshot(){
+  const el=document.getElementById('txnSnapshot');
+  if(!el) return;
+  el.innerHTML=DATA.finance.transactions.map(t=>`
+  <div class="txn-item">
+    <div class="m-av sm" style="background:${t.color}">${t.initials}</div>
+    <div class="txn-info">
+      <div class="txn-name">${t.name}</div>
+      <div class="txn-type">${t.type} · ${t.date} · ${t.method}</div>
+    </div>
+    <div class="txn-amount ${t.dir}">${t.amount}</div>
+  </div>`).join('');
+}
+
+/* ════════════════════════════
+   NEW MEMBERS SNAPSHOT
+════════════════════════════ */
+function renderNewMembersSnapshot(){
+  const el=document.getElementById('newMembersSnapshot');
+  if(!el) return;
+  const statusMap={active:{cls:'green',label:'Active'},visitor:{cls:'blue',label:'Visitor'},inactive:{cls:'',label:'Inactive'},prospect:{cls:'yellow',label:'Prospect'}};
+  el.innerHTML=DATA.members.list.map(m=>`
+  <div class="member-row">
+    <div class="m-av" style="background:${m.color}">${m.initials}</div>
+    <div class="member-info">
+      <div class="member-name">${m.name}</div>
+      <div class="member-sub">${m.id} · ${m.role} · ${m.district}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+      <span class="badge ${statusMap[m.status].cls}">${statusMap[m.status].label}</span>
+      <span style="font-size:10px;color:var(--text-muted);">${m.joined}</span>
+    </div>
+  </div>`).join('');
+}
+
+/* ════════════════════════════
+   COMMS SNAPSHOT
+════════════════════════════ */
+function renderCommsSnapshot(){
+  const el=document.getElementById('commsSnapshot');
+  if(!el) return;
+  const chColor={SMS:'var(--blue)',Email:'var(--purple)','In-App':'var(--green)'};
+  el.innerHTML=DATA.comms.messages.slice(0,4).map(m=>`
+  <div class="msg-item">
+    <div style="width:32px;height:32px;border-radius:8px;background:var(--bg-inset);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg viewBox="0 0 24 24" width="13" height="13" stroke="${chColor[m.channel]||'var(--blue)'}" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div class="msg-info">
+      <div class="msg-title">${m.title}</div>
+      <div class="msg-meta">${m.channel} · ${m.date} · ${m.recipients} recipients</div>
+    </div>
+    <div class="msg-stat">${m.deliveryRate}%</div>
+  </div>`).join('');
+}
+
+/* ════════════════════════════
+   FULL ALERTS
+════════════════════════════ */
+function renderFullAlerts(){
+  const el=document.getElementById('fullAlertsList');
+  if(!el||el.innerHTML.trim()) return;
+  const alerts=[
+    { mod:'pastoral',  priority:'urgent', title:'Urgent: Yaa Asantewaa — Bereavement', desc:'Member lost her mother. Pastoral visit recommended urgently.', date:'May 1', action:'Assign Pastor' },
+    { mod:'pastoral',  priority:'high',   title:'High: Kofi Acheampong — Absent 5+ weeks', desc:'Member has not attended for over 5 Sundays. Follow-up required.', date:'May 3', action:'Send SMS' },
+    { mod:'pastoral',  priority:'high',   title:'High: Kwesi Boateng — Counselling Request', desc:'Member requested pastoral counselling through the desk.', date:'May 4', action:'Schedule Session' },
+    { mod:'finance',   priority:'warn',   title:'₵12,400 in pledges outstanding this month', desc:'17 members have unfulfilled pledges for May. Consider sending reminder.', date:'May 5', action:'Send Reminder' },
+    { mod:'comms',     priority:'warn',   title:'18 members unreachable — invalid contact info', desc:'SMS and email delivery failing for 18 members. Contact info needs update.', date:'Ongoing', action:'Review List' },
+    { mod:'events',    priority:'info',   title:'Annual Convention 2025 — 78% capacity filled', desc:'934 of 1,200 seats registered. Strong registration momentum.', date:'May 6', action:'View Event' },
+    { mod:'members',   priority:'info',   title:'12 new members registered in May', desc:'Good growth. Welcome messages have been sent automatically.', date:'May 2025', action:'View Members' },
+  ];
+  const modColor={pastoral:'var(--red)',finance:'var(--green)',comms:'var(--mod-comms)',events:'var(--mod-events)',members:'var(--mod-members)'};
+  const priClass={urgent:'danger',high:'danger',warn:'warn',info:'info'};
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:12px;">`+alerts.map(a=>`
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;">
+    <div style="width:36px;height:36px;border-radius:9px;background:var(--bg-inset);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:${modColor[a.mod]};"></div>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${a.title}</div>
+        <span class="alert-pill ${priClass[a.priority]}" style="font-size:10px;padding:2px 8px;cursor:default;">${a.priority.toUpperCase()}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);">${a.desc}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${a.mod.charAt(0).toUpperCase()+a.mod.slice(1)} · ${a.date}</div>
+    </div>
+    <button class="btn-outline" style="font-size:11px;flex-shrink:0;" onclick="showToast('${a.action}…')">${a.action}</button>
+  </div>`).join('')+`</div>`;
+}
+
+/* ════════════════════════════
+   MEMBERS SUMMARY SECTION
+════════════════════════════ */
+function renderMembersSummary(){
+  const el=document.getElementById('membersSummaryContent');
+  if(!el||el.innerHTML.trim()) return;
+  const statusMap={active:{cls:'green',label:'Active'},visitor:{cls:'blue',label:'Visitor'},inactive:{cls:'',label:'Inactive'},prospect:{cls:'yellow',label:'Prospect'}};
+  el.innerHTML=`
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="kpi-card members"><div class="kpi-label">Total Members</div><div class="kpi-value">347</div><div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>+12 this month</div><div class="kpi-bar"><div class="kpi-fill" style="width:89%;background:var(--mod-members);"></div></div></div>
+    <div class="kpi-card members"><div class="kpi-label">Active</div><div class="kpi-value">312</div><div class="kpi-sub">89.9% of total</div><div class="kpi-bar"><div class="kpi-fill" style="width:90%;background:var(--green);"></div></div></div>
+    <div class="kpi-card members"><div class="kpi-label">Visitors (May)</div><div class="kpi-value">6</div><div class="kpi-sub">23 total visitors</div><div class="kpi-bar"><div class="kpi-fill" style="width:26%;background:var(--blue);"></div></div></div>
+    <div class="kpi-card members"><div class="kpi-label">Last Sunday</div><div class="kpi-value">284</div><div class="kpi-sub">81.8% attendance rate</div><div class="kpi-bar"><div class="kpi-fill" style="width:82%;background:var(--mod-members);"></div></div></div>
+  </div>
+  <div class="dash-grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Status Breakdown</div></div>
+      ${[['Active','312','90%','var(--green)'],['Visitors','23','28%','var(--blue)'],['Inactive','8','10%','var(--text-muted)'],['Prospects','4','5%','var(--gold)']].map(([l,v,w,c])=>`
+      <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">${l}</span><span class="bar-val">${v}</span></div>
+      <div class="stat-bar" style="margin-bottom:10px;"><div class="stat-fill" style="width:${w};background:${c};"></div></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">District Breakdown</div></div>
+      ${[['Assakae','187','54%','var(--mod-members)'],['Tema','92','27%','var(--purple)'],['Accra Central','68','20%','var(--green)']].map(([l,v,w,c])=>`
+      <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">${l}</span><span class="bar-val">${v}</span></div>
+      <div class="stat-bar" style="margin-bottom:10px;"><div class="stat-fill" style="width:${w};background:${c};"></div></div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">All Members</div><div style="font-size:12px;color:var(--text-muted);">Showing ${DATA.members.list.length} members</div></div>
+    <div style="overflow-x:auto;">
+    <table class="dash-table">
+      <thead><tr><th>Member</th><th>Member ID</th><th>Role</th><th>District</th><th>Phone</th><th>Joined</th><th>Status</th></tr></thead>
+      <tbody>${DATA.members.list.map(m=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div class="m-av sm" style="background:${m.color}">${m.initials}</div><div style="font-size:13px;font-weight:500;color:var(--text-primary);">${m.name}</div></div></td>
+        <td style="font-family:monospace;font-size:11px;">${m.id}</td>
+        <td>${m.role}</td>
+        <td>${m.district}</td>
+        <td>${m.phone}</td>
+        <td>${m.joined}</td>
+        <td><span class="badge ${statusMap[m.status].cls}">${statusMap[m.status].label}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════
+   FINANCE SUMMARY SECTION
+════════════════════════════ */
+function renderFinanceSummary(){
+  const el=document.getElementById('financeSummaryContent');
+  if(!el||el.innerHTML.trim()) return;
+  el.innerHTML=`
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="kpi-card finance"><div class="kpi-label">Total Income YTD</div><div class="kpi-value" style="color:var(--green);">₵142,850</div><div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>↑ 14% vs 2024</div><div class="kpi-bar"><div class="kpi-fill" style="width:72%;background:var(--mod-finance);"></div></div></div>
+    <div class="kpi-card finance"><div class="kpi-label">Total Expenses YTD</div><div class="kpi-value" style="color:var(--red);">₵89,420</div><div class="kpi-sub">↑ 8% vs 2024</div><div class="kpi-bar"><div class="kpi-fill" style="width:45%;background:var(--red);"></div></div></div>
+    <div class="kpi-card finance"><div class="kpi-label">Net Balance</div><div class="kpi-value" style="color:var(--mod-finance);">₵53,430</div><div class="kpi-sub">As of 5 May 2025</div><div class="kpi-bar"><div class="kpi-fill" style="width:60%;background:var(--mod-finance);"></div></div></div>
+    <div class="kpi-card finance"><div class="kpi-label">Pledges Outstanding</div><div class="kpi-value" style="color:var(--gold);">₵12,400</div><div class="kpi-sub">This month</div><div class="kpi-bar"><div class="kpi-fill" style="width:40%;background:var(--gold);"></div></div></div>
+  </div>
+  <div class="dash-grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Income Breakdown (May)</div></div>
+      ${[['Tithes','₵18,240','84%','var(--mod-finance)'],['Offerings','₵6,820','45%','var(--blue)'],['Building Fund','₵4,200','30%','var(--purple)'],['Special Giving','₵1,400','12%','var(--gold)']].map(([l,v,w,c])=>`
+      <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">${l}</span><span class="bar-val" style="color:var(--green);">${v}</span></div>
+      <div class="stat-bar" style="margin-bottom:10px;"><div class="stat-fill" style="width:${w};background:${c};"></div></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Expense Breakdown (YTD)</div></div>
+      ${[['Salaries','₵28,000','70%','var(--red)'],['Utilities','₵18,400','46%','var(--orange)'],['Maintenance','₵14,200','36%','var(--gold)'],['Outreach','₵12,000','30%','var(--blue)'],['Events','₵9,600','24%','var(--purple)']].map(([l,v,w,c])=>`
+      <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">${l}</span><span class="bar-val" style="color:var(--red);">${v}</span></div>
+      <div class="stat-bar" style="margin-bottom:10px;"><div class="stat-fill" style="width:${w};background:${c};"></div></div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Recent Transactions</div></div>
+    <table class="dash-table">
+      <thead><tr><th>Member / Description</th><th>Type</th><th>Method</th><th>Amount</th><th>Date</th></tr></thead>
+      <tbody>${DATA.finance.transactions.map(t=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div class="m-av sm" style="background:${t.color}">${t.initials}</div><span>${t.name}</span></div></td>
+        <td>${t.type}</td>
+        <td>${t.method}</td>
+        <td style="font-weight:700;color:${t.dir==='income'?'var(--green)':'var(--red)'};">${t.amount}</td>
+        <td>${t.date}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ════════════════════════════
+   EVENTS SUMMARY SECTION
+════════════════════════════ */
+function renderEventsSummary(){
+  const el=document.getElementById('eventsSummaryContent');
+  if(!el||el.innerHTML.trim()) return;
+  const catColors={Worship:'var(--blue)',Youth:'var(--purple)',Fellowship:'var(--green)',Meeting:'var(--text-muted)',Convention:'var(--red)',Outreach:'var(--gold)'};
+  el.innerHTML=`
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="kpi-card events"><div class="kpi-label">Total Events (2025)</div><div class="kpi-value">24</div><div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>↑ 6 more than 2024</div><div class="kpi-bar"><div class="kpi-fill" style="width:70%;background:var(--mod-events);"></div></div></div>
+    <div class="kpi-card events"><div class="kpi-label">Upcoming</div><div class="kpi-value" style="color:var(--mod-events);">8</div><div class="kpi-sub">Next: Sunday May 11</div><div class="kpi-bar"><div class="kpi-fill" style="width:33%;background:var(--mod-events);"></div></div></div>
+    <div class="kpi-card events"><div class="kpi-label">Total Registrations</div><div class="kpi-value">148</div><div class="kpi-sub">Across 8 events</div><div class="kpi-bar"><div class="kpi-fill" style="width:60%;background:var(--blue);"></div></div></div>
+    <div class="kpi-card events"><div class="kpi-label">Avg Fill Rate</div><div class="kpi-value">76%</div><div class="kpi-sub">↑ 12% vs last quarter</div><div class="kpi-bar"><div class="kpi-fill" style="width:76%;background:var(--green);"></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Upcoming &amp; Planning Events</div></div>
+    <table class="dash-table">
+      <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Capacity</th><th>Registered</th><th>Fill %</th><th>Status</th></tr></thead>
+      <tbody>${DATA.events.list.map(e=>{
+        const fill=Math.round(e.registered/e.capacity*100);
+        return `<tr>
+          <td>${e.name}</td>
+          <td style="white-space:nowrap;">${e.date} ${e.mon} · ${e.time}</td>
+          <td><span style="font-size:11px;font-weight:500;color:${catColors[e.category]||'var(--blue)'};">${e.category}</span></td>
+          <td>${e.capacity}</td>
+          <td>${e.registered}</td>
+          <td style="font-weight:600;color:${fill>=80?'var(--green)':fill>=50?'var(--blue)':'var(--gold)'};">${fill}%</td>
+          <td><span class="badge ${e.status==='planning'?'yellow':'green'}">${e.status==='planning'?'Planning':'Upcoming'}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+  </div>
+  <div class="dash-grid-2" style="margin-top:16px;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Events by Category</div></div>
+      ${[['Worship','8','33%','var(--blue)'],['Youth','5','21%','var(--purple)'],['Fellowship','4','17%','var(--green)'],['Meeting','4','17%','var(--text-muted)'],['Outreach','3','13%','var(--gold)']].map(([l,v,w,c])=>`
+      <div class="bar-row" style="margin-bottom:4px;"><span class="bar-label">${l}</span><span class="bar-val">${v}</span></div>
+      <div class="stat-bar" style="margin-bottom:9px;"><div class="stat-fill" style="width:${w};background:${c};"></div></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Registration Fill Rates</div></div>
+      ${DATA.events.list.map(e=>{
+        const fill=Math.round(e.registered/e.capacity*100);
+        const color=fill>=80?'var(--green)':fill>=50?'var(--blue)':'var(--gold)';
+        return `<div class="bar-row" style="margin-bottom:4px;"><span class="bar-label" style="width:140px;">${e.name.slice(0,18)}${e.name.length>18?'…':''}</span><span class="bar-val" style="color:${color};">${fill}%</span></div>
+        <div class="stat-bar" style="margin-bottom:9px;"><div class="stat-fill" style="width:${fill}%;background:${color};"></div></div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════
+   COMMS SUMMARY SECTION
+════════════════════════════ */
+function renderCommsSummary(){
+  const el=document.getElementById('commsSummaryContent');
+  if(!el||el.innerHTML.trim()) return;
+  const chColor={SMS:'var(--blue)',Email:'var(--purple)','In-App':'var(--green)'};
+  el.innerHTML=`
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="kpi-card comms"><div class="kpi-label">Total Sent (YTD)</div><div class="kpi-value">3,824</div><div class="kpi-trend up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>↑ 18% vs 2024</div><div class="kpi-bar"><div class="kpi-fill" style="width:75%;background:var(--mod-comms);"></div></div></div>
+    <div class="kpi-card comms"><div class="kpi-label">Delivery Rate</div><div class="kpi-value" style="color:var(--green);">94.7%</div><div class="kpi-sub">↑ 2.1pp vs 2024</div><div class="kpi-bar"><div class="kpi-fill" style="width:95%;background:var(--mod-comms);"></div></div></div>
+    <div class="kpi-card comms"><div class="kpi-label">Email Open Rate</div><div class="kpi-value" style="color:var(--purple);">61.4%</div><div class="kpi-sub">Industry avg: 22%</div><div class="kpi-bar"><div class="kpi-fill" style="width:61%;background:var(--purple);"></div></div></div>
+    <div class="kpi-card comms"><div class="kpi-label">Unreachable Members</div><div class="kpi-value" style="color:var(--red);">18</div><div class="kpi-sub">Invalid contact info</div><div class="kpi-bar"><div class="kpi-fill" style="width:20%;background:var(--red);"></div></div></div>
+  </div>
+  <div class="dash-grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Channel Breakdown</div></div>
+      ${[['SMS','1,904','95.8%','50%','var(--blue)'],['Email','1,102','93.1%','29%','var(--purple)'],['In-App','818','98.1%','21%','var(--green)']].map(([l,v,dr,w,c])=>`
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="color:var(--text-secondary);">${l} <span style="color:var(--text-muted);">(${v} sent)</span></span>
+          <span style="font-weight:600;color:var(--green);">${dr} delivery</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill" style="width:${w};background:${c};"></div></div>
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Active Campaigns</div></div>
+      ${[['Sunday Service Reminder','Weekly · Every Friday','SMS','active'],['Welcome New Member','Trigger · On join','SMS','active'],['Birthday Greetings','Automated · Daily','SMS','active'],['Event Announcements','Trigger · 24h before','SMS','paused']].map(([name,trigger,ch,status])=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-primary);">${name}</div><div style="font-size:11px;color:var(--text-muted);">${trigger}</div></div>
+        <span class="badge ${status==='active'?'green':'yellow'}">${status==='active'?'Active':'Paused'}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Recent Messages</div></div>
+    <table class="dash-table">
+      <thead><tr><th>Message</th><th>Channel</th><th>Date</th><th>Recipients</th><th>Delivery Rate</th></tr></thead>
+      <tbody>${DATA.comms.messages.map(m=>`
+      <tr>
+        <td>${m.title}</td>
+        <td><span style="font-size:11px;font-weight:600;color:${chColor[m.channel]||'var(--blue)'};">${m.channel}</span></td>
+        <td>${m.date}</td>
+        <td>${m.recipients}</td>
+        <td style="font-weight:600;color:var(--green);">${m.deliveryRate}%</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ════════════════════════════
+   PASTORAL SUMMARY SECTION
+════════════════════════════ */
+function renderPastoralSummary(){
+  const el=document.getElementById('pastoralSummaryContent');
+  if(!el||el.innerHTML.trim()) return;
+  const typeColor={absent:'var(--red)',followup:'var(--blue)','life-event':'var(--purple)','first-timer':'var(--green)'};
+  el.innerHTML=`
+  <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+    <div class="kpi-card pastoral"><div class="kpi-label">Open Flags</div><div class="kpi-value" style="color:var(--red);">7</div><div class="kpi-sub">Needs attention</div><div class="kpi-bar"><div class="kpi-fill" style="width:50%;background:var(--red);"></div></div></div>
+    <div class="kpi-card pastoral"><div class="kpi-label">First Timers (May)</div><div class="kpi-value">4</div><div class="kpi-sub">2 followed up</div><div class="kpi-bar"><div class="kpi-fill" style="width:30%;background:var(--green);"></div></div></div>
+    <div class="kpi-card pastoral"><div class="kpi-label">Long Absent</div><div class="kpi-value">18</div><div class="kpi-sub">3+ weeks absent</div><div class="kpi-bar"><div class="kpi-fill" style="width:40%;background:var(--gold);"></div></div></div>
+    <div class="kpi-card pastoral"><div class="kpi-label">Life Events</div><div class="kpi-value">3</div><div class="kpi-sub">This month</div><div class="kpi-bar"><div class="kpi-fill" style="width:20%;background:var(--purple);"></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">All Open Flags</div><div style="font-size:12px;color:var(--text-muted);">${DATA.pastoral.flags.length} items</div></div>
+    ${DATA.pastoral.flags.map(f=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-subtle);">
+      <div style="width:10px;height:10px;border-radius:50%;background:${typeColor[f.type]||'var(--blue)'};margin-top:4px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+          <span style="font-size:13px;font-weight:600;color:var(--text-primary);">${f.member}</span>
+          ${f.priority==='urgent'?'<span class="badge red" style="font-size:10px;">Urgent</span>':f.priority==='high'?'<span class="badge red" style="font-size:10px;">High</span>':''}
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);">${f.reason}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${f.date}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn-outline" style="font-size:11px;" onclick="showToast('Contacting ${f.member}…')">Contact</button>
+        <button class="btn-ghost" style="font-size:11px;" onclick="showToast('Flag resolved')">Resolve</button>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="dash-grid-2" style="margin-top:16px;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">First Timers — May 2025</div></div>
+      ${[['Kweku Ankamah','May 4','true'],['Adwoa Boakye','May 4','false'],['Fiifi Mensah','Apr 27','true'],['Nana Brew','Apr 27','false']].map(([name,date,done])=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-primary);">${name}</div><div style="font-size:11px;color:var(--text-muted);">${date}</div></div>
+        ${done==='true'?'<span class="badge green">Followed up</span>':'<button class="btn-outline" style="font-size:11px;" onclick="showToast(\'Marking followed up…\')">Mark done</button>'}
+      </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Life Events</div></div>
+      ${[['Yaa Asantewaa','Bereavement (Mother)','Apr 30'],['Kwabena Boateng','New Baby (Boy)','Apr 22'],['Grace Amponsah','Work Promotion','May 2']].map(([name,event,date])=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-primary);">${name}</div><div style="font-size:12px;color:var(--text-secondary);">${event}</div><div style="font-size:11px;color:var(--text-muted);">${date}</div></div>
+        <button class="btn-outline" style="font-size:11px;" onclick="showToast('Sending pastoral message…')">Contact</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ════════════════════════════
+   DATE
+════════════════════════════ */
+function setDate(){
+  const d=new Date();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const str=`${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  const el=document.getElementById('currentDate');
+  if(el) el.textContent=str;
+  const pd=document.getElementById('popoverDate');
+  if(pd) pd.textContent=str;
+}
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
+
+/* ════════════════════════════
+   SIDEBAR — collapse (desktop) / drawer (mobile+tablet)
+════════════════════════════ */
+function isDrawerMode(){
+  return window.matchMedia('(max-width:960px)').matches;
+}
+function openDrawer(){
+  document.body.classList.add('drawer-open');
+  const bd=document.getElementById('drawerBackdrop');
+  if(bd){bd.style.display='block';requestAnimationFrame(()=>bd.classList.add('show'));}
+}
+function closeDrawer(){
+  document.body.classList.remove('drawer-open');
+  const bd=document.getElementById('drawerBackdrop');
+  if(bd){bd.classList.remove('show');setTimeout(()=>{if(!document.body.classList.contains('drawer-open'))bd.style.display='none';},260);}
+}
+function toggleSidebar(){
+  if(isDrawerMode()){
+    document.body.classList.contains('drawer-open')?closeDrawer():openDrawer();
+  } else {
+    const layout=document.querySelector('.dash-layout');
+    const collapsed=layout.classList.toggle('sidebar-collapsed');
+    document.body.classList.toggle('sidebar-collapsed',collapsed);
+    try{localStorage.setItem('sidebarCollapsed',collapsed);}catch(e){}
+  }
+}
+// Close drawer when a nav item is clicked on mobile
+document.querySelectorAll('.sidebar-item,.mod-nav-item').forEach(function(el){
+  el.addEventListener('click',function(){if(isDrawerMode())closeDrawer();});
+});
+// Restore desktop collapse state
+try{
+  if(localStorage.getItem('sidebarCollapsed')==='true'&&!isDrawerMode()){
+    document.querySelector('.dash-layout').classList.add('sidebar-collapsed');
+    document.body.classList.add('sidebar-collapsed');
+  }
+}catch(e){}
+// Close drawer on resize back to desktop
+window.addEventListener('resize',function(){if(!isDrawerMode())closeDrawer();});
+
+renderHealthGrid();
+renderActivityFeed();
+renderFinanceSparkline();
+renderEventsSnapshot();
+renderPastoralSnapshot();
+renderTxnSnapshot();
+renderNewMembersSnapshot();
+renderCommsSnapshot();
+setDate();
+</script>
+</body>
+</html>

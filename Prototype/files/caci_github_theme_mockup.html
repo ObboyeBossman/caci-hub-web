@@ -1,0 +1,303 @@
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --red:#C60026;--blue:#004BA0;--blue-dark:#003578;--blue-light:#1a5fb4;
+    --white:#fff;--gray-50:#f6f8fa;--gray-100:#eaeef2;--gray-200:#d0d7de;
+    --gray-400:#8c959f;--gray-600:#656d76;--gray-800:#24292f;--gray-900:#1b1f23;
+    --font:'Georgia', serif;
+  }
+  body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--gray-800);background:var(--gray-50);}
+
+  /* TOP NAV */
+  .topnav{background:var(--blue);padding:0 24px;display:flex;align-items:center;gap:16px;height:52px;border-bottom:1px solid var(--blue-dark);}
+  .logo{display:flex;align-items:center;gap:8px;color:#fff;font-weight:600;font-size:15px;text-decoration:none;}
+  .logo-cross{width:28px;height:28px;position:relative;flex-shrink:0;}
+  .logo-cross::before,.logo-cross::after{content:'';position:absolute;background:#fff;border-radius:2px;}
+  .logo-cross::before{width:4px;height:100%;left:50%;transform:translateX(-50%);}
+  .logo-cross::after{height:4px;width:100%;top:50%;transform:translateY(-50%);}
+  .nav-links{display:flex;gap:4px;margin-left:8px;}
+  .nav-link{color:rgba(255,255,255,0.8);font-size:13px;padding:6px 10px;border-radius:6px;cursor:pointer;transition:background .15s;}
+  .nav-link:hover{background:rgba(255,255,255,0.12);color:#fff;}
+  .nav-link.active{color:#fff;background:rgba(255,255,255,0.15);}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+  .nav-btn{background:var(--red);color:#fff;border:none;padding:5px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;}
+  .avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;}
+
+  /* SUBNAV */
+  .subnav{background:#fff;border-bottom:1px solid var(--gray-200);padding:0 24px;display:flex;gap:0;}
+  .sub-link{font-size:13px;padding:10px 14px;color:var(--gray-600);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;}
+  .sub-link:hover{color:var(--gray-800);}
+  .sub-link.active{color:var(--gray-800);border-bottom-color:var(--red);font-weight:500;}
+  .badge{background:var(--gray-100);color:var(--gray-600);font-size:11px;padding:1px 6px;border-radius:10px;}
+  .badge.red{background:#ffeef0;color:var(--red);}
+
+  /* LAYOUT */
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:24px;padding:24px;max-width:1100px;margin:0 auto;}
+
+  /* SIDEBAR */
+  .sidebar{}
+  .profile-card{background:#fff;border:1px solid var(--gray-200);border-radius:8px;padding:16px;margin-bottom:16px;}
+  .profile-avatar{width:60px;height:60px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;margin-bottom:10px;}
+  .profile-name{font-size:15px;font-weight:600;color:var(--gray-900);}
+  .profile-handle{font-size:13px;color:var(--gray-400);margin-bottom:10px;}
+  .profile-bio{font-size:12px;color:var(--gray-600);line-height:1.5;margin-bottom:12px;}
+  .profile-meta{font-size:12px;color:var(--gray-600);display:flex;flex-direction:column;gap:4px;}
+  .meta-item{display:flex;align-items:center;gap:6px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;}
+
+  .sidebar-section{background:#fff;border:1px solid var(--gray-200);border-radius:8px;padding:14px;margin-bottom:16px;}
+  .sidebar-title{font-size:12px;font-weight:600;color:var(--gray-800);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+  .sidebar-nav-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--gray-700);margin-bottom:2px;}
+  .sidebar-nav-item:hover{background:var(--gray-50);}
+  .sidebar-nav-item.active{background:#f0f4ff;color:var(--blue);font-weight:500;}
+  .sidebar-nav-item.active .count{background:#dbeafe;color:var(--blue);}
+  .count{font-size:11px;background:var(--gray-100);color:var(--gray-600);padding:1px 7px;border-radius:10px;}
+
+  /* MAIN */
+  .main{}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .section-title{font-size:15px;font-weight:600;color:var(--gray-900);}
+  .btn-outline{border:1px solid var(--gray-200);background:#fff;color:var(--gray-700);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;}
+  .btn-primary{border:none;background:var(--red);color:#fff;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;}
+
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+  .card{background:#fff;border:1px solid var(--gray-200);border-radius:8px;padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+  .card:hover{border-color:var(--blue-light);box-shadow:0 1px 6px rgba(0,75,160,.08);}
+  .card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .card-icon{width:32px;height:32px;border-radius:6px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .card-icon svg{width:16px;height:16px;fill:var(--blue);}
+  .card-name{font-size:14px;font-weight:600;color:var(--blue);}
+  .card-desc{font-size:12px;color:var(--gray-600);line-height:1.5;margin-bottom:10px;}
+  .card-footer{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--gray-400);}
+  .lang-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .pinned-label{font-size:11px;color:var(--gray-400);font-weight:500;margin-bottom:6px;}
+
+  /* ACTIVITY */
+  .activity-card{background:#fff;border:1px solid var(--gray-200);border-radius:8px;padding:16px;margin-bottom:24px;}
+  .activity-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-100);}
+  .activity-item:last-child{border-bottom:none;padding-bottom:0;}
+  .act-dot{width:8px;height:8px;border-radius:50%;background:var(--red);margin-top:5px;flex-shrink:0;}
+  .act-dot.blue{background:var(--blue);}
+  .act-dot.gray{background:var(--gray-300);}
+  .act-text{font-size:13px;color:var(--gray-700);line-height:1.5;}
+  .act-time{font-size:11px;color:var(--gray-400);margin-top:2px;}
+
+  /* STATS ROW */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  .stat-card{background:#fff;border:1px solid var(--gray-200);border-radius:8px;padding:14px 16px;}
+  .stat-label{font-size:11px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+  .stat-value{font-size:22px;font-weight:600;color:var(--gray-900);}
+  .stat-sub{font-size:11px;color:var(--gray-400);margin-top:2px;}
+  .stat-bar{height:3px;border-radius:2px;background:var(--gray-100);margin-top:8px;}
+  .stat-fill{height:3px;border-radius:2px;}
+</style>
+
+<div>
+  <nav class="topnav">
+    <a class="logo" href="#">
+      <div class="logo-cross"></div>
+      CACI Ghana
+    </a>
+    <div class="nav-links">
+      <div class="nav-link active">Dashboard</div>
+      <div class="nav-link">Ministries</div>
+      <div class="nav-link">Events</div>
+      <div class="nav-link">Members</div>
+      <div class="nav-link">Resources</div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn">+ New Event</button>
+      <div class="avatar">PN</div>
+    </div>
+  </nav>
+
+  <div class="subnav">
+    <div class="sub-link active">Overview</div>
+    <div class="sub-link">Announcements <span class="badge red">3</span></div>
+    <div class="sub-link">Prayer Requests <span class="badge">12</span></div>
+    <div class="sub-link">Giving <span class="badge">—</span></div>
+    <div class="sub-link">Settings</div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="profile-card">
+        <div class="profile-avatar">PA</div>
+        <div class="profile-name">Prophet P. N. Anim</div>
+        <div class="profile-handle">@caci-headquarters</div>
+        <div class="profile-bio">Christ Apostolic Church International — Headquarters, Ghana. Founded on the blood of Christ, standing in holiness.</div>
+        <div class="profile-meta">
+          <div class="meta-item"><div class="dot"></div> Accra, Ghana</div>
+          <div class="meta-item"><div class="dot" style="background:var(--blue)"></div> Est. 1917</div>
+          <div class="meta-item"><div class="dot" style="background:var(--gray-400)"></div> caci-ghana.org</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Navigation</div>
+        <div class="sidebar-nav-item active">Dashboard <span class="count">Home</span></div>
+        <div class="sidebar-nav-item">Branches <span class="count">247</span></div>
+        <div class="sidebar-nav-item">Sermons <span class="count">84</span></div>
+        <div class="sidebar-nav-item">Prayer Wall <span class="count">12</span></div>
+        <div class="sidebar-nav-item">Giving Records <span class="count">—</span></div>
+        <div class="sidebar-nav-item">Media Library <span class="count">310</span></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Upcoming Events</div>
+        <div style="font-size:12px;color:var(--gray-700);line-height:1.8;">
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--gray-100);">
+            <span>Easter Convention</span>
+            <span style="color:var(--red);font-weight:500;">Apr 18</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--gray-100);">
+            <span>Healing Service</span>
+            <span style="color:var(--gray-400);">May 10</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;">
+            <span>Annual Congress</span>
+            <span style="color:var(--gray-400);">Jul 4</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Members</div>
+          <div class="stat-value">24,810</div>
+          <div class="stat-sub">+312 this month</div>
+          <div class="stat-bar"><div class="stat-fill" style="width:72%;background:var(--blue);"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Branches</div>
+          <div class="stat-value">247</div>
+          <div class="stat-sub">Across 10 regions</div>
+          <div class="stat-bar"><div class="stat-fill" style="width:55%;background:var(--red);"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Sermons</div>
+          <div class="stat-value">84</div>
+          <div class="stat-sub">Last upload: 2d ago</div>
+          <div class="stat-bar"><div class="stat-fill" style="width:40%;background:var(--blue);"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Prayer Requests</div>
+          <div class="stat-value">12</div>
+          <div class="stat-sub">3 urgent</div>
+          <div class="stat-bar"><div class="stat-fill" style="width:20%;background:var(--red);"></div></div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Pinned Ministries</div>
+        <button class="btn-outline">Customize</button>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="pinned-label">📌 Pinned</div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg>
+            </div>
+            <div class="card-name">Youth Ministry</div>
+          </div>
+          <div class="card-desc">Empowering the next generation through the word of God, prayer, and fellowship activities across all branches.</div>
+          <div class="card-footer">
+            <span><span class="lang-dot" style="background:var(--red);"></span> Active</span>
+            <span>1,240 members</span>
+            <span>Updated 3d ago</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="pinned-label">📌 Pinned</div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg>
+            </div>
+            <div class="card-name">Women's Fellowship</div>
+          </div>
+          <div class="card-desc">A network of spirit-filled women dedicated to prayer, evangelism, and supporting families within the church.</div>
+          <div class="card-footer">
+            <span><span class="lang-dot" style="background:var(--blue);"></span> Active</span>
+            <span>3,800 members</span>
+            <span>Updated 1d ago</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="pinned-label">📌 Pinned</div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg>
+            </div>
+            <div class="card-name">Evangelism Team</div>
+          </div>
+          <div class="card-desc">Reaching the unreached — coordinating outreach programs, crusades, and mission work throughout Ghana.</div>
+          <div class="card-footer">
+            <span><span class="lang-dot" style="background:var(--red);"></span> Active</span>
+            <span>560 members</span>
+            <span>Updated 5d ago</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="pinned-label">📌 Pinned</div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg>
+            </div>
+            <div class="card-name">Worship & Music</div>
+          </div>
+          <div class="card-desc">Choirs, praise teams, and instrumentalists across all districts bringing glory to God through unified worship.</div>
+          <div class="card-footer">
+            <span><span class="lang-dot" style="background:var(--blue);"></span> Active</span>
+            <span>920 members</span>
+            <span>Updated today</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Recent Activity</div>
+        <button class="btn-outline">View all</button>
+      </div>
+
+      <div class="activity-card">
+        <div class="activity-item">
+          <div class="act-dot"></div>
+          <div>
+            <div class="act-text"><strong>New branch registered</strong> — Kumasi North District joined the CACI network.</div>
+            <div class="act-time">2 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot blue"></div>
+          <div>
+            <div class="act-text"><strong>Sermon uploaded</strong> — "Walking in the Spirit" by Overseer Mensah added to the media library.</div>
+            <div class="act-time">Yesterday at 3:14 PM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot"></div>
+          <div>
+            <div class="act-text"><strong>3 urgent prayer requests</strong> submitted by members from Takoradi District.</div>
+            <div class="act-time">2 days ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot gray"></div>
+          <div>
+            <div class="act-text"><strong>Event published</strong> — Easter Convention 2026 scheduled and visible to all members.</div>
+            <div class="act-time">3 days ago</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>

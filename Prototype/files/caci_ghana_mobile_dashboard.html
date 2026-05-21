@@ -1,0 +1,314 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bl:#004BA0;--bld:#003578;--rd:#C60026;
+  --g50:#f6f8fa;--g100:#eaeef2;--g200:#d0d7de;
+  --g400:#8c959f;--g600:#656d76;--g800:#24292f;--g900:#1b1f23;
+}
+.phone{width:370px;height:800px;border-radius:44px;border:7px solid #1a1a1a;overflow:hidden;display:flex;flex-direction:column;position:relative;background:var(--g50);margin:0 auto;}
+.status-bar{background:var(--bl);height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:10px;color:rgba(255,255,255,.85);font-family:'Segoe UI',system-ui,sans-serif;flex-shrink:0;}
+.topnav{background:var(--bl);height:50px;display:flex;align-items:center;padding:0 16px;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bld);}
+.logo{display:flex;align-items:center;gap:7px;}
+.logo-txt{color:#fff;font-weight:700;font-size:14px;font-family:'Segoe UI',system-ui,sans-serif;letter-spacing:.2px;}
+.ham{background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:4px;}
+.ham span{display:block;width:19px;height:2px;background:#fff;border-radius:1px;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.new-btn{background:var(--rd);color:#fff;border:none;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Segoe UI',system-ui,sans-serif;}
+.av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;font-family:'Segoe UI',system-ui,sans-serif;}
+.subnav{background:#fff;border-bottom:1px solid var(--g200);display:flex;overflow-x:auto;flex-shrink:0;scrollbar-width:none;height:40px;align-items:stretch;}
+.subnav::-webkit-scrollbar{display:none;}
+.stab{font-size:12px;padding:0 13px;color:var(--g600);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;font-family:'Segoe UI',system-ui,sans-serif;flex-shrink:0;}
+.stab.active{color:var(--g800);border-bottom-color:var(--rd);font-weight:600;}
+.sbadge{font-size:10px;padding:1px 5px;border-radius:9px;background:var(--g100);color:var(--g600);}
+.sbadge.red{background:#ffeef0;color:var(--rd);}
+.content{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:11px;scrollbar-width:none;}
+.content::-webkit-scrollbar{display:none;}
+.profile-strip{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px;}
+.p-av{width:48px;height:48px;border-radius:50%;background:var(--bl);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;font-family:'Segoe UI',system-ui,sans-serif;flex-shrink:0;}
+.p-name{font-size:13px;font-weight:700;color:var(--g900);font-family:'Segoe UI',system-ui,sans-serif;}
+.p-handle{font-size:11px;color:var(--g400);margin:1px 0;font-family:'Segoe UI',system-ui,sans-serif;}
+.p-meta{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--g600);font-family:'Segoe UI',system-ui,sans-serif;}
+.rdot{width:5px;height:5px;border-radius:50%;background:var(--rd);flex-shrink:0;}
+.bdot{width:5px;height:5px;border-radius:50%;background:var(--bl);flex-shrink:0;}
+.stats-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;}
+.scard{background:#fff;border:1px solid var(--g200);border-radius:10px;padding:12px 13px;}
+.slabel{font-size:10px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.4px;font-family:'Segoe UI',system-ui,sans-serif;}
+.sval{font-size:21px;font-weight:700;color:var(--g900);margin:2px 0;font-family:'Segoe UI',system-ui,sans-serif;}
+.ssub{font-size:10px;color:var(--g400);font-family:'Segoe UI',system-ui,sans-serif;}
+.sbar{height:3px;background:var(--g100);border-radius:2px;margin-top:7px;}
+.sfill{height:3px;border-radius:2px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
+.sec-ttl{font-size:13px;font-weight:700;color:var(--g900);font-family:'Segoe UI',system-ui,sans-serif;}
+.sec-btn{border:1px solid var(--g200);background:#fff;color:var(--g600);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Segoe UI',system-ui,sans-serif;}
+.mcard{background:#fff;border:1px solid var(--g200);border-radius:10px;padding:13px 14px;}
+.mcard-hdr{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.micon{width:30px;height:30px;border-radius:7px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mname{font-size:13px;font-weight:700;color:var(--bl);font-family:'Segoe UI',system-ui,sans-serif;}
+.mlabel{font-size:10px;color:var(--g400);font-weight:500;margin-bottom:5px;font-family:'Segoe UI',system-ui,sans-serif;}
+.mdesc{font-size:11px;color:var(--g600);line-height:1.55;margin-bottom:9px;font-family:'Segoe UI',system-ui,sans-serif;}
+.mfoot{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--g400);font-family:'Segoe UI',system-ui,sans-serif;}
+.ldot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.act-card{background:#fff;border:1px solid var(--g200);border-radius:10px;overflow:hidden;}
+.act-item{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid var(--g100);}
+.act-item:last-child{border-bottom:none;}
+.adot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.atext{font-size:12px;color:var(--g600);line-height:1.5;font-family:'Segoe UI',system-ui,sans-serif;}
+.atime{font-size:10px;color:var(--g400);margin-top:2px;font-family:'Segoe UI',system-ui,sans-serif;}
+.ev-card{background:#fff;border:1px solid var(--g200);border-radius:10px;padding:12px 14px;}
+.ev-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--g100);font-size:12px;font-family:'Segoe UI',system-ui,sans-serif;}
+.ev-row:last-child{border-bottom:none;padding-bottom:0;}
+.ev-name{color:var(--g700);}
+.ev-date{font-weight:600;}
+.btmnav{background:#fff;border-top:1px solid var(--g200);display:flex;align-items:stretch;flex-shrink:0;height:60px;}
+.bitem{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;padding:0;position:relative;}
+.bitem.active .bico{color:var(--bl);}
+.bitem.active .btxt{color:var(--bl);font-weight:600;}
+.bitem .bico{color:var(--g400);}
+.bitem .btxt{font-size:9px;color:var(--g400);font-family:'Segoe UI',system-ui,sans-serif;}
+.bitem.active::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--bl);border-radius:0 0 2px 2px;}
+.bnot{width:6px;height:6px;border-radius:50%;background:var(--rd);position:absolute;top:8px;right:calc(50% - 14px);}
+.drawer{position:absolute;inset:0;z-index:99;display:flex;transform:translateX(-100%);transition:transform .22s ease;}
+.drawer-panel{width:270px;height:100%;background:#fff;overflow-y:auto;display:flex;flex-direction:column;border-right:1px solid var(--g200);}
+.drawer-top{background:var(--bl);padding:22px 16px 18px;flex-shrink:0;}
+.drp-av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;font-family:'Segoe UI',system-ui,sans-serif;margin-bottom:10px;}
+.drp-name{font-size:14px;font-weight:700;color:#fff;font-family:'Segoe UI',system-ui,sans-serif;}
+.drp-handle{font-size:12px;color:rgba(255,255,255,.65);font-family:'Segoe UI',system-ui,sans-serif;margin-top:2px;}
+.drawer-body{padding:14px 14px;flex:1;}
+.dr-sec{margin-bottom:20px;}
+.dr-sec-ttl{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-family:'Segoe UI',system-ui,sans-serif;}
+.dr-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;font-size:13px;color:var(--g800);font-family:'Segoe UI',system-ui,sans-serif;}
+.dr-item.active{background:#f0f4ff;color:var(--bl);font-weight:600;}
+.dr-cnt{font-size:11px;background:var(--g100);color:var(--g600);padding:1px 7px;border-radius:9px;}
+.dr-item.active .dr-cnt{background:#dbeafe;color:var(--bl);}
+.dr-ev{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--g100);font-size:12px;font-family:'Segoe UI',system-ui,sans-serif;}
+.dr-ev:last-child{border:none;}
+.backdrop{flex:1;background:rgba(0,0,0,.38);}
+</style>
+
+<div style="padding:12px 0 4px;">
+<div class="phone">
+
+  <div class="status-bar">
+    <span style="font-weight:600;">9:41</span>
+    <span>CACI Ghana</span>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="0" y="4" width="2" height="8" rx="1" fill="rgba(255,255,255,.9)"/><rect x="3" y="2.5" width="2" height="9.5" rx="1" fill="rgba(255,255,255,.9)"/><rect x="6" y="1" width="2" height="11" rx="1" fill="rgba(255,255,255,.9)"/><rect x="9" y="0" width="2" height="12" rx="1" fill="rgba(255,255,255,.4)"/></svg>
+      <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><path d="M7 2.5C9.2 2.5 11.1 3.5 12.4 5L13.5 3.8C11.9 2.1 9.6 1 7 1C4.4 1 2.1 2.1.5 3.8L1.6 5C2.9 3.5 4.8 2.5 7 2.5Z" fill="rgba(255,255,255,.9)"/><path d="M7 5C8.3 5 9.5 5.6 10.3 6.5L11.4 5.3C10.3 4.1 8.7 3.3 7 3.3C5.3 3.3 3.7 4.1 2.6 5.3L3.7 6.5C4.5 5.6 5.7 5 7 5Z" fill="rgba(255,255,255,.9)"/><circle cx="7" cy="9" r="1.8" fill="rgba(255,255,255,.9)"/></svg>
+      <svg width="22" height="12" viewBox="0 0 22 12" fill="none"><rect x="0" y="1" width="18" height="10" rx="2" stroke="rgba(255,255,255,.7)" stroke-width="1"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="rgba(255,255,255,.9)"/><path d="M19.5 4v4a1.5 1.5 0 000-4z" fill="rgba(255,255,255,.5)"/></svg>
+    </div>
+  </div>
+
+  <div class="topnav">
+    <div class="logo">
+      <button class="ham" onclick="toggleDrawer()">
+        <span></span><span></span><span></span>
+      </button>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="9" y="2" width="2" height="16" rx="1" fill="white"/>
+        <rect x="2" y="9" width="16" height="2" rx="1" fill="white"/>
+      </svg>
+      <span class="logo-txt">CACI Ghana</span>
+    </div>
+    <div class="nav-right">
+      <button class="new-btn">+ Event</button>
+      <div class="av">PN</div>
+    </div>
+  </div>
+
+  <div class="subnav">
+    <div class="stab active">Overview</div>
+    <div class="stab">Announcements <span class="sbadge red">3</span></div>
+    <div class="stab">Prayer <span class="sbadge">12</span></div>
+    <div class="stab">Giving <span class="sbadge">—</span></div>
+    <div class="stab">Settings</div>
+  </div>
+
+  <div class="content">
+
+    <div class="profile-strip">
+      <div class="p-av">PA</div>
+      <div style="flex:1;min-width:0;">
+        <div class="p-name">Prophet P. N. Anim</div>
+        <div class="p-handle">@caci-headquarters</div>
+        <div style="display:flex;gap:10px;margin-top:3px;">
+          <div class="p-meta"><div class="rdot"></div>Accra, Ghana</div>
+          <div class="p-meta"><div class="bdot"></div>Est. 1917</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="scard">
+        <div class="slabel">Members</div>
+        <div class="sval">24,810</div>
+        <div class="ssub">+312 this month</div>
+        <div class="sbar"><div class="sfill" style="width:72%;background:var(--bl);"></div></div>
+      </div>
+      <div class="scard">
+        <div class="slabel">Branches</div>
+        <div class="sval">247</div>
+        <div class="ssub">10 regions</div>
+        <div class="sbar"><div class="sfill" style="width:55%;background:var(--rd);"></div></div>
+      </div>
+      <div class="scard">
+        <div class="slabel">Sermons</div>
+        <div class="sval">84</div>
+        <div class="ssub">Last: 2d ago</div>
+        <div class="sbar"><div class="sfill" style="width:40%;background:var(--bl);"></div></div>
+      </div>
+      <div class="scard">
+        <div class="slabel">Prayer Req.</div>
+        <div class="sval">12</div>
+        <div class="ssub">3 urgent</div>
+        <div class="sbar"><div class="sfill" style="width:20%;background:var(--rd);"></div></div>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="sec-ttl" style="margin-bottom:8px;font-size:12px;">Upcoming Events</div>
+      <div class="ev-row"><span class="ev-name">Easter Convention</span><span class="ev-date" style="color:var(--rd);">Apr 18</span></div>
+      <div class="ev-row"><span class="ev-name">Healing Service</span><span class="ev-date" style="color:var(--g400);">May 10</span></div>
+      <div class="ev-row"><span class="ev-name">Annual Congress</span><span class="ev-date" style="color:var(--g400);">Jul 4</span></div>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="sec-ttl">Pinned Ministries</div>
+      <button class="sec-btn">Customize</button>
+    </div>
+
+    <div class="mcard">
+      <div class="mlabel">📌 Pinned</div>
+      <div class="mcard-hdr">
+        <div class="micon"><svg width="15" height="15" viewBox="0 0 16 16" fill="#004BA0"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg></div>
+        <div class="mname">Youth Ministry</div>
+      </div>
+      <div class="mdesc">Empowering the next generation through the word of God, prayer, and fellowship across all branches.</div>
+      <div class="mfoot"><span class="ldot" style="background:var(--rd);"></span>Active<span>1,240 members</span><span>Updated 3d ago</span></div>
+    </div>
+
+    <div class="mcard">
+      <div class="mlabel">📌 Pinned</div>
+      <div class="mcard-hdr">
+        <div class="micon"><svg width="15" height="15" viewBox="0 0 16 16" fill="#004BA0"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg></div>
+        <div class="mname">Women's Fellowship</div>
+      </div>
+      <div class="mdesc">Spirit-filled women dedicated to prayer, evangelism, and supporting families within the church.</div>
+      <div class="mfoot"><span class="ldot" style="background:var(--bl);"></span>Active<span>3,800 members</span><span>Updated 1d ago</span></div>
+    </div>
+
+    <div class="mcard">
+      <div class="mlabel">📌 Pinned</div>
+      <div class="mcard-hdr">
+        <div class="micon"><svg width="15" height="15" viewBox="0 0 16 16" fill="#004BA0"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg></div>
+        <div class="mname">Evangelism Team</div>
+      </div>
+      <div class="mdesc">Coordinating outreach programs, crusades, and mission work throughout Ghana.</div>
+      <div class="mfoot"><span class="ldot" style="background:var(--rd);"></span>Active<span>560 members</span><span>Updated 5d ago</span></div>
+    </div>
+
+    <div class="mcard">
+      <div class="mlabel">📌 Pinned</div>
+      <div class="mcard-hdr">
+        <div class="micon"><svg width="15" height="15" viewBox="0 0 16 16" fill="#004BA0"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14A6 6 0 118 2a6 6 0 010 12z"/></svg></div>
+        <div class="mname">Worship &amp; Music</div>
+      </div>
+      <div class="mdesc">Choirs, praise teams, and instrumentalists across all districts bringing glory to God.</div>
+      <div class="mfoot"><span class="ldot" style="background:var(--bl);"></span>Active<span>920 members</span><span>Updated today</span></div>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="sec-ttl">Recent Activity</div>
+      <button class="sec-btn">View all</button>
+    </div>
+
+    <div class="act-card">
+      <div class="act-item">
+        <div class="adot" style="background:var(--rd);"></div>
+        <div><div class="atext"><strong>New branch registered</strong> — Kumasi North District joined the CACI network.</div><div class="atime">2 hours ago</div></div>
+      </div>
+      <div class="act-item">
+        <div class="adot" style="background:var(--bl);"></div>
+        <div><div class="atext"><strong>Sermon uploaded</strong> — "Walking in the Spirit" by Overseer Mensah added to media library.</div><div class="atime">Yesterday at 3:14 PM</div></div>
+      </div>
+      <div class="act-item">
+        <div class="adot" style="background:var(--rd);"></div>
+        <div><div class="atext"><strong>3 urgent prayer requests</strong> submitted from Takoradi District.</div><div class="atime">2 days ago</div></div>
+      </div>
+      <div class="act-item">
+        <div class="adot" style="background:var(--g200);"></div>
+        <div><div class="atext"><strong>Event published</strong> — Easter Convention 2026 now visible to all members.</div><div class="atime">3 days ago</div></div>
+      </div>
+    </div>
+
+    <div style="height:4px;"></div>
+
+  </div>
+
+  <div class="btmnav">
+    <button class="bitem active">
+      <svg class="bico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="btxt">Dashboard</span>
+    </button>
+    <button class="bitem">
+      <svg class="bico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7l7-4 7 4M5 17l7 4 7-4"/><path d="M5 7v10M19 7v10"/></svg>
+      <span class="btxt">Ministries</span>
+    </button>
+    <button class="bitem">
+      <div class="bnot"></div>
+      <svg class="bico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="btxt">Events</span>
+    </button>
+    <button class="bitem">
+      <svg class="bico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span class="btxt">Members</span>
+    </button>
+    <button class="bitem">
+      <svg class="bico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <span class="btxt">Resources</span>
+    </button>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-panel">
+      <div class="drawer-top">
+        <div class="drp-av">PA</div>
+        <div class="drp-name">Prophet P. N. Anim</div>
+        <div class="drp-handle">@caci-headquarters · Accra, Ghana</div>
+      </div>
+      <div class="drawer-body">
+        <div class="dr-sec">
+          <div class="dr-sec-ttl">Navigation</div>
+          <div class="dr-item active">Dashboard <span class="dr-cnt">Home</span></div>
+          <div class="dr-item">Branches <span class="dr-cnt">247</span></div>
+          <div class="dr-item">Sermons <span class="dr-cnt">84</span></div>
+          <div class="dr-item">Prayer Wall <span class="dr-cnt">12</span></div>
+          <div class="dr-item">Giving Records <span class="dr-cnt">—</span></div>
+          <div class="dr-item">Media Library <span class="dr-cnt">310</span></div>
+        </div>
+        <div class="dr-sec">
+          <div class="dr-sec-ttl">Upcoming Events</div>
+          <div class="dr-ev"><span>Easter Convention</span><span style="color:var(--rd);font-weight:600;">Apr 18</span></div>
+          <div class="dr-ev"><span>Healing Service</span><span style="color:var(--g400);">May 10</span></div>
+          <div class="dr-ev"><span>Annual Congress</span><span style="color:var(--g400);">Jul 4</span></div>
+        </div>
+        <div class="dr-sec">
+          <div class="dr-sec-ttl">Account</div>
+          <div class="dr-item">Profile Settings <span class="dr-cnt"></span></div>
+          <div class="dr-item" style="color:var(--rd);">Sign Out</div>
+        </div>
+      </div>
+    </div>
+    <div class="backdrop" onclick="toggleDrawer()"></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+function toggleDrawer(){
+  var d=document.getElementById('drawer');
+  d._open=!d._open;
+  d.style.transform=d._open?'translateX(0)':'translateX(-100%)';
+}
+</script>

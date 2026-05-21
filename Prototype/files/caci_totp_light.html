@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two-factor authentication · CACI Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bl:#004BA0;--bld:#003578;--rd:#C60026;
+  --g50:#f6f8fa;--g100:#eaeef2;--g200:#d0d7de;
+  --g400:#8c959f;--g600:#656d76;--g700:#57606a;--g800:#24292f;--g900:#1b1f23;
+  --focus:#0969da;--focus-bg:#ddf4ff;
+  --success:#1a7f37;--success-bg:#dafbe1;
+}
+body{
+  font-family:'Segoe UI','Helvetica Neue',system-ui,sans-serif;
+  font-size:14px;
+  color:var(--g900);
+  background:var(--g50);
+  line-height:1.5;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+.header{
+  background:#fff;
+  border-bottom:1px solid var(--g200);
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  text-decoration:none;
+}
+.cross{
+  width:24px;
+  height:24px;
+  position:relative;
+  flex-shrink:0;
+}
+.cross::before,.cross::after{
+  content:'';
+  position:absolute;
+  background:var(--bl);
+  border-radius:2px;
+}
+.cross::before{
+  width:3px;
+  height:100%;
+  left:50%;
+  transform:translateX(-50%);
+}
+.cross::after{
+  height:3px;
+  width:100%;
+  top:50%;
+  transform:translateY(-50%);
+}
+.logo-text{
+  font-size:15px;
+  font-weight:600;
+  color:var(--g900);
+  letter-spacing:-.2px;
+}
+
+/* MAIN CONTAINER */
+.container{
+  flex:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:40px 16px 60px;
+}
+.box{
+  width:100%;
+  max-width:340px;
+}
+
+/* HEADING */
+.heading{
+  text-align:center;
+  margin-bottom:24px;
+}
+.h1{
+  font-size:24px;
+  font-weight:300;
+  color:var(--g900);
+  letter-spacing:-.5px;
+  margin-bottom:4px;
+}
+.subtitle{
+  font-size:14px;
+  color:var(--g600);
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border:1px solid var(--g200);
+  border-radius:6px;
+  padding:20px;
+  margin-bottom:16px;
+}
+
+/* VERIFICATION BADGE */
+.verification-badge{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  background:var(--g50);
+  border:1px solid var(--g200);
+  border-radius:6px;
+  margin-bottom:20px;
+}
+.badge-icon{
+  width:36px;
+  height:36px;
+  background:var(--bl);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  color:#fff;
+  font-weight:600;
+  font-size:14px;
+}
+.badge-content{
+  flex:1;
+}
+.badge-label{
+  font-size:11px;
+  color:var(--g600);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.badge-value{
+  font-size:14px;
+  font-weight:500;
+  color:var(--g900);
+}
+
+/* FORM */
+.field{
+  margin-bottom:15px;
+}
+.label{
+  display:block;
+  font-size:14px;
+  font-weight:600;
+  color:var(--g900);
+  margin-bottom:7px;
+}
+.hint{
+  font-size:12px;
+  color:var(--g600);
+  line-height:1.4;
+  margin-bottom:10px;
+}
+
+/* CODE INPUT */
+.code-input-group{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.code-digit{
+  width:45px;
+  height:48px;
+  border:1px solid var(--g200);
+  border-radius:6px;
+  text-align:center;
+  font-size:20px;
+  font-weight:600;
+  font-family:'SF Mono',Monaco,Consolas,monospace;
+  color:var(--g900);
+  background:#fff;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.code-digit:focus{
+  border-color:var(--focus);
+  box-shadow:0 0 0 3px var(--focus-bg);
+}
+.code-digit.filled{
+  border-color:var(--bl);
+  background:var(--g50);
+}
+.code-digit.error{
+  border-color:#cf222e;
+  box-shadow:0 0 0 3px rgba(207,34,46,.1);
+}
+
+/* BUTTONS */
+.btn{
+  width:100%;
+  height:32px;
+  border-radius:6px;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  border:1px solid;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:background .15s;
+}
+.btn-primary{
+  background:var(--bl);
+  color:#fff;
+  border-color:rgba(0,75,160,.2);
+}
+.btn-primary:hover{
+  background:var(--bld);
+}
+.btn-primary:disabled{
+  background:#94d3a2;
+  border-color:#94d3a2;
+  color:rgba(255,255,255,.8);
+  cursor:not-allowed;
+}
+.btn-secondary{
+  background:#fff;
+  color:var(--g900);
+  border-color:var(--g200);
+}
+.btn-secondary:hover{
+  background:var(--g50);
+  border-color:var(--g400);
+}
+.btn-link{
+  background:none;
+  border:none;
+  color:var(--bl);
+  font-size:13px;
+  cursor:pointer;
+  padding:0;
+  text-decoration:none;
+  width:auto;
+  justify-content:flex-start;
+  height:auto;
+}
+.btn-link:hover{
+  text-decoration:underline;
+}
+
+/* DIVIDER */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:16px 0;
+}
+.divider::before,
+.divider::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--g200);
+}
+.divider-text{
+  font-size:12px;
+  color:var(--g600);
+  text-transform:lowercase;
+}
+
+/* ALERT */
+.alert{
+  border-radius:6px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:16px;
+  border:1px solid;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+.alert-error{
+  background:#ffebe9;
+  color:#cf222e;
+  border-color:rgba(207,34,46,.2);
+}
+.alert-info{
+  background:#ddf4ff;
+  color:#0969da;
+  border-color:rgba(9,105,218,.2);
+}
+.alert-icon{
+  flex-shrink:0;
+  margin-top:1px;
+}
+
+/* CHECKBOX */
+.checkbox-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:16px;
+}
+.checkbox-row input[type=checkbox]{
+  width:16px;
+  height:16px;
+  accent-color:var(--bl);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.checkbox-label{
+  font-size:13px;
+  color:var(--g700);
+  line-height:1.5;
+  cursor:pointer;
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  padding:20px 16px;
+  font-size:13px;
+  color:var(--g600);
+}
+.footer a{
+  color:var(--bl);
+  text-decoration:none;
+}
+.footer a:hover{
+  text-decoration:underline;
+}
+
+/* BACKUP CODES PANEL */
+.panel{
+  display:none;
+}
+.panel.active{
+  display:block;
+}
+.backup-code-input{
+  width:100%;
+  height:32px;
+  border:1px solid var(--g200);
+  border-radius:6px;
+  padding:0 12px;
+  font-size:14px;
+  font-family:'SF Mono',Monaco,Consolas,monospace;
+  color:var(--g900);
+  background:#fff;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.backup-code-input:focus{
+  border-color:var(--focus);
+  box-shadow:0 0 0 3px var(--focus-bg);
+}
+.backup-code-input::placeholder{
+  color:var(--g400);
+  text-transform:none;
+  letter-spacing:normal;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="#" class="logo">
+    <div class="cross"></div>
+    <span class="logo-text">CACI Hub</span>
+  </a>
+</div>
+
+<div class="container">
+  <div class="box">
+    
+    <div class="heading">
+      <h1 class="h1">Two-factor authentication</h1>
+      <p class="subtitle">Enter the code from your authenticator app</p>
+    </div>
+
+    <div class="card">
+      
+      <!-- TOTP VERIFICATION PANEL -->
+      <div class="panel active" id="panel-totp">
+        <div class="verification-badge">
+          <div class="badge-icon">EA</div>
+          <div class="badge-content">
+            <div class="badge-label">Signing in as</div>
+            <div class="badge-value">emmanuel@example.com</div>
+          </div>
+        </div>
+
+        <div id="error-alert" class="alert alert-error" style="display:none;">
+          <svg class="alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 110 16A8 8 0 018 0zM7.25 3.75v4.5a.75.75 0 001.5 0v-4.5a.75.75 0 00-1.5 0zM8 11a1 1 0 100 2 1 1 0 000-2z"/></svg>
+          <span id="error-text">Incorrect code. Please try again.</span>
+        </div>
+
+        <div class="field">
+          <label class="label">Authentication code</label>
+          <div class="hint">Open your two-factor authenticator app to view your authentication code.</div>
+          <div class="code-input-group" id="code-inputs">
+            <input type="text" maxlength="1" class="code-digit" id="digit-0" data-index="0" />
+            <input type="text" maxlength="1" class="code-digit" id="digit-1" data-index="1" />
+            <input type="text" maxlength="1" class="code-digit" id="digit-2" data-index="2" />
+            <input type="text" maxlength="1" class="code-digit" id="digit-3" data-index="3" />
+            <input type="text" maxlength="1" class="code-digit" id="digit-4" data-index="4" />
+            <input type="text" maxlength="1" class="code-digit" id="digit-5" data-index="5" />
+          </div>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="trust-device" />
+          <label class="checkbox-label" for="trust-device">Trust this device for 30 days</label>
+        </div>
+
+        <button class="btn btn-primary" id="verify-btn" onclick="handleVerify(this)">Verify</button>
+
+        <div class="divider">
+          <span class="divider-text">or</span>
+        </div>
+
+        <button class="btn btn-secondary" onclick="showBackupCodes()">Use a backup code</button>
+      </div>
+
+      <!-- BACKUP CODE PANEL -->
+      <div class="panel" id="panel-backup">
+        <div class="verification-badge">
+          <div class="badge-icon">EA</div>
+          <div class="badge-content">
+            <div class="badge-label">Signing in as</div>
+            <div class="badge-value">emmanuel@example.com</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg class="alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"/></svg>
+          <span>Each backup code can only be used once. Keep your remaining codes in a safe place.</span>
+        </div>
+
+        <div class="field">
+          <label class="label" for="backup-code">Backup code</label>
+          <div class="hint">Enter one of your 8-digit backup codes.</div>
+          <input type="text" id="backup-code" class="backup-code-input" placeholder="XXXX-XXXX" maxlength="9" />
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="trust-device-backup" />
+          <label class="checkbox-label" for="trust-device-backup">Trust this device for 30 days</label>
+        </div>
+
+        <div style="margin-top:20px;">
+          <button class="btn btn-primary" onclick="handleBackupVerify(this)">Verify</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button class="btn btn-secondary" onclick="showTOTP()">Back to authenticator code</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <a href="#" onclick="handleSignOut(); return false;">← Sign in with a different account</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Code input handling
+const codeInputs = document.querySelectorAll('.code-digit');
+
+codeInputs.forEach((input, index) => {
+  input.addEventListener('input', (e) => {
+    const value = e.target.value;
+    
+    // Only allow numbers
+    if (!/^\d*$/.test(value)) {
+      e.target.value = '';
+      return;
+    }
+    
+    if (value) {
+      e.target.classList.add('filled');
+      // Move to next input
+      if (index < codeInputs.length - 1) {
+        codeInputs[index + 1].focus();
+      } else {
+        // All digits filled, auto-verify
+        setTimeout(() => {
+          document.getElementById('verify-btn').click();
+        }, 100);
+      }
+    } else {
+      e.target.classList.remove('filled');
+    }
+  });
+  
+  input.addEventListener('keydown', (e) => {
+    // Backspace handling
+    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+      codeInputs[index - 1].focus();
+      codeInputs[index - 1].value = '';
+      codeInputs[index - 1].classList.remove('filled');
+    }
+    
+    // Arrow key navigation
+    if (e.key === 'ArrowLeft' && index > 0) {
+      codeInputs[index - 1].focus();
+    }
+    if (e.key === 'ArrowRight' && index < codeInputs.length - 1) {
+      codeInputs[index + 1].focus();
+    }
+  });
+  
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    
+    pasteData.split('').forEach((char, i) => {
+      if (i < codeInputs.length) {
+        codeInputs[i].value = char;
+        codeInputs[i].classList.add('filled');
+      }
+    });
+    
+    if (pasteData.length === 6) {
+      codeInputs[5].focus();
+      setTimeout(() => {
+        document.getElementById('verify-btn').click();
+      }, 100);
+    }
+  });
+});
+
+// Auto-focus first input on load
+window.addEventListener('load', () => {
+  codeInputs[0].focus();
+});
+
+function getCodeValue() {
+  return Array.from(codeInputs).map(input => input.value).join('');
+}
+
+function clearCode() {
+  codeInputs.forEach(input => {
+    input.value = '';
+    input.classList.remove('filled', 'error');
+  });
+  codeInputs[0].focus();
+}
+
+function showError(message) {
+  const errorAlert = document.getElementById('error-alert');
+  document.getElementById('error-text').textContent = message;
+  errorAlert.style.display = 'flex';
+  
+  codeInputs.forEach(input => {
+    input.classList.add('error');
+    input.classList.remove('filled');
+  });
+  
+  setTimeout(() => {
+    errorAlert.style.display = 'none';
+    codeInputs.forEach(input => input.classList.remove('error'));
+  }, 3000);
+}
+
+function handleVerify(btn) {
+  const code = getCodeValue();
+  
+  if (code.length !== 6) {
+    showError('Please enter all 6 digits');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Verifying…';
+  
+  // Simulate verification
+  setTimeout(() => {
+    // Simulate random success/failure for demo
+    const success = Math.random() > 0.3;
+    
+    if (success) {
+      btn.textContent = '✓ Verified';
+      setTimeout(() => {
+        // Redirect to dashboard
+        window.location.href = '#dashboard';
+      }, 500);
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Verify';
+      showError('Incorrect code. Please try again.');
+      clearCode();
+    }
+  }, 1200);
+}
+
+function handleBackupVerify(btn) {
+  const code = document.getElementById('backup-code').value.trim();
+  
+  if (!code) {
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Verifying…';
+  
+  setTimeout(() => {
+    btn.textContent = '✓ Verified';
+    setTimeout(() => {
+      window.location.href = '#dashboard';
+    }, 500);
+  }, 1200);
+}
+
+function showBackupCodes() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-backup').classList.add('active');
+  document.getElementById('backup-code').focus();
+}
+
+function showTOTP() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-totp').classList.add('active');
+  clearCode();
+}
+
+function handleSignOut() {
+  // Redirect to sign in
+  window.location.href = '#signin';
+}
+
+// Format backup code input with dash
+document.getElementById('backup-code').addEventListener('input', (e) => {
+  let value = e.target.value.replace(/[^A-Z0-9]/g, '').toUpperCase();
+  
+  if (value.length > 4) {
+    value = value.slice(0, 4) + '-' + value.slice(4, 8);
+  }
+  
+  e.target.value = value;
+});
+</script>
+
+</body>
+</html>

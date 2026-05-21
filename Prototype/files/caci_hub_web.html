@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub - Member Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="caci_hub_web.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOP NAVIGATION (Web/Desktop Only)
+     ══════════════════════════════════════════════════════════ -->
+<nav class="top-nav">
+  <div class="nav-container">
+    <!-- Logo -->
+    <div class="nav-brand">
+      <img src="caci-logo.png" alt="CACI Logo" class="nav-logo">
+      <span class="nav-title">CACI Hub</span>
+    </div>
+
+    <!-- Main Navigation -->
+    <div class="nav-menu">
+      <a href="#dashboard" class="nav-link" data-page="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#members" class="nav-link active" data-page="members">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Members</span>
+      </a>
+      <a href="#households" class="nav-link" data-page="households">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Households</span>
+      </a>
+    </div>
+
+    <!-- Right Side Actions -->
+    <div class="nav-actions">
+      <!-- Search -->
+      <button class="nav-icon-btn" id="search-toggle">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+
+      <!-- Theme Toggle -->
+      <button class="nav-icon-btn" onclick="toggleTheme()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon-light">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon-dark">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+
+      <!-- User Menu -->
+      <div class="user-menu">
+        <button class="user-btn" id="user-menu-toggle">
+          <img src="https://ui-avatars.com/api/?name=Admin+User&background=0056b3&color=fff" alt="User" class="user-avatar">
+          <span class="user-name">Admin User</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name">Admin User</div>
+            <div class="user-dropdown-role">Super Admin</div>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <a href="#profile" class="user-dropdown-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Profile
+          </a>
+          <a href="#settings" class="user-dropdown-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+            </svg>
+            Settings
+          </a>
+          <div class="user-dropdown-divider"></div>
+          <a href="#logout" class="user-dropdown-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Search Overlay -->
+<div class="search-overlay" id="search-overlay">
+  <div class="search-container">
+    <input type="text" class="search-input" placeholder="Search members..." autofocus>
+    <button class="search-close" onclick="toggleSearch()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT AREA
+     ══════════════════════════════════════════════════════════ -->
+<main class="main-content">
+  
+  <!-- ═══════════════════════════════════════════════════════
+       DASHBOARD PAGE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-dashboard" class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Overview of your assembly</p>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Members</div>
+          <div class="stat-value">347</div>
+          <div class="stat-change stat-change-positive">+12 this month</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Active Members</div>
+          <div class="stat-value">312</div>
+          <div class="stat-change stat-change-neutral">89.9% of total</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Households</div>
+          <div class="stat-value">142</div>
+          <div class="stat-change stat-change-positive">+3 this month</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">New This Week</div>
+          <div class="stat-value">8</div>
+          <div class="stat-change stat-change-positive">+2 from last week</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="dashboard-row">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h3 class="card-title">Member Status Distribution</h3>
+        </div>
+        <div class="card-body">
+          <div class="chart-placeholder">
+            <svg width="100%" height="200" viewBox="0 0 400 200">
+              <!-- Simple bar chart mockup -->
+              <rect x="50" y="50" width="60" height="150" fill="var(--blue-500)" opacity="0.8"/>
+              <rect x="130" y="100" width="60" height="100" fill="var(--gray-400)" opacity="0.6"/>
+              <rect x="210" y="120" width="60" height="80" fill="var(--red-500)" opacity="0.6"/>
+              <rect x="290" y="160" width="60" height="40" fill="var(--gray-300)" opacity="0.6"/>
+              <text x="80" y="220" text-anchor="middle" font-size="12" fill="var(--text-secondary)">Active</text>
+              <text x="160" y="220" text-anchor="middle" font-size="12" fill="var(--text-secondary)">Inactive</text>
+              <text x="240" y="220" text-anchor="middle" font-size="12" fill="var(--text-secondary)">Visitor</text>
+              <text x="320" y="220" text-anchor="middle" font-size="12" fill="var(--text-secondary)">Prospect</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h3 class="card-title">Recent Activity</h3>
+        </div>
+        <div class="card-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon activity-icon-add">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text">New member added: <strong>Kwame Mensah</strong></div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon activity-icon-edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text">Profile updated: <strong>Ama Osei</strong></div>
+                <div class="activity-time">5 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon activity-icon-add">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
+              <div class="activity-content">
+                <div class="activity-text">New member added: <strong>Yaa Asantewaa</strong></div>
+                <div class="activity-time">Yesterday</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MEMBERS DIRECTORY PAGE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-members" class="page active">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Members Directory</h1>
+        <p class="page-subtitle">Manage and view all members</p>
+      </div>
+      <button class="btn btn-primary" onclick="showPage('page-member-add')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Member
+      </button>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters-bar">
+      <div class="filters-left">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" placeholder="Search members...">
+        </div>
+        <select class="filter-select">
+          <option>All Statuses</option>
+          <option>Active</option>
+          <option>Inactive</option>
+          <option>Visitor</option>
+          <option>Prospect</option>
+        </select>
+        <select class="filter-select">
+          <option>All Households</option>
+          <option>Mensah Family</option>
+          <option>Osei Family</option>
+          <option>Asante Family</option>
+        </select>
+      </div>
+      <div class="filters-right">
+        <button class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          Filter
+        </button>
+        <button class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- Members Table -->
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Member #</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th>Household</th>
+            <th>Join Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="showPage('page-member-view')">
+            <td>
+              <div class="member-cell">
+                <img src="https://ui-avatars.com/api/?name=Kwame+Mensah&background=0056b3&color=fff" alt="" class="member-avatar">
+                <div>
+                  <div class="member-name">Kwame Mensah</div>
+                  <div class="member-meta">Male, 34 years</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="member-number">CACI-ACC-00142</span></td>
+            <td>
+              <div class="contact-cell">
+                <div>+233 24 123 4567</div>
+                <div class="contact-email">kwame@example.com</div>
+              </div>
+            </td>
+            <td><span class="badge badge-success">Active</span></td>
+            <td>Mensah Family</td>
+            <td>Jan 15, 2024</td>
+            <td>
+              <button class="icon-btn" onclick="event.stopPropagation(); showPage('page-member-edit')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="member-cell">
+                <img src="https://ui-avatars.com/api/?name=Ama+Osei&background=d32f2f&color=fff" alt="" class="member-avatar">
+                <div>
+                  <div class="member-name">Ama Osei</div>
+                  <div class="member-meta">Female, 28 years</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="member-number">CACI-ACC-00141</span></td>
+            <td>
+              <div class="contact-cell">
+                <div>+233 20 987 6543</div>
+                <div class="contact-email">ama.osei@example.com</div>
+              </div>
+            </td>
+            <td><span class="badge badge-success">Active</span></td>
+            <td>Osei Family</td>
+            <td>Dec 3, 2023</td>
+            <td>
+              <button class="icon-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="member-cell">
+                <img src="https://ui-avatars.com/api/?name=Kofi+Asante&background=0056b3&color=fff" alt="" class="member-avatar">
+                <div>
+                  <div class="member-name">Kofi Asante</div>
+                  <div class="member-meta">Male, 45 years</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="member-number">CACI-ACC-00089</span></td>
+            <td>
+              <div class="contact-cell">
+                <div>+233 50 234 5678</div>
+                <div class="contact-email">kofi@example.com</div>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">Inactive</span></td>
+            <td>Asante Family</td>
+            <td>Mar 22, 2022</td>
+            <td>
+              <button class="icon-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="member-cell">
+                <img src="https://ui-avatars.com/api/?name=Yaa+Asantewaa&background=d32f2f&color=fff" alt="" class="member-avatar">
+                <div>
+                  <div class="member-name">Yaa Asantewaa</div>
+                  <div class="member-meta">Female, 31 years</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="member-number">CACI-ACC-00143</span></td>
+            <td>
+              <div class="contact-cell">
+                <div>+233 24 456 7890</div>
+                <div class="contact-email">yaa@example.com</div>
+              </div>
+            </td>
+            <td><span class="badge badge-info">Visitor</span></td>
+            <td>-</td>
+            <td>May 1, 2024</td>
+            <td>
+              <button class="icon-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <div class="pagination-info">Showing 1-10 of 347 members</div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" disabled>Previous</button>
+        <button class="pagination-btn active">1</button>
+        <button class="pagination-btn">2</button>
+        <button class="pagination-btn">3</button>
+        <span class="pagination-dots">...</span>
+        <button class="pagination-btn">35</button>
+        <button class="pagination-btn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MEMBER VIEW PAGE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-member-view" class="page">
+    <div class="page-header">
+      <div>
+        <button class="back-btn" onclick="showPage('page-members')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Members
+        </button>
+        <h1 class="page-title" style="margin-top: 8px;">Member Profile</h1>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary" onclick="showPage('page-member-edit')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit
+        </button>
+        <button class="btn btn-danger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="profile-layout">
+      <!-- Profile Sidebar -->
+      <div class="profile-sidebar">
+        <div class="profile-card">
+          <img src="https://ui-avatars.com/api/?name=Kwame+Mensah&background=0056b3&color=fff&size=200" alt="Kwame Mensah" class="profile-avatar">
+          <h2 class="profile-name">Kwame Mensah</h2>
+          <p class="profile-number">CACI-ACC-00142</p>
+          <span class="badge badge-success" style="margin-top: 8px;">Active</span>
+
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <div class="profile-stat-label">Member Since</div>
+              <div class="profile-stat-value">Jan 15, 2024</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-label">Household</div>
+              <div class="profile-stat-value">Mensah Family</div>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn btn-secondary btn-block">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              Send Email
+            </button>
+            <button class="btn btn-secondary btn-block">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              Call Member
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Content -->
+      <div class="profile-content">
+        <div class="profile-section">
+          <h3 class="section-title">Personal Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Full Name</div>
+              <div class="info-value">Kwame Mensah</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Date of Birth</div>
+              <div class="info-value">March 15, 1990 (34 years)</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Gender</div>
+              <div class="info-value">Male</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Marital Status</div>
+              <div class="info-value">Married</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Occupation</div>
+              <div class="info-value">Software Engineer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3 class="section-title">Contact Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Phone Number</div>
+              <div class="info-value">+233 24 123 4567</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email Address</div>
+              <div class="info-value">kwame@example.com</div>
+            </div>
+            <div class="info-item full-width">
+              <div class="info-label">Address</div>
+              <div class="info-value">123 Liberation Road, Assakae Central, Greater Accra Region, Ghana</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3 class="section-title">Social Links</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Facebook</div>
+              <div class="info-value"><a href="#" class="text-link">facebook.com/kwamemensah</a></div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">WhatsApp</div>
+              <div class="info-value">+233 24 123 4567</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Instagram</div>
+              <div class="info-value"><a href="#" class="text-link">@kwamemensah</a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3 class="section-title">Emergency Contact</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Contact Name</div>
+              <div class="info-value">Abena Mensah</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Relationship</div>
+              <div class="info-value">Spouse</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Phone Number</div>
+              <div class="info-value">+233 20 987 6543</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <h3 class="section-title">Pastoral Notes</h3>
+          <div class="pastoral-note">
+            Active member, regularly attends Sunday services. Serves in the technical team and media ministry. Strong faith and commitment to the church.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ADD MEMBER PAGE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-member-add" class="page">
+    <div class="page-header">
+      <div>
+        <button class="back-btn" onclick="showPage('page-members')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Members
+        </button>
+        <h1 class="page-title" style="margin-top: 8px;">Add New Member</h1>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <form class="member-form">
+        <!-- Photo Upload -->
+        <div class="form-section">
+          <h3 class="section-title">Profile Photo</h3>
+          <div class="photo-upload">
+            <div class="photo-preview">
+              <img src="https://ui-avatars.com/api/?name=New+Member&background=e2e8f0&color=64748b&size=200" alt="Preview" id="photo-preview">
+            </div>
+            <div class="photo-upload-actions">
+              <button type="button" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                Upload Photo
+              </button>
+              <p class="help-text">Recommended: 400x400px, max 2MB</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="form-section">
+          <h3 class="section-title">Personal Information</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label">First Name <span class="required">*</span></label>
+              <input type="text" class="input" placeholder="Enter first name" required>
+            </div>
+            <div class="form-field">
+              <label class="label">Last Name <span class="required">*</span></label>
+              <input type="text" class="input" placeholder="Enter last name" required>
+            </div>
+            <div class="form-field">
+              <label class="label">Date of Birth</label>
+              <input type="date" class="input">
+            </div>
+            <div class="form-field">
+              <label class="label">Gender <span class="required">*</span></label>
+              <select class="input" required>
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label">Marital Status</label>
+              <select class="input">
+                <option value="">Select status</option>
+                <option>Single</option>
+                <option>Married</option>
+                <option>Divorced</option>
+                <option>Widowed</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label">Occupation</label>
+              <input type="text" class="input" placeholder="Enter occupation">
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-section">
+          <h3 class="section-title">Contact Information</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label">Phone Number <span class="required">*</span></label>
+              <input type="tel" class="input" placeholder="+233 24 123 4567" required>
+            </div>
+            <div class="form-field">
+              <label class="label">Email Address</label>
+              <input type="email" class="input" placeholder="email@example.com">
+            </div>
+            <div class="form-field full-width">
+              <label class="label">Address</label>
+              <textarea class="input" rows="3" placeholder="Enter full address"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Membership Information -->
+        <div class="form-section">
+          <h3 class="section-title">Membership Information</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label">Membership Status <span class="required">*</span></label>
+              <select class="input" required>
+                <option value="">Select status</option>
+                <option>Active</option>
+                <option>Inactive</option>
+                <option>Visitor</option>
+                <option>Prospect</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label">Join Date</label>
+              <input type="date" class="input">
+            </div>
+            <div class="form-field">
+              <label class="label">Household</label>
+              <select class="input">
+                <option value="">Select household</option>
+                <option>Mensah Family</option>
+                <option>Osei Family</option>
+                <option>Asante Family</option>
+                <option>Create New Household</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Contact -->
+        <div class="form-section">
+          <h3 class="section-title">Emergency Contact</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label">Contact Name</label>
+              <input type="text" class="input" placeholder="Enter name">
+            </div>
+            <div class="form-field">
+              <label class="label">Relationship</label>
+              <input type="text" class="input" placeholder="e.g., Spouse, Parent">
+            </div>
+            <div class="form-field">
+              <label class="label">Phone Number</label>
+              <input type="tel" class="input" placeholder="+233 24 123 4567">
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showPage('page-members')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Save Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       EDIT MEMBER PAGE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-member-edit" class="page">
+    <div class="page-header">
+      <div>
+        <button class="back-btn" onclick="showPage('page-member-view')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Profile
+        </button>
+        <h1 class="page-title" style="margin-top: 8px;">Edit Member</h1>
+        <p class="page-subtitle">CACI-ACC-00142</p>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <form class="member-form">
+        <!-- Similar form fields as Add Member, but pre-populated -->
+        <div class="form-section">
+          <h3 class="section-title">Profile Photo</h3>
+          <div class="photo-upload">
+            <div class="photo-preview">
+              <img src="https://ui-avatars.com/api/?name=Kwame+Mensah&background=0056b3&color=fff&size=200" alt="Preview">
+            </div>
+            <div class="photo-upload-actions">
+              <button type="button" class="btn btn-secondary">Change Photo</button>
+              <button type="button" class="btn btn-danger">Remove Photo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Personal Information</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="label">First Name <span class="required">*</span></label>
+              <input type="text" class="input" value="Kwame" required>
+            </div>
+            <div class="form-field">
+              <label class="label">Last Name <span class="required">*</span></label>
+              <input type="text" class="input" value="Mensah" required>
+            </div>
+            <div class="form-field">
+              <label class="label">Date of Birth</label>
+              <input type="date" class="input" value="1990-03-15">
+            </div>
+            <div class="form-field">
+              <label class="label">Gender <span class="required">*</span></label>
+              <select class="input" required>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label">Marital Status</label>
+              <select class="input">
+                <option>Single</option>
+                <option selected>Married</option>
+                <option>Divorced</option>
+                <option>Widowed</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="label">Occupation</label>
+              <input type="text" class="input" value="Software Engineer">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="showPage('page-member-view')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HOUSEHOLDS PAGE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="page-households" class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Households</h1>
+        <p class="page-subtitle">Manage family households</p>
+      </div>
+      <button class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Household
+      </button>
+    </div>
+
+    <!-- Households Grid -->
+    <div class="households-grid">
+      <div class="household-card">
+        <div class="household-header">
+          <div class="household-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <button class="icon-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="12" cy="5" r="1"/>
+              <circle cx="12" cy="19" r="1"/>
+            </svg>
+          </button>
+        </div>
+        <h3 class="household-name">Mensah Family</h3>
+        <p class="household-address">123 Liberation Road, Assakae Central</p>
+        <div class="household-stats">
+          <div class="household-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>4 members</span>
+          </div>
+        </div>
+        <div class="household-members">
+          <img src="https://ui-avatars.com/api/?name=Kwame+Mensah&background=0056b3&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Abena+Mensah&background=d32f2f&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Kofi+Mensah&background=0056b3&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Ama+Mensah&background=d32f2f&color=fff" alt="">
+        </div>
+      </div>
+
+      <div class="household-card">
+        <div class="household-header">
+          <div class="household-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <button class="icon-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="12" cy="5" r="1"/>
+              <circle cx="12" cy="19" r="1"/>
+            </svg>
+          </button>
+        </div>
+        <h3 class="household-name">Osei Family</h3>
+        <p class="household-address">45 Independence Avenue, Tema</p>
+        <div class="household-stats">
+          <div class="household-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>3 members</span>
+          </div>
+        </div>
+        <div class="household-members">
+          <img src="https://ui-avatars.com/api/?name=Kwabena+Osei&background=0056b3&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Ama+Osei&background=d32f2f&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Yaw+Osei&background=0056b3&color=fff" alt="">
+        </div>
+      </div>
+
+      <div class="household-card">
+        <div class="household-header">
+          <div class="household-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <button class="icon-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="12" cy="5" r="1"/>
+              <circle cx="12" cy="19" r="1"/>
+            </svg>
+          </button>
+        </div>
+        <h3 class="household-name">Asante Family</h3>
+        <p class="household-address">78 Spintex Road, Accra</p>
+        <div class="household-stats">
+          <div class="household-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>5 members</span>
+          </div>
+        </div>
+        <div class="household-members">
+          <img src="https://ui-avatars.com/api/?name=Kofi+Asante&background=0056b3&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Akua+Asante&background=d32f2f&color=fff" alt="">
+          <img src="https://ui-avatars.com/api/?name=Kwame+Asante&background=0056b3&color=fff" alt="">
+          <div class="household-more">+2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// PAGE NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  
+  // Update active nav link
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('data-page') === pageId.replace('page-', '')) {
+      link.classList.add('active');
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'light';
+  const next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+}
+
+// ═══════════════════════════════════════════════════════════
+// USER MENU
+// ═══════════════════════════════════════════════════════════
+document.getElementById('user-menu-toggle').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('user-dropdown').classList.toggle('active');
+});
+
+document.addEventListener('click', function() {
+  document.getElementById('user-dropdown').classList.remove('active');
+});
+
+// ═══════════════════════════════════════════════════════════
+// SEARCH OVERLAY
+// ═══════════════════════════════════════════════════════════
+function toggleSearch() {
+  document.getElementById('search-overlay').classList.toggle('active');
+}
+
+document.getElementById('search-toggle').addEventListener('click', toggleSearch);
+
+// Close search on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('search-overlay').classList.remove('active');
+    document.getElementById('user-dropdown').classList.remove('active');
+  }
+});
+</script>
+
+</body>
+</html>

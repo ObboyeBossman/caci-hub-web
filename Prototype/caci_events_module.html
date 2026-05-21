@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub – Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+button{font-family:inherit;cursor:pointer;}
+a{text-decoration:none;}
+img{display:block;}
+input,select,textarea{font-family:inherit;}
+ul{list-style:none;}
+
+:root{
+  --red:#C60026;--red-dim:#a8001f;--red-glow:rgba(198,0,38,.12);
+  --blue:#004BA0;--blue-mid:#1a5fb4;--blue-dark:#003578;--blue-light:#1a5fb4;
+  --gold:#FBBF24;--green:#1a7f37;--green-bg:#dafbe1;
+  --nav-bg:var(--blue);--nav-border:var(--blue-dark);
+  --nav-link-color:rgba(255,255,255,0.78);
+  --nav-link-hover-bg:rgba(255,255,255,.12);
+  --nav-link-active-bg:rgba(255,255,255,.18);
+  --nav-link-active-color:#fff;
+  --subnav-bg:#fff;--subnav-border:#d0d7de;
+  --sub-link-color:#656d76;--sub-link-hover:#24292f;
+  --sub-link-active:#24292f;--sub-link-active-bar:var(--red);
+  --badge-bg:#eaeef2;--badge-color:#656d76;--badge-border:transparent;
+  --badge-red-bg:#ffeef0;--badge-red-color:var(--red);
+  --badge-green-bg:#dafbe1;--badge-green-color:#1a7f37;
+  --badge-yellow-bg:#fff8c5;--badge-yellow-color:#9a6700;
+  --badge-blue-bg:#ddf4ff;--badge-blue-color:#0969da;
+  --badge-purple-bg:#f3e8ff;--badge-purple-color:#7c3aed;
+  --bg-base:#f6f8fa;--bg-card:#ffffff;--bg-card2:#f6f8fa;--bg-hover:#eaeef2;
+  --border:#d0d7de;--border-subtle:#eaeef2;
+  --text-primary:#1b1f23;--text-secondary:#656d76;--text-muted:#8c959f;
+  --sidebar-active-bg:#f0f4ff;--sidebar-active-color:var(--blue);
+  --sidebar-active-count-bg:#dbeafe;--sidebar-active-count-color:var(--blue);
+  --count-bg:#eaeef2;--count-color:#656d76;
+  --card-hover-border:var(--blue-light);--card-hover-shadow:0 2px 8px rgba(0,75,160,.09);
+  --btn-outline-border:#d0d7de;--btn-outline-bg:#fff;--btn-outline-color:#656d76;
+  --btn-outline-hover-border:var(--blue);--btn-outline-hover-color:var(--blue);
+  --stat-bar-bg:#eaeef2;
+  --toggle-track:#d0d7de;
+  --input-bg:#fff;--input-border:#d0d7de;--input-focus:#004BA0;--input-shadow:rgba(0,75,160,.12);
+  --table-header-bg:#f6f8fa;--table-row-hover:#f0f4ff;
+  --chip-bg:#eaeef2;--chip-active-bg:#dbeafe;--chip-active-color:var(--blue);--chip-active-border:rgba(0,75,160,.3);
+  --bottom-nav-bg:#fff;--bottom-nav-border:#d0d7de;
+  --bottom-nav-active:var(--blue);--bottom-nav-inactive:#8c959f;
+  --fab-bg:var(--red);--fab-shadow:0 4px 14px rgba(198,0,38,.35);
+  --detail-panel-bg:#fff;
+  --overlay-bg:rgba(0,0,0,.45);
+  --event-border:#eaeef2;
+  --toast-bg:#1b1f23;--toast-color:#fff;
+  --severity-low:#0969da;--severity-med:#9a6700;--severity-high:#C60026;
+}
+[data-theme="dark"]{
+  --red:#E8003A;--red-dim:#C60026;--red-glow:rgba(232,0,58,.15);
+  --blue:#4D9FFF;--blue-mid:#1a6fc4;--blue-dark:#004BA0;--blue-light:#4D9FFF;
+  --nav-bg:#010409;--nav-border:#30363d;
+  --nav-link-color:#8b949e;--nav-link-hover-bg:#21262d;
+  --nav-link-active-bg:transparent;--nav-link-active-color:#e6edf3;
+  --subnav-bg:#0d1117;--subnav-border:#30363d;
+  --sub-link-color:#8b949e;--sub-link-hover:#e6edf3;
+  --sub-link-active:#e6edf3;--sub-link-active-bar:var(--red);
+  --badge-bg:#21262d;--badge-color:#8b949e;--badge-border:#30363d;
+  --badge-red-bg:rgba(232,0,58,.15);--badge-red-color:var(--red);
+  --badge-green-bg:rgba(26,127,55,.2);--badge-green-color:#3fb950;
+  --badge-yellow-bg:rgba(154,103,0,.2);--badge-yellow-color:#d29922;
+  --badge-blue-bg:rgba(9,105,218,.2);--badge-blue-color:#79c0ff;
+  --badge-purple-bg:rgba(124,58,237,.2);--badge-purple-color:#c084fc;
+  --bg-base:#0d1117;--bg-card:#161b22;--bg-card2:#1c2128;--bg-hover:#21262d;
+  --border:#30363d;--border-subtle:#21262d;
+  --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#484f58;
+  --sidebar-active-bg:rgba(77,159,255,.1);--sidebar-active-color:var(--blue);
+  --sidebar-active-count-bg:rgba(77,159,255,.15);--sidebar-active-count-color:var(--blue);
+  --count-bg:#21262d;--count-color:#484f58;
+  --card-hover-border:#1a6fc4;--card-hover-shadow:none;
+  --btn-outline-border:#30363d;--btn-outline-bg:#161b22;--btn-outline-color:#8b949e;
+  --btn-outline-hover-border:var(--blue);--btn-outline-hover-color:var(--blue);
+  --stat-bar-bg:#21262d;
+  --toggle-track:#388bfd;
+  --input-bg:#161b22;--input-border:#30363d;--input-focus:#4D9FFF;--input-shadow:rgba(77,159,255,.12);
+  --table-header-bg:#1c2128;--table-row-hover:rgba(77,159,255,.06);
+  --chip-bg:#21262d;--chip-active-bg:rgba(77,159,255,.15);--chip-active-color:var(--blue);--chip-active-border:rgba(77,159,255,.3);
+  --bottom-nav-bg:#161b22;--bottom-nav-border:#30363d;
+  --bottom-nav-active:var(--blue);--bottom-nav-inactive:#484f58;
+  --fab-bg:var(--red);--fab-shadow:0 4px 14px rgba(232,0,58,.35);
+  --detail-panel-bg:#161b22;
+  --overlay-bg:rgba(0,0,0,.65);
+  --event-border:#21262d;
+  --toast-bg:#e6edf3;--toast-color:#1b1f23;
+  --severity-low:#79c0ff;--severity-med:#d29922;--severity-high:#E8003A;
+}
+
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--text-primary);background:var(--bg-base);transition:background .25s,color .25s;line-height:1.5;}
+
+/* TOP NAV */
+.topnav{background:var(--nav-bg);padding:0 24px;display:flex;align-items:center;gap:16px;height:52px;border-bottom:1px solid var(--nav-border);transition:background .25s,border-color .25s;position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:15px;flex-shrink:0;}
+.logo-cross{width:24px;height:24px;position:relative;flex-shrink:0;}
+.logo-cross::before,.logo-cross::after{content:'';position:absolute;background:#fff;border-radius:2px;}
+.logo-cross::before{width:4px;height:100%;left:50%;transform:translateX(-50%);}
+.logo-cross::after{height:4px;width:100%;top:50%;transform:translateY(-50%);}
+.nav-links{display:flex;gap:2px;margin-left:8px;}
+.nav-link{color:var(--nav-link-color);font-size:13px;font-weight:500;padding:6px 10px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s;white-space:nowrap;}
+.nav-link:hover{color:#fff;background:var(--nav-link-hover-bg);}
+.nav-link.active{color:var(--nav-link-active-color);background:var(--nav-link-active-bg);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;cursor:pointer;}
+.theme-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 10px 4px 8px;transition:background .2s;user-select:none;flex-shrink:0;}
+.theme-toggle:hover{background:rgba(255,255,255,.18);}
+.toggle-track{width:32px;height:18px;border-radius:9px;background:var(--toggle-track);position:relative;transition:background .3s;flex-shrink:0;}
+.toggle-thumb{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 3px rgba(0,0,0,.3);}
+[data-theme="dark"] .toggle-thumb{transform:translateX(14px);}
+.toggle-label{font-size:12px;color:rgba(255,255,255,.85);font-weight:500;white-space:nowrap;}
+.toggle-icon{font-size:13px;line-height:1;}
+
+/* SUBNAV */
+.subnav{background:var(--subnav-bg);border-bottom:1px solid var(--subnav-border);padding:0 24px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;position:sticky;top:52px;z-index:199;transition:background .25s,border-color .25s;align-items:center;}
+.subnav::-webkit-scrollbar{display:none;}
+.sub-link{font-size:13px;padding:10px 14px;color:var(--sub-link-color);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap;flex-shrink:0;}
+.sub-link:hover{color:var(--sub-link-hover);}
+.sub-link.active{color:var(--sub-link-active);border-bottom-color:var(--sub-link-active-bar);font-weight:500;}
+.subnav-right{margin-left:auto;display:flex;align-items:center;gap:8px;padding:0 0 0 12px;flex-shrink:0;}
+.assembly-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--sidebar-active-bg);color:var(--sidebar-active-color);border:1px solid var(--chip-active-border);border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.assembly-pill svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+.role-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:500;background:var(--badge-purple-bg);color:var(--badge-purple-color);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 7px;border-radius:10px;background:var(--badge-bg);color:var(--badge-color);border:1px solid var(--badge-border);font-weight:500;white-space:nowrap;}
+.badge.red{background:var(--badge-red-bg);color:var(--badge-red-color);}
+.badge.green{background:var(--badge-green-bg);color:var(--badge-green-color);}
+.badge.yellow{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);}
+.badge.blue{background:var(--badge-blue-bg);color:var(--badge-blue-color);}
+.badge.purple{background:var(--badge-purple-bg);color:var(--badge-purple-color);}
+
+/* BUTTONS */
+.btn-outline{border:1px solid var(--btn-outline-border);background:var(--btn-outline-bg);color:var(--btn-outline-color);padding:5px 12px;border-radius:6px;font-size:12px;transition:border-color .15s,color .15s,background .25s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.btn-outline:hover{border-color:var(--btn-outline-hover-border);color:var(--btn-outline-hover-color);}
+.btn-outline svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.btn-primary{background:var(--blue);color:#fff;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:500;border:none;transition:opacity .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.btn-primary:hover{opacity:.88;}
+.btn-primary svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.btn-danger{background:var(--badge-red-bg);color:var(--red);padding:5px 12px;border-radius:6px;font-size:12px;border:1px solid var(--red-glow);transition:opacity .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn-danger:hover{opacity:.8;}
+.btn-warning{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);padding:5px 12px;border-radius:6px;font-size:12px;border:1px solid rgba(154,103,0,.2);transition:opacity .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn-warning:hover{opacity:.8;}
+
+/* LAYOUT */
+.events-layout{display:grid;grid-template-columns:228px 1fr;gap:18px;padding:18px 24px;max-width:1400px;margin:0 auto;align-items:start;}
+
+/* SIDEBAR */
+.sidebar-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;transition:background .25s,border-color .25s;}
+.sidebar-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.sidebar-nav-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-bottom:2px;transition:background .15s,color .15s;}
+.sidebar-nav-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+.sidebar-nav-item.active{background:var(--sidebar-active-bg);color:var(--sidebar-active-color);font-weight:500;}
+.sidebar-nav-left{display:flex;align-items:center;gap:7px;}
+.sidebar-nav-left svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;opacity:.75;}
+.sidebar-nav-item.active .sidebar-nav-left svg{opacity:1;}
+.count{font-size:11px;background:var(--count-bg);color:var(--count-color);padding:1px 7px;border-radius:10px;border:1px solid var(--border);white-space:nowrap;}
+.sidebar-nav-item.active .count{background:var(--sidebar-active-count-bg);color:var(--sidebar-active-count-color);}
+.filter-group{margin-bottom:14px;}
+.filter-group:last-child{margin-bottom:0;}
+.filter-group-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.filter-clear{font-size:11px;color:var(--blue);font-weight:400;cursor:pointer;text-transform:none;letter-spacing:0;}
+.filter-clear:hover{text-decoration:underline;}
+.filter-option{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:13px;color:var(--text-secondary);}
+.filter-option:hover{color:var(--text-primary);}
+.filter-checkbox{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);background:var(--input-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,border-color .15s;}
+.filter-checkbox.checked{background:var(--blue);border-color:var(--blue);}
+.filter-checkbox.checked::after{content:'';width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(0px,-1px);display:block;}
+.filter-option-count{margin-left:auto;font-size:11px;color:var(--text-muted);}
+.filter-divider{height:1px;background:var(--border-subtle);margin:10px 0;}
+.filter-select{width:100%;height:30px;border:1px solid var(--input-border);border-radius:6px;padding:0 8px;font-size:12px;color:var(--text-primary);background:var(--input-bg);outline:none;cursor:pointer;}
+.stat-bar{height:3px;border-radius:2px;background:var(--stat-bar-bg);overflow:hidden;}
+.stat-fill{height:100%;border-radius:2px;}
+
+/* MAIN */
+.main-area{min-width:0;}
+.evt-panel{display:none;}
+.evt-panel.active{display:block;}
+
+/* TOOLBAR */
+.toolbar{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;transition:background .25s,border-color .25s;}
+.search-wrap{position:relative;flex:1;min-width:160px;}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-muted);pointer-events:none;stroke:currentColor;fill:none;stroke-width:2;}
+.search-input{width:100%;height:32px;border:1px solid var(--input-border);border-radius:6px;padding:0 10px 0 32px;font-size:13px;color:var(--text-primary);background:var(--input-bg);outline:none;transition:border-color .15s,box-shadow .15s;}
+.search-input:focus{border-color:var(--input-focus);box-shadow:0 0 0 3px var(--input-shadow);}
+.search-input::placeholder{color:var(--text-muted);}
+.toolbar-sep{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+.date-select{height:32px;border:1px solid var(--input-border);border-radius:6px;padding:0 8px;font-size:12px;color:var(--text-primary);background:var(--input-bg);outline:none;cursor:pointer;}
+
+/* KPI */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .15s,box-shadow .15s,background .25s;}
+.kpi-card:hover{border-color:var(--blue-mid);box-shadow:0 2px 8px rgba(0,75,160,.07);}
+.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.kpi-value{font-size:22px;font-weight:700;letter-spacing:-.5px;line-height:1.2;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:3px;}
+.kpi-bar-wrap{height:3px;border-radius:2px;background:var(--stat-bar-bg);margin-top:10px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:2px;}
+
+/* CARDS */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:background .25s,border-color .25s;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);}
+.overview-grid{display:grid;grid-template-columns:1fr 290px;gap:16px;}
+
+/* EVENT LIST */
+.evt-list-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.evt-list-item:last-child{border-bottom:none;}
+.evt-date-block{display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:42px;background:var(--sidebar-active-bg);border:1px solid var(--chip-active-border);border-radius:7px;flex-shrink:0;}
+.evt-date-day{font-size:16px;font-weight:700;color:var(--blue);line-height:1;}
+.evt-date-mon{font-size:9px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.4px;margin-top:1px;}
+.evt-list-info{flex:1;min-width:0;}
+.evt-list-name{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px;}
+.evt-list-meta{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;}
+.evt-list-meta svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.mini-stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-subtle);}
+.mini-stat-row:last-child{border-bottom:none;}
+.mini-stat-label{font-size:12px;color:var(--text-secondary);}
+.mini-stat-val{font-size:13px;font-weight:600;color:var(--text-primary);}
+
+/* CATEGORY PILLS */
+.cat-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;}
+.cat-worship{background:var(--badge-blue-bg);color:var(--badge-blue-color);}
+.cat-youth{background:var(--badge-purple-bg);color:var(--badge-purple-color);}
+.cat-fellowship{background:var(--badge-green-bg);color:var(--badge-green-color);}
+.cat-outreach{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);}
+.cat-meeting{background:var(--badge-bg);color:var(--badge-color);}
+.cat-convention{background:var(--badge-red-bg);color:var(--badge-red-color);}
+
+/* TABLE */
+.evt-table{width:100%;border-collapse:collapse;font-size:13px;}
+.evt-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);background:var(--table-header-bg);border-bottom:1px solid var(--border);white-space:nowrap;}
+.evt-table td{padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);vertical-align:middle;}
+.evt-table tr:last-child td{border-bottom:none;}
+.evt-table tr:hover td{background:var(--table-row-hover);}
+.evt-name-cell{font-size:13px;font-weight:500;color:var(--text-primary);}
+.evt-sub-cell{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.tbl-btn{width:26px;height:26px;border-radius:5px;border:none;background:transparent;color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.tbl-btn:hover{background:var(--bg-hover);color:var(--text-primary);}
+.tbl-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.actions-cell{display:flex;align-items:center;gap:2px;}
+.status-upcoming{background:var(--badge-blue-bg);color:var(--badge-blue-color);}
+.status-active{background:var(--badge-green-bg);color:var(--badge-green-color);}
+.status-planning{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);}
+.status-completed{background:var(--badge-bg);color:var(--badge-color);}
+.status-cancelled{background:var(--badge-red-bg);color:var(--badge-red-color);}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap;gap:8px;}
+.page-info{font-size:12px;color:var(--text-secondary);}
+.page-btns{display:flex;gap:4px;}
+.page-btn{min-width:30px;height:28px;border-radius:5px;border:1px solid var(--border);background:var(--btn-outline-bg);color:var(--text-secondary);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;padding:0 6px;}
+.page-btn:hover{border-color:var(--blue);color:var(--blue);}
+.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
+.page-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+
+/* CHIPS */
+.chip-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:14px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--chip-bg);color:var(--text-secondary);transition:all .15s;white-space:nowrap;}
+.chip.active{background:var(--chip-active-bg);color:var(--chip-active-color);border-color:var(--chip-active-border);font-weight:500;}
+.chip:hover:not(.active){background:var(--bg-hover);}
+
+/* MEMBER CELL */
+.member-cell{display:flex;align-items:center;gap:8px;}
+.mini-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;flex-shrink:0;}
+.member-name-cell{font-size:13px;font-weight:500;color:var(--text-primary);}
+.member-id-cell{font-size:11px;color:var(--text-muted);}
+
+/* ATTENDANCE */
+.attendance-grid{display:grid;grid-template-columns:1fr 280px;gap:16px;}
+.checkin-list{display:flex;flex-direction:column;gap:8px;}
+.checkin-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;transition:background .25s,border-color .25s;}
+.checkin-row:hover{border-color:var(--blue-mid);}
+.checkin-info{flex:1;min-width:0;}
+.checkin-name{font-size:13px;font-weight:500;color:var(--text-primary);}
+.checkin-meta{font-size:11px;color:var(--text-muted);}
+.check-toggle{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;background:var(--bg-card);}
+.check-toggle.checked{background:var(--green);border-color:var(--green);}
+.check-toggle svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;}
+
+/* ASSIGNMENTS */
+.role-section{margin-bottom:20px;}
+.role-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.role-section-title{font-size:13px;font-weight:600;color:var(--text-primary);}
+.role-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.role-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;transition:border-color .2s,background .25s;}
+.role-card:hover{border-color:var(--blue-mid);}
+.role-card-name{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:2px;}
+.role-card-role{font-size:11px;color:var(--text-muted);margin-bottom:8px;}
+.confirm-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;}
+.confirmed{color:var(--green);}
+.pending{color:var(--badge-yellow-color);}
+.declined{color:var(--red);}
+
+/* RESOURCES */
+.resource-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.resource-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .2s,box-shadow .2s,background .25s;cursor:pointer;}
+.resource-card:hover{border-color:var(--card-hover-border);box-shadow:var(--card-hover-shadow);}
+.resource-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;}
+.resource-type{font-size:11px;color:var(--text-muted);margin-bottom:12px;}
+.resource-bookings{display:flex;flex-direction:column;gap:6px;}
+.resource-booking-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 8px;border-radius:6px;background:var(--bg-card2);}
+.resource-booking-event{color:var(--text-primary);font-weight:500;}
+.resource-booking-time{color:var(--text-muted);}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{height:6px;border-radius:3px;background:var(--stat-bar-bg);overflow:hidden;margin-top:6px;}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(--blue);}
+
+/* CALENDAR VIEW */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-header-cell{text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;padding:8px 4px;}
+.cal-cell{min-height:80px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px;cursor:pointer;transition:border-color .15s,background .25s;}
+.cal-cell:hover{border-color:var(--blue-mid);}
+.cal-cell.today{border-color:var(--blue);background:var(--sidebar-active-bg);}
+.cal-cell.other-month{opacity:.4;}
+.cal-date{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;}
+.cal-cell.today .cal-date{color:var(--blue);}
+.cal-evt-dot{font-size:10px;padding:1px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-nav-title{font-size:15px;font-weight:600;color:var(--text-primary);}
+.cal-nav-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--btn-outline-bg);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+.cal-nav-btn:hover{border-color:var(--blue);color:var(--blue);}
+.cal-nav-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.view-toggle-btn{padding:5px 10px;font-size:12px;color:var(--text-secondary);background:var(--btn-outline-bg);border:none;cursor:pointer;transition:background .15s,color .15s;}
+.view-toggle-btn.active{background:var(--blue);color:#fff;}
+
+/* REPORTS */
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px;}
+.report-chart-bar{display:flex;flex-direction:column;gap:8px;}
+.report-bar-row{display:flex;align-items:center;gap:10px;}
+.report-bar-label{font-size:12px;color:var(--text-secondary);width:100px;flex-shrink:0;}
+.report-bar-track{flex:1;height:10px;background:var(--stat-bar-bg);border-radius:5px;overflow:hidden;}
+.report-bar-fill{height:100%;border-radius:5px;}
+.report-bar-val{font-size:12px;font-weight:600;color:var(--text-primary);width:32px;text-align:right;flex-shrink:0;}
+.trend-line{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:8px;}
+.trend-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.trend-bar{width:100%;border-radius:3px 3px 0 0;background:var(--blue);transition:opacity .2s;}
+.trend-bar:hover{opacity:.75;}
+.trend-label{font-size:9px;color:var(--text-muted);}
+.trend-val{font-size:10px;font-weight:600;color:var(--text-primary);}
+.report-export-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.report-export-bar h3{font-size:14px;font-weight:600;color:var(--text-primary);}
+
+/* AUDIT LOG */
+.audit-list{display:flex;flex-direction:column;gap:0;}
+.audit-entry{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-subtle);}
+.audit-entry:last-child{border-bottom:none;}
+.audit-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+.audit-icon.sev-low{background:var(--badge-blue-bg);color:var(--badge-blue-color);}
+.audit-icon.sev-med{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);}
+.audit-icon.sev-high{background:var(--badge-red-bg);color:var(--badge-red-color);}
+.audit-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.audit-body{flex:1;min-width:0;}
+.audit-action{font-size:13px;color:var(--text-primary);}
+.audit-action strong{font-weight:600;}
+.audit-meta{font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;}
+.audit-diff{font-size:11px;background:var(--bg-card2);border:1px solid var(--border-subtle);border-radius:5px;padding:4px 8px;margin-top:5px;display:inline-block;}
+.audit-diff .old{color:var(--red);text-decoration:line-through;margin-right:6px;}
+.audit-diff .new{color:var(--green);}
+.audit-sev{display:inline-flex;align-items:center;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;}
+.audit-sev.sev-low{background:var(--badge-blue-bg);color:var(--badge-blue-color);}
+.audit-sev.sev-med{background:var(--badge-yellow-bg);color:var(--badge-yellow-color);}
+.audit-sev.sev-high{background:var(--badge-red-bg);color:var(--badge-red-color);}
+.audit-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;}
+.empty-icon{width:48px;height:48px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.empty-icon svg{width:22px;height:22px;stroke:var(--text-muted);fill:none;stroke-width:1.5;}
+.empty-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--text-muted);max-width:280px;line-height:1.6;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:var(--overlay-bg);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-48%);z-index:601;background:var(--detail-panel-bg);border:1px solid var(--border);border-radius:12px;width:min(580px,94vw);max-height:90vh;overflow-y:auto;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;}
+.modal.open{opacity:1;transform:translate(-50%,-50%);pointer-events:auto;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--detail-panel-bg);z-index:1;}
+.modal-title{font-size:14px;font-weight:600;color:var(--text-primary);}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s;}
+.modal-close:hover{background:var(--bg-hover);color:var(--text-primary);}
+.modal-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.modal-body{padding:20px;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-row.single{grid-template-columns:1fr;}
+.form-field{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:12px;font-weight:500;color:var(--text-secondary);}
+.form-label span{color:var(--red);}
+.form-input{height:34px;border:1px solid var(--input-border);border-radius:6px;padding:0 10px;font-size:13px;color:var(--text-primary);background:var(--input-bg);outline:none;transition:border-color .15s,box-shadow .15s;}
+.form-input:focus{border-color:var(--input-focus);box-shadow:0 0 0 3px var(--input-shadow);}
+.form-input::placeholder{color:var(--text-muted);}
+.form-input.error{border-color:var(--red);}
+.form-error{font-size:11px;color:var(--red);margin-top:2px;}
+.form-textarea{border:1px solid var(--input-border);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text-primary);background:var(--input-bg);outline:none;resize:vertical;min-height:70px;transition:border-color .15s,box-shadow .15s;}
+.form-textarea:focus{border-color:var(--input-focus);box-shadow:0 0 0 3px var(--input-shadow);}
+.form-select{height:34px;border:1px solid var(--input-border);border-radius:6px;padding:0 10px;font-size:13px;color:var(--text-primary);background:var(--input-bg);outline:none;cursor:pointer;}
+.form-select:focus{border-color:var(--input-focus);}
+.form-section{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;margin-top:4px;padding-top:14px;border-top:1px solid var(--border-subtle);}
+
+/* DETAIL PANEL */
+.detail-overlay{position:fixed;inset:0;background:var(--overlay-bg);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s;}
+.detail-overlay.open{opacity:1;pointer-events:auto;}
+.detail-panel{position:fixed;top:0;right:-520px;width:min(500px,100vw);height:100%;background:var(--detail-panel-bg);border-left:1px solid var(--border);z-index:401;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;overflow:hidden;}
+.detail-panel.open{right:0;}
+.detail-header{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.detail-title{font-size:15px;font-weight:600;color:var(--text-primary);line-height:1.3;}
+.detail-meta{font-size:12px;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:8px;}
+.detail-close{width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;flex-shrink:0;}
+.detail-close:hover{background:var(--bg-hover);color:var(--text-primary);}
+.detail-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.detail-body{padding:20px;overflow-y:auto;flex:1;}
+.detail-section{margin-bottom:20px;}
+.detail-section-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.detail-field{display:flex;flex-direction:column;gap:2px;margin-bottom:12px;}
+.detail-field-label{font-size:11px;color:var(--text-muted);}
+.detail-field-val{font-size:13px;color:var(--text-primary);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+.detail-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.detail-tabs{display:flex;border-bottom:1px solid var(--border);margin:-20px -20px 16px;}
+.detail-tab{padding:10px 16px;font-size:12px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s;}
+.detail-tab:hover{color:var(--text-primary);}
+.detail-tab.active{color:var(--text-primary);border-bottom-color:var(--red);font-weight:500;}
+.detail-tab-panel{display:none;}
+.detail-tab-panel.active{display:block;}
+
+/* CONFIRM DIALOG */
+.confirm-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-48%);z-index:700;background:var(--detail-panel-bg);border:1px solid var(--border);border-radius:12px;width:min(400px,90vw);padding:24px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
+.confirm-modal.open{opacity:1;transform:translate(-50%,-50%);pointer-events:auto;}
+.confirm-overlay{position:fixed;inset:0;background:var(--overlay-bg);z-index:699;opacity:0;pointer-events:none;transition:opacity .2s;}
+.confirm-overlay.open{opacity:1;pointer-events:auto;}
+.confirm-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.confirm-icon.danger{background:var(--badge-red-bg);}
+.confirm-icon.warning{background:var(--badge-yellow-bg);}
+.confirm-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;}
+.confirm-icon.danger svg{stroke:var(--red);}
+.confirm-icon.warning svg{stroke:var(--badge-yellow-color);}
+.confirm-title{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px;}
+.confirm-body{font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:20px;}
+.confirm-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;background:var(--toast-bg);color:var(--toast-color);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.18);pointer-events:auto;transform:translateX(100px);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;max-width:320px;}
+.toast.show{transform:translateX(0);opacity:1;}
+.toast.success .toast-dot{background:#3fb950;}
+.toast.error .toast-dot{background:var(--red);}
+.toast.info .toast-dot{background:var(--blue);}
+.toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* MOBILE BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bottom-nav-bg);border-top:1px solid var(--bottom-nav-border);padding:6px 0 env(safe-area-inset-bottom);z-index:300;}
+.bottom-nav-items{display:flex;justify-content:space-around;}
+.bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;flex:1;}
+.bottom-nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.bottom-nav-item span{font-size:10px;font-weight:500;}
+.bottom-nav-item.active,.bottom-nav-item.active svg,.bottom-nav-item.active span{color:var(--bottom-nav-active);}
+.bottom-nav-item:not(.active){color:var(--bottom-nav-inactive);}
+.fab{position:fixed;bottom:72px;right:18px;width:50px;height:50px;border-radius:50%;background:var(--fab-bg);color:#fff;border:none;display:none;align-items:center;justify-content:center;box-shadow:var(--fab-shadow);z-index:301;}
+.fab svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .events-layout{grid-template-columns:1fr;padding:12px 16px;}
+  aside#sidebar{display:none;}
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+  .overview-grid{grid-template-columns:1fr;}
+  .role-cards{grid-template-columns:repeat(2,1fr);}
+  .resource-grid{grid-template-columns:1fr;}
+  .report-grid{grid-template-columns:1fr;}
+  .attendance-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .topnav{padding:0 14px;}
+  .nav-links{display:none;}
+  .bottom-nav{display:block;}
+  .fab{display:flex;}
+  .kpi-strip{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .role-cards{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .events-layout{padding:12px 14px;}
+  .detail-panel{width:100vw;}
+  .cal-grid{gap:1px;}
+  .cal-cell{min-height:52px;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a class="logo" href="#">
+    <div class="logo-cross"></div>
+    CACI Hub
+  </a>
+  <div class="nav-links">
+    <div class="nav-link" onclick="setNav(this)">Dashboard</div>
+    <div class="nav-link" onclick="setNav(this)">Members</div>
+    <div class="nav-link active" onclick="setNav(this)">Events</div>
+    <div class="nav-link" onclick="setNav(this)">Finance</div>
+    <div class="nav-link" onclick="setNav(this)">Settings</div>
+  </div>
+  <div class="nav-right">
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="toggle-icon" id="toggleIcon">🌙</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label" id="toggleLabel">Dark</span>
+    </div>
+    <div class="nav-avatar" title="Admin User">AU</div>
+  </div>
+</nav>
+
+<!-- SUBNAV -->
+<div class="subnav">
+  <div class="sub-link active" onclick="showTab('overview',this)">Overview</div>
+  <div class="sub-link" onclick="showTab('events',this)">Events</div>
+  <div class="sub-link" onclick="showTab('registrations',this)">Registrations</div>
+  <div class="sub-link" onclick="showTab('attendance',this)">Attendance</div>
+  <div class="sub-link" onclick="showTab('assignments',this)">Assignments</div>
+  <div class="sub-link" onclick="showTab('resources',this)">Resources</div>
+  <div class="sub-link" onclick="showTab('reports',this)">Reports</div>
+  <div class="sub-link" onclick="showTab('auditlog',this)">Audit Log</div>
+  <div class="subnav-right">
+    <span class="role-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Event Coordinator
+    </span>
+    <div class="assembly-pill">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Accra Central
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="events-layout">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-title">Events</div>
+      <div class="sidebar-nav-item active" onclick="showTab('overview',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/></svg>
+          Overview
+        </div>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('events',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="13" rx="2"/><path d="M1 6h14"/><path d="M5 1v2M11 1v2"/></svg>
+          All Events
+        </div>
+        <span class="count" id="sidebarEventsCount">8</span>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('registrations',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><path d="M10.5 14v-1.5a2.5 2.5 0 0 0-2.5-2.5H4A2.5 2.5 0 0 0 1.5 12.5V14"/><circle cx="6" cy="5" r="2.5"/><path d="M13.5 14v-1a2 2 0 0 0-2-2"/><path d="M10.5 3a2 2 0 0 1 0 4"/></svg>
+          Registrations
+        </div>
+        <span class="count" id="sidebarRegCount">10</span>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('attendance',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><path d="M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0z"/><path d="M5 7l2 2 4-4"/><path d="M14.5 14.5l-3-3"/></svg>
+          Attendance
+        </div>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('assignments',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><circle cx="6" cy="4.5" r="2.5"/><path d="M1 14v-1.5A2.5 2.5 0 0 1 3.5 10h5A2.5 2.5 0 0 1 11 12.5V14"/><path d="M12 7l1.5 1.5L16 6"/></svg>
+          Assignments
+        </div>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('resources',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M5 4V3a3 3 0 0 1 6 0v1"/></svg>
+          Resources
+        </div>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('reports',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M4 10V8M8 10V5M12 10V7"/></svg>
+          Reports
+        </div>
+      </div>
+      <div class="sidebar-nav-item" onclick="showTab('auditlog',null);setSidebarActive(this)">
+        <div class="sidebar-nav-left">
+          <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2z" rx="1"/><path d="M5 5h6M5 8h4M5 11h3"/></svg>
+          Audit Log
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="sidebar-card">
+      <div class="sidebar-title">Filters</div>
+      <div class="filter-group">
+        <div class="filter-group-label">Status <span class="filter-clear" onclick="clearStatusFilters()">Clear</span></div>
+        <label class="filter-option" onclick="toggleFilter(this,'status','upcoming')"><div class="filter-checkbox checked"></div>Upcoming<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'status','planning')"><div class="filter-checkbox checked"></div>Planning<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'status','completed')"><div class="filter-checkbox checked"></div>Completed<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'status','cancelled')"><div class="filter-checkbox"></div>Cancelled<span class="filter-option-count">—</span></label>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <div class="filter-group-label">Category <span class="filter-clear" onclick="clearCategoryFilters()">Clear</span></div>
+        <label class="filter-option" onclick="toggleFilter(this,'category','Worship')"><div class="filter-checkbox checked"></div>Worship<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'category','Youth')"><div class="filter-checkbox checked"></div>Youth<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'category','Fellowship')"><div class="filter-checkbox checked"></div>Fellowship<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'category','Outreach')"><div class="filter-checkbox checked"></div>Outreach<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'category','Meeting')"><div class="filter-checkbox checked"></div>Meetings<span class="filter-option-count">—</span></label>
+        <label class="filter-option" onclick="toggleFilter(this,'category','Convention')"><div class="filter-checkbox checked"></div>Convention<span class="filter-option-count">—</span></label>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group">
+        <div class="filter-group-label">Date Range</div>
+        <select class="filter-select" id="sidebarDateRange" onchange="applyFilters()">
+          <option value="all">All Time</option>
+          <option value="month">This Month</option>
+          <option value="quarter">Last 3 Months</option>
+          <option value="year" selected>This Year</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="sidebar-card">
+      <div class="sidebar-title">Quick Stats</div>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="quickStats"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-area">
+
+    <!-- ══ OVERVIEW TAB ══ -->
+    <div class="evt-panel active" id="panelOverview">
+      <div class="kpi-strip" id="kpiStrip"></div>
+      <div class="overview-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Upcoming Events</span>
+            <button class="btn-outline" onclick="showTab('events',null);setSidebarActive(document.querySelectorAll('.sidebar-nav-item')[1]);syncSubnav('events')">View All</button>
+          </div>
+          <div id="overviewUpcomingList"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-header"><span class="card-title">By Category</span></div>
+            <div id="overviewCategoryStats"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Registration Fill Rate</span></div>
+            <div style="display:flex;flex-direction:column;gap:10px;" id="overviewFillRate"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EVENTS TAB ══ -->
+    <div class="evt-panel" id="panelEvents">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input class="search-input" id="eventsSearch" placeholder="Search events…" oninput="applyFilters()">
+        </div>
+        <div class="toolbar-sep"></div>
+        <select class="date-select" id="eventsDateFilter" onchange="applyFilters()">
+          <option value="all">All Time</option>
+          <option value="year" selected>This Year</option>
+          <option value="month">This Month</option>
+        </select>
+        <select class="date-select" id="eventsCategoryFilter" onchange="applyFilters()">
+          <option value="">All Categories</option>
+          <option>Worship</option><option>Youth</option><option>Fellowship</option>
+          <option>Outreach</option><option>Meeting</option><option>Convention</option>
+        </select>
+        <div class="toolbar-sep"></div>
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" id="listViewBtn" onclick="setEventsView('list')">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+          </button>
+          <button class="view-toggle-btn" id="calViewBtn" onclick="setEventsView('calendar')">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="2" width="14" height="13" rx="2"/><path d="M1 6h14M5 1v2M11 1v2"/></svg>
+          </button>
+        </div>
+        <button class="btn-primary" onclick="openEventModal()">
+          <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>
+          New Event
+        </button>
+      </div>
+
+      <!-- Status chips -->
+      <div class="chip-bar">
+        <div class="chip active" onclick="setEventsChip(this,'')">All Events</div>
+        <div class="chip" onclick="setEventsChip(this,'upcoming')">Upcoming</div>
+        <div class="chip" onclick="setEventsChip(this,'planning')">Planning</div>
+        <div class="chip" onclick="setEventsChip(this,'completed')">Completed</div>
+        <div class="chip" onclick="setEventsChip(this,'cancelled')">Cancelled</div>
+        <div class="chip" onclick="setEventsChip(this,'recurring')">Recurring</div>
+      </div>
+
+      <!-- List view -->
+      <div id="eventsListView">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table class="evt-table">
+            <thead>
+              <tr>
+                <th style="width:4%;padding-left:16px;"><input type="checkbox" id="selectAllEvents" onchange="toggleSelectAll(this,'eventRow')"></th>
+                <th style="width:33%;">Event</th>
+                <th>Date & Time</th>
+                <th>Category</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th style="width:120px;"></th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody"></tbody>
+          </table>
+          <div id="eventsEmptyState" style="display:none;">
+            <div class="empty-state">
+              <div class="empty-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v2M16 2v2"/></svg></div>
+              <div class="empty-title">No events found</div>
+              <div class="empty-sub">Try adjusting your filters or search term, or create a new event.</div>
+            </div>
+          </div>
+          <div style="padding:12px 16px;border-top:1px solid var(--border-subtle);" id="eventsTableFooter">
+            <div class="pagination">
+              <span class="page-info" id="eventsPageInfo">Showing 0 events</span>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div id="bulkActions" style="display:none;gap:6px;display:none;">
+                  <button class="btn-outline" style="font-size:11px;" onclick="bulkExport()">Export Selected</button>
+                  <button class="btn-danger" style="font-size:11px;" onclick="bulkDelete()">Delete Selected</button>
+                </div>
+                <div class="page-btns" id="eventsPagination"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar view -->
+      <div id="eventsCalView" style="display:none;">
+        <div class="card">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calNav(-1)"><svg viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></svg></button>
+            <div class="cal-nav-title" id="calTitle"></div>
+            <button class="cal-nav-btn" onclick="calNav(1)"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REGISTRATIONS TAB ══ -->
+    <div class="evt-panel" id="panelRegistrations">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input class="search-input" id="regSearch" placeholder="Search by member or event…" oninput="renderRegistrationsTable()">
+        </div>
+        <div class="toolbar-sep"></div>
+        <select class="date-select" id="regEventFilter" onchange="renderRegistrationsTable()">
+          <option value="">All Events</option>
+        </select>
+        <button class="btn-primary" onclick="openAddRegModal()">
+          <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>
+          Add Registration
+        </button>
+        <button class="btn-outline" onclick="exportRegistrations()">
+          <svg viewBox="0 0 16 16"><path d="M13 10v3H3v-3"/><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/></svg>
+          Export
+        </button>
+      </div>
+      <div class="chip-bar">
+        <div class="chip active" onclick="setRegChip(this,'')">All</div>
+        <div class="chip" onclick="setRegChip(this,'confirmed')">Confirmed</div>
+        <div class="chip" onclick="setRegChip(this,'pending')">Pending</div>
+        <div class="chip" onclick="setRegChip(this,'waitlist')">Waitlist</div>
+        <div class="chip" onclick="setRegChip(this,'cancelled')">Cancelled</div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="evt-table">
+          <thead>
+            <tr>
+              <th style="width:30%;">Member</th>
+              <th>Event</th>
+              <th>Registered On</th>
+              <th>Type</th>
+              <th>RSVP Status</th>
+              <th style="width:90px;"></th>
+            </tr>
+          </thead>
+          <tbody id="regTableBody"></tbody>
+        </table>
+        <div id="regEmptyState" style="display:none;">
+          <div class="empty-state">
+            <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div class="empty-title">No registrations found</div>
+            <div class="empty-sub">Try a different filter or add a new registration.</div>
+          </div>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border-subtle);">
+          <div class="pagination">
+            <span class="page-info" id="regPageInfo">Showing 0 registrations</span>
+            <div class="page-btns" id="regPagination"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ATTENDANCE TAB ══ -->
+    <div class="evt-panel" id="panelAttendance">
+      <div class="toolbar">
+        <select class="date-select" id="attendanceEventSel" style="flex:1;max-width:300px;" onchange="renderAttendance()">
+        </select>
+        <div class="toolbar-sep"></div>
+        <div class="search-wrap" style="max-width:200px;">
+          <svg class="search-icon" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input class="search-input" id="attendanceSearch" placeholder="Search member…" oninput="renderAttendance()">
+        </div>
+        <button class="btn-primary" onclick="openWalkinModal()">
+          <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>
+          Walk-in
+        </button>
+        <button class="btn-outline" onclick="exportAttendance()">
+          <svg viewBox="0 0 16 16"><path d="M13 10v3H3v-3"/><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/></svg>
+          Export
+        </button>
+      </div>
+      <div class="attendance-grid">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);" id="attendanceListHeader">Attendees</div>
+            <span class="badge green">Live</span>
+          </div>
+          <div class="checkin-list" id="checkinList"></div>
+          <div id="attendanceEmpty" style="display:none;">
+            <div class="empty-state" style="padding:40px 24px;">
+              <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+              <div class="empty-title">No attendees</div>
+              <div class="empty-sub">No registrations found for this event.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-header"><span class="card-title">Attendance Summary</span></div>
+            <div style="text-align:center;padding:8px 0 14px;">
+              <div style="font-size:36px;font-weight:700;color:var(--blue);letter-spacing:-1px;" id="summaryCheckins">0</div>
+              <div style="font-size:12px;color:var(--text-muted);">Total Check-ins</div>
+            </div>
+            <div class="mini-stat-row"><span class="mini-stat-label">Registered</span><span class="mini-stat-val" id="summaryRegistered">0</span></div>
+            <div class="mini-stat-row"><span class="mini-stat-label">Walk-ins</span><span class="mini-stat-val" id="summaryWalkins">0</span></div>
+            <div class="mini-stat-row"><span class="mini-stat-label">No-shows</span><span class="mini-stat-val" id="summaryNoShows">0</span></div>
+            <div style="margin-top:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><span>Fill Rate</span><span style="font-weight:600;color:var(--green);" id="summaryFillRate">0%</span></div>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" id="summaryFillBar" style="width:0%;"></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">By Role</span></div>
+            <div id="attendanceByRole"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ASSIGNMENTS TAB ══ -->
+    <div class="evt-panel" id="panelAssignments">
+      <div class="toolbar">
+        <select class="date-select" id="assignEventSel" style="flex:1;max-width:300px;" onchange="renderAssignments()"></select>
+        <div class="toolbar-sep"></div>
+        <button class="btn-primary" onclick="openAssignModal()">
+          <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>
+          Assign Role
+        </button>
+        <button class="btn-outline" onclick="notifyAllAssigned()">
+          <svg viewBox="0 0 16 16"><path d="M13 6A5 5 0 1 0 3 6c0 5-2 6-2 6h14s-2-1-2-6"/><path d="M9.7 16a2 2 0 0 1-3.4 0"/></svg>
+          Notify All
+        </button>
+      </div>
+      <div class="card" id="assignmentsCard"></div>
+    </div>
+
+    <!-- ══ RESOURCES TAB ══ -->
+    <div class="evt-panel" id="panelResources">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input class="search-input" id="resourceSearch" placeholder="Search rooms or equipment…" oninput="renderResources()">
+        </div>
+        <div class="toolbar-sep"></div>
+        <select class="date-select" id="resourceTypeFilter" onchange="renderResources()">
+          <option value="">All Types</option>
+          <option value="venue">Rooms</option>
+          <option value="equipment">Equipment</option>
+        </select>
+        <button class="btn-primary" onclick="openBookResourceModal()">
+          <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>
+          Book Resource
+        </button>
+      </div>
+      <div id="resourcesContent"></div>
+    </div>
+
+    <!-- ══ REPORTS TAB ══ -->
+    <div class="evt-panel" id="panelReports">
+      <div class="report-export-bar">
+        <h3>Events & Attendance Reports</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="date-select" id="reportDateRange" onchange="renderReports()">
+            <option value="all">All Time</option>
+            <option value="year" selected>This Year</option>
+            <option value="quarter">Last 3 Months</option>
+            <option value="month">This Month</option>
+          </select>
+          <button class="btn-outline" onclick="exportReportCSV()">
+            <svg viewBox="0 0 16 16"><path d="M13 10v3H3v-3"/><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn-outline" onclick="printReport()">
+            <svg viewBox="0 0 16 16"><path d="M4 4V1h8v3"/><rect x="1" y="4" width="14" height="8" rx="1"/><path d="M4 8h8M4 12v3h8v-3"/></svg>
+            Print
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <div class="kpi-strip" id="reportKpis" style="margin-bottom:16px;"></div>
+
+      <div class="report-grid">
+        <!-- Attendance by Category -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Events by Category</span></div>
+          <div class="report-chart-bar" id="reportCategoryChart"></div>
+        </div>
+        <!-- Status Breakdown -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Events by Status</span></div>
+          <div class="report-chart-bar" id="reportStatusChart"></div>
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <!-- Attendance Trend -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Attendance Trend (Events)</span><span style="font-size:11px;color:var(--text-muted);">Registrations per event</span></div>
+          <div class="trend-line" id="reportTrend"></div>
+        </div>
+        <!-- Fill Rate -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Registration Fill Rate</span></div>
+          <div class="report-chart-bar" id="reportFillRate"></div>
+        </div>
+      </div>
+
+      <!-- Registrations Summary Table -->
+      <div class="card" style="padding:0;overflow:hidden;margin-top:0;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);"><span class="card-title" style="font-size:12px;">Registration Summary per Event</span></div>
+        <table class="evt-table">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Capacity</th>
+              <th>Registered</th>
+              <th>Fill %</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reportSummaryTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ AUDIT LOG TAB ══ -->
+    <div class="evt-panel" id="panelAuditlog">
+      <div class="audit-filter-bar">
+        <div class="search-wrap" style="max-width:260px;">
+          <svg class="search-icon" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10.5 10.5l3 3"/></svg>
+          <input class="search-input" id="auditSearch" placeholder="Search by actor or action…" oninput="renderAuditLog()">
+        </div>
+        <select class="date-select" id="auditActionFilter" onchange="renderAuditLog()">
+          <option value="">All Actions</option>
+          <option value="created">Created</option>
+          <option value="edited">Edited</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="deleted">Deleted</option>
+          <option value="status_changed">Status Changed</option>
+          <option value="registration_added">Registration Added</option>
+          <option value="registration_cancelled">Registration Cancelled</option>
+          <option value="check_in">Check In</option>
+          <option value="walk_in_added">Walk-in Added</option>
+          <option value="role_assigned">Role Assigned</option>
+          <option value="resource_booked">Resource Booked</option>
+          <option value="exported">Exported</option>
+        </select>
+        <select class="date-select" id="auditSeverityFilter" onchange="renderAuditLog()">
+          <option value="">All Severities</option>
+          <option value="low">Low</option>
+          <option value="med">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <button class="btn-outline" onclick="exportAuditLog()">
+          <svg viewBox="0 0 16 16"><path d="M13 10v3H3v-3"/><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/></svg>
+          Export Log
+        </button>
+      </div>
+      <div class="card">
+        <div id="auditLogList"></div>
+        <div id="auditEmptyState" style="display:none;">
+          <div class="empty-state" style="padding:40px 24px;">
+            <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div class="empty-title">No audit entries found</div>
+            <div class="empty-sub">Adjust your filters to see more entries.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-area -->
+</div><!-- /events-layout -->
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-items">
+    <div class="bottom-nav-item active" onclick="showTab('overview',null);setBottomNav(this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Overview</span>
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('events',null);setBottomNav(this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 2v2M16 2v2"/></svg>
+      <span>Events</span>
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('attendance',null);setBottomNav(this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span>Attendance</span>
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('reports',null);setBottomNav(this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 17V13M12 17V9M16 17V11"/></svg>
+      <span>Reports</span>
+    </div>
+  </div>
+</nav>
+<button class="fab" onclick="openEventModal()">
+  <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<!-- ═══ EVENT MODAL (Create / Edit) ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeEventModal()"></div>
+<div class="modal" id="eventModal">
+  <div class="modal-header">
+    <span class="modal-title" id="modalTitle">Create New Event</span>
+    <button class="modal-close" onclick="closeEventModal()"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="modalEditId">
+    <div class="form-section" style="border-top:none;padding-top:0;margin-top:0;">Basic Details</div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label class="form-label">Event Title <span>*</span></label>
+        <input class="form-input" id="fTitle" placeholder="e.g. Youth Night, Annual Convention…">
+        <div class="form-error" id="fTitleErr" style="display:none;">Title is required.</div>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field"><label class="form-label">Description</label><textarea class="form-textarea" id="fDesc" placeholder="Brief description of the event…"></textarea></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Category <span>*</span></label>
+        <select class="form-select" id="fCategory">
+          <option value="">Select…</option>
+          <option>Worship</option><option>Youth</option><option>Fellowship</option>
+          <option>Outreach</option><option>Meeting</option><option>Convention</option><option>Training</option>
+        </select>
+        <div class="form-error" id="fCategoryErr" style="display:none;">Category is required.</div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="fStatus"><option value="upcoming">Upcoming</option><option value="planning">Planning</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select>
+      </div>
+    </div>
+    <div class="form-section">Schedule</div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Start Date <span>*</span></label>
+        <input class="form-input" id="fStartDate" type="date">
+        <div class="form-error" id="fStartDateErr" style="display:none;">Start date is required.</div>
+      </div>
+      <div class="form-field"><label class="form-label">End Date</label><input class="form-input" id="fEndDate" type="date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">Start Time <span>*</span></label><input class="form-input" id="fStartTime" type="time"></div>
+      <div class="form-field"><label class="form-label">End Time</label><input class="form-input" id="fEndTime" type="time"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Recurrence</label>
+        <select class="form-select" id="fRecurrence"><option>One-time</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Annual</option></select>
+      </div>
+      <div class="form-field"><label class="form-label">Capacity</label><input class="form-input" id="fCapacity" type="number" placeholder="Leave blank for unlimited"></div>
+    </div>
+    <div class="form-section">Location</div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Venue</label>
+        <select class="form-select" id="fVenue"><option value="">Select room…</option><option>Main Sanctuary</option><option>Youth Hall</option><option>Hall A</option><option>Board Room</option><option>Conference Center</option><option>Custom / External</option></select>
+      </div>
+      <div class="form-field"><label class="form-label">Custom Location</label><input class="form-input" id="fCustomLocation" placeholder="Or enter external address…"></div>
+    </div>
+    <div class="form-section">Registration</div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Registration Type</label>
+        <select class="form-select" id="fRegType"><option>Open (anyone)</option><option>Members Only</option><option>Invite Only</option></select>
+      </div>
+      <div class="form-field"><label class="form-label">Registration Deadline</label><input class="form-input" id="fRegDeadline" type="date"></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-outline" onclick="closeEventModal()">Cancel</button>
+    <button class="btn-outline" onclick="saveEventDraft()">Save as Draft</button>
+    <button class="btn-primary" onclick="submitEventForm()">
+      <span id="modalSubmitLabel">Create Event</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ ADD REGISTRATION MODAL ═══ -->
+<div class="modal-overlay" id="addRegOverlay" onclick="closeAddRegModal()"></div>
+<div class="modal" id="addRegModal">
+  <div class="modal-header">
+    <span class="modal-title">Add Registration</span>
+    <button class="modal-close" onclick="closeAddRegModal()"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Member Name <span>*</span></label>
+        <input class="form-input" id="regName" placeholder="Full name…">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Member ID</label>
+        <input class="form-input" id="regMemberId" placeholder="CACI-ACC-NNNNN">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Event <span>*</span></label>
+        <select class="form-select" id="regEventSel"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="regType"><option>Member</option><option>Visitor</option><option>Prospect</option></select>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label class="form-label">RSVP Status</label>
+        <select class="form-select" id="regRsvp"><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="waitlist">Waitlist</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-outline" onclick="closeAddRegModal()">Cancel</button>
+    <button class="btn-primary" onclick="submitAddReg()">Add Registration</button>
+  </div>
+</div>
+
+<!-- ═══ WALK-IN MODAL ═══ -->
+<div class="modal-overlay" id="walkinOverlay" onclick="closeWalkinModal()"></div>
+<div class="modal" id="walkinModal">
+  <div class="modal-header">
+    <span class="modal-title">Add Walk-in</span>
+    <button class="modal-close" onclick="closeWalkinModal()"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Name <span>*</span></label>
+        <input class="form-input" id="walkinName" placeholder="Full name…">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Role</label>
+        <select class="form-select" id="walkinRole"><option>Member</option><option>Visitor</option><option>Prospect</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-outline" onclick="closeWalkinModal()">Cancel</button>
+    <button class="btn-primary" onclick="submitWalkin()">Check In Walk-in</button>
+  </div>
+</div>
+
+<!-- ═══ ASSIGN ROLE MODAL ═══ -->
+<div class="modal-overlay" id="assignOverlay" onclick="closeAssignModal()"></div>
+<div class="modal" id="assignModal">
+  <div class="modal-header">
+    <span class="modal-title">Assign Role</span>
+    <button class="modal-close" onclick="closeAssignModal()"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Member Name <span>*</span></label>
+        <input class="form-input" id="assignName" placeholder="Search member…">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Member ID</label>
+        <input class="form-input" id="assignMemberId" placeholder="CACI-ACC-NNNNN">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Role Group <span>*</span></label>
+        <select class="form-select" id="assignGroup"><option value="ushers">Ushers</option><option value="choir">Choir</option><option value="techTeam">Technical Team</option></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Specific Role</label>
+        <input class="form-input" id="assignRole" placeholder="e.g. Head Usher, Vocalist…">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-outline" onclick="closeAssignModal()">Cancel</button>
+    <button class="btn-primary" onclick="submitAssign()">Assign</button>
+  </div>
+</div>
+
+<!-- ═══ BOOK RESOURCE MODAL ═══ -->
+<div class="modal-overlay" id="bookResOverlay" onclick="closeBookResourceModal()"></div>
+<div class="modal" id="bookResModal">
+  <div class="modal-header">
+    <span class="modal-title">Book Resource</span>
+    <button class="modal-close" onclick="closeBookResourceModal()"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Resource <span>*</span></label>
+        <select class="form-select" id="bookResName">
+          <option value="">Select resource…</option>
+          <option>Main Sanctuary</option><option>Youth Hall</option><option>Hall A</option>
+          <option>Board Room</option><option>Conference Center</option>
+          <option>Projector Set A (×2)</option><option>PA Sound System</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Event <span>*</span></label>
+        <select class="form-select" id="bookResEvent"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="bookResDate" type="date">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Time Slot</label>
+        <input class="form-input" id="bookResTime" placeholder="e.g. 9AM–12PM">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-outline" onclick="closeBookResourceModal()">Cancel</button>
+    <button class="btn-primary" onclick="submitBookResource()">Confirm Booking</button>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM DIALOG ═══ -->
+<div class="confirm-overlay" id="confirmOverlay"></div>
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-icon danger" id="confirmIcon">
+    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+  </div>
+  <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+  <div class="confirm-body" id="confirmBody">This action cannot be undone.</div>
+  <div style="margin-bottom:12px;" id="confirmReasonWrap" style="display:none;">
+    <label class="form-label">Reason (optional)</label>
+    <input class="form-input" id="confirmReason" placeholder="Enter reason…" style="margin-top:5px;">
+  </div>
+  <div class="confirm-actions">
+    <button class="btn-outline" onclick="closeConfirm()">Cancel</button>
+    <button class="btn-danger" id="confirmBtn" onclick="">Confirm</button>
+  </div>
+</div>
+
+<!-- ═══ EVENT DETAIL PANEL ═══ -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div>
+      <div class="detail-title" id="detailTitle">Event</div>
+      <div class="detail-meta" id="detailMeta"></div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+  </div>
+  <div style="padding:0 20px;">
+    <div class="detail-tabs">
+      <div class="detail-tab active" onclick="setDetailTab(this,'detailTabInfo')">Details</div>
+      <div class="detail-tab" onclick="setDetailTab(this,'detailTabRegs')">Registrations</div>
+      <div class="detail-tab" onclick="setDetailTab(this,'detailTabAssign')">Assignments</div>
+      <div class="detail-tab" onclick="setDetailTab(this,'detailTabHistory')">History</div>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody">
+    <div class="detail-tab-panel active" id="detailTabInfo"></div>
+    <div class="detail-tab-panel" id="detailTabRegs"></div>
+    <div class="detail-tab-panel" id="detailTabAssign"></div>
+    <div class="detail-tab-panel" id="detailTabHistory"></div>
+  </div>
+  <div class="detail-footer">
+    <button class="btn-primary" style="flex:1;" id="detailEditBtn" onclick="">Edit Event</button>
+    <button class="btn-outline" id="detailDuplicateBtn" onclick="">Duplicate</button>
+    <button class="btn-danger" id="detailCancelBtn" onclick="">Cancel Event</button>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA STORE
+═══════════════════════════════════════════ */
+let events = [
+  { id:'EVT-001', name:'Sunday Worship Service', category:'Worship',  date:'2026-05-11', time:'9:00 AM – 12:00 PM', venue:'Main Sanctuary',   capacity:500,  registered:312, status:'upcoming',  recurrence:'Weekly',   description:'Weekly Sunday morning worship service for the whole congregation.' },
+  { id:'EVT-002', name:'Youth Night',             category:'Youth',    date:'2026-05-15', time:'6:00 PM – 9:00 PM',  venue:'Youth Hall',       capacity:150,  registered:93,  status:'upcoming',  recurrence:'One-time', description:'A night of praise, worship and teaching for the youth.' },
+  { id:'EVT-003', name:'Elders & Deacons Meeting',category:'Meeting',  date:'2026-05-19', time:'5:00 PM – 7:00 PM',  venue:'Board Room',       capacity:20,   registered:18,  status:'upcoming',  recurrence:'Monthly',  description:'Monthly leadership coordination meeting.' },
+  { id:'EVT-004', name:"Women's Fellowship",       category:'Fellowship',date:'2026-05-22',time:'10:00 AM – 1:00 PM', venue:'Hall A',           capacity:80,   registered:36,  status:'upcoming',  recurrence:'Monthly',  description:'Monthly fellowship meeting for the women of the church.' },
+  { id:'EVT-005', name:'Sunday Worship Service',  category:'Worship',  date:'2026-05-18', time:'9:00 AM – 12:00 PM', venue:'Main Sanctuary',   capacity:500,  registered:290, status:'upcoming',  recurrence:'Weekly',   description:'Weekly Sunday morning worship service.' },
+  { id:'EVT-006', name:'Outreach Program',        category:'Outreach', date:'2026-05-30', time:'8:00 AM – 5:00 PM',  venue:'Community Center', capacity:200,  registered:62,  status:'planning',  recurrence:'One-time', description:'Community outreach and evangelism program.' },
+  { id:'EVT-007', name:'Annual Convention 2026',  category:'Convention',date:'2026-06-02',time:'Jun 2 – Jun 4',       venue:'Conference Center',capacity:1200, registered:934, status:'planning',  recurrence:'Annual',   description:'Annual church convention. 3-day program with special speakers.' },
+  { id:'EVT-008', name:'Good Friday Service',        category:'Worship',    date:'2026-04-18', time:'6:00 PM – 9:00 PM',   venue:'Main Sanctuary',    capacity:500,  registered:480, status:'completed', recurrence:'Annual',   description:'Good Friday commemoration service.' },
+
+  // ── Historical completed events (Jan – Apr 2025) ──────────────────────────
+  { id:'EVT-009', name:'New Year Thanksgiving Service', category:'Worship',    date:'2026-01-05', time:'9:00 AM – 12:30 PM', venue:'Main Sanctuary',    capacity:500,  registered:445, status:'completed', recurrence:'Annual',   description:'Annual thanksgiving service to open the new year in worship.' },
+  { id:'EVT-010', name:'Youth Conference 2026',         category:'Youth',      date:'2026-01-18', time:'9:00 AM – 5:00 PM',  venue:'Conference Center', capacity:200,  registered:187, status:'completed', recurrence:'Annual',   description:'Annual youth conference featuring workshops, praise, and teaching.' },
+  { id:'EVT-011', name:"Men's Fellowship Breakfast",    category:'Fellowship', date:'2026-01-25', time:'7:00 AM – 10:00 AM', venue:'Hall A',            capacity:100,  registered:72,  status:'completed', recurrence:'Monthly',  description:'Monthly men\'s fellowship and breakfast meeting.' },
+  { id:'EVT-012', name:'Community Outreach – Teshie',   category:'Outreach',   date:'2026-02-01', time:'8:00 AM – 4:00 PM',  venue:'Teshie Community',  capacity:300,  registered:241, status:'completed', recurrence:'One-time', description:'Door-to-door evangelism and free health screening in Teshie.' },
+  { id:'EVT-013', name:'Leaders Training & Retreat',    category:'Meeting',    date:'2026-02-08', time:'9:00 AM – 5:00 PM',  venue:'Board Room',        capacity:40,   registered:38,  status:'completed', recurrence:'One-time', description:'Annual leadership development training for department heads.' },
+  { id:'EVT-014', name:'Sunday Worship Service',        category:'Worship',    date:'2026-02-09', time:'9:00 AM – 12:00 PM', venue:'Main Sanctuary',    capacity:500,  registered:461, status:'completed', recurrence:'Weekly',   description:'Weekly Sunday morning worship service.' },
+  { id:'EVT-015', name:"Valentine's Couples Night",     category:'Fellowship', date:'2026-02-14', time:'6:00 PM – 9:30 PM',  venue:'Hall A',            capacity:120,  registered:118, status:'completed', recurrence:'Annual',   description:'Special couples evening with music, dinner and devotional.' },
+  { id:'EVT-016', name:'Prayer & Fasting Closing Service', category:'Worship', date:'2026-02-22', time:'6:00 AM – 8:00 PM',  venue:'Main Sanctuary',    capacity:500,  registered:392, status:'completed', recurrence:'Annual',   description:'Closing service for the annual 21-day prayer and fasting program.' },
+  { id:'EVT-017', name:'Youth Night – February',        category:'Youth',      date:'2026-02-28', time:'6:00 PM – 9:00 PM',  venue:'Youth Hall',        capacity:150,  registered:104, status:'completed', recurrence:'Monthly',  description:'Monthly youth night with games, worship and teaching.' },
+  { id:'EVT-018', name:'Sunday Worship Service',        category:'Worship',    date:'2026-03-09', time:'9:00 AM – 12:00 PM', venue:'Main Sanctuary',    capacity:500,  registered:478, status:'completed', recurrence:'Weekly',   description:'Weekly Sunday morning worship service.' },
+  { id:'EVT-019', name:"Women's Fellowship – March",    category:'Fellowship', date:'2026-03-22', time:'10:00 AM – 1:00 PM', venue:'Hall A',            capacity:80,   registered:61,  status:'completed', recurrence:'Monthly',  description:'Monthly fellowship gathering for the women of the church.' },
+  { id:'EVT-020', name:'Evangelism Drive – Accra North',category:'Outreach',   date:'2026-03-29', time:'8:00 AM – 3:00 PM',  venue:'Accra North',       capacity:150,  registered:112, status:'completed', recurrence:'One-time', description:'Street evangelism and tract distribution in Accra North.' },
+  { id:'EVT-021', name:'Board of Elders Meeting',       category:'Meeting',    date:'2026-04-07', time:'5:00 PM – 7:30 PM',  venue:'Board Room',        capacity:20,   registered:17,  status:'completed', recurrence:'Monthly',  description:'Monthly board meeting to review church affairs.' },
+  { id:'EVT-022', name:'Palm Sunday Service',           category:'Worship',    date:'2026-04-13', time:'9:00 AM – 12:00 PM', venue:'Main Sanctuary',    capacity:500,  registered:499, status:'completed', recurrence:'Annual',   description:'Palm Sunday procession and worship service.' },
+  { id:'EVT-023', name:'Easter Vigil Service',          category:'Worship',    date:'2026-04-19', time:'10:00 PM – 1:00 AM', venue:'Main Sanctuary',    capacity:600,  registered:487, status:'completed', recurrence:'Annual',   description:'All-night Easter vigil service.' },
+  { id:'EVT-024', name:'Easter Sunday Service',         category:'Worship',    date:'2026-04-20', time:'9:00 AM – 1:00 PM',  venue:'Main Sanctuary',    capacity:600,  registered:587, status:'completed', recurrence:'Annual',   description:'Easter Sunday celebration service with special program.' },
+  { id:'EVT-025', name:'Youth Leadership Retreat',      category:'Youth',      date:'2026-04-26', time:'All Day',            venue:'Akosombo Resort',   capacity:60,   registered:55,  status:'completed', recurrence:'One-time', description:'Overnight leadership retreat for youth department executives.' },
+  { id:'EVT-026', name:'Church Anniversary Service',    category:'Convention', date:'2026-04-27', time:'9:00 AM – 3:00 PM',  venue:'Main Sanctuary',    capacity:700,  registered:643, status:'completed', recurrence:'Annual',   description:'Annual church anniversary thanksgiving service and dinner.' },
+];
+
+let registrations = [
+  { id:'REG-001', memberId:'CACI-ACC-00142', name:'Kwame Mensah',    initials:'KM', color:'#004BA0', eventId:'EVT-001', date:'2026-05-03', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-002', memberId:'CACI-ACC-00141', name:'Ama Osei',         initials:'AO', color:'#1a5fb4', eventId:'EVT-007', date:'2026-04-28', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-003', memberId:'CACI-ACC-00140', name:'Kwabena Boateng', initials:'KB', color:'#004BA0', eventId:'EVT-002', date:'2026-05-05', type:'Member',   rsvp:'pending'   },
+  { id:'REG-004', memberId:'CACI-ACC-00139', name:'Abena Darko',      initials:'AD', color:'#7c3aed', eventId:'EVT-004', date:'2026-05-06', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-005', memberId:'CACI-ACC-00137', name:'Efua Mensah',      initials:'EM', color:'#C60026', eventId:'EVT-002', date:'2026-05-04', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-006', memberId:'CACI-ACC-00143', name:'Yaa Asantewaa',   initials:'YA', color:'#C60026', eventId:'EVT-001', date:'2026-05-06', type:'Visitor',  rsvp:'confirmed' },
+  { id:'REG-007', memberId:'CACI-ACC-00136', name:'Nana Adjei',       initials:'NA', color:'#004BA0', eventId:'EVT-003', date:'2026-05-02', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-008', memberId:'CACI-ACC-00135', name:'Akosua Frimpong', initials:'AF', color:'#9a6700', eventId:'EVT-007', date:'2026-04-30', type:'Prospect', rsvp:'pending'   },
+  { id:'REG-009', memberId:'CACI-ACC-00133', name:'Grace Amponsah',  initials:'GA', color:'#1a7f37', eventId:'EVT-001', date:'2026-05-07', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-010', memberId:'CACI-ACC-00134', name:'Emmanuel Asante', initials:'EA', color:'#1a5fb4', eventId:'EVT-006', date:'2026-05-05', type:'Member',   rsvp:'waitlist'  },
+
+  // ── Registrations for historical events ──────────────────────────────────
+  { id:'REG-011', memberId:'CACI-ACC-00101', name:'Abena Amoah',        initials:'AA', color:'#7c3aed', eventId:'EVT-009', date:'2025-12-28', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-012', memberId:'CACI-ACC-00102', name:'Kofi Acheampong',    initials:'KA', color:'#004BA0', eventId:'EVT-009', date:'2025-12-29', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-013', memberId:'CACI-ACC-00103', name:'Adjoa Tetteh',       initials:'AT', color:'#C60026', eventId:'EVT-010', date:'2026-01-10', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-014', memberId:'CACI-ACC-00104', name:'Kwesi Boadu',        initials:'KB', color:'#1a7f37', eventId:'EVT-010', date:'2026-01-11', type:'Youth',    rsvp:'confirmed' },
+  { id:'REG-015', memberId:'CACI-ACC-00105', name:'Nana Ama Sarkodie',  initials:'NS', color:'#9a6700', eventId:'EVT-011', date:'2026-01-20', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-016', memberId:'CACI-ACC-00106', name:'Prince Owusu',       initials:'PO', color:'#1a5fb4', eventId:'EVT-012', date:'2026-01-28', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-017', memberId:'CACI-ACC-00107', name:'Maame Esi Quaye',    initials:'MQ', color:'#C60026', eventId:'EVT-013', date:'2026-02-03', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-018', memberId:'CACI-ACC-00108', name:'Samuel Adusei',      initials:'SA', color:'#004BA0', eventId:'EVT-014', date:'2026-02-05', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-019', memberId:'CACI-ACC-00109', name:'Gifty Oppong',       initials:'GO', color:'#7c3aed', eventId:'EVT-015', date:'2026-02-10', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-020', memberId:'CACI-ACC-00110', name:'Yaw Darko',          initials:'YD', color:'#1a7f37', eventId:'EVT-015', date:'2026-02-10', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-021', memberId:'CACI-ACC-00111', name:'Akua Bonsu',         initials:'AB', color:'#9a6700', eventId:'EVT-016', date:'2026-02-15', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-022', memberId:'CACI-ACC-00112', name:'Kwame Asante',       initials:'KA', color:'#C60026', eventId:'EVT-017', date:'2026-02-20', type:'Youth',    rsvp:'confirmed' },
+  { id:'REG-023', memberId:'CACI-ACC-00113', name:'Esi Mensah',         initials:'EM', color:'#004BA0', eventId:'EVT-018', date:'2026-03-04', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-024', memberId:'CACI-ACC-00114', name:'Fiifi Ankamah',      initials:'FA', color:'#1a5fb4', eventId:'EVT-019', date:'2026-03-17', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-025', memberId:'CACI-ACC-00115', name:'Afia Cobbinah',      initials:'AC', color:'#7c3aed', eventId:'EVT-020', date:'2026-03-24', type:'Visitor',  rsvp:'confirmed' },
+  { id:'REG-026', memberId:'CACI-ACC-00116', name:'Ato Hammond',        initials:'AH', color:'#1a7f37', eventId:'EVT-021', date:'2026-04-01', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-027', memberId:'CACI-ACC-00117', name:'Abigail Asiedu',     initials:'AA', color:'#9a6700', eventId:'EVT-022', date:'2026-04-08', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-028', memberId:'CACI-ACC-00118', name:'Ernest Addo',        initials:'EA', color:'#C60026', eventId:'EVT-023', date:'2026-04-14', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-029', memberId:'CACI-ACC-00119', name:'Vivian Botchway',    initials:'VB', color:'#004BA0', eventId:'EVT-024', date:'2026-04-16', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-030', memberId:'CACI-ACC-00120', name:'Daniel Ofori',       initials:'DO', color:'#1a5fb4', eventId:'EVT-024', date:'2026-04-16', type:'Visitor',  rsvp:'confirmed' },
+  { id:'REG-031', memberId:'CACI-ACC-00121', name:'Serwaa Kumah',       initials:'SK', color:'#7c3aed', eventId:'EVT-025', date:'2026-04-20', type:'Youth',    rsvp:'confirmed' },
+  { id:'REG-032', memberId:'CACI-ACC-00122', name:'Nana Yaw Frimpong',  initials:'NF', color:'#1a7f37', eventId:'EVT-026', date:'2026-04-21', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-033', memberId:'CACI-ACC-00123', name:'Comfort Osei',       initials:'CO', color:'#9a6700', eventId:'EVT-026', date:'2026-04-21', type:'Member',   rsvp:'confirmed' },
+  { id:'REG-034', memberId:'CACI-ACC-00124', name:'Kwabena Nyarko',     initials:'KN', color:'#C60026', eventId:'EVT-007', date:'2026-05-01', type:'Member',   rsvp:'pending'   },
+  { id:'REG-035', memberId:'CACI-ACC-00125', name:'Ama Boakye',         initials:'AB', color:'#004BA0', eventId:'EVT-005', date:'2026-05-10', type:'Member',   rsvp:'confirmed' },
+];
+
+let attendanceData = {
+  'EVT-001': [
+    { name:'Kwame Mensah',    initials:'KM', color:'#004BA0', role:'Elder',       checked:true,  walkin:false },
+    { name:'Ama Osei',         initials:'AO', color:'#1a5fb4', role:'Deaconess',   checked:true,  walkin:false },
+    { name:'Kwabena Boateng', initials:'KB', color:'#004BA0', role:'Member',       checked:false, walkin:false },
+    { name:'Abena Darko',      initials:'AD', color:'#7c3aed', role:'Member',       checked:true,  walkin:false },
+    { name:'Efua Mensah',      initials:'EM', color:'#C60026', role:'Youth Leader', checked:true,  walkin:false },
+    { name:'Nana Adjei',       initials:'NA', color:'#004BA0', role:'Deacon',       checked:true,  walkin:false },
+  ],
+  'EVT-002': [
+    { name:'Kwabena Boateng', initials:'KB', color:'#004BA0', role:'Member', checked:false, walkin:false },
+    { name:'Efua Mensah',      initials:'EM', color:'#C60026', role:'Member', checked:true,  walkin:false },
+  ],
+};
+
+let assignmentData = {
+  'EVT-001': {
+    ushers:   [{ name:'Kwabena Boateng', initials:'KB', color:'#004BA0', role:'Head Usher',   confirm:'confirmed' },{ name:'Samuel Adusei', initials:'SA', color:'#C60026', role:'Usher', confirm:'confirmed' },{ name:'Kofi Acheampong', initials:'KA', color:'#8c959f', role:'Usher', confirm:'pending' },{ name:'Emmanuel Asante', initials:'EA', color:'#1a5fb4', role:'Usher', confirm:'confirmed' }],
+    choir:    [{ name:'Efua Mensah', initials:'EM', color:'#C60026', role:'Lead Vocalist', confirm:'confirmed' },{ name:'Grace Amponsah', initials:'GA', color:'#1a7f37', role:'Vocalist', confirm:'confirmed' },{ name:'Akosua Frimpong', initials:'AF', color:'#9a6700', role:'Vocalist', confirm:'pending' }],
+    techTeam: [{ name:'Kwame Mensah', initials:'KM', color:'#004BA0', role:'Projectionist', confirm:'confirmed' },{ name:'Nana Adjei', initials:'NA', color:'#004BA0', role:'Sound Engineer', confirm:'confirmed' }],
+  },
+  'EVT-002': {
+    ushers:   [{ name:'Samuel Adusei', initials:'SA', color:'#C60026', role:'Usher', confirm:'confirmed' }],
+    choir:    [{ name:'Efua Mensah', initials:'EM', color:'#C60026', role:'Lead Vocalist', confirm:'confirmed' }],
+    techTeam: [],
+  },
+};
+
+let resources = [
+  { id:'R-001', name:'Main Sanctuary',   type:'venue', capacity:'500', typeLabel:'Church Venue', status:'available', bookings:[{event:'Sunday Service',time:'May 11 · 9AM–12PM'},{event:'Sunday Service',time:'May 18 · 9AM–12PM'}] },
+  { id:'R-002', name:'Youth Hall',       type:'venue', capacity:'150', typeLabel:'Youth Venue',  status:'available', bookings:[{event:'Youth Night',time:'May 15 · 6PM–9PM'}] },
+  { id:'R-003', name:'Hall A',           type:'venue', capacity:'80',  typeLabel:'Multi-purpose', status:'booked',    bookings:[{event:"Women's Fellowship",time:'May 22 · 10AM–1PM'},{event:'Outreach Program',time:'May 30 · 8AM–5PM'}] },
+  { id:'R-004', name:'Board Room',       type:'venue', capacity:'20',  typeLabel:'Meeting Room',  status:'available', bookings:[{event:'Elders Meeting',time:'May 19 · 5PM–7PM'}] },
+  { id:'R-005', name:'Conference Center',type:'venue', capacity:'1500',typeLabel:'Conference',    status:'available', bookings:[{event:'Annual Convention',time:'Jun 2–4'}] },
+  { id:'R-006', name:'Projector Set A (×2)', type:'equipment', capacity:'-', typeLabel:'Audio-Visual · EPSON EB-X51', status:'available', bookings:[{event:'Sunday Service',time:'May 11'}] },
+  { id:'R-007', name:'PA Sound System', type:'equipment', capacity:'-', typeLabel:'Audio · Main System', status:'inuse', bookings:[{event:'Sunday Service',time:'May 11 · 8AM–2PM'}] },
+];
+
+let auditLog = [
+  { id:'AL-001', eventId:'EVT-001', actor:'Abraham Bossman', actorRole:'Super Admin', action:'created', field:null, oldVal:null, newVal:null, ts:'2026-04-30T09:12:00', severity:'low', note:'' },
+  { id:'AL-002', eventId:'EVT-007', actor:'Abraham Bossman', actorRole:'Super Admin', action:'created', field:null, oldVal:null, newVal:null, ts:'2026-04-28T14:05:00', severity:'low', note:'' },
+  { id:'AL-003', eventId:'EVT-007', actor:'Kwame Mensah',   actorRole:'Secretary',   action:'edited',  field:'capacity', oldVal:'1000', newVal:'1200', ts:'2026-05-01T10:30:00', severity:'med', note:'' },
+  { id:'AL-004', eventId:'EVT-006', actor:'Abraham Bossman', actorRole:'Super Admin', action:'status_changed', field:'status', oldVal:'upcoming', newVal:'planning', ts:'2026-05-02T08:00:00', severity:'med', note:'Venue not yet confirmed' },
+  { id:'AL-005', eventId:'EVT-001', actor:'Ama Osei',       actorRole:'Secretary',   action:'registration_added', field:null, oldVal:null, newVal:'Kwame Mensah (CACI-ACC-00142)', ts:'2026-05-03T11:15:00', severity:'low', note:'' },
+  { id:'AL-006', eventId:'EVT-002', actor:'Ama Osei',       actorRole:'Secretary',   action:'registration_added', field:null, oldVal:null, newVal:'Kwabena Boateng (CACI-ACC-00140)', ts:'2026-05-05T09:00:00', severity:'low', note:'' },
+  { id:'AL-007', eventId:'EVT-001', actor:'Kwame Mensah',   actorRole:'Secretary',   action:'check_in', field:null, oldVal:null, newVal:'Ama Osei checked in', ts:'2026-05-11T09:05:00', severity:'low', note:'' },
+  { id:'AL-008', eventId:'EVT-001', actor:'Abraham Bossman', actorRole:'Super Admin', action:'role_assigned', field:null, oldVal:null, newVal:'Kwabena Boateng → Head Usher', ts:'2026-05-08T16:00:00', severity:'low', note:'' },
+  { id:'AL-009', eventId:'EVT-007', actor:'Abraham Bossman', actorRole:'Super Admin', action:'edited', field:'venue', oldVal:'Main Sanctuary', newVal:'Conference Center', ts:'2026-05-04T14:22:00', severity:'med', note:'' },
+  { id:'AL-010', eventId:'EVT-003', actor:'Abraham Bossman', actorRole:'Super Admin', action:'resource_booked', field:null, oldVal:null, newVal:'Board Room booked for May 19', ts:'2026-05-05T10:00:00', severity:'low', note:'' },
+  { id:'AL-011', eventId:'EVT-008', actor:'Abraham Bossman', actorRole:'Super Admin', action:'status_changed', field:'status', oldVal:'upcoming', newVal:'completed', ts:'2026-04-18T22:00:00', severity:'med', note:'Service concluded successfully' },
+  { id:'AL-012', eventId:'EVT-002', actor:'Kwame Mensah',   actorRole:'Secretary',   action:'exported', field:null, oldVal:null, newVal:'Registrations exported to CSV', ts:'2026-05-06T12:00:00', severity:'low', note:'' },
+];
+
+let eventsPage = 1; const eventsPerPage = 8;
+let regPage = 1;    const regsPerPage = 10;
+let eventsChipFilter = '';
+let regChipFilter = '';
+let activeFilters = { status: new Set(['upcoming','planning','completed','cancelled']), category: new Set(['Worship','Youth','Fellowship','Outreach','Meeting','Convention','Training']) };
+let calMonth = new Date(2026,4,1); // May 2026
+let currentEventsView = 'list';
+let currentDetailId = null;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const catClass = { Worship:'cat-worship', Youth:'cat-youth', Fellowship:'cat-fellowship', Outreach:'cat-outreach', Meeting:'cat-meeting', Convention:'cat-convention', Training:'cat-meeting' };
+const statusMap = { upcoming:'blue', planning:'yellow', completed:'', cancelled:'red' };
+const statusLabel = { upcoming:'Upcoming', planning:'Planning', completed:'Completed', cancelled:'Cancelled' };
+const rsvpMap = { confirmed:'green', pending:'yellow', waitlist:'blue', cancelled:'red' };
+const actionLabel = { created:'Event Created', edited:'Field Edited', cancelled:'Event Cancelled', deleted:'Event Deleted', status_changed:'Status Changed', registration_added:'Registration Added', registration_cancelled:'Registration Cancelled', check_in:'Member Checked In', walk_in_added:'Walk-in Added', role_assigned:'Role Assigned', resource_booked:'Resource Booked', exported:'Data Exported' };
+const actionSeverity = { created:'low', edited:'med', cancelled:'high', deleted:'high', status_changed:'med', registration_added:'low', registration_cancelled:'med', check_in:'low', walk_in_added:'low', role_assigned:'low', resource_booked:'low', exported:'low' };
+const severityColors = { low:'sev-low', med:'sev-med', high:'sev-high' };
+const severityLabel = { low:'Low', med:'Medium', high:'High' };
+
+function fmtDate(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function fmtDateTime(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' · '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+function genId(prefix){ return prefix+'-'+String(Math.floor(Math.random()*90000)+10000); }
+function avatarColor(){ const c=['#004BA0','#1a5fb4','#C60026','#1a7f37','#7c3aed','#9a6700','#1a6fc4']; return c[Math.floor(Math.random()*c.length)]; }
+function initials(n){ return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function getEventName(id){ const e=events.find(x=>x.id===id); return e?e.name:id; }
+
+/* ═══════════════════════════════════════════
+   TOAST SYSTEM (G-38)
+═══════════════════════════════════════════ */
+function showToast(msg, type='success'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<div class="toast-dot"></div>${msg}`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>t.classList.add('show')); });
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),400); },3200);
+}
+
+/* ═══════════════════════════════════════════
+   CONFIRM DIALOG (G-27)
+═══════════════════════════════════════════ */
+function showConfirm(title,body,onConfirm,type='danger',showReason=false){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmBody').textContent=body;
+  document.getElementById('confirmIcon').className='confirm-icon '+type;
+  document.getElementById('confirmReasonWrap').style.display=showReason?'block':'none';
+  document.getElementById('confirmReason').value='';
+  const btn=document.getElementById('confirmBtn');
+  btn.className=type==='danger'?'btn-danger':'btn-warning';
+  btn.textContent=type==='danger'?'Confirm Delete':'Confirm';
+  btn.onclick=()=>{ onConfirm(document.getElementById('confirmReason').value); closeConfirm(); };
+  document.getElementById('confirmOverlay').classList.add('open');
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirm(){
+  document.getElementById('confirmOverlay').classList.remove('open');
+  document.getElementById('confirmModal').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   NAV & TAB ROUTING
+═══════════════════════════════════════════ */
+const tabMap = { overview:'panelOverview', events:'panelEvents', registrations:'panelRegistrations', attendance:'panelAttendance', assignments:'panelAssignments', resources:'panelResources', reports:'panelReports', auditlog:'panelAuditlog' };
+
+function showTab(tab, linkEl){
+  document.querySelectorAll('.evt-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(tabMap[tab]).classList.add('active');
+  syncSubnav(tab);
+  if(linkEl){ document.querySelectorAll('.subnav .sub-link').forEach(l=>l.classList.remove('active')); linkEl.classList.add('active'); }
+  if(tab==='reports') renderReports();
+  if(tab==='auditlog') renderAuditLog();
+  if(tab==='attendance') renderAttendance();
+  if(tab==='assignments') renderAssignments();
+  if(tab==='resources') renderResources();
+}
+function syncSubnav(tab){
+  const names=['overview','events','registrations','attendance','assignments','resources','reports','auditlog'];
+  document.querySelectorAll('.subnav .sub-link').forEach((l,i)=>{ l.classList.toggle('active',names[i]===tab); });
+}
+function setNav(el){ document.querySelectorAll('.topnav .nav-link').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
+function setSidebarActive(el){ document.querySelectorAll('.sidebar-nav-item').forEach(s=>s.classList.remove('active')); el.classList.add('active'); }
+function setBottomNav(el){ document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+
+/* ═══════════════════════════════════════════
+   THEME (G-39 fixed)
+═══════════════════════════════════════════ */
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('toggleIcon').textContent=isDark?'🌙':'☀️';
+  document.getElementById('toggleLabel').textContent=isDark?'Dark':'Light';
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR FILTERS (G-15, G-18)
+═══════════════════════════════════════════ */
+function toggleFilter(labelEl, type, value){
+  const cb=labelEl.querySelector('.filter-checkbox');
+  if(type==='status'){
+    if(activeFilters.status.has(value)){ activeFilters.status.delete(value); cb.classList.remove('checked'); }
+    else { activeFilters.status.add(value); cb.classList.add('checked'); }
+  } else {
+    if(activeFilters.category.has(value)){ activeFilters.category.delete(value); cb.classList.remove('checked'); }
+    else { activeFilters.category.add(value); cb.classList.add('checked'); }
+  }
+  applyFilters();
+}
+function clearStatusFilters(){ activeFilters.status.clear(); document.querySelectorAll('.filter-option').forEach((o,i)=>{ if(i<4) o.querySelector('.filter-checkbox').classList.remove('checked'); }); applyFilters(); }
+function clearCategoryFilters(){ activeFilters.category.clear(); document.querySelectorAll('.filter-option').forEach((o,i)=>{ if(i>=4) o.querySelector('.filter-checkbox').classList.remove('checked'); }); applyFilters(); }
+
+/* ═══════════════════════════════════════════
+   FILTER LOGIC (G-14–G-18, G-33)
+═══════════════════════════════════════════ */
+function getFilteredEvents(){
+  const search=(document.getElementById('eventsSearch')||{value:''}).value.toLowerCase();
+  const dateF=(document.getElementById('eventsDateFilter')||{value:'all'}).value;
+  const catF=(document.getElementById('eventsCategoryFilter')||{value:''}).value;
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  return events.filter(e=>{
+    if(!activeFilters.status.has(e.status)) return false;
+    if(!activeFilters.category.has(e.category)) return false;
+    if(eventsChipFilter){
+      if(eventsChipFilter==='recurring'){ if(e.recurrence==='One-time') return false; }
+      else if(e.status!==eventsChipFilter) return false;
+    }
+    if(search && !e.name.toLowerCase().includes(search) && !e.id.toLowerCase().includes(search)) return false;
+    if(catF && e.category!==catF) return false;
+    if(dateF!=='all'){
+      const ed=new Date(e.date);
+      if(dateF==='year' && ed.getFullYear()!==yr) return false;
+      if(dateF==='month' && (ed.getFullYear()!==yr||ed.getMonth()!==mo)) return false;
+    }
+    return true;
+  });
+}
+
+function applyFilters(){
+  eventsPage=1;
+  renderEventsTable();
+  renderOverview();
+  updateSidebarCounts();
+  if(currentEventsView==='calendar') renderCalendar();
+}
+
+/* ═══════════════════════════════════════════
+   OVERVIEW (live computed)
+═══════════════════════════════════════════ */
+function renderOverview(){
+  const upcoming=events.filter(e=>e.status==='upcoming');
+  const totalReg=registrations.length;
+  const avgAtt=events.filter(e=>e.status==='completed').reduce((a,e)=>a+e.registered,0)||0;
+  const completedCount=events.filter(e=>e.status==='completed').length;
+
+  // KPI strip
+  document.getElementById('kpiStrip').innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total Events (2026)</div><div class="kpi-value">${events.length}</div><div class="kpi-sub">↑ 6 more than last year</div><div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:${Math.min(100,events.length/30*100)}%;background:var(--blue);"></div></div></div>
+    <div class="kpi-card"><div class="kpi-label">Upcoming</div><div class="kpi-value" style="color:var(--blue);">${upcoming.length}</div><div class="kpi-sub">${upcoming.length>0?'Next: '+upcoming.sort((a,b)=>new Date(a.date)-new Date(b.date))[0].name:'No upcoming events'}</div><div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:${Math.min(100,upcoming.length/10*100)}%;background:var(--blue);"></div></div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Registrations</div><div class="kpi-value">${totalReg}</div><div class="kpi-sub">Across ${upcoming.length} upcoming events</div><div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:${Math.min(100,totalReg/200*100)}%;background:var(--green);"></div></div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg. Attendance</div><div class="kpi-value">${completedCount?Math.round(avgAtt/completedCount):0}</div><div class="kpi-sub">↑ 12% vs last quarter</div><div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:80%;background:var(--red);"></div></div></div>`;
+
+  // Upcoming list
+  const upcomingSorted=upcoming.sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,5);
+  document.getElementById('overviewUpcomingList').innerHTML=upcomingSorted.length?upcomingSorted.map(e=>{
+    const d=new Date(e.date);
+    return `<div class="evt-list-item">
+      <div class="evt-date-block"><div class="evt-date-day">${d.getDate()}</div><div class="evt-date-mon">${d.toLocaleString('en',{month:'short'})}</div></div>
+      <div class="evt-list-info">
+        <div class="evt-list-name">${e.name}</div>
+        <div class="evt-list-meta"><svg viewBox="0 0 16 16"><path d="M8 1.5A5 5 0 1 0 8 11.5A5 5 0 0 0 8 1.5z"/><path d="M8 4v4l2.5 1.5"/></svg> ${e.time} <svg viewBox="0 0 16 16"><path d="M13 6.5c0 4-5 8-5 8S3 10.5 3 6.5a5 5 0 0 1 10 0z"/><circle cx="8" cy="6.5" r="1.5"/></svg> ${e.venue} <span class="badge ${statusMap[e.status]}">${statusLabel[e.status]}</span></div>
+      </div>
+      <span class="badge ${catClass[e.category]||'cat-meeting'}" style="flex-shrink:0;">${e.category}</span>
+    </div>`;
+  }).join(''):'<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">No upcoming events</div>';
+
+  // Category stats
+  const cats={};
+  events.forEach(e=>{ cats[e.category]=(cats[e.category]||0)+1; });
+  const maxCat=Math.max(...Object.values(cats),1);
+  document.getElementById('overviewCategoryStats').innerHTML=Object.entries(cats).map(([c,n])=>`
+    <div class="mini-stat-row"><span class="mini-stat-label">${c}</span><span class="mini-stat-val">${n}</span></div>`).join('');
+
+  // Fill rate
+  const evtsWithCap=events.filter(e=>e.capacity&&e.registered).sort((a,b)=>b.registered/b.capacity-a.registered/a.capacity).slice(0,4);
+  document.getElementById('overviewFillRate').innerHTML=evtsWithCap.map(e=>{
+    const pct=Math.round(e.registered/e.capacity*100);
+    const colors={'Worship':'var(--blue)','Youth':'var(--badge-purple-color)','Fellowship':'var(--green)','Outreach':'#FBBF24','Convention':'var(--red)'};
+    return `<div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><span>${e.name}</span><span>${pct}%</span></div><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%;background:${colors[e.category]||'var(--blue)'};"></div></div></div>`;
+  }).join('');
+
+  // Quick stats sidebar
+  const statuses=['upcoming','planning','completed','cancelled'];
+  const maxStat=Math.max(...statuses.map(s=>events.filter(e=>e.status===s).length),1);
+  const statColors={upcoming:'var(--blue)',planning:'#FBBF24',completed:'var(--green)',cancelled:'var(--red)'};
+  document.getElementById('quickStats').innerHTML=statuses.map(s=>{
+    const n=events.filter(e=>e.status===s).length;
+    return `<div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--text-secondary);">${statusLabel[s]}</span><span style="font-size:12px;font-weight:600;color:var(--text-primary);">${n}</span></div><div class="stat-bar"><div class="stat-fill" style="width:${Math.round(n/maxStat*100)}%;background:${statColors[s]};"></div></div></div>`;
+  }).join('');
+}
+
+function updateSidebarCounts(){
+  document.getElementById('sidebarEventsCount').textContent=getFilteredEvents().length;
+  document.getElementById('sidebarRegCount').textContent=registrations.length;
+  // update filter option counts
+  const statusOpts=['upcoming','planning','completed','cancelled'];
+  document.querySelectorAll('.filter-option').forEach((o,i)=>{
+    const countEl=o.querySelector('.filter-option-count');
+    if(!countEl) return;
+    if(i<4){ countEl.textContent=events.filter(e=>e.status===statusOpts[i]).length; }
+    else {
+      const cats=['Worship','Youth','Fellowship','Outreach','Meeting','Convention'];
+      countEl.textContent=events.filter(e=>e.category===cats[i-4]).length;
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════
+   EVENTS TABLE (G-14, G-16, G-21, G-25, G-26, G-32)
+═══════════════════════════════════════════ */
+function setEventsChip(el, val){
+  document.querySelectorAll('#panelEvents .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  eventsChipFilter=val;
+  eventsPage=1;
+  renderEventsTable();
+}
+
+function renderEventsTable(){
+  const filtered=getFilteredEvents();
+  const total=filtered.length;
+  const totalPages=Math.ceil(total/eventsPerPage);
+  if(eventsPage>totalPages) eventsPage=1;
+  const slice=filtered.slice((eventsPage-1)*eventsPerPage, eventsPage*eventsPerPage);
+  const tbody=document.getElementById('eventsTableBody');
+  const empty=document.getElementById('eventsEmptyState');
+  if(slice.length===0){ tbody.innerHTML=''; empty.style.display='block'; document.getElementById('eventsPageInfo').textContent='No events'; }
+  else { empty.style.display='none';
+    tbody.innerHTML=slice.map(e=>`
+      <tr style="cursor:pointer;" onclick="openDetail('${e.id}')">
+        <td style="padding-left:16px;"><input type="checkbox" class="eventRow" value="${e.id}" onclick="event.stopPropagation();updateBulkActions()"></td>
+        <td><div class="evt-name-cell">${e.name}</div><div class="evt-sub-cell">${e.id} · ${e.recurrence}</div></td>
+        <td><div style="font-size:13px;color:var(--text-primary);">${fmtDate(e.date)}</div><div style="font-size:11px;color:var(--text-muted);">${e.time}</div></td>
+        <td><span class="cat-pill ${catClass[e.category]||'cat-meeting'}">${e.category}</span></td>
+        <td><div style="font-size:13px;color:var(--text-primary);">${e.registered} / ${e.capacity}</div><div class="progress-bar-wrap" style="margin-top:4px;"><div class="progress-bar-fill" style="width:${Math.round(e.registered/e.capacity*100)}%;"></div></div></td>
+        <td><span class="badge ${statusMap[e.status]}">${statusLabel[e.status]}</span></td>
+        <td>
+          <div class="actions-cell">
+            <button class="tbl-btn" title="View" onclick="event.stopPropagation();openDetail('${e.id}')"><svg viewBox="0 0 16 16"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg></button>
+            <button class="tbl-btn" title="Edit" onclick="event.stopPropagation();openEventModal('${e.id}')"><svg viewBox="0 0 16 16"><path d="M11.5 2.5a1.5 1.5 0 0 1 2 2L5 13H2v-3L11.5 2.5z"/></svg></button>
+            <button class="tbl-btn" title="Duplicate" onclick="event.stopPropagation();duplicateEvent('${e.id}')"><svg viewBox="0 0 16 16"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2"/></svg></button>
+            <button class="tbl-btn" title="Delete" onclick="event.stopPropagation();deleteEvent('${e.id}')"><svg viewBox="0 0 16 16"><polyline points="2 4 4 4 14 4"/><path d="M5 4V2h6v2"/><path d="M6 7v5M10 7v5"/><path d="M3.5 4l1 9h7l1-9"/></svg></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    document.getElementById('eventsPageInfo').textContent=`Showing ${(eventsPage-1)*eventsPerPage+1}–${Math.min(eventsPage*eventsPerPage,total)} of ${total} events`;
+  }
+  // Pagination
+  renderPagination('eventsPagination', eventsPage, totalPages, (p)=>{ eventsPage=p; renderEventsTable(); });
+}
+
+function renderPagination(containerId, current, total, cb){
+  const c=document.getElementById(containerId);
+  if(!c||total<=1){if(c)c.innerHTML='';return;}
+  let html=`<div class="page-btn ${current===1?'disabled':''}" onclick="${current>1?`(${cb.toString()})(${current-1})`:''}">←</div>`;
+  for(let i=1;i<=Math.min(total,5);i++) html+=`<div class="page-btn ${i===current?'active':''}" onclick="(${cb.toString()})(${i})">${i}</div>`;
+  html+=`<div class="page-btn ${current===total?'disabled':''}" onclick="${current<total?`(${cb.toString()})(${current+1})`:''}">→</div>`;
+  c.innerHTML=html;
+}
+
+/* BULK ACTIONS (G-32) */
+function toggleSelectAll(masterCb, cls){
+  document.querySelectorAll('.'+cls).forEach(cb=>cb.checked=masterCb.checked);
+  updateBulkActions();
+}
+function updateBulkActions(){
+  const checked=document.querySelectorAll('.eventRow:checked').length;
+  const bar=document.getElementById('bulkActions');
+  if(bar) bar.style.display=checked>0?'flex':'none';
+}
+function bulkExport(){
+  const ids=[...document.querySelectorAll('.eventRow:checked')].map(c=>c.value);
+  const data=events.filter(e=>ids.includes(e.id));
+  downloadCSV(data.map(e=>([e.id,e.name,e.category,e.status,fmtDate(e.date),e.registered,e.capacity])),['ID','Name','Category','Status','Date','Registered','Capacity'],'events_export');
+  showToast(`Exported ${data.length} event(s) to CSV`);
+  logAudit('exported',null,'Abraham Bossman','Super Admin',null,null,`${data.length} events exported`,'low');
+}
+function bulkDelete(){
+  const ids=[...document.querySelectorAll('.eventRow:checked')].map(c=>c.value);
+  showConfirm(`Delete ${ids.length} event(s)?`,`This will permanently delete ${ids.length} selected event(s). This cannot be undone.`,()=>{
+    ids.forEach(id=>{ events=events.filter(e=>e.id!==id); logAudit('deleted',id,'Abraham Bossman','Super Admin',null,null,'','high'); });
+    showToast(`Deleted ${ids.length} event(s)`,'error');
+    applyFilters();
+  },'danger');
+}
+
+/* ═══════════════════════════════════════════
+   CALENDAR VIEW (G-22)
+═══════════════════════════════════════════ */
+function setEventsView(view){
+  currentEventsView=view;
+  document.getElementById('eventsListView').style.display=view==='list'?'block':'none';
+  document.getElementById('eventsCalView').style.display=view==='calendar'?'block':'none';
+  document.getElementById('listViewBtn').classList.toggle('active',view==='list');
+  document.getElementById('calViewBtn').classList.toggle('active',view==='calendar');
+  if(view==='calendar') renderCalendar();
+}
+function calNav(dir){ calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+dir,1); renderCalendar(); }
+function renderCalendar(){
+  const yr=calMonth.getFullYear(), mo=calMonth.getMonth();
+  document.getElementById('calTitle').textContent=calMonth.toLocaleString('en',{month:'long',year:'numeric'});
+  const firstDay=new Date(yr,mo,1).getDay();
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  const today=new Date();
+  const catColors={Worship:'var(--badge-blue-bg)',Youth:'var(--badge-purple-bg)',Fellowship:'var(--badge-green-bg)',Outreach:'var(--badge-yellow-bg)',Meeting:'var(--badge-bg)',Convention:'var(--badge-red-bg)'};
+  const catText={Worship:'var(--badge-blue-color)',Youth:'var(--badge-purple-color)',Fellowship:'var(--badge-green-color)',Outreach:'var(--badge-yellow-color)',Meeting:'var(--badge-color)',Convention:'var(--badge-red-color)'};
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html=days.map(d=>`<div class="cal-header-cell">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++) html+=`<div class="cal-cell other-month"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=today.getFullYear()===yr&&today.getMonth()===mo&&today.getDate()===d;
+    const dayEvents=events.filter(e=>e.date===dateStr);
+    html+=`<div class="cal-cell ${isToday?'today':''}">
+      <div class="cal-date">${d}</div>
+      ${dayEvents.map(e=>`<div class="cal-evt-dot" style="background:${catColors[e.category]||'var(--badge-bg)'};color:${catText[e.category]||'var(--badge-color)'};" onclick="event.stopPropagation();openDetail('${e.id}')">${e.name}</div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════
+   EVENT MODAL — Create & Edit (G-01–G-03)
+═══════════════════════════════════════════ */
+function openEventModal(editId=null){
+  document.getElementById('fTitleErr').style.display='none';
+  document.getElementById('fCategoryErr').style.display='none';
+  document.getElementById('fStartDateErr').style.display='none';
+  if(editId){
+    const e=events.find(x=>x.id===editId);
+    if(!e) return;
+    document.getElementById('modalTitle').textContent='Edit Event';
+    document.getElementById('modalSubmitLabel').textContent='Save Changes';
+    document.getElementById('modalEditId').value=editId;
+    document.getElementById('fTitle').value=e.name;
+    document.getElementById('fDesc').value=e.description||'';
+    document.getElementById('fCategory').value=e.category;
+    document.getElementById('fStatus').value=e.status;
+    document.getElementById('fStartDate').value=e.date;
+    document.getElementById('fStartTime').value='';
+    document.getElementById('fRecurrence').value=e.recurrence;
+    document.getElementById('fCapacity').value=e.capacity;
+    document.getElementById('fVenue').value=e.venue||'';
+  } else {
+    document.getElementById('modalTitle').textContent='Create New Event';
+    document.getElementById('modalSubmitLabel').textContent='Create Event';
+    document.getElementById('modalEditId').value='';
+    ['fTitle','fDesc','fStartDate','fEndDate','fStartTime','fEndTime','fCapacity','fCustomLocation','fRegDeadline'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fCategory').value='';
+    document.getElementById('fStatus').value='upcoming';
+    document.getElementById('fRecurrence').value='One-time';
+    document.getElementById('fVenue').value='';
+    document.getElementById('fRegType').value='Open (anyone)';
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('eventModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeEventModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('eventModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function validateEventForm(){
+  let ok=true;
+  if(!document.getElementById('fTitle').value.trim()){ document.getElementById('fTitleErr').style.display='block'; ok=false; } else document.getElementById('fTitleErr').style.display='none';
+  if(!document.getElementById('fCategory').value){ document.getElementById('fCategoryErr').style.display='block'; ok=false; } else document.getElementById('fCategoryErr').style.display='none';
+  if(!document.getElementById('fStartDate').value){ document.getElementById('fStartDateErr').style.display='block'; ok=false; } else document.getElementById('fStartDateErr').style.display='none';
+  return ok;
+}
+function submitEventForm(){
+  if(!validateEventForm()) return;
+  const editId=document.getElementById('modalEditId').value;
+  const data={ name:document.getElementById('fTitle').value.trim(), description:document.getElementById('fDesc').value.trim(), category:document.getElementById('fCategory').value, status:document.getElementById('fStatus').value, date:document.getElementById('fStartDate').value, time:(document.getElementById('fStartTime').value||'TBD')+(document.getElementById('fEndTime').value?' – '+document.getElementById('fEndTime').value:''), recurrence:document.getElementById('fRecurrence').value, capacity:parseInt(document.getElementById('fCapacity').value)||200, registered:0, venue:document.getElementById('fVenue').value||document.getElementById('fCustomLocation').value||'TBD' };
+  if(editId){
+    const idx=events.findIndex(e=>e.id===editId);
+    const old=events[idx];
+    const changed=Object.keys(data).filter(k=>data[k]!==old[k]);
+    events[idx]={...old,...data};
+    changed.forEach(k=>logAudit('edited',editId,'Abraham Bossman','Super Admin',k,String(old[k]),String(data[k]),'med'));
+    showToast('Event updated successfully');
+  } else {
+    const newId=genId('EVT');
+    events.push({id:newId,...data});
+    logAudit('created',newId,'Abraham Bossman','Super Admin',null,null,null,'low');
+    showToast('Event created successfully');
+  }
+  closeEventModal();
+  applyFilters();
+  renderOverview();
+  populateEventDropdowns();
+}
+function saveEventDraft(){
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){ document.getElementById('fTitleErr').style.display='block'; return; }
+  const newId=genId('DRAFT');
+  events.push({ id:newId, name:title+' (Draft)', description:document.getElementById('fDesc').value.trim(), category:document.getElementById('fCategory').value||'Meeting', status:'planning', date:document.getElementById('fStartDate').value||new Date().toISOString().split('T')[0], time:'TBD', recurrence:'One-time', capacity:parseInt(document.getElementById('fCapacity').value)||100, registered:0, venue:'TBD' });
+  logAudit('created',newId,'Abraham Bossman','Super Admin',null,null,'Saved as draft','low');
+  showToast('Draft saved','info');
+  closeEventModal();
+  applyFilters();
+  renderOverview();
+}
+
+/* DELETE (G-04) */
+function deleteEvent(id){
+  const e=events.find(x=>x.id===id);
+  showConfirm(`Delete "${e.name}"?`,`This will permanently remove this event and all its registrations. This cannot be undone.`,(reason)=>{
+    events=events.filter(x=>x.id!==id);
+    registrations=registrations.filter(r=>r.eventId!==id);
+    logAudit('deleted',id,'Abraham Bossman','Super Admin',null,null,reason,'high');
+    showToast(`"${e.name}" deleted`,'error');
+    applyFilters(); renderOverview(); populateEventDropdowns();
+  },'danger',true);
+}
+
+/* DUPLICATE (G-31) */
+function duplicateEvent(id){
+  const e=events.find(x=>x.id===id);
+  const newId=genId('EVT');
+  events.push({...e,id:newId,name:e.name+' (Copy)',registered:0,status:'planning'});
+  logAudit('created',newId,'Abraham Bossman','Super Admin',null,null,'Duplicated from '+id,'low');
+  showToast('Event duplicated');
+  applyFilters(); renderOverview();
+}
+
+/* ═══════════════════════════════════════════
+   REGISTRATIONS (G-09, G-16, G-30)
+═══════════════════════════════════════════ */
+function setRegChip(el, val){
+  document.querySelectorAll('#panelRegistrations .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  regChipFilter=val;
+  regPage=1;
+  renderRegistrationsTable();
+}
+function renderRegistrationsTable(){
+  const search=document.getElementById('regSearch').value.toLowerCase();
+  const evtFilter=document.getElementById('regEventFilter').value;
+  const filtered=registrations.filter(r=>{
+    if(regChipFilter && r.rsvp!==regChipFilter) return false;
+    if(evtFilter && r.eventId!==evtFilter) return false;
+    if(search && !r.name.toLowerCase().includes(search) && !getEventName(r.eventId).toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const total=filtered.length;
+  const totalPages=Math.ceil(total/regsPerPage);
+  if(regPage>totalPages) regPage=1;
+  const slice=filtered.slice((regPage-1)*regsPerPage, regPage*regsPerPage);
+  const tbody=document.getElementById('regTableBody');
+  const empty=document.getElementById('regEmptyState');
+  if(slice.length===0){ tbody.innerHTML=''; empty.style.display='block'; document.getElementById('regPageInfo').textContent='No registrations'; }
+  else {
+    empty.style.display='none';
+    tbody.innerHTML=slice.map(r=>`
+      <tr>
+        <td><div class="member-cell"><div class="mini-avatar" style="background:${r.color}">${r.initials}</div><div><div class="member-name-cell">${r.name}</div><div class="member-id-cell">${r.memberId}</div></div></div></td>
+        <td style="font-size:13px;color:var(--text-primary);">${getEventName(r.eventId)}</td>
+        <td style="font-size:12px;color:var(--text-secondary);">${fmtDate(r.date)}</td>
+        <td><span class="badge">${r.type}</span></td>
+        <td><span class="badge ${rsvpMap[r.rsvp]}">${r.rsvp.charAt(0).toUpperCase()+r.rsvp.slice(1)}</span></td>
+        <td><div class="actions-cell">
+          <button class="tbl-btn" title="View" onclick="viewRegistration('${r.id}')"><svg viewBox="0 0 16 16"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg></button>
+          <button class="tbl-btn" title="Cancel RSVP" onclick="cancelRsvp('${r.id}')"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+        </div></td>
+      </tr>`).join('');
+    document.getElementById('regPageInfo').textContent=`Showing ${(regPage-1)*regsPerPage+1}–${Math.min(regPage*regsPerPage,total)} of ${total} registrations`;
+  }
+  renderPagination('regPagination', regPage, Math.ceil(total/regsPerPage), (p)=>{ regPage=p; renderRegistrationsTable(); });
+  document.getElementById('sidebarRegCount').textContent=registrations.length;
+}
+
+function viewRegistration(id){
+  const r=registrations.find(x=>x.id===id);
+  if(!r) return;
+  showToast(`${r.name} — ${getEventName(r.eventId)} · ${r.rsvp}`,'info');
+}
+function cancelRsvp(id){
+  const r=registrations.find(x=>x.id===id);
+  showConfirm(`Cancel RSVP for ${r.name}?`,`This will cancel their registration for "${getEventName(r.eventId)}".`,(reason)=>{
+    r.rsvp='cancelled';
+    logAudit('registration_cancelled',r.eventId,'Abraham Bossman','Super Admin',null,null,`${r.name} RSVP cancelled${reason?': '+reason:''}`, 'med');
+    showToast(`RSVP cancelled for ${r.name}`,'error');
+    renderRegistrationsTable();
+  },'danger',true);
+}
+
+function openAddRegModal(){
+  document.getElementById('regName').value='';
+  document.getElementById('regMemberId').value='';
+  document.getElementById('addRegOverlay').classList.add('open');
+  document.getElementById('addRegModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAddRegModal(){
+  document.getElementById('addRegOverlay').classList.remove('open');
+  document.getElementById('addRegModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function submitAddReg(){
+  const name=document.getElementById('regName').value.trim();
+  if(!name){ showToast('Name is required','error'); return; }
+  const evtId=document.getElementById('regEventSel').value;
+  if(!evtId){ showToast('Select an event','error'); return; }
+  const r={ id:genId('REG'), memberId:document.getElementById('regMemberId').value||'CACI-ACC-?????', name, initials:initials(name), color:avatarColor(), eventId:evtId, date:new Date().toISOString().split('T')[0], type:document.getElementById('regType').value, rsvp:document.getElementById('regRsvp').value };
+  registrations.push(r);
+  logAudit('registration_added',evtId,'Abraham Bossman','Super Admin',null,null,`${name} registered`,'low');
+  showToast(`${name} registered for ${getEventName(evtId)}`);
+  closeAddRegModal();
+  renderRegistrationsTable();
+}
+
+function exportRegistrations(){
+  const data=registrations.map(r=>([r.id,r.name,r.memberId,getEventName(r.eventId),r.type,r.rsvp,fmtDate(r.date)]));
+  downloadCSV(data,['ID','Name','Member ID','Event','Type','RSVP','Date'],'registrations_export');
+  logAudit('exported',null,'Abraham Bossman','Super Admin',null,null,'Registrations exported','low');
+  showToast('Registrations exported to CSV');
+}
+
+/* ═══════════════════════════════════════════
+   ATTENDANCE (G-10, G-19, G-42)
+═══════════════════════════════════════════ */
+function renderAttendance(){
+  const sel=document.getElementById('attendanceEventSel');
+  const evtId=sel.value;
+  const search=document.getElementById('attendanceSearch').value.toLowerCase();
+  const data=attendanceData[evtId]||[];
+  const filtered=search?data.filter(m=>m.name.toLowerCase().includes(search)):data;
+  const checkedIn=filtered.filter(m=>m.checked).length;
+  const walkins=filtered.filter(m=>m.walkin).length;
+  const total=filtered.length;
+  document.getElementById('attendanceListHeader').innerHTML=`Attendees <span style="font-size:12px;font-weight:400;color:var(--text-muted);">(${total} total · ${checkedIn} checked in)</span>`;
+  const list=document.getElementById('checkinList');
+  const empty=document.getElementById('attendanceEmpty');
+  if(filtered.length===0){ list.innerHTML=''; empty.style.display='block'; }
+  else {
+    empty.style.display='none';
+    list.innerHTML=filtered.map((m,i)=>`
+      <div class="checkin-row">
+        <div class="mini-avatar" style="background:${m.color};width:32px;height:32px;font-size:11px;">${m.initials}</div>
+        <div class="checkin-info">
+          <div class="checkin-name">${m.name}${m.walkin?' <span class="badge blue" style="font-size:9px;">Walk-in</span>':''}</div>
+          <div class="checkin-meta">${m.role}</div>
+        </div>
+        <div class="check-toggle ${m.checked?'checked':''}" onclick="toggleCheckin('${evtId}',${i})">
+          <svg viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 4"/></svg>
+        </div>
+      </div>`).join('');
+  }
+  // Update summary (G-42)
+  document.getElementById('summaryCheckins').textContent=checkedIn;
+  document.getElementById('summaryRegistered').textContent=total;
+  document.getElementById('summaryWalkins').textContent=walkins;
+  document.getElementById('summaryNoShows').textContent=total-checkedIn;
+  const fillPct=total>0?Math.round(checkedIn/total*100):0;
+  document.getElementById('summaryFillRate').textContent=fillPct+'%';
+  document.getElementById('summaryFillBar').style.width=fillPct+'%';
+  // By role
+  const roles={};
+  filtered.filter(m=>m.checked).forEach(m=>{ roles[m.role]=(roles[m.role]||0)+1; });
+  document.getElementById('attendanceByRole').innerHTML=Object.entries(roles).map(([r,n])=>`<div class="mini-stat-row"><span class="mini-stat-label">${r}</span><span class="mini-stat-val">${n}</span></div>`).join('')||'<div style="padding:8px;color:var(--text-muted);font-size:13px;">No check-ins yet</div>';
+}
+
+function toggleCheckin(evtId, idx){
+  if(!attendanceData[evtId]) return;
+  const m=attendanceData[evtId][idx];
+  m.checked=!m.checked;
+  logAudit('check_in',evtId,'Abraham Bossman','Super Admin',null,null,m.name+(m.checked?' checked in':' unchecked'),'low');
+  renderAttendance();
+  showToast(m.name+(m.checked?' checked in ✓':' unchecked'),'info');
+}
+
+function openWalkinModal(){
+  document.getElementById('walkinName').value='';
+  document.getElementById('walkinOverlay').classList.add('open');
+  document.getElementById('walkinModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeWalkinModal(){
+  document.getElementById('walkinOverlay').classList.remove('open');
+  document.getElementById('walkinModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function submitWalkin(){
+  const name=document.getElementById('walkinName').value.trim();
+  if(!name){ showToast('Name is required','error'); return; }
+  const evtId=document.getElementById('attendanceEventSel').value;
+  if(!attendanceData[evtId]) attendanceData[evtId]=[];
+  attendanceData[evtId].push({ name, initials:initials(name), color:avatarColor(), role:document.getElementById('walkinRole').value, checked:true, walkin:true });
+  logAudit('walk_in_added',evtId,'Abraham Bossman','Super Admin',null,null,name+' added as walk-in','low');
+  showToast(`${name} checked in as walk-in`);
+  closeWalkinModal();
+  renderAttendance();
+}
+
+function exportAttendance(){
+  const evtId=document.getElementById('attendanceEventSel').value;
+  const data=(attendanceData[evtId]||[]).map(m=>([m.name,m.role,m.checked?'Checked In':'Absent',m.walkin?'Walk-in':'Registered']));
+  downloadCSV(data,['Name','Role','Status','Type'],'attendance_'+evtId);
+  logAudit('exported',evtId,'Abraham Bossman','Super Admin',null,null,'Attendance exported','low');
+  showToast('Attendance exported to CSV');
+}
+
+/* ═══════════════════════════════════════════
+   ASSIGNMENTS (G-06, G-07, G-11, G-20)
+═══════════════════════════════════════════ */
+function renderAssignments(){
+  const evtId=document.getElementById('assignEventSel').value;
+  const data=assignmentData[evtId]||{ushers:[],choir:[],techTeam:[]};
+  const sections=[{key:'ushers',label:'Ushers'},{key:'choir',label:'Choir'},{key:'techTeam',label:'Technical Team'}];
+  document.getElementById('assignmentsCard').innerHTML=sections.map((s,si)=>`
+    <div class="role-section" ${si>0?'style="margin-top:16px;"':''}>
+      <div class="role-section-header">
+        <div class="role-section-title">${s.label} <span style="font-size:12px;font-weight:400;color:var(--text-muted);">— ${(data[s.key]||[]).length} assigned</span></div>
+        <button class="btn-outline" style="font-size:11px;padding:3px 9px;" onclick="openAssignModalForGroup('${evtId}','${s.key}')">+ Add</button>
+      </div>
+      <div class="role-cards">
+        ${(data[s.key]||[]).length?data[s.key].map((p,pi)=>`
+          <div class="role-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div class="mini-avatar" style="background:${p.color};width:28px;height:28px;font-size:10px;">${p.initials}</div>
+              <div><div class="role-card-name">${p.name}</div><div class="role-card-role">${p.role}</div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="confirm-badge ${p.confirm}">
+                ${p.confirm==='confirmed'?'<svg viewBox="0 0 16 16" width="11" height="11" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 4"/></svg>':p.confirm==='pending'?'<svg viewBox="0 0 16 16" width="11" height="11" stroke="currentColor" fill="none" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1"/></svg>':'<svg viewBox="0 0 16 16" width="11" height="11" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M3 3l10 10M13 3L3 13"/></svg>'}
+                ${p.confirm.charAt(0).toUpperCase()+p.confirm.slice(1)}
+              </div>
+              <button class="tbl-btn" title="Remove" onclick="removeAssignment('${evtId}','${s.key}',${pi})"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+            </div>
+          </div>`).join(''):
+          `<div style="grid-column:1/-1;padding:16px;text-align:center;color:var(--text-muted);font-size:12px;background:var(--bg-card2);border-radius:6px;border:1px dashed var(--border);">No ${s.label.toLowerCase()} assigned</div>`}
+      </div>
+    </div>
+    ${si<sections.length-1?'<div class="filter-divider" style="margin:16px 0;"></div>':''}`).join('');
+}
+function removeAssignment(evtId,group,idx){
+  const p=assignmentData[evtId][group][idx];
+  showConfirm(`Remove ${p.name}?`,`Remove ${p.name} from ${group} for this event?`,(reason)=>{
+    assignmentData[evtId][group].splice(idx,1);
+    logAudit('role_assigned',evtId,'Abraham Bossman','Super Admin',null,p.name+' removed from '+group,null,'med');
+    showToast(`${p.name} removed`,'error');
+    renderAssignments();
+  },'danger');
+}
+function openAssignModal(){ document.getElementById('assignName').value=''; document.getElementById('assignMemberId').value=''; document.getElementById('assignRole').value=''; document.getElementById('assignOverlay').classList.add('open'); document.getElementById('assignModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function openAssignModalForGroup(evtId,group){ document.getElementById('assignGroup').value=group; openAssignModal(); }
+function closeAssignModal(){ document.getElementById('assignOverlay').classList.remove('open'); document.getElementById('assignModal').classList.remove('open'); document.body.style.overflow=''; }
+function submitAssign(){
+  const name=document.getElementById('assignName').value.trim();
+  if(!name){ showToast('Name is required','error'); return; }
+  const evtId=document.getElementById('assignEventSel').value;
+  const group=document.getElementById('assignGroup').value;
+  if(!assignmentData[evtId]) assignmentData[evtId]={ushers:[],choir:[],techTeam:[]};
+  if(!assignmentData[evtId][group]) assignmentData[evtId][group]=[];
+  const p={ name, initials:initials(name), color:avatarColor(), role:document.getElementById('assignRole').value||group, confirm:'pending' };
+  assignmentData[evtId][group].push(p);
+  logAudit('role_assigned',evtId,'Abraham Bossman','Super Admin',null,null,`${name} assigned to ${group}`,'low');
+  showToast(`${name} assigned to ${group}`);
+  closeAssignModal();
+  renderAssignments();
+}
+function notifyAllAssigned(){
+  const evtId=document.getElementById('assignEventSel').value;
+  const data=assignmentData[evtId]||{ushers:[],choir:[],techTeam:[]};
+  const all=[...data.ushers,...data.choir,...data.techTeam];
+  if(!all.length){ showToast('No assignments to notify','error'); return; }
+  showConfirm(`Notify ${all.length} assigned member(s)?`,`This will send notifications to all assigned Ushers, Choir, and Technical Team for this event.`,(reason)=>{
+    logAudit('exported',evtId,'Abraham Bossman','Super Admin',null,null,`Notifications sent to ${all.length} members`,'low');
+    showToast(`Notifications sent to ${all.length} member(s)`);
+  },'warning');
+}
+
+/* ═══════════════════════════════════════════
+   RESOURCES (G-08, G-28)
+═══════════════════════════════════════════ */
+function renderResources(){
+  const search=document.getElementById('resourceSearch').value.toLowerCase();
+  const typeF=document.getElementById('resourceTypeFilter').value;
+  const filtered=resources.filter(r=>{
+    if(typeF && r.type!==typeF) return false;
+    if(search && !r.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const venues=filtered.filter(r=>r.type==='venue');
+  const equipment=filtered.filter(r=>r.type==='equipment');
+  const statusBadge={available:'<span class="badge green">Available</span>',booked:'<span class="badge yellow">Booked</span>',inuse:'<span class="badge red">In Use</span>'};
+  const renderCards=(arr)=>arr.map(r=>`
+    <div class="resource-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="resource-name">${r.name}</div>
+        ${statusBadge[r.status]||''}
+      </div>
+      <div class="resource-type">${r.capacity!=='-'?'Capacity: '+r.capacity+' · ':''} ${r.typeLabel}</div>
+      <div class="resource-bookings">${r.bookings.map(b=>`<div class="resource-booking-row"><span class="resource-booking-event">${b.event}</span><span class="resource-booking-time">${b.time}</span></div>`).join('')}</div>
+    </div>`).join('');
+  let html='';
+  if(venues.length){ html+=`<div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Rooms & Venues</div><div class="resource-grid" style="margin-bottom:20px;">${renderCards(venues)}</div>`; }
+  if(equipment.length){ html+=`<div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Equipment</div><div class="resource-grid">${renderCards(equipment)}</div>`; }
+  if(!filtered.length) html=`<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="empty-title">No resources found</div><div class="empty-sub">Try a different search or type filter.</div></div>`;
+  document.getElementById('resourcesContent').innerHTML=html;
+}
+function openBookResourceModal(){
+  document.getElementById('bookResDate').value='';
+  document.getElementById('bookResTime').value='';
+  document.getElementById('bookResName').value='';
+  document.getElementById('bookResOverlay').classList.add('open');
+  document.getElementById('bookResModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeBookResourceModal(){ document.getElementById('bookResOverlay').classList.remove('open'); document.getElementById('bookResModal').classList.remove('open'); document.body.style.overflow=''; }
+function submitBookResource(){
+  const res=document.getElementById('bookResName').value;
+  const evtId=document.getElementById('bookResEvent').value;
+  if(!res||!evtId){ showToast('Select a resource and event','error'); return; }
+  const r=resources.find(x=>x.name===res);
+  if(r){ r.bookings.push({event:getEventName(evtId),time:document.getElementById('bookResTime').value||'TBD'}); r.status='booked'; }
+  logAudit('resource_booked',evtId,'Abraham Bossman','Super Admin',null,null,`${res} booked for ${getEventName(evtId)}`,'low');
+  showToast(`${res} booked for ${getEventName(evtId)}`);
+  closeBookResourceModal();
+  renderResources();
+}
+
+/* ═══════════════════════════════════════════
+   REPORTS (G-23, G-34–G-37)
+═══════════════════════════════════════════ */
+function renderReports(){
+  const range=document.getElementById('reportDateRange').value;
+  const now=new Date(); const yr=now.getFullYear(); const mo=now.getMonth();
+  const filtered=events.filter(e=>{
+    if(range==='all') return true;
+    const d=new Date(e.date);
+    if(range==='year') return d.getFullYear()===yr;
+    if(range==='month') return d.getFullYear()===yr&&d.getMonth()===mo;
+    if(range==='quarter'){ const q=new Date(); q.setMonth(q.getMonth()-3); return d>=q; }
+    return true;
+  });
+  // KPIs
+  const totalReg=registrations.filter(r=>filtered.find(e=>e.id===r.eventId)).length;
+  const avgFill=filtered.length?Math.round(filtered.reduce((a,e)=>a+(e.registered/e.capacity*100),0)/filtered.length):0;
+  document.getElementById('reportKpis').innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total Events</div><div class="kpi-value">${filtered.length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Registrations</div><div class="kpi-value">${totalReg}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg Fill Rate</div><div class="kpi-value">${avgFill}%</div></div>
+    <div class="kpi-card"><div class="kpi-label">Completed Events</div><div class="kpi-value">${filtered.filter(e=>e.status==='completed').length}</div></div>`;
+
+  // Category chart
+  const cats={};
+  filtered.forEach(e=>cats[e.category]=(cats[e.category]||0)+1);
+  const maxCat=Math.max(...Object.values(cats),1);
+  const catColors={Worship:'var(--blue)',Youth:'var(--badge-purple-color)',Fellowship:'var(--green)',Outreach:'#FBBF24',Meeting:'var(--text-muted)',Convention:'var(--red)'};
+  document.getElementById('reportCategoryChart').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`
+    <div class="report-bar-row"><div class="report-bar-label">${c}</div><div class="report-bar-track"><div class="report-bar-fill" style="width:${Math.round(n/maxCat*100)}%;background:${catColors[c]||'var(--blue)'};"></div></div><div class="report-bar-val">${n}</div></div>`).join('');
+
+  // Status chart
+  const statuses={upcoming:0,planning:0,completed:0,cancelled:0};
+  filtered.forEach(e=>statuses[e.status]=(statuses[e.status]||0)+1);
+  const maxStat=Math.max(...Object.values(statuses),1);
+  const statColors2={upcoming:'var(--blue)',planning:'#FBBF24',completed:'var(--green)',cancelled:'var(--red)'};
+  document.getElementById('reportStatusChart').innerHTML=Object.entries(statuses).map(([s,n])=>`
+    <div class="report-bar-row"><div class="report-bar-label">${statusLabel[s]}</div><div class="report-bar-track"><div class="report-bar-fill" style="width:${Math.round(n/maxStat*100)}%;background:${statColors2[s]};"></div></div><div class="report-bar-val">${n}</div></div>`).join('');
+
+  // Attendance trend (registered per event sorted by date)
+  const trendEvts=filtered.filter(e=>e.registered>0).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(-8);
+  const maxReg=Math.max(...trendEvts.map(e=>e.registered),1);
+  document.getElementById('reportTrend').innerHTML=trendEvts.map(e=>`
+    <div class="trend-col">
+      <div class="trend-val">${e.registered}</div>
+      <div class="trend-bar" style="height:${Math.round(e.registered/maxReg*60)}px;" title="${e.name}: ${e.registered}"></div>
+      <div class="trend-label">${new Date(e.date).toLocaleString('en',{month:'short',day:'numeric'})}</div>
+    </div>`).join('');
+
+  // Fill rate chart
+  const fillEvts=filtered.filter(e=>e.capacity).sort((a,b)=>b.registered/b.capacity-a.registered/a.capacity).slice(0,6);
+  document.getElementById('reportFillRate').innerHTML=fillEvts.map(e=>{
+    const pct=Math.round(e.registered/e.capacity*100);
+    const col=pct>80?'var(--green)':pct>50?'var(--blue)':'#FBBF24';
+    return `<div class="report-bar-row"><div class="report-bar-label" style="width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</div><div class="report-bar-track"><div class="report-bar-fill" style="width:${pct}%;background:${col};"></div></div><div class="report-bar-val">${pct}%</div></div>`;
+  }).join('');
+
+  // Summary table
+  document.getElementById('reportSummaryTable').innerHTML=filtered.map(e=>{
+    const pct=Math.round(e.registered/e.capacity*100);
+    return `<tr><td><div class="evt-name-cell">${e.name}</div></td><td style="font-size:12px;">${fmtDate(e.date)}</td><td><span class="cat-pill ${catClass[e.category]||'cat-meeting'}">${e.category}</span></td><td style="font-size:13px;">${e.capacity}</td><td style="font-size:13px;">${e.registered}</td><td><span class="badge ${pct>80?'green':pct>50?'blue':'yellow'}">${pct}%</span></td><td><span class="badge ${statusMap[e.status]}">${statusLabel[e.status]}</span></td></tr>`;
+  }).join('');
+}
+
+function exportReportCSV(){
+  const data=events.map(e=>([e.id,e.name,e.category,statusLabel[e.status],fmtDate(e.date),e.capacity,e.registered,Math.round(e.registered/e.capacity*100)+'%']));
+  downloadCSV(data,['ID','Name','Category','Status','Date','Capacity','Registered','Fill Rate'],'events_report');
+  logAudit('exported',null,'Abraham Bossman','Super Admin',null,null,'Report exported to CSV','low');
+  showToast('Report exported to CSV');
+}
+function printReport(){ window.print(); }
+
+/* ═══════════════════════════════════════════
+   AUDIT LOG (G-24)
+═══════════════════════════════════════════ */
+function logAudit(action,eventId,actor,actorRole,field,oldVal,newVal,severity){
+  auditLog.unshift({ id:genId('AL'), eventId, actor, actorRole, action, field, oldVal, newVal, ts:new Date().toISOString(), severity:severity||actionSeverity[action]||'low', note:'' });
+}
+function renderAuditLog(){
+  const search=document.getElementById('auditSearch').value.toLowerCase();
+  const actionF=document.getElementById('auditActionFilter').value;
+  const sevF=document.getElementById('auditSeverityFilter').value;
+  const filtered=auditLog.filter(a=>{
+    if(actionF && a.action!==actionF) return false;
+    if(sevF && a.severity!==sevF) return false;
+    if(search && !a.actor.toLowerCase().includes(search) && !actionLabel[a.action].toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const empty=document.getElementById('auditEmptyState');
+  const list=document.getElementById('auditLogList');
+  if(!filtered.length){ list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const actionIcons={ created:'<svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14"/></svg>', edited:'<svg viewBox="0 0 16 16"><path d="M11.5 2.5a1.5 1.5 0 0 1 2 2L5 13H2v-3L11.5 2.5z"/></svg>', cancelled:'<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7"/><path d="M5 8h6"/></svg>', deleted:'<svg viewBox="0 0 16 16"><polyline points="2 4 4 4 14 4"/><path d="M3.5 4l1 9h7l1-9"/></svg>', status_changed:'<svg viewBox="0 0 16 16"><path d="M1 8a7 7 0 1 0 14 0"/><path d="M8 1l3 3-3 3"/></svg>', registration_added:'<svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1 14v-1.5A2.5 2.5 0 0 1 3.5 10h5"/><path d="M12 9v6M9 12h6"/></svg>', registration_cancelled:'<svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1 14v-1.5A2.5 2.5 0 0 1 3.5 10h5"/><path d="M9 11l4 4M13 11l-4 4"/></svg>', check_in:'<svg viewBox="0 0 16 16"><path d="M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0z"/><path d="M5 7l2 2 4-4"/></svg>', walk_in_added:'<svg viewBox="0 0 16 16"><path d="M10 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M6 8l-2 6M8 8l2 6M7 5v3"/></svg>', role_assigned:'<svg viewBox="0 0 16 16"><circle cx="6" cy="4.5" r="2.5"/><path d="M1 14v-1.5A2.5 2.5 0 0 1 3.5 10h5"/><path d="M12 7l1.5 1.5L16 6"/></svg>', resource_booked:'<svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M5 4V3a3 3 0 0 1 6 0v1"/></svg>', exported:'<svg viewBox="0 0 16 16"><path d="M13 10v3H3v-3"/><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/></svg>' };
+  list.innerHTML='<div class="audit-list">'+filtered.map(a=>{
+    const evtName=a.eventId?getEventName(a.eventId):'—';
+    return `<div class="audit-entry">
+      <div class="audit-icon ${severityColors[a.severity]||'sev-low'}">${actionIcons[a.action]||'•'}</div>
+      <div class="audit-body">
+        <div class="audit-action"><strong>${a.actor}</strong> · ${actionLabel[a.action]||a.action}</div>
+        ${a.field&&a.oldVal!==null&&a.newVal!==null?`<div class="audit-diff"><span class="old">${a.oldVal}</span><span class="new">${a.newVal}</span></div>`:''}
+        ${a.newVal&&!a.field?`<div style="font-size:11px;color:var(--text-secondary);margin-top:3px;">${a.newVal}</div>`:''}
+        <div class="audit-meta">
+          <span>📅 ${fmtDateTime(a.ts)}</span>
+          <span>👤 ${a.actorRole}</span>
+          ${a.eventId?`<span>📋 ${evtName}</span>`:''}
+          <span class="audit-sev ${severityColors[a.severity]}">${severityLabel[a.severity]}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+function exportAuditLog(){
+  const data=auditLog.map(a=>([a.id,a.actor,a.actorRole,actionLabel[a.action]||a.action,a.field||'',a.oldVal||'',a.newVal||'',fmtDateTime(a.ts),a.severity,a.eventId?getEventName(a.eventId):'']));
+  downloadCSV(data,['Log ID','Actor','Role','Action','Field','Old Value','New Value','Timestamp','Severity','Event'],'audit_log_export');
+  showToast('Audit log exported to CSV');
+}
+
+/* ═══════════════════════════════════════════
+   DETAIL PANEL (G-13, G-25, G-41)
+═══════════════════════════════════════════ */
+function openDetail(id){
+  const e=events.find(x=>x.id===id);
+  if(!e) return;
+  currentDetailId=id;
+  document.getElementById('detailTitle').textContent=e.name;
+  document.getElementById('detailMeta').innerHTML=`<span class="cat-pill ${catClass[e.category]||'cat-meeting'}">${e.category}</span> <span class="badge ${statusMap[e.status]}">${statusLabel[e.status]}</span>`;
+  // Tab: Details
+  const fill=Math.round(e.registered/e.capacity*100);
+  document.getElementById('detailTabInfo').innerHTML=`
+    <div class="detail-section">
+      <div class="detail-section-title">Event Details</div>
+      <div class="detail-grid">
+        <div class="detail-field"><span class="detail-field-label">Event ID</span><span class="detail-field-val">${e.id}</span></div>
+        <div class="detail-field"><span class="detail-field-label">Recurrence</span><span class="detail-field-val">${e.recurrence}</span></div>
+        <div class="detail-field"><span class="detail-field-label">Date</span><span class="detail-field-val">${fmtDate(e.date)}</span></div>
+        <div class="detail-field"><span class="detail-field-label">Time</span><span class="detail-field-val">${e.time}</span></div>
+        <div class="detail-field"><span class="detail-field-label">Venue</span><span class="detail-field-val">${e.venue}</span></div>
+        <div class="detail-field"><span class="detail-field-label">Capacity</span><span class="detail-field-val">${e.capacity}</span></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Description</div>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">${e.description||'No description.'}</p>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Registration</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><span>Registered</span><span style="font-weight:600;color:var(--text-primary);">${e.registered} / ${e.capacity}</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${fill}%;"></div></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${fill}% capacity filled</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Metadata</div>
+      <div class="detail-field"><span class="detail-field-label">Created by</span><span class="detail-field-val">Abraham Bossman</span></div>
+      <div class="detail-field"><span class="detail-field-label">Last modified</span><span class="detail-field-val">${fmtDateTime(auditLog.find(a=>a.eventId===id)?.ts||new Date().toISOString())}</span></div>
+    </div>`;
+  // Tab: Registrations
+  const evtRegs=registrations.filter(r=>r.eventId===id);
+  document.getElementById('detailTabRegs').innerHTML=evtRegs.length?`<div style="display:flex;flex-direction:column;gap:8px;">${evtRegs.slice(0,8).map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+    <div class="mini-avatar" style="background:${r.color}">${r.initials}</div>
+    <div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--text-primary);">${r.name}</div><div style="font-size:11px;color:var(--text-muted);">${r.memberId}</div></div>
+    <span class="badge ${rsvpMap[r.rsvp]}">${r.rsvp}</span>
+  </div>`).join('')}${evtRegs.length>8?`<button class="btn-outline" style="width:100%;justify-content:center;margin-top:8px;" onclick="closeDetail();showTab('registrations',null);setRegEventFilter('${id}')">View all ${evtRegs.length} registrations</button>`:''}</div>`:`<div class="empty-state" style="padding:30px;"><div class="empty-title">No registrations yet</div></div>`;
+  // Tab: Assignments
+  const asgn=assignmentData[id]||{};
+  document.getElementById('detailTabAssign').innerHTML=['ushers','choir','techTeam'].map(g=>`
+    <div style="margin-bottom:14px;"><div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">${g==='techTeam'?'Technical Team':g.charAt(0).toUpperCase()+g.slice(1)}</div>
+    ${(asgn[g]||[]).length?asgn[g].map(p=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><div class="mini-avatar" style="background:${p.color};width:24px;height:24px;font-size:9px;">${p.initials}</div><span style="font-size:13px;color:var(--text-primary);">${p.name}</span><span style="font-size:11px;color:var(--text-muted);">${p.role}</span><span class="badge ${p.confirm==='confirmed'?'green':p.confirm==='pending'?'yellow':'red'}">${p.confirm}</span></div>`).join(''):'<span style="font-size:12px;color:var(--text-muted);">None assigned</span>'}</div>`).join('');
+  // Tab: History
+  const history=auditLog.filter(a=>a.eventId===id).slice(0,10);
+  document.getElementById('detailTabHistory').innerHTML=history.length?`<div class="audit-list">${history.map(a=>`<div class="audit-entry" style="padding:8px 0;">
+    <div class="audit-icon ${severityColors[a.severity]||'sev-low'}" style="width:24px;height:24px;font-size:10px;">•</div>
+    <div class="audit-body"><div class="audit-action" style="font-size:12px;"><strong>${a.actor}</strong> — ${actionLabel[a.action]||a.action}</div>${a.field&&a.oldVal!==null?`<div class="audit-diff" style="font-size:10px;"><span class="old">${a.oldVal}</span><span class="new">${a.newVal}</span></div>`:''}<div class="audit-meta">${fmtDateTime(a.ts)}</div></div>
+  </div>`).join('')}</div>`:'<div class="empty-state" style="padding:24px;"><div class="empty-title" style="font-size:13px;">No history yet</div></div>';
+  // Footer buttons (G-41)
+  document.getElementById('detailEditBtn').onclick=()=>{ closeDetail(); openEventModal(id); };
+  document.getElementById('detailDuplicateBtn').onclick=()=>{ closeDetail(); duplicateEvent(id); };
+  document.getElementById('detailCancelBtn').onclick=()=>{
+    showConfirm(`Cancel "${e.name}"?`,`This will mark the event as cancelled. Registered members should be notified.`,(reason)=>{
+      e.status='cancelled';
+      logAudit('cancelled',id,'Abraham Bossman','Super Admin','status','active','cancelled','high');
+      if(reason) auditLog[0].note=reason;
+      showToast(`"${e.name}" cancelled`,'error');
+      closeDetail(); applyFilters();
+    },'danger',true);
+  };
+  // Set detail tab
+  setDetailTab(document.querySelector('.detail-tab'),'detailTabInfo');
+  document.getElementById('detailOverlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDetail(){ document.getElementById('detailOverlay').classList.remove('open'); document.getElementById('detailPanel').classList.remove('open'); document.body.style.overflow=''; }
+function setDetailTab(tabEl, panelId){
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.detail-tab-panel').forEach(p=>p.classList.remove('active'));
+  tabEl.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+function setRegEventFilter(evtId){ document.getElementById('regEventFilter').value=evtId; renderRegistrationsTable(); }
+
+/* ═══════════════════════════════════════════
+   POPULATE DROPDOWNS
+═══════════════════════════════════════════ */
+function populateEventDropdowns(){
+  const selIds=['regEventSel','attendanceEventSel','assignEventSel','bookResEvent','regEventFilter'];
+  selIds.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    const hasAll=id==='regEventFilter'||id==='attendanceEventSel'||id==='assignEventSel';
+    const cur=el.value;
+    el.innerHTML=(hasAll?'<option value="">All Events</option>':'')+events.map(e=>`<option value="${e.id}">${e.name} — ${fmtDate(e.date)}</option>`).join('');
+    if(cur) el.value=cur;
+  });
+}
+
+/* ═══════════════════════════════════════════
+   CSV EXPORT UTILITY
+═══════════════════════════════════════════ */
+function downloadCSV(rows, headers, filename){
+  const csv=[headers,...rows].map(r=>r.map(v=>'"'+(String(v||'').replace(/"/g,'""'))+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+populateEventDropdowns();
+renderOverview();
+renderEventsTable();
+renderRegistrationsTable();
+renderAttendance();
+renderAssignments();
+renderResources();
+updateSidebarCounts();
+</script>
+</body>
+</html>
