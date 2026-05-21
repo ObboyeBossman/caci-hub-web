@@ -6,6 +6,8 @@ import { navigate } from '../../../core/router'
 import { getCurrentUser, loadCurrentUser } from '../../../core/auth'
 import { getFirstModuleRoute } from '../../../core/registry'
 import type { PageModule } from '../../../types/module.types'
+import type { AppUser } from '../../../types/auth.types'
+
 
 let _container: HTMLElement | null = null
 
@@ -89,14 +91,15 @@ export const Login: PageModule = {
             <!-- Assembly Badge -->
             <div class="assembly-badge" style="display: flex; align-items: center; gap: 12px; background: var(--auth-card-bg); border: 1px solid var(--auth-card-border); border-radius: 6px; padding: 10px 14px; margin-bottom: 20px;">
               <div class="assembly-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: var(--auth-body-bg); border: 1px solid var(--auth-card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-                ${assembly.logo_url ? `<img src="${assembly.logo_url}" style="width: 100%; height: 100%; object-fit: cover;">` : `<img src="/caci-logo.jpeg" style="width: 100%; height: 100%; object-fit: cover;">`}
+                <img src="/caci-logo.jpeg" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div class="assembly-badge-info" style="flex: 1; min-width: 0;">
                 <p class="assembly-badge-name" style="font-size: 13px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--auth-text-primary);">${assembly.name}</p>
                 <p class="assembly-badge-loc" style="font-size: 11px; color: var(--auth-text-secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  <i class="bi bi-geo-alt"></i> ${assembly.branch_location || 'Unknown location'}
+                  <i class="bi bi-geo-alt"></i> ${assembly.address || 'Unknown location'}
                 </p>
               </div>
+
               <a class="auth-link" href="#/select-assembly" style="font-size: 12px; flex-shrink: 0;">Change</a>
             </div>
 
@@ -173,18 +176,20 @@ export const Login: PageModule = {
       try {
         await authService.signIn(emailInput.value.trim(), pwInput.value)
         await loadCurrentUser() 
-        const user = getCurrentUser() as any
+        const user = getCurrentUser() as AppUser
+
 
         // ── Membership Verification ──────────────────────────────────────────
         // Users must belong to the selected assembly to proceed.
         // Exception: National Admins / Overseers.
         const isStaff = user?.role === 'national_admin' || user?.role === 'district_overseer'
-        if (user && !isStaff && user.assembly_id !== assembly.id) {
+        if (user && !isStaff && user.assemblyId !== assembly.id) {
           await authService.signOut()
           _showError(`You are not registered with ${assembly.name}. Please select the correct assembly.`)
           _setLoading(false)
           return
         }
+
 
         // Progress to Stage 4 (Loading/Boot Sequence)
         const { runLoading } = await import('../../../core/loading')

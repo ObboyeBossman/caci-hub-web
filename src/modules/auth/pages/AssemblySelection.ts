@@ -12,8 +12,8 @@ import type { PageModule } from '../../../types/module.types'
 interface Assembly {
   id:               string
   name:             string
-  logo_url:         string | null
-  branch_location:  string | null
+  assembly_code:    string
+  address:          string | null
 }
 
 let _container: HTMLElement | null = null
@@ -24,13 +24,31 @@ export const AssemblySelection: PageModule = {
     _container = container
 
     // Fetch assemblies (public read — no auth needed) ─────────────────────────
-    const { data, error } = await supabase
-      .from('assemblies')
-      .select('id, name, logo_url, branch_location')
-      .eq('is_active', true)
-      .order('name')
+    console.log('[AssemblySelection] Fetching assemblies...')
+    
+    let data: any[] | null = null
+    let error: any = null
 
+    try {
+      // Race the supabase fetch against a 5 second timeout
+      const result = await Promise.race([
+        supabase
+          .from('assemblies')
+          .select('id, name, address, assembly_code')
+          .eq('is_active', true)
+          .order('name'),
+        new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Fetch timeout')), 5000))
+      ])
+      data = result.data
+      error = result.error
+    } catch (e) {
+      console.error('[AssemblySelection] Fetch failed or timed out:', e)
+      error = e
+    }
+
+    console.log('[AssemblySelection] Fetch complete', { count: data?.length, error })
     const assemblies: Assembly[] = (data ?? []) as Assembly[]
+
 
     if (error) {
       console.error('[AssemblySelection] fetch failed:', error)
@@ -90,14 +108,12 @@ export const AssemblySelection: PageModule = {
                 ${assemblies.map(a => `
                   <div class="assembly-item" data-id="${a.id}"
                     data-name="${a.name}"
-                    data-logo="${a.logo_url ?? ''}"
-                    data-loc="${a.branch_location ?? ''}"
+                    data-code="${a.assembly_code}"
+                    data-loc="${a.address ?? ''}"
                     role="button" tabindex="0"
                     aria-label="Select ${a.name}">
                     <div class="assembly-avatar">
-                      ${a.logo_url
-                        ? `<img src="${a.logo_url}" alt="${a.name} logo" />`
-                        : `<span>${a.name.slice(0, 2).toUpperCase()}</span>`}
+                      <span>${a.name.slice(0, 2).toUpperCase()}</span>
                     </div>
                     <div class="assembly-info">
                       <p class="assembly-name">${a.name}</p>
@@ -107,7 +123,7 @@ export const AssemblySelection: PageModule = {
                           <path d="M8 2C5.79 2 4 3.79 4 6c0 3.5 4 8 4 8s4-4.5 4-8c0-2.21-1.79-4-4-4z"/>
                           <circle cx="8" cy="6" r="1.5"/>
                         </svg>
-                        ${a.branch_location ?? 'Location unknown'}
+                        ${a.address ?? 'Location unknown'}
                       </p>
                     </div>
                     <div class="assembly-check">
@@ -120,6 +136,7 @@ export const AssemblySelection: PageModule = {
                   </div>
                 `).join('')}
               </div>
+
 
               <div id="asm-empty" style="display:none;text-align:center;padding:20px 0;">
                 <p style="font-size:13px;color:var(--auth-text-secondary);margin:0;">
@@ -192,12 +209,13 @@ export const AssemblySelection: PageModule = {
       sessionStorage.setItem('selectedAssembly', JSON.stringify({
         id:              item.dataset.id,
         name:            item.dataset.name,
-        logo_url:        item.dataset.logo  || null,
-        branch_location: item.dataset.loc   || null,
+        assembly_code:   item.dataset.code,
+        address:         item.dataset.loc   || null,
       }))
 
       continueBtn.disabled = false
     }
+
 
     items.forEach(item => {
       item.addEventListener('click', () => selectItem(item))

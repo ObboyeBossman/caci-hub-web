@@ -7,8 +7,11 @@
 //   • Session found  → Stage 4 (src/core/loading.ts)
 //   • No session     → Stage 2 (AssemblySelection /select-assembly)
 
-import { supabase } from './supabase'
+import { supabase }         from './supabase'
+import { registerModule }   from './registry'
 import { startRouter, navigate } from './router'
+import { mountFullscreen }  from '../shell/Shell'
+import AuthModule           from '../modules/auth/index'
 
 export async function runSplash(): Promise<void> {
   const app = document.getElementById('app')
@@ -156,19 +159,36 @@ export async function runSplash(): Promise<void> {
   `
 
   // ── Wait min 2 seconds AND the session check simultaneously ───────────────
-  const [sessionRes] = await Promise.all([
+  const sessionPromise = Promise.race([
     supabase.auth.getSession(),
+    new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Session timeout')), 4000))
+  ]).catch(err => {
+    console.warn('[splash] Session check timed out or failed:', err)
+    return { data: { session: null }, error: err }
+  })
+
+  const [sessionRes] = await Promise.all([
+    sessionPromise,
     new Promise<void>(resolve => setTimeout(resolve, 2000)),
   ])
 
   // ── Route decision ────────────────────────────────────────────────────────
   if (sessionRes.data?.session) {
-    // Authenticated → Stage 4: full boot sequence
+    // Authenticated → Stage 4: full boot sequence (loads all modules + shell)
     const { runLoading } = await import('./loading')
     await runLoading()
   } else {
     // Unauthenticated → Stage 2: Assembly Selection
-    startRouter()
-    navigate('/select-assembly')
+    registerModule(AuthModule)
+    mountFullscreen()               // creates #page-content in #app
+    
+    // Set the hash BEFORE starting the router so its initial _resolve()
+    // matches the correct page.
+    location.hash = '#/select-assembly'
+    startRouter()                   // attaches listener and calls _resolve()
   }
 }
+
+
+
+
