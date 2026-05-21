@@ -136,8 +136,8 @@ export interface ModuleManifest {
   routes?:      RouteDefinition[]
 
   // ── Navigation contribution ───────────────────────────────────────────────
-  // One sidebar item per module (optional — auth module has no sidebar entry).
-  sidebar?:     SidebarItem
+  // One or more sidebar items per module (optional — auth module has no sidebar entry).
+  sidebar?:     SidebarItem[]
 
   // ── Capability & widget contributions ────────────────────────────────────
   capabilities?: Capability[]

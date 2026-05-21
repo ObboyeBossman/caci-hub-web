@@ -41,8 +41,7 @@ export function getRoutes(): RouteDefinition[] {
  */
 export function getSidebarItems(): SidebarItem[] {
   return _modules
-    .map(m => m.sidebar)
-    .filter((s): s is SidebarItem => Boolean(s))
+    .flatMap(m => m.sidebar ?? [])
     .sort((a, b) => a.order - b.order)
 }
 

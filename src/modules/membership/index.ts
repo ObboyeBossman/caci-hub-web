@@ -40,13 +40,43 @@ const MembershipModule: ModuleManifest = {
 
   routes: membershipRoutes,
 
-  sidebar: {
-    label:      'Members',
-    path:       '/members',
-    icon:       'people-fill',
-    permission: 'membership.view',
-    order:      10,
-  },
+  sidebar: [
+    {
+      label:      'All Members',
+      path:       '/members',
+      icon:       'people-fill',
+      permission: 'membership.view',
+      order:      10,
+    },
+    {
+      label:      'Attendance',
+      path:       '/attendance',
+      icon:       'calendar-check-fill',
+      permission: 'membership.view',
+      order:      20,
+    },
+    {
+      label:      'Groups & Units',
+      path:       '/groups',
+      icon:       'diagram-3-fill',
+      permission: 'membership.view',
+      order:      30,
+    },
+    {
+      label:      'Pastoral Care',
+      path:       '/pastoral-care',
+      icon:       'heart-fill',
+      permission: 'membership.view',
+      order:      40,
+    },
+    {
+      label:      'Reports',
+      path:       '/reports',
+      icon:       'bar-chart-fill',
+      permission: 'membership.view',
+      order:      50,
+    },
+  ],
 
   capabilities: ['dashboard-widgets', 'search', 'reports'],
 
