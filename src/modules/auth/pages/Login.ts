@@ -7,7 +7,7 @@ import { getCurrentUser, loadCurrentUser } from '../../../core/auth'
 import { getFirstModuleRoute } from '../../../core/registry'
 import type { PageModule } from '../../../types/module.types'
 import type { AppUser } from '../../../types/auth.types'
-
+import logoUrl from '../../../assets/caci-logo.png'
 
 let _container: HTMLElement | null = null
 
@@ -69,7 +69,7 @@ export const Login: PageModule = {
         <!-- Header -->
         <div class="auth-header">
           <a class="auth-logo" href="#/login">
-            <div class="auth-cross"></div>
+            <img src="${logoUrl}" alt="CACI Logo" class="auth-logo-img">
             <div class="auth-logo-text">CACI Hub</div>
           </a>
           <div class="auth-theme-toggle" id="auth-theme-toggle" role="button" tabindex="0" aria-label="Toggle theme">

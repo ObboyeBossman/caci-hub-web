@@ -7,6 +7,7 @@
 import { supabase } from '../../../core/supabase'
 import { navigate }  from '../../../core/router'
 import type { PageModule } from '../../../types/module.types'
+import logoUrl from '../../../assets/caci-logo.png'
 
 interface Assembly {
   id:             string
@@ -70,7 +71,7 @@ export const AssemblySelection: PageModule = {
         <!-- Header -->
         <div class="auth-header">
           <a class="auth-logo" href="#" aria-label="CACI Hub home">
-            <div class="auth-cross" aria-hidden="true"></div>
+            <img src="${logoUrl}" alt="CACI Logo" class="auth-logo-img">
             <div class="auth-logo-text">CACI Hub</div>
           </a>
           <div class="auth-theme-toggle" id="asm-theme-toggle"

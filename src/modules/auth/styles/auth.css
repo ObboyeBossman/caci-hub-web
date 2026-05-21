@@ -136,21 +136,13 @@
   cursor: pointer;
 }
 
-.auth-cross {
-  width: 24px;
-  height: 24px;
-  position: relative;
+.auth-logo-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
   flex-shrink: 0;
 }
-.auth-cross::before,
-.auth-cross::after {
-  content: '';
-  position: absolute;
-  background: var(--auth-cross-color);
-  border-radius: 2px;
-}
-.auth-cross::before { width: 3px; height: 100%; left: 50%; transform: translateX(-50%); }
-.auth-cross::after  { height: 3px; width: 100%; top: 50%; transform: translateY(-50%); }
 
 .auth-logo-text {
   font-size: 15px;
