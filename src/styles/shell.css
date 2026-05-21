@@ -216,7 +216,7 @@ ul { list-style: none; }
   height: calc(100vh - 52px);
   overflow: hidden;
   transition: transform .25s cubic-bezier(.4,0,.2,1), background .25s, border-color .25s;
-  width: 220px;
+  width: 230px;
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
