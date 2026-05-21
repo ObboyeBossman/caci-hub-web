@@ -245,6 +245,9 @@ export const AssemblySelection: PageModule = {
     })
 
     // ── Search filter ─────────────────────────────────────────────────────────
+    // Hide all items initially
+    items.forEach(item => item.style.display = 'none')
+
     searchEl.addEventListener('input', () => {
       const q = searchEl.value.trim().toLowerCase()
       let visible = 0
@@ -252,13 +255,17 @@ export const AssemblySelection: PageModule = {
       items.forEach(item => {
         const nameMatch = item.dataset.name!.toLowerCase().includes(q)
         const locMatch  = item.dataset.loc!.toLowerCase().includes(q)
-        const show      = !q || nameMatch || locMatch
+        
+        // Only show if >= 2 chars typed and matches name/location
+        const show = q.length >= 2 && (nameMatch || locMatch)
+        
         item.style.display = show ? '' : 'none'
         if (show) visible++
       })
 
       emptyTerm.textContent = searchEl.value
-      emptyEl.style.display = visible === 0 && q ? 'block' : 'none'
+      // Only show empty state if user has typed >= 2 chars and nothing matches
+      emptyEl.style.display = visible === 0 && q.length >= 2 ? 'block' : 'none'
     })
 
     // ── Continue → Login ──────────────────────────────────────────────────────
