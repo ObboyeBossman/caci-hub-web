@@ -68,6 +68,16 @@ export function getCapabilities(type: Capability): ModuleManifest[] {
 }
 
 /**
+ * Returns the route path of the first registered module (lowest order sidebar item).
+ * Used by the login flow to redirect to the first available module.
+ * Falls back to '/' if no modules are registered.
+ */
+export function getFirstModuleRoute(): string {
+  const items = getSidebarItems()
+  return items.length > 0 ? items[0].path : '/'
+}
+
+/**
  * Call each registered module's init() hook in registration order.
  * Module failures are isolated — one failing module never blocks others.
  * Called once at boot after loadCurrentUser() and before startRouter().

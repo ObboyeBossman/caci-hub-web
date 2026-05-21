@@ -4,6 +4,7 @@
 import { authService, mapAuthError } from '../services/authService'
 import { navigate }                  from '../../../core/router'
 import { loadCurrentUser }           from '../../../core/auth'
+import { getFirstModuleRoute }       from '../../../core/registry'
 import type { PageModule }           from '../../../types/module.types'
 
 let _container: HTMLElement | null = null
@@ -62,10 +63,10 @@ async function _handleSignIn() {
     await authService.signIn(emailInput.value.trim(), pwInput.value)
     await loadCurrentUser()  // refresh auth state
 
-    // TEMPORARY: Skip TOTP verification/enrollment and go directly to dashboard
+    // TEMPORARY: Skip TOTP verification/enrollment and go directly to first module
     // const enrolled = await authService.hasTotpEnrolled()
     // navigate(enrolled ? '/totp-verify' : '/totp-enroll')
-    navigate('/')
+    navigate(getFirstModuleRoute())
   } catch (err) {
     _showError(mapAuthError(err))
     _setLoading(false)
