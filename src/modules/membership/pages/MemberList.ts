@@ -111,7 +111,7 @@ async function render(container: HTMLElement): Promise<void> {
   // Inject CSS
   _injectCSS()
 
-  // Build initial state
+  // Build initial state (reads current hash to determine tab)
   _state = _buildInitialState()
 
   // Build full shell HTML
@@ -1273,6 +1273,23 @@ function _renderReports(): void {
 
 function _setTab(tabName: string): void {
   if (!_state || !_container) return
+  
+  // If clicking a tab that matches a known route, navigate to it 
+  // to keep the URL and sidebar in sync.
+  const routeMap: Record<string, string> = {
+    'members-list': '/members',
+    'attendance':   '/attendance',
+    'groups':       '/groups',
+    'pastoral':     '/pastoral-care',
+    'reports':      '/reports'
+  }
+  
+  const targetPath = routeMap[tabName]
+  if (targetPath && location.hash !== '#' + targetPath) {
+    navigate(targetPath)
+    return
+  }
+
   _state.activeTab = tabName
 
   _container.querySelectorAll('.mm-tab').forEach(t => t.classList.remove('active'))
@@ -1599,7 +1616,7 @@ function _buildInitialState(): State {
   return {
     members: [], filtered: [], loading: false,
     view: 'grid', search: '', sortMode: 'joined-desc',
-    activeTab: 'members-list', sidebarFilter: 'all',
+    activeTab: _getInitialTabFromHash(), sidebarFilter: 'all',
     selectedIds: new Set(),
     page: 1,
     statusFilters: new Set(['active', 'visitor']),
@@ -1650,6 +1667,15 @@ function _buildInitialState(): State {
     detailMember: null,
     editingId: null,
   }
+}
+
+function _getInitialTabFromHash(): string {
+  const hash = location.hash.slice(1)
+  if (hash.startsWith('/attendance')) return 'attendance'
+  if (hash.startsWith('/groups'))     return 'groups'
+  if (hash.startsWith('/pastoral-care')) return 'pastoral'
+  if (hash.startsWith('/reports'))    return 'reports'
+  return 'members-list'
 }
 
 // ── CSS injection ─────────────────────────────────────────────────────────────

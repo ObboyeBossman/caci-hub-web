@@ -76,7 +76,7 @@ export const membershipRoutes: RouteDefinition[] = [
   // ── Groups ────────────────────────────────────────────────────────────────
   {
     path: '/groups',
-    page: () => import('./pages/Groups'),
+    page: () => import('./pages/MemberList'),
     middleware: ['auth', 'permissions'],
     permission: 'membership.view',
   },
@@ -90,7 +90,7 @@ export const membershipRoutes: RouteDefinition[] = [
   // ── Attendance ────────────────────────────────────────────────────────────
   {
     path: '/attendance',
-    page: () => import('./pages/Attendance'),
+    page: () => import('./pages/MemberList'),
     middleware: ['auth', 'permissions'],
     permission: 'membership.view',
   },
@@ -104,7 +104,7 @@ export const membershipRoutes: RouteDefinition[] = [
   // ── Pastoral Care ─────────────────────────────────────────────────────────
   {
     path: '/pastoral-care',
-    page: () => import('./pages/PastoralCare'),
+    page: () => import('./pages/MemberList'),
     middleware: ['auth', 'permissions'],
     permission: 'membership.view',
   },
@@ -118,7 +118,7 @@ export const membershipRoutes: RouteDefinition[] = [
   // ── Reports ───────────────────────────────────────────────────────────────
   {
     path: '/reports',
-    page: () => import('./pages/Reports'),
+    page: () => import('./pages/MemberList'),
     middleware: ['auth', 'permissions'],
     permission: 'membership.view',
   },
