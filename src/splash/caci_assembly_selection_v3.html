@@ -1,0 +1,301 @@
+
+<style>
+  .auth-root*{box-sizing:border-box}
+  .auth-root{
+    font-family:'Segoe UI','Helvetica Neue',system-ui,sans-serif;
+    font-size:14px;line-height:1.5;
+    --auth-body-bg:#f6f8fa;--auth-header-bg:#fff;--auth-header-border:#d0d7de;
+    --auth-card-bg:#fff;--auth-card-border:#d0d7de;
+    --auth-input-bg:#fff;--auth-input-border:#d0d7de;
+    --auth-btn-primary:#004BA0;--auth-btn-hover:#003578;--auth-btn-disabled:#94b4d8;
+    --auth-link:#004BA0;--auth-focus:#0969da;--auth-focus-ring:rgba(9,105,218,.2);
+    --auth-divider:#d0d7de;--auth-text-primary:#1b1f23;--auth-text-secondary:#656d76;
+    --auth-text-muted:#8c959f;--auth-error:#cf222e;--auth-error-bg:rgba(207,34,46,.08);
+    --auth-error-border:rgba(207,34,46,.2);--auth-footer:#656d76;
+    --auth-logo-color:#1b1f23;--auth-cross-color:#004BA0;--auth-tab-bar:#C60026;
+    --auth-selected-bg:#EFF5FF;--auth-selected-border:#004BA0;
+    color:var(--auth-text-primary);background:var(--auth-body-bg);
+    border-radius:16px;overflow:hidden;
+  }
+  .auth-root.dark{
+    --auth-body-bg:#0d1117;--auth-header-bg:#010409;--auth-header-border:#30363d;
+    --auth-card-bg:#161b22;--auth-card-border:#30363d;
+    --auth-input-bg:#0d1117;--auth-input-border:#30363d;
+    --auth-btn-primary:#004BA0;--auth-btn-hover:#003578;--auth-btn-disabled:rgba(0,75,160,.5);
+    --auth-link:#4D9FFF;--auth-focus:#58a6ff;--auth-focus-ring:rgba(88,166,255,.1);
+    --auth-divider:#30363d;--auth-text-primary:#e6edf3;--auth-text-secondary:#8b949e;
+    --auth-text-muted:#484f58;--auth-footer:#8b949e;
+    --auth-logo-color:#fff;--auth-cross-color:#fff;--auth-tab-bar:#E8003A;
+    --auth-selected-bg:rgba(0,75,160,.15);--auth-selected-border:#4D9FFF;
+  }
+
+  .auth-header{
+    background:var(--auth-header-bg);border-bottom:1px solid var(--auth-header-border);
+    padding:12px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;
+  }
+  .auth-logo{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;}
+  .auth-cross{width:24px;height:24px;position:relative;flex-shrink:0;}
+  .auth-cross::before,.auth-cross::after{content:'';position:absolute;background:var(--auth-cross-color);border-radius:2px;}
+  .auth-cross::before{width:3px;height:100%;left:50%;transform:translateX(-50%);}
+  .auth-cross::after{height:3px;width:100%;top:50%;transform:translateY(-50%);}
+  .auth-logo-text{font-size:15px;font-weight:600;color:var(--auth-logo-color);letter-spacing:-.2px;}
+
+  .auth-theme-toggle{
+    margin-left:auto;display:flex;align-items:center;gap:7px;cursor:pointer;
+    background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.12);
+    border-radius:20px;padding:5px 11px 5px 9px;user-select:none;transition:background .2s;
+  }
+  .auth-root.dark .auth-theme-toggle{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);}
+  .auth-toggle-icon{font-size:13px;line-height:1;}
+  .auth-toggle-track{width:32px;height:18px;border-radius:9px;background:#d0d7de;position:relative;flex-shrink:0;transition:background .3s;}
+  .auth-root.dark .auth-toggle-track{background:#388bfd;}
+  .auth-toggle-thumb{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 3px rgba(0,0,0,.3);}
+  .auth-root.dark .auth-toggle-thumb{transform:translateX(14px);}
+  .auth-toggle-label{font-size:12px;font-weight:500;color:var(--auth-text-primary);white-space:nowrap;}
+
+  .red-bar{height:3px;background:var(--auth-tab-bar);}
+
+  .auth-container{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:36px 16px 48px;background:var(--auth-body-bg);}
+  .auth-box{width:100%;max-width:340px;}
+
+  .auth-heading{text-align:center;margin-bottom:20px;}
+  .auth-h1{font-size:24px;font-weight:300;color:var(--auth-text-primary);letter-spacing:-.5px;margin-bottom:4px;}
+  .auth-subtitle{font-size:14px;color:var(--auth-text-secondary);}
+
+  .auth-card{background:var(--auth-card-bg);border:1px solid var(--auth-card-border);border-radius:6px;padding:20px;margin-bottom:16px;}
+
+  .auth-field{margin-bottom:14px;}
+  .auth-label{display:block;font-size:14px;font-weight:500;color:var(--auth-text-primary);margin-bottom:6px;}
+  .auth-input{
+    width:100%;height:32px;padding:0 10px 0 32px;
+    border:1px solid var(--auth-input-border);border-radius:6px;font-size:14px;
+    color:var(--auth-text-primary);background:var(--auth-input-bg);
+    outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s;
+    box-sizing:border-box;
+  }
+  .auth-input:focus{border-color:var(--auth-focus);box-shadow:0 0 0 3px var(--auth-focus-ring);}
+  .auth-input::placeholder{color:var(--auth-text-muted);}
+  .auth-input-wrap{position:relative;}
+  .auth-input-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--auth-text-muted);font-size:15px;pointer-events:none;}
+
+  .section-label{font-size:11px;font-weight:500;color:var(--auth-text-muted);letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px;display:block;}
+
+  .assembly-list{display:flex;flex-direction:column;gap:6px;}
+
+  .assembly-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;border:1px solid var(--auth-card-border);
+    border-radius:6px;cursor:pointer;background:var(--auth-card-bg);
+    transition:border-color .15s,background .15s;position:relative;
+  }
+  .assembly-item:hover{border-color:var(--auth-text-muted);background:var(--auth-body-bg);}
+  .assembly-item.selected{border-color:var(--auth-selected-border);background:var(--auth-selected-bg);}
+
+  .assembly-avatar{
+    width:34px;height:34px;border-radius:50%;flex-shrink:0;
+    background:var(--auth-body-bg);border:1px solid var(--auth-card-border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:500;color:var(--auth-text-secondary);overflow:hidden;
+  }
+  .assembly-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+  .assembly-info{flex:1;min-width:0;}
+  .assembly-name{font-size:13px;font-weight:500;color:var(--auth-text-primary);margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .assembly-item.selected .assembly-name{color:var(--auth-btn-primary);}
+  .assembly-root.dark .assembly-item.selected .assembly-name{color:var(--auth-link);}
+  .assembly-loc{font-size:11px;color:var(--auth-text-secondary);margin:0;display:flex;align-items:center;gap:3px;}
+
+  .assembly-check{
+    width:16px;height:16px;border-radius:50%;flex-shrink:0;
+    border:1.5px solid var(--auth-card-border);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .assembly-item.selected .assembly-check{background:var(--auth-btn-primary);border-color:var(--auth-btn-primary);}
+  .assembly-check i{font-size:10px;color:#fff;display:none;}
+  .assembly-item.selected .assembly-check i{display:block;}
+
+  .empty-state{text-align:center;padding:24px 0;display:none;}
+  .empty-state i{font-size:24px;color:var(--auth-text-muted);display:block;margin-bottom:6px;}
+  .empty-state p{font-size:13px;color:var(--auth-text-secondary);margin:0;}
+
+  .auth-btn{
+    width:100%;height:32px;border-radius:6px;font-size:14px;font-weight:500;
+    cursor:pointer;border:none;outline:none;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    transition:background .15s;font-family:inherit;margin-top:16px;
+  }
+  .auth-btn-primary{background:var(--auth-btn-primary);color:#fff;}
+  .auth-btn-primary:hover:not(:disabled){background:var(--auth-btn-hover);}
+  .auth-btn-primary:disabled{background:var(--auth-btn-disabled);cursor:not-allowed;opacity:.6;}
+
+  .auth-footer{text-align:center;font-size:12px;color:var(--auth-footer);padding:0 16px 20px;background:var(--auth-body-bg);}
+  .auth-footer-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+  .auth-link{color:var(--auth-link);text-decoration:none;font-size:14px;transition:opacity .15s;cursor:pointer;}
+  .auth-link:hover{opacity:.8;}
+</style>
+
+<h2 class="sr-only">Assembly selection screen — choose your church assembly before signing in</h2>
+
+<div class="auth-root" id="auth-root">
+
+  <div class="auth-header">
+    <a class="auth-logo" href="#">
+      <div class="auth-cross"></div>
+      <div class="auth-logo-text">CACI Hub</div>
+    </a>
+    <div class="auth-theme-toggle" id="theme-toggle" role="button" tabindex="0" aria-label="Toggle theme">
+      <span class="auth-toggle-icon">☀️</span>
+      <div class="auth-toggle-track"><div class="auth-toggle-thumb"></div></div>
+      <span class="auth-toggle-label">Light</span>
+    </div>
+  </div>
+  <div class="red-bar"></div>
+
+  <div class="auth-container">
+    <div class="auth-box">
+
+      <div class="auth-heading">
+        <div class="auth-h1">Select your assembly</div>
+        <div class="auth-subtitle">Choose the assembly you belong to</div>
+      </div>
+
+      <div class="auth-card">
+
+        <div class="auth-field" style="margin-bottom:16px;">
+          <label class="auth-label" for="search">Search assemblies</label>
+          <div class="auth-input-wrap">
+            <i class="ti ti-search auth-input-icon" aria-hidden="true"></i>
+            <input class="auth-input" type="text" id="search" placeholder="Name or location…" autocomplete="off" />
+          </div>
+        </div>
+
+        <span class="section-label">Available assemblies</span>
+
+        <div class="assembly-list" id="list">
+
+          <div class="assembly-item" data-id="1" onclick="selectItem(this)">
+            <div class="assembly-avatar"><img src="/mnt/user-data/uploads/caci-logo.jpeg" alt="" /></div>
+            <div class="assembly-info">
+              <p class="assembly-name">CAC Victory Temple</p>
+              <p class="assembly-loc"><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i>Accra Central, Greater Accra</p>
+            </div>
+            <div class="assembly-check"><i class="ti ti-check" aria-hidden="true"></i></div>
+          </div>
+
+          <div class="assembly-item" data-id="2" onclick="selectItem(this)">
+            <div class="assembly-avatar">VB</div>
+            <div class="assembly-info">
+              <p class="assembly-name">CAC Vine Branch</p>
+              <p class="assembly-loc"><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i>Tema Community 5, Greater Accra</p>
+            </div>
+            <div class="assembly-check"><i class="ti ti-check" aria-hidden="true"></i></div>
+          </div>
+
+          <div class="assembly-item" data-id="3" onclick="selectItem(this)">
+            <div class="assembly-avatar">GH</div>
+            <div class="assembly-info">
+              <p class="assembly-name">CAC Glory House</p>
+              <p class="assembly-loc"><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i>Kumasi, Ashanti Region</p>
+            </div>
+            <div class="assembly-check"><i class="ti ti-check" aria-hidden="true"></i></div>
+          </div>
+
+          <div class="assembly-item" data-id="4" onclick="selectItem(this)">
+            <div class="assembly-avatar">RC</div>
+            <div class="assembly-info">
+              <p class="assembly-name">CAC Revival Chapel</p>
+              <p class="assembly-loc"><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i>Takoradi, Western Region</p>
+            </div>
+            <div class="assembly-check"><i class="ti ti-check" aria-hidden="true"></i></div>
+          </div>
+
+          <div class="assembly-item" data-id="5" onclick="selectItem(this)">
+            <div class="assembly-avatar">FS</div>
+            <div class="assembly-info">
+              <p class="assembly-name">CAC Faith Sanctuary</p>
+              <p class="assembly-loc"><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i>Tamale, Northern Region</p>
+            </div>
+            <div class="assembly-check"><i class="ti ti-check" aria-hidden="true"></i></div>
+          </div>
+
+        </div>
+
+        <div class="empty-state" id="empty">
+          <i class="ti ti-building-church" aria-hidden="true"></i>
+          <p>No assemblies match "<span id="empty-term"></span>"</p>
+        </div>
+
+        <button class="auth-btn auth-btn-primary" id="cta-btn" disabled onclick="proceed()">
+          Continue <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </button>
+
+      </div>
+
+      <div class="auth-card" style="text-align:center;padding:14px 20px;">
+        <span style="color:var(--auth-text-secondary);font-size:13px;">
+          Can't find your assembly?
+          <a class="auth-link" href="#" style="margin-left:2px;font-size:13px;" onclick="return false;">Contact support</a>
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="auth-footer">
+    <div class="auth-footer-links">
+      <a class="auth-link" style="font-size:12px;color:var(--auth-footer);" href="#" onclick="return false;">Help</a>
+      <a class="auth-link" style="font-size:12px;color:var(--auth-footer);" href="#" onclick="return false;">Privacy</a>
+      <a class="auth-link" style="font-size:12px;color:var(--auth-footer);" href="#" onclick="return false;">Terms</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let selectedId = null;
+  const assemblies = [
+    {id:1,name:'CAC Victory Temple',location:'Accra Central, Greater Accra'},
+    {id:2,name:'CAC Vine Branch',location:'Tema Community 5, Greater Accra'},
+    {id:3,name:'CAC Glory House',location:'Kumasi, Ashanti Region'},
+    {id:4,name:'CAC Revival Chapel',location:'Takoradi, Western Region'},
+    {id:5,name:'CAC Faith Sanctuary',location:'Tamale, Northern Region'},
+  ];
+
+  let isDark = false;
+  document.getElementById('theme-toggle').addEventListener('click', function() {
+    isDark = !isDark;
+    document.getElementById('auth-root').classList.toggle('dark', isDark);
+    document.querySelector('.auth-toggle-icon').textContent  = isDark ? '🌙' : '☀️';
+    document.querySelector('.auth-toggle-label').textContent = isDark ? 'Dark' : 'Light';
+  });
+
+  function selectItem(el) {
+    document.querySelectorAll('.assembly-item').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedId = parseInt(el.dataset.id);
+    const btn = document.getElementById('cta-btn');
+    btn.disabled = false;
+  }
+
+  document.getElementById('search').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    const items = document.querySelectorAll('.assembly-item');
+    let visible = 0;
+    items.forEach(item => {
+      const name = item.querySelector('.assembly-name').textContent.toLowerCase();
+      const loc  = item.querySelector('.assembly-loc').textContent.toLowerCase();
+      const show = !q || name.includes(q) || loc.includes(q);
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('empty-term').textContent = this.value;
+    document.getElementById('empty').style.display = visible === 0 ? 'block' : 'none';
+  });
+
+  function proceed() {
+    if (!selectedId) return;
+    const a = assemblies.find(x => x.id === selectedId);
+    if (a) sendPrompt('Assembly selected: ' + a.name + ' (' + a.location + '). Show me the branded login screen prototype for this assembly.');
+  }
+</script>
