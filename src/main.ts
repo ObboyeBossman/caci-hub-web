@@ -1,13 +1,11 @@
 // src/main.ts
 // CAC Hub Web — App Entry Point
 //
-// Boot sequence (strict order):
-//   1. Apply saved theme
-//   2. Register modules
-//   3. Load current user
-//   4. Mount shell
-//   5. Initialize modules
-//   6. Start router
+// The boot sequence is now orchestrated by the splash screen:
+//   Stage 1 (splash.ts)        → 2s branded splash + session check
+//   Stage 2 (AssemblySelection) → public assembly picker  [unauthenticated path]
+//   Stage 3 (Login)             → assembly-branded sign-in [unauthenticated path]
+//   Stage 4 (loading.ts)        → profile + modules + shell + router [authenticated path]
 
 import './styles/theme.css'
 import './styles/shell.css'
@@ -19,56 +17,17 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'notyf/notyf.min.css'
 
-import { registerModule, initModules } from '@core/registry'
-import { startRouter } from '@core/router'
-import { loadCurrentUser, getCurrentUser } from '@core/auth'
-import { supabase } from '@core/supabase'
-import { emit, on } from '@core/events'
-import { hasPermission } from '@core/permissions'
-import { mountShell } from './shell/Shell'
-import { initNotificationBell } from './shell/NotificationBell'
-
-import AuthModule from './modules/auth/index'
-import MembershipModule from './modules/membership/index'
-import AdminModule from './modules/admin/index'
-// import DashboardModule  from '@modules/dashboard/index'
-// import SettingsModule   from '@modules/settings/index'
+import { runSplash } from './core/splash'
 
 async function boot(): Promise<void> {
-  console.log('[main] CAC Hub Web starting...')
+  console.log('[main] CAC Hub Web starting…')
 
-  // ── 0. Apply saved theme immediately (prevents flash) ───────────────────
+  // Apply saved theme immediately to prevent flash
   const savedTheme = localStorage.getItem('caci-theme')
   if (savedTheme) document.documentElement.dataset['theme'] = savedTheme
 
-  // ── 1. Register modules ─────────────────────────────────────────────────
-  registerModule(AuthModule)
-  registerModule(MembershipModule)
-  registerModule(AdminModule)       // enabled: false — skipped silently
-  // registerModule(DashboardModule)
-  // registerModule(SettingsModule)
-
-  // ── 2. Load authenticated user ──────────────────────────────────────────
-  await loadCurrentUser()
-  const user = getCurrentUser()
-  console.log('[main] Auth state:', user ? `user=${user.id}` : 'unauthenticated')
-
-  // ── 3. Mount shell ──────────────────────────────────────────────────────
-  mountShell()
-  initNotificationBell()
-
-  // ── 4. Initialize modules ───────────────────────────────────────────────
-  await initModules({
-    supabase,
-    eventBus: { emit, on },
-    permissions: { hasPermission },
-    currentUser: getCurrentUser,
-  })
-
-  // ── 5. Start router ─────────────────────────────────────────────────────
-  startRouter()
-
-  console.log('[main] Boot complete')
+  // Hand off to the splash boot flow (Stages 1 → 4)
+  await runSplash()
 }
 
 boot().catch((err) => {

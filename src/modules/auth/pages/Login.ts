@@ -2,10 +2,10 @@
 // UI ported from: auth refs/caci_hub_auth_module.html (panel-signin)
 
 import { authService, mapAuthError } from '../services/authService'
-import { navigate }                  from '../../../core/router'
-import { loadCurrentUser }           from '../../../core/auth'
-import { getFirstModuleRoute }       from '../../../core/registry'
-import type { PageModule }           from '../../../types/module.types'
+import { navigate } from '../../../core/router'
+import { getCurrentUser, loadCurrentUser } from '../../../core/auth'
+import { getFirstModuleRoute } from '../../../core/registry'
+import type { PageModule } from '../../../types/module.types'
 
 let _container: HTMLElement | null = null
 
@@ -44,41 +44,23 @@ function _toggleEye(pwId: string, eyeId: string) {
   if (eye) eye.style.opacity = show ? '1' : '0.4'
 }
 
-// ── Sign-in handler ───────────────────────────────────────────────────────────
-
-async function _handleSignIn() {
-  if (!_container) return
-  const emailInput = _container.querySelector('#signin-email-input') as HTMLInputElement
-  const pwInput    = _container.querySelector('#signin-pw')          as HTMLInputElement
-
-  _hideError()
-
-  if (!emailInput.value.trim() || !pwInput.value) {
-    _showError('Please enter both email and password.')
-    return
-  }
-
-  _setLoading(true)
-  try {
-    await authService.signIn(emailInput.value.trim(), pwInput.value)
-    await loadCurrentUser()  // refresh auth state
-
-    // TEMPORARY: Skip TOTP verification/enrollment and go directly to first module
-    // const enrolled = await authService.hasTotpEnrolled()
-    // navigate(enrolled ? '/totp-verify' : '/totp-enroll')
-    navigate(getFirstModuleRoute())
-  } catch (err) {
-    _showError(mapAuthError(err))
-    _setLoading(false)
-  }
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
+
 
 export const Login: PageModule = {
   async render(container: HTMLElement) {
     _container = container
 
+    // ── 1. Read Assembly Branding ───────────────────────────────────────────
+    const assemblyJson = sessionStorage.getItem('selectedAssembly')
+    if (!assemblyJson) {
+      console.warn('[Login] No assembly selected. Redirecting to selection.')
+      navigate('/select-assembly')
+      return
+    }
+    const assembly = JSON.parse(assemblyJson)
+
+    // ── 2. Render UI ────────────────────────────────────────────────────────
     container.innerHTML = `
       <div class="auth-root">
 
@@ -102,6 +84,20 @@ export const Login: PageModule = {
             <div class="auth-heading">
               <div class="auth-h1">Sign in to CACI Hub</div>
               <div class="auth-subtitle">Securely access your account</div>
+            </div>
+
+            <!-- Assembly Badge -->
+            <div class="assembly-badge" style="display: flex; align-items: center; gap: 12px; background: var(--auth-card-bg); border: 1px solid var(--auth-card-border); border-radius: 6px; padding: 10px 14px; margin-bottom: 20px;">
+              <div class="assembly-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: var(--auth-body-bg); border: 1px solid var(--auth-card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                ${assembly.logo_url ? `<img src="${assembly.logo_url}" style="width: 100%; height: 100%; object-fit: cover;">` : `<img src="/caci-logo.jpeg" style="width: 100%; height: 100%; object-fit: cover;">`}
+              </div>
+              <div class="assembly-badge-info" style="flex: 1; min-width: 0;">
+                <p class="assembly-badge-name" style="font-size: 13px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--auth-text-primary);">${assembly.name}</p>
+                <p class="assembly-badge-loc" style="font-size: 11px; color: var(--auth-text-secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <i class="bi bi-geo-alt"></i> ${assembly.branch_location || 'Unknown location'}
+                </p>
+              </div>
+              <a class="auth-link" href="#/select-assembly" style="font-size: 12px; flex-shrink: 0;">Change</a>
             </div>
 
             <!-- Card -->
@@ -161,37 +157,77 @@ export const Login: PageModule = {
       </div>
     `
 
+    // ── 3. Internal Logic ───────────────────────────────────────────────────
+    const handleSignInInternal = async () => {
+      const emailInput = container.querySelector('#signin-email-input') as HTMLInputElement
+      const pwInput = container.querySelector('#signin-pw') as HTMLInputElement
+
+      _hideError()
+
+      if (!emailInput.value.trim() || !pwInput.value) {
+        _showError('Please enter both email and password.')
+        return
+      }
+
+      _setLoading(true)
+      try {
+        await authService.signIn(emailInput.value.trim(), pwInput.value)
+        await loadCurrentUser() 
+        const user = getCurrentUser() as any
+
+        // ── Membership Verification ──────────────────────────────────────────
+        // Users must belong to the selected assembly to proceed.
+        // Exception: National Admins / Overseers.
+        const isStaff = user?.role === 'national_admin' || user?.role === 'district_overseer'
+        if (user && !isStaff && user.assembly_id !== assembly.id) {
+          await authService.signOut()
+          _showError(`You are not registered with ${assembly.name}. Please select the correct assembly.`)
+          _setLoading(false)
+          return
+        }
+
+        // Progress to Stage 4 (Loading/Boot Sequence)
+        const { runLoading } = await import('../../../core/loading')
+        runLoading()
+        
+      } catch (err) {
+        _showError(mapAuthError(err))
+        _setLoading(false)
+      }
+    }
+
     // Listeners
     container.querySelector('#signin-btn')
-      ?.addEventListener('click', _handleSignIn)
+      ?.addEventListener('click', handleSignInInternal)
 
     container.querySelector('#signin-pw')
-      ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') _handleSignIn() })
+      ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
 
     container.querySelector('#signin-email-input')
-      ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') _handleSignIn() })
+      ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
 
     container.querySelector('#eye-btn')
       ?.addEventListener('click', () => _toggleEye('signin-pw', 'eye-btn'))
 
+
     // Theme toggle
     const toggle = container.querySelector('#auth-theme-toggle')
     toggle?.addEventListener('click', () => {
-      const html  = document.documentElement
-      const next  = html.dataset['theme'] === 'dark' ? 'light' : 'dark'
+      const html = document.documentElement
+      const next = html.dataset['theme'] === 'dark' ? 'light' : 'dark'
       html.dataset['theme'] = next
       localStorage.setItem('caci-theme', next)
-      const icon  = container.querySelector('.auth-toggle-icon') as HTMLElement
+      const icon = container.querySelector('.auth-toggle-icon') as HTMLElement
       const label = container.querySelector('.auth-toggle-label') as HTMLElement
-      if (icon)  icon.textContent  = next === 'dark' ? '🌙' : '☀️'
+      if (icon) icon.textContent = next === 'dark' ? '🌙' : '☀️'
       if (label) label.textContent = next === 'dark' ? 'Dark' : 'Light'
     })
 
     // Sync toggle label to current theme on mount
     const currentTheme = document.documentElement.dataset['theme'] || 'light'
-    const icon  = container.querySelector('.auth-toggle-icon')  as HTMLElement
+    const icon = container.querySelector('.auth-toggle-icon') as HTMLElement
     const label = container.querySelector('.auth-toggle-label') as HTMLElement
-    if (icon)  icon.textContent  = currentTheme === 'dark' ? '🌙' : '☀️'
+    if (icon) icon.textContent = currentTheme === 'dark' ? '🌙' : '☀️'
     if (label) label.textContent = currentTheme === 'dark' ? 'Dark' : 'Light'
   },
 

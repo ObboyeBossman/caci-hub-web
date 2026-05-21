@@ -7,7 +7,7 @@
   "background_color": "#ffffff",
   "theme_color": "#C60026",
   "icons": [
-    { "src": "/caci-logo.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/caci-logo.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/caci-logo.jpeg", "sizes": "192x192", "type": "image/png" },
+    { "src": "/caci-logo.jpeg", "sizes": "512x512", "type": "image/png" }
   ]
 }

@@ -4,8 +4,13 @@ import type { RouteDefinition } from '../../types/module.types'
 
 export const routes: RouteDefinition[] = [
   {
-    path:     '/',
+    path: '/',
     redirect: '/members',
+  },
+  {
+    path: '/select-assembly',
+    page: () => import('./pages/AssemblySelection'),
+    presentation: 'fullscreen',
   },
   {
     path: '/login',
@@ -31,5 +36,6 @@ export const routes: RouteDefinition[] = [
     path: '/totp-verify',
     page: () => import('./pages/Totp'),
     presentation: 'fullscreen',
-  }
+  },
 ]
+
