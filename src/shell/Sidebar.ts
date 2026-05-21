@@ -91,31 +91,12 @@ export class Sidebar {
       },
     ]
 
-    const extIcon = `
-      <svg class="ext-icon" viewBox="0 0 24 24">
-        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-        <polyline points="15 3 21 3 21 9"/>
-        <line x1="10" y1="14" x2="21" y2="3"/>
-      </svg>`
-
-    return modules.map(m => {
-      if ('route' in m) {
-        // Internal SPA route — no external link icon
-        return `
-          <div class="mod-placeholder" data-mod-route="${m.route}">
-            <svg viewBox="0 0 24 24">${m.svg}</svg>
-            <span class="mod-placeholder-label">${m.label}</span>
-          </div>
-        `
-      }
-      return `
-        <div class="mod-placeholder" data-href="${m.href}">
-          <svg viewBox="0 0 24 24">${m.svg}</svg>
-          <span class="mod-placeholder-label">${m.label}</span>
-          ${extIcon}
-        </div>
-      `
-    }).join('')
+    return modules.map(m => `
+      <div class="mod-placeholder" data-mod-route="${m.route}">
+        <svg viewBox="0 0 24 24">${m.svg}</svg>
+        <span class="mod-placeholder-label">${m.label}</span>
+      </div>
+    `).join('')
   }
 
   private _renderQuickLinks(): string {
