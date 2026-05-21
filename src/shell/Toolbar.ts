@@ -31,6 +31,7 @@ export class Toolbar {
         </button>
         <a class="logo" href="#/" id="topnav-logo">
           <img src="/src/assets/caci-logo.png" alt="CACI Hub" class="logo-img" />
+          CACI Hub
         </a>
       </div>
 
