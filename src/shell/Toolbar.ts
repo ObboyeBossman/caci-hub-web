@@ -82,7 +82,7 @@ export class Toolbar {
     const sessionAsm = sessionStorage.getItem('selectedAssembly')
     if (sessionAsm) {
       try {
-        const asm = JSON.parse(sessionAsm)
+        const asm = JSON.parse(sessionAsm) as { name: string }
         if (asm && asm.name) this._updateAssemblyName(asm.name)
       } catch (e) {}
     } else if (!assemblyId) {
@@ -93,17 +93,18 @@ export class Toolbar {
     if (assemblyId) {
       // 1. Fetch initial name to ensure accuracy
       supabase.from('assemblies').select('name').eq('id', assemblyId).single().then(({ data }) => {
-        if (data && data.name) {
-          this._updateAssemblyName(data.name)
+        const asmData = data as { name: string } | null
+        if (asmData && asmData.name) {
+          this._updateAssemblyName(asmData.name)
           
           // Also update sessionStorage to keep things in sync across reloads
           if (sessionAsm) {
              try {
-               const asm = JSON.parse(sessionAsm)
-               sessionStorage.setItem('selectedAssembly', JSON.stringify({ ...asm, name: data.name }))
+               const asm = JSON.parse(sessionAsm) as { name: string }
+               sessionStorage.setItem('selectedAssembly', JSON.stringify({ ...asm, name: asmData.name }))
              } catch(e) {}
           } else {
-             sessionStorage.setItem('selectedAssembly', JSON.stringify({ id: assemblyId, name: data.name }))
+             sessionStorage.setItem('selectedAssembly', JSON.stringify({ id: assemblyId, name: asmData.name }))
           }
         }
       })
@@ -118,7 +119,7 @@ export class Toolbar {
             const currentSession = sessionStorage.getItem('selectedAssembly')
             if (currentSession) {
                try {
-                 const asm = JSON.parse(currentSession)
+                 const asm = JSON.parse(currentSession) as { name: string }
                  sessionStorage.setItem('selectedAssembly', JSON.stringify({ ...asm, name: payload.new.name }))
                } catch(e) {}
             }
@@ -207,10 +208,9 @@ export function showProfilePopup(): void {
         <i class="bi bi-person" style="font-size:15px"></i>
         <span>My Profile</span>
       </button>
-      <button class="profile-menu-item" data-action="settings" disabled style="opacity:0.5;cursor:not-allowed">
+      <button class="profile-menu-item" data-action="settings">
         <i class="bi bi-gear" style="font-size:15px"></i>
         <span>Settings</span>
-        <span class="soon-chip">SOON</span>
       </button>
       <hr style="margin:4px 0;border-color:var(--border-default)">
       <button class="profile-menu-item danger" data-action="logout">
@@ -228,12 +228,16 @@ export function showProfilePopup(): void {
   }, 0)
 
   el.querySelectorAll<HTMLElement>('[data-action]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.stopPropagation()
       const action = btn.dataset['action']
       _closeProfilePopup()
       if (action === 'logout')  _handleLogout()
       if (action === 'profile') navigate('/profile')
+      if (action === 'settings') {
+        const { SettingsOverlay } = await import('../modules/settings/pages/SettingsOverlay')
+        SettingsOverlay.open()
+      }
     })
   })
 }

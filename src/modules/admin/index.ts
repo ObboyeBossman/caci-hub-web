@@ -15,13 +15,15 @@ const AdminModule: ModuleManifest = {
 
   routes: adminRoutes,
 
-  sidebar: {
-    label:      'Admin',
-    icon:       'shield-lock',
-    path:       '/admin/users',
-    permission: 'admin.access',
-    order:      90,
-  },
+  sidebar: [
+    {
+      label:      'Admin',
+      icon:       'shield-lock',
+      path:       '/admin/users',
+      permission: 'admin.access',
+      order:      90,
+    }
+  ],
 }
 
 export default AdminModule

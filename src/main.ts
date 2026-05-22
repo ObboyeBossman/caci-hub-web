@@ -13,14 +13,20 @@ import './styles/components.css'
 import './modules/auth/styles/auth.css'
 import './styles/utilities.css'
 import './modules/membership/styles/membership.css'
+import './modules/settings/styles/settings.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'notyf/notyf.min.css'
 
 import { runSplash } from './core/splash'
+import { registerModule } from './core/registry'
+import SettingsModule from './modules/settings'
 
 async function boot(): Promise<void> {
   console.log('[main] CAC Hub Web starting…')
+
+  // Register modules
+  registerModule(SettingsModule)
 
   // Apply saved theme immediately to prevent flash
   const savedTheme = localStorage.getItem('caci-theme')
