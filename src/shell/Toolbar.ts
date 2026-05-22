@@ -235,7 +235,7 @@ export function showProfilePopup(): void {
       if (action === 'logout')  _handleLogout()
       if (action === 'profile') navigate('/profile')
       if (action === 'settings') {
-        const { SettingsOverlay } = await import('../modules/settings/pages/SettingsOverlay')
+        const { SettingsOverlay } = await import('@modules/settings/pages/SettingsOverlay')
         SettingsOverlay.open()
       }
     })

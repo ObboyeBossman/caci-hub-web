@@ -1,6 +1,4 @@
 // src/modules/settings/index.ts
-// Settings module manifest.
-
 import type { ModuleManifest } from '../../types/module.types';
 
 const SettingsModule: ModuleManifest = {
@@ -9,9 +7,6 @@ const SettingsModule: ModuleManifest = {
   description: 'User settings and preferences',
   icon: 'gear-fill',
   enabled: true,
-
-  // Settings is opened programmatically via the profile popup,
-  // so it doesn't need its own sidebar item or routes for now.
   routes: [],
   sidebar: [],
 

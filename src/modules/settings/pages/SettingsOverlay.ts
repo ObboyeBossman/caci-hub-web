@@ -1,179 +1,206 @@
 // src/modules/settings/pages/SettingsOverlay.ts
-// Handles the full-screen settings overlay.
-// Ported from Prototype/settings-module.html
 
 import { getCurrentUser } from '@core/auth';
-import { showToast } from '../../../shell/Shell';
+import { makeToast }      from './utils/settingsToast';
+import { profilePanelHTML, bindProfilePanel, onPwdStrengthInput } from './panels/ProfilePanel';
+import { appearancePanelHTML, bindAppearancePanel, syncThemeSeg } from './panels/AppearancePanel';
+import { localePanelHTML, bindLocalePanel }                       from './panels/LocalePanel';
+import { notificationsPanelHTML, bindNotificationsPanel }         from './panels/NotificationsPanel';
+import { securityPanelHTML, bindSecurityPanel }                   from './panels/SecurityPanel';
+
+const TABS = ['profile','account','appearance','locale','notifications','security'] as const;
+type Tab = typeof TABS[number];
 
 export class SettingsOverlay {
   private static _instance: SettingsOverlay | null = null;
   private _el: HTMLElement | null = null;
-  private _activeTab: string = 'profile';
+  private _escHandler: ((e: KeyboardEvent) => void) | null = null;
 
   static open(): void {
     if (this._instance) return;
     this._instance = new SettingsOverlay();
-    this._instance.render();
+    this._instance._render();
   }
 
   static close(): void {
     if (!this._instance) return;
-    this._instance.destroy();
+    this._instance._destroy();
     this._instance = null;
   }
 
-  private render(): void {
-    const user = getCurrentUser();
+  private _render(): void {
+    const user        = getCurrentUser();
     const displayName = user?.fullName ?? 'User';
-    const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const email       = user?.email    ?? '';
+    const role        = user?.role?.replace(/_/g, ' ') ?? 'Member';
+    const initials    = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
     this._el = document.createElement('div');
     this._el.className = 'settings-overlay';
-    this._el.id = 'settings-overlay';
-    
+    this._el.setAttribute('role', 'dialog');
+    this._el.setAttribute('aria-modal', 'true');
+    this._el.setAttribute('aria-label', 'Settings');
+
     this._el.innerHTML = `
-      <div class="settings-modal" role="dialog" aria-modal="true">
-        <!-- Header -->
+      <div class="settings-toast" id="s-toast"></div>
+
+      <!-- Password modal -->
+      <div class="settings-pwd-overlay" id="s-pwd-overlay">
+        <div class="settings-pwd-modal">
+          <h3>Change password</h3>
+          <div class="settings-pwd-field">
+            <label>Current password</label>
+            <input type="password" id="s-pwd-current" placeholder="Enter current password"/>
+          </div>
+          <div class="settings-pwd-field">
+            <label>New password</label>
+            <input type="password" id="s-pwd-new" placeholder="At least 8 characters"/>
+            <div class="settings-strength-bar">
+              <div class="settings-strength-seg" id="s-s1"></div>
+              <div class="settings-strength-seg" id="s-s2"></div>
+              <div class="settings-strength-seg" id="s-s3"></div>
+              <div class="settings-strength-seg" id="s-s4"></div>
+            </div>
+            <div class="settings-strength-label" id="s-strength-lbl"></div>
+          </div>
+          <div class="settings-pwd-field">
+            <label>Confirm new password</label>
+            <input type="password" id="s-pwd-confirm" placeholder="Repeat new password"/>
+          </div>
+          <div class="settings-pwd-actions">
+            <button class="btn btn-ghost" id="s-pwd-cancel-btn">Cancel</button>
+            <button class="btn btn-primary" id="s-pwd-save-btn">Update password</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-modal">
         <div class="settings-head">
           <span class="settings-head-title">Settings</span>
           <div class="settings-head-actions">
-            <button class="settings-icon-btn" id="settings-close-btn" title="Close"><i class="bi bi-x-lg"></i></button>
+            <button class="settings-icon-btn" id="s-close-btn" title="Close">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
         </div>
 
-        <!-- Layout -->
+        <div class="settings-offline-banner" id="s-offline-banner">
+          <i class="bi bi-wifi-off"></i>
+          <span>You're offline — changes will sync when you reconnect.</span>
+        </div>
+
+        <div class="settings-tab-strip">
+          ${TABS.map((t, i) => `
+            <button class="settings-tab-item ${i === 0 ? 'active' : ''}" data-tab="${t}">
+              <i class="bi bi-${_tabIcon(t)}"></i> ${_tabLabel(t)}
+            </button>`).join('')}
+        </div>
+
         <div class="settings-body-split">
-          <!-- Sidebar -->
           <nav class="settings-sidebar scrollbar-hide">
-             <div class="settings-search-box">
-               <i class="bi bi-search"></i>
-               <input type="text" placeholder="Search settings" id="settings-nav-search"/>
-             </div>
-             <div class="settings-nav-sep">Account</div>
-             <button class="settings-nav-btn active" data-tab="profile"><i class="bi bi-person-circle"></i>Profile</button>
-             <button class="settings-nav-btn" data-tab="appearance"><i class="bi bi-palette"></i>Appearance</button>
-             <button class="settings-nav-btn" data-tab="language"><i class="bi bi-globe"></i>Language & Region</button>
-             <div class="settings-nav-sep">Preferences</div>
-             <button class="settings-nav-btn" data-tab="notifications"><i class="bi bi-bell"></i>Notifications</button>
-             <button class="settings-nav-btn" data-tab="security"><i class="bi bi-shield-lock"></i>Privacy & Security</button>
+            <div class="settings-search-box">
+              <i class="bi bi-search"></i>
+              <input type="text" placeholder="Search settings" id="s-nav-search"/>
+            </div>
+            <div class="settings-nav-sep">Account</div>
+            ${['profile','account','appearance','locale'].map((t, i) => `
+              <button class="settings-nav-btn ${i === 0 ? 'active' : ''}" data-tab="${t}">
+                <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
+              </button>`).join('')}
+            <div class="settings-nav-sep">Preferences</div>
+            ${['notifications','security'].map(t => `
+              <button class="settings-nav-btn" data-tab="${t}">
+                <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
+              </button>`).join('')}
+            <div class="settings-nav-spacer"></div>
           </nav>
 
-          <!-- Content Area -->
           <div class="settings-content scrollbar-hide">
-            
-            <!-- PROFILE PANEL -->
-            <section class="settings-panel active" id="settings-panel-profile">
-              <p class="settings-sec">Profile photo</p>
-              <div class="settings-row">
-                <span class="settings-lbl">Avatar<small>JPEG, PNG or WEBP · max 5 MB.</small></span>
-                <div class="settings-field-r">
-                   <div class="settings-avatar">
-                     <span>${initials}</span>
-                   </div>
-                   <button class="btn btn-sm btn-outline-secondary">Upload</button>
-                </div>
-              </div>
-
-              <p class="settings-sec">Personal information</p>
-              <div class="settings-row">
-                <span class="settings-lbl">Display name</span>
-                <input type="text" class="form-control form-control-sm" value="${displayName}" style="max-width:300px"/>
-              </div>
-              <div class="settings-row">
-                <span class="settings-lbl">Email address</span>
-                <input type="email" class="form-control form-control-sm" value="${user?.email ?? ''}" style="max-width:300px"/>
-              </div>
-
-              <div class="settings-save-bar">
-                <button class="btn btn-primary btn-sm">Save changes</button>
-              </div>
-            </section>
-
-            <!-- APPEARANCE PANEL -->
-            <section class="settings-panel" id="settings-panel-appearance">
-              <p class="settings-sec">Theme</p>
-              <div class="settings-row">
-                <span class="settings-lbl">Colour scheme</span>
-                <div class="settings-seg">
-                  <button class="settings-seg-btn" data-theme="light">Light</button>
-                  <button class="settings-seg-btn active" data-theme="system">System</button>
-                  <button class="settings-seg-btn" data-theme="dark">Dark</button>
-                </div>
-              </div>
-            </section>
-
-            <!-- OTHER PANELS STUBBED FOR NOW -->
-            <section class="settings-panel" id="settings-panel-language">
-              <p class="settings-sec">Language & Region</p>
-              <div class="alert alert-info py-2">Language settings coming soon.</div>
-            </section>
-            
-            <section class="settings-panel" id="settings-panel-notifications">
-              <p class="settings-sec">Notifications</p>
-              <div class="alert alert-info py-2">Notification preferences coming soon.</div>
-            </section>
-
-            <section class="settings-panel" id="settings-panel-security">
-              <p class="settings-sec">Privacy & Security</p>
-              <div class="alert alert-info py-2">Security settings coming soon.</div>
-            </section>
-
+            ${profilePanelHTML(displayName, email, role, initials)}
+            ${appearancePanelHTML()}
+            ${localePanelHTML()}
+            ${notificationsPanelHTML(true)}
+            ${securityPanelHTML()}
           </div>
         </div>
       </div>
     `;
 
     document.body.appendChild(this._el);
-    this._bindEvents();
+    this._bindShellEvents();
+
+    // Delegate to panels
+    const ctx = { el: this._el, toast: makeToast(this._el) };
+    bindProfilePanel(ctx);
+    bindAppearancePanel(ctx);
+    bindLocalePanel(ctx);
+    bindNotificationsPanel(ctx, true);
+    bindSecurityPanel(ctx);
+    syncThemeSeg(this._el);
+
+    // Wire password strength (no inline handlers needed)
+    this._el.querySelector('#s-pwd-new')?.addEventListener('input', (e) => {
+      onPwdStrengthInput((e.target as HTMLInputElement).value, this._el!);
+    });
   }
 
-  private _bindEvents(): void {
+  private _bindShellEvents(): void {
     if (!this._el) return;
+    const el = this._el;
 
-    // Close button
-    this._el.querySelector('#settings-close-btn')?.addEventListener('click', () => SettingsOverlay.close());
+    el.querySelector('#s-close-btn')?.addEventListener('click', () => SettingsOverlay.close());
+    el.addEventListener('click', (e) => { if (e.target === el) SettingsOverlay.close(); });
 
-    // Backdrop click
-    this._el.addEventListener('click', (e) => {
-      if (e.target === this._el) SettingsOverlay.close();
+    this._escHandler = (e: KeyboardEvent) => { if (e.key === 'Escape') SettingsOverlay.close(); };
+    document.addEventListener('keydown', this._escHandler);
+
+    el.querySelectorAll<HTMLElement>('[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => this._switchTab(btn.dataset['tab'] as Tab));
     });
 
-    // Escape key
-    const escHandler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        SettingsOverlay.close();
-        document.removeEventListener('keydown', escHandler);
-      }
-    };
-    document.addEventListener('keydown', escHandler);
-
-    // Tab switching
-    this._el.querySelectorAll('.settings-nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = (btn as HTMLElement).dataset.tab!;
-        this._switchTab(tab);
+    el.querySelector('#s-nav-search')?.addEventListener('input', (e) => {
+      const q = (e.target as HTMLInputElement).value.toLowerCase();
+      el.querySelectorAll<HTMLElement>('.settings-nav-btn').forEach(b => {
+        b.style.display = b.textContent!.toLowerCase().includes(q) ? '' : 'none';
       });
     });
+
+    const banner = el.querySelector<HTMLElement>('#s-offline-banner')!;
+    window.addEventListener('online',  () => banner.classList.remove('show'));
+    window.addEventListener('offline', () => banner.classList.add('show'));
+    if (!navigator.onLine) banner.classList.add('show');
   }
 
-  private _switchTab(tabId: string): void {
+  private _switchTab(tabId: Tab): void {
     if (!this._el) return;
-    
-    // Update nav
-    this._el.querySelectorAll('.settings-nav-btn').forEach(b => b.classList.remove('active'));
-    this._el.querySelector(`.settings-nav-btn[data-tab="${tabId}"]`)?.classList.add('active');
-
-    // Update panels
+    this._el.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+    this._el.querySelectorAll(`[data-tab="${tabId}"]`).forEach(b => b.classList.add('active'));
     this._el.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-    this._el.querySelector(`#settings-panel-${tabId}`)?.classList.add('active');
-    
-    this._activeTab = tabId;
+    this._el.querySelector(`#s-panel-${tabId}`)?.classList.add('active');
   }
 
-  private destroy(): void {
-    if (this._el) {
-      this._el.remove();
-      this._el = null;
-    }
+  private _destroy(): void {
+    if (this._escHandler) document.removeEventListener('keydown', this._escHandler);
+    this._el?.remove();
+    this._el = null;
   }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function _tabIcon(tab: Tab): string {
+  const map: Record<Tab, string> = {
+    profile: 'person-circle', account: 'shield-lock',
+    appearance: 'palette',    locale: 'globe',
+    notifications: 'bell',    security: 'shield-check',
+  };
+  return map[tab];
+}
+
+function _tabLabel(tab: Tab): string {
+  const map: Record<Tab, string> = {
+    profile: 'Profile',        account: 'Account',
+    appearance: 'Appearance',  locale: 'Language & Region',
+    notifications: 'Notifications', security: 'Privacy & Security',
+  };
+  return map[tab];
 }
