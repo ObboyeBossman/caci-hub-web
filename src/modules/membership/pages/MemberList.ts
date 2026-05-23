@@ -277,7 +277,7 @@ async function _renderStats(): Promise<void> {
 
   // 2. Local filtering for small sidebar quick stats (stays based on loaded subset)
   const m = _state.members
-  
+
   const update = (id: string, val: string) => {
     const el = _container!.querySelector(`#${id}`)
     if (el) el.textContent = val
@@ -1634,7 +1634,7 @@ function _buildInitialState(): State {
     activeTab: _getInitialTabFromHash(), sidebarFilter: 'all',
     selectedIds: new Set(),
     page: 1,
-    statusFilters: new Set(['active', 'visitor']),
+    statusFilters: new Set(),
     genderFilters: new Set(),
     // Attendance
     attSessions: [
@@ -1860,16 +1860,16 @@ function _buildHTML(): string {
         <button class="mm-filter-clear" data-filter-clear="status">Clear</button>
       </div>
       <button class="mm-filter-option" data-filter-group="status" data-filter-val="active">
-        <div class="mm-filter-cb checked"></div> Active <span class="mm-filter-option-count">—</span>
+        <div class="mm-filter-cb ${_state!.statusFilters.has('active') ? 'checked' : ''}"></div> Active <span class="mm-filter-option-count">—</span>
       </button>
       <button class="mm-filter-option" data-filter-group="status" data-filter-val="inactive">
-        <div class="mm-filter-cb"></div> Inactive <span class="mm-filter-option-count">—</span>
+        <div class="mm-filter-cb ${_state!.statusFilters.has('inactive') ? 'checked' : ''}"></div> Inactive <span class="mm-filter-option-count">—</span>
       </button>
       <button class="mm-filter-option" data-filter-group="status" data-filter-val="visitor">
-        <div class="mm-filter-cb checked"></div> Visitor <span class="mm-filter-option-count">—</span>
+        <div class="mm-filter-cb ${_state!.statusFilters.has('visitor') ? 'checked' : ''}"></div> Visitor <span class="mm-filter-option-count">—</span>
       </button>
       <button class="mm-filter-option" data-filter-group="status" data-filter-val="prospect">
-        <div class="mm-filter-cb"></div> Prospect <span class="mm-filter-option-count">—</span>
+        <div class="mm-filter-cb ${_state!.statusFilters.has('prospect') ? 'checked' : ''}"></div> Prospect <span class="mm-filter-option-count">—</span>
       </button>
     </div>
 
@@ -1880,10 +1880,10 @@ function _buildHTML(): string {
         <button class="mm-filter-clear" data-filter-clear="gender">Clear</button>
       </div>
       <button class="mm-filter-option" data-filter-group="gender" data-filter-val="male">
-        <div class="mm-filter-cb checked"></div> Male <span class="mm-filter-option-count">—</span>
+        <div class="mm-filter-cb ${_state!.genderFilters.has('male') ? 'checked' : ''}"></div> Male <span class="mm-filter-option-count">—</span>
       </button>
       <button class="mm-filter-option" data-filter-group="gender" data-filter-val="female">
-        <div class="mm-filter-cb checked"></div> Female <span class="mm-filter-option-count">—</span>
+        <div class="mm-filter-cb ${_state!.genderFilters.has('female') ? 'checked' : ''}"></div> Female <span class="mm-filter-option-count">—</span>
       </button>
     </div>
 
@@ -1892,10 +1892,10 @@ function _buildHTML(): string {
     <div class="mm-filter-group">
       <div class="mm-filter-group-label">Joined</div>
       <select class="mm-filter-select" id="mm-joinedFilter">
-        <option value="all">All Time</option>
+        <option value="all" ${_state!.sidebarFilter === 'all' ? 'selected' : ''}>All Time</option>
         <option value="month">This Month</option>
         <option value="quarter">Last 3 Months</option>
-        <option value="year" selected>This Year</option>
+        <option value="year">This Year</option>
         <option value="last-year">Last Year</option>
       </select>
     </div>
