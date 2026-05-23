@@ -1634,7 +1634,7 @@ function _buildInitialState(): State {
     activeTab: _getInitialTabFromHash(), sidebarFilter: 'all',
     selectedIds: new Set(),
     page: 1,
-    statusFilters: new Set(),
+    statusFilters: new Set(['active', 'visitor']),
     genderFilters: new Set(),
     // Attendance
     attSessions: [
