@@ -67,10 +67,10 @@ ul {
 }
 
 .offline-banner {
-  background: var(--caci-danger);
+  background: #9B1C1C; /* Muted crimson instead of bright danger red */
   color: #fff;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   height: 0;
   display: flex;
   align-items: center;
