@@ -1902,7 +1902,7 @@ function _buildHTML(): string {
   </div>
 
   <!-- Quick Stats -->
-  <div class="mm-sidebar-card">
+  <div class="mm-sidebar-card mm-mobile-hide">
     <div class="mm-sidebar-title">Quick Stats</div>
     <div class="mm-qs-item"><span class="mm-qs-label">Active</span><span class="mm-qs-val" id="mm-qs-active">—</span></div>
     <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" style="width:90%;background:var(--mm-blue);"></div></div>
