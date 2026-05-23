@@ -195,6 +195,7 @@ export function showProfilePopup(): void {
   const anchor = document.getElementById('sidebar-profile-btn')
   let css = 'position:fixed; z-index:9999;'
   if (anchor) {
+    anchor.classList.add('active')
     const rect = anchor.getBoundingClientRect()
     const bottom = window.innerHeight - rect.top + 8
     css += `bottom:${bottom}px; left:${rect.left}px;`
@@ -207,10 +208,10 @@ export function showProfilePopup(): void {
   el.style.cssText = css
   el.innerHTML = `
     <div class="profile-popup-header">
-      <div class="sidebar-avatar" style="width:34px;height:34px;font-size:13px">${initials}</div>
+      <div class="profile-popup-avatar">${initials}</div>
       <div style="overflow:hidden">
         <div class="profile-popup-name">${displayName}</div>
-        <div class="profile-popup-role" style="text-transform:capitalize">${roleLabel}</div>
+        <div class="profile-popup-role">${roleLabel}</div>
       </div>
     </div>
     <div class="profile-popup-divider"></div>
@@ -220,7 +221,7 @@ export function showProfilePopup(): void {
         <i class="bi bi-gear" style="font-size:15px"></i>
         <span>Settings</span>
       </button>
-      <hr style="margin:4px 0;border-color:var(--border-default)">
+      <div class="profile-popup-divider"></div>
       <button class="profile-menu-item danger" data-action="logout">
         <i class="bi bi-box-arrow-right" style="font-size:15px"></i>
         <span>Log out</span>
@@ -389,6 +390,7 @@ export function showLogoutConfirm(): void {
 function _closeProfilePopup(): void {
   _profileOverlay?.remove()
   _profileOverlay = null
+  document.getElementById('sidebar-profile-btn')?.classList.remove('active')
 }
 
 async function _handleLogout(): Promise<void> {

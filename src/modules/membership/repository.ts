@@ -194,7 +194,7 @@ export async function getOwnMemberProfile(): Promise<
          households!members_household_id_fkey(id, family_name),
          assemblies(id, name)`
       )
-      .eq('auth_user_id', user.id)
+      .or(`auth_user_id.eq.${user.id},email.eq.${user.email}`)
       .maybeSingle()
 
     if (error) {
