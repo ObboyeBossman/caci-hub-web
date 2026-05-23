@@ -67,9 +67,8 @@ ul {
 }
 
 .offline-banner {
-  background: #FEF2F2; /* Very light soft red */
-  color: #991B1B;      /* Dark contrasting red text */
-  border-bottom: 1px solid #FCA5A5;
+  background: #7F1D1D; /* Even more muted maroon */
+  color: #fff;
   font-size: 15px;
   font-weight: 500;
   height: 0;
@@ -86,13 +85,7 @@ ul {
 
 .offline-banner.show {
   height: 40px;
-}
-
-/* Dark mode overrides */
-[data-theme="dark"] .offline-banner {
-  background: rgba(220, 38, 38, 0.15); /* Soft red tint */
-  color: #FCA5A5; /* Lighter red text */
-  border-bottom: 1px solid rgba(252, 165, 165, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, .15);
 }
 
 .offline-banner svg, .offline-banner i {
