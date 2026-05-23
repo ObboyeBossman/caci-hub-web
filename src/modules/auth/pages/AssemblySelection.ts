@@ -8,6 +8,7 @@ import { supabase } from '../../../core/supabase'
 import { navigate } from '../../../core/router'
 import type { PageModule } from '../../../types/module.types'
 import logoUrl from '../../../assets/caci-logo.png'
+import { debounce } from '@shared/utils/debounce'
 
 interface Assembly {
   id: string
@@ -240,8 +241,7 @@ export const AssemblySelection: PageModule = {
     // Hide all items initially
     items.forEach(item => item.style.display = 'none')
 
-    searchEl.addEventListener('input', () => {
-      const q = searchEl.value.trim().toLowerCase()
+    const _performSearch = debounce((q: string) => {
       let visible = 0
 
       items.forEach(item => {
@@ -258,6 +258,10 @@ export const AssemblySelection: PageModule = {
       emptyTerm.textContent = searchEl.value
       // Only show empty state if user has typed >= 2 chars and nothing matches
       emptyEl.style.display = visible === 0 && q.length >= 2 ? 'block' : 'none'
+    }, 300)
+
+    searchEl.addEventListener('input', () => {
+      _performSearch(searchEl.value.trim().toLowerCase())
     })
 
     // ── Continue → Login ──────────────────────────────────────────────────────
