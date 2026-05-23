@@ -175,7 +175,7 @@ export function onPwdStrengthInput(val: string, el: HTMLElement): void {
   if (/[^A-Za-z0-9]/.test(val))                 score++;
   ['s-s1', 's-s2', 's-s3', 's-s4'].forEach((id, i) => {
     const seg = el.querySelector<HTMLElement>(`#${id}`);
-    if (seg) seg.style.background = i < score ? colors[score - 1] : 'var(--caci-n200)';
+    if (seg) seg.style.background = i < score ? colors[score - 1] : 'var(--border-default)';
   });
   const lbl = el.querySelector<HTMLElement>('#s-strength-lbl');
   if (lbl) {

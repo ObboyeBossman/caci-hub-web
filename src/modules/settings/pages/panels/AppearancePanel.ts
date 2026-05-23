@@ -21,7 +21,7 @@ export function appearancePanelHTML(): string {
       <p class="settings-sec">Accent colour</p>
       <div class="settings-row">
         <span class="settings-lbl">Brand colour<small>Used for buttons, links, and highlights.</small></span>
-        <div class="settings-field-r" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div class="settings-field-r settings-accent-picker">
           <div class="settings-swatches" id="s-swatches">
             <div class="settings-swatch active" style="background:#004BA0" data-color="#004BA0" title="CACI Blue"></div>
             <div class="settings-swatch" style="background:#0969DA" data-color="#0969DA" title="Ocean"></div>
@@ -30,8 +30,7 @@ export function appearancePanelHTML(): string {
             <div class="settings-swatch" style="background:#C60026" data-color="#C60026" title="Red"></div>
             <div class="settings-swatch" style="background:#6E40C9" data-color="#6E40C9" title="Violet"></div>
             <div class="settings-swatch" style="background:#BF4B8A" data-color="#BF4B8A" title="Rose"></div>
-            <input type="color" id="s-color-custom" title="Custom colour"
-              style="width:26px;height:26px;border-radius:50%;border:2px solid var(--border-default);cursor:pointer;padding:0;background:none"/>
+              <input type="color" id="s-color-custom" class="settings-color-input" title="Custom colour"/>
           </div>
           <div class="settings-contrast-warn" id="s-contrast-warn">
             <i class="bi bi-exclamation-triangle"></i> Low contrast — some text may be hard to read.

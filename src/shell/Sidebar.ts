@@ -3,10 +3,10 @@
 // Zero knowledge of which modules exist — all driven by the registry.
 
 import { getSidebarItems } from '@core/registry'
-import { getCurrentUser }   from '@core/auth'
-import { hasPermission }    from '@core/permissions'
-import { navigate }         from '@core/router'
-import { closeDrawer }      from './Shell'
+import { getCurrentUser } from '@core/auth'
+import { hasPermission } from '@core/permissions'
+import { navigate } from '@core/router'
+import { closeDrawer } from './Shell'
 import type { SidebarItem } from '../types/module.types'
 
 /** Membership sub-routes currently under development — block navigation */
@@ -21,16 +21,16 @@ export class Sidebar {
   }
 
   render(): void {
-    const user      = getCurrentUser()
-    const items     = getSidebarItems()
+    const user = getCurrentUser()
+    const items = getSidebarItems()
     const permitted = user
       ? items.filter(item => hasPermission(user.role, item.permission))
       : []
 
-    const initials    = user ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'RA'
+    const initials = user ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'RA'
     const displayName = user?.fullName ?? 'Rev. Admin'
-    const roleLabel   = user?.role?.replace(/_/g, ' ') ?? 'Super Admin'
-    const isDark      = document.documentElement.dataset['theme'] === 'dark'
+    const roleLabel = user?.role?.replace(/_/g, ' ') ?? 'Super Admin'
+    const isDark = document.documentElement.dataset['theme'] === 'dark'
 
     this._el.innerHTML = `
       <div class="sidebar-scroll">
@@ -63,21 +63,28 @@ export class Sidebar {
           <div class="sidebar-theme-row-left">
             <svg id="sidebarThemeIcon" viewBox="0 0 24 24">
               ${isDark
-                ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-                : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'}
+        ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+        : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'}
             </svg>
             <span class="sidebar-item-label" id="sidebarThemeLabel">${isDark ? 'Dark mode' : 'Light mode'}</span>
           </div>
           <div class="toggle-track"><div class="toggle-thumb"></div></div>
         </button>
 
-        <button class="sidebar-profile-row" id="sidebar-profile-btn">
+        <button class="sidebar-profile-row" id="sidebar-profile-btn" aria-label="Open profile menu" aria-expanded="false">
           <div class="sidebar-avatar">${initials}</div>
           <div class="sidebar-profile-info">
             <div class="sidebar-profile-name">${displayName}</div>
             <div class="sidebar-profile-role" style="text-transform:capitalize">${roleLabel}</div>
           </div>
-          <div class="sidebar-notif-dot"></div>
+          <div class="sidebar-profile-actions">
+            <div class="sidebar-notif-dot"></div>
+            <div class="sidebar-profile-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
         </button>
       </div>
     `
@@ -104,10 +111,10 @@ export class Sidebar {
 
   private _renderQuickLinks(): string {
     const links = [
-      { label: 'Record Transaction', toast: 'Opening Record Transaction…',  svg: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
-      { label: 'New Event',          toast: 'Opening New Event…',           svg: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/>' },
-      { label: 'Send Message',       toast: 'Opening Compose Message…',     svg: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>' },
-      { label: 'Export Reports',     toast: 'Opening Export…',              svg: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>' },
+      { label: 'Record Transaction', toast: 'Opening Record Transaction…', svg: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+      { label: 'New Event', toast: 'Opening New Event…', svg: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/>' },
+      { label: 'Send Message', toast: 'Opening Compose Message…', svg: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>' },
+      { label: 'Export Reports', toast: 'Opening Export…', svg: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>' },
     ]
 
     const addMemberSvg = '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>'
@@ -196,6 +203,9 @@ export class Sidebar {
     // Profile button
     this._el.querySelector('#sidebar-profile-btn')?.addEventListener('click', (e) => {
       e.stopPropagation()
+      const btn = this._el.querySelector<HTMLElement>('#sidebar-profile-btn')
+      const expanded = btn?.getAttribute('aria-expanded') === 'true'
+      btn?.setAttribute('aria-expanded', String(!expanded))
       import('./Toolbar').then(({ showProfilePopup }) => showProfilePopup())
     })
   }
@@ -207,7 +217,7 @@ export class Sidebar {
   setActivePath(path: string): void {
     this._currentPath = path
     this._el.querySelectorAll<HTMLElement>('[data-route]').forEach(btn => {
-      const route  = btn.dataset['route'] ?? ''
+      const route = btn.dataset['route'] ?? ''
       const active = path === route || path.startsWith(route + '/')
       btn.classList.toggle('active', active)
     })
