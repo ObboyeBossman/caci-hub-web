@@ -204,10 +204,7 @@ export function showProfilePopup(): void {
     </div>
     <div class="profile-popup-divider"></div>
     <div class="profile-popup-menu">
-      <button class="profile-menu-item" data-action="profile">
-        <i class="bi bi-person" style="font-size:15px"></i>
-        <span>My Profile</span>
-      </button>
+
       <button class="profile-menu-item" data-action="settings">
         <i class="bi bi-gear" style="font-size:15px"></i>
         <span>Settings</span>
@@ -233,7 +230,7 @@ export function showProfilePopup(): void {
       const action = btn.dataset['action']
       _closeProfilePopup()
       if (action === 'logout')  _handleLogout()
-      if (action === 'profile') navigate('/profile')
+
       if (action === 'settings') {
         const { SettingsOverlay } = await import('@modules/settings/pages/SettingsOverlay')
         SettingsOverlay.open()

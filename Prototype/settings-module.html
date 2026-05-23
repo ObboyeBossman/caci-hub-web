@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Settings — CACI Hub</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+/* ── theme.css ── */
+:root {
+  --caci-blue:          #004BA0;
+  --caci-blue-light:    #4D9FFF;
+  --caci-blue-mid:      #1A6FC4;
+  --caci-blue-dim:      #003578;
+  --caci-blue-bg:       #EFF5FF;
+  --caci-red:           #C60026;
+  --caci-red-light:     #E8003A;
+  --caci-red-dim:       #C60026;
+  --caci-red-bg:        #FFF0F2;
+  --caci-red-glow:      rgba(232,0,58,0.15);
+  --caci-n50:           #F6F8FA;
+  --caci-n100:          #EAEEF2;
+  --caci-n200:          #D0D7DE;
+  --caci-n400:          #8C959F;
+  --caci-n600:          #656D76;
+  --caci-n700:          #57606A;
+  --caci-n800:          #24292F;
+  --caci-n900:          #1B1F23;
+  --caci-success:       #1A7F37;
+  --caci-success-bg:    #DAFBE1;
+  --caci-warning:       #9A6700;
+  --caci-warning-bg:    #FFF8C5;
+  --caci-danger:        #C60026;
+  --caci-focus:         #0969DA;
+  --caci-focus-bg:      #DDF4FF;
+  --caci-white:         #FFFFFF;
+  --caci-night:         #0D1117;
+
+  --bg-page:          var(--caci-n50);
+  --bg-card:          var(--caci-white);
+  --bg-input:         var(--caci-white);
+  --bg-prefix:        var(--caci-n50);
+  --bg-hover:         var(--caci-n50);
+
+  --text-primary:     var(--caci-n900);
+  --text-secondary:   var(--caci-n600);
+  --text-muted:       var(--caci-n700);
+  --text-placeholder: var(--caci-n400);
+  --text-link:        var(--caci-blue);
+  --text-danger:      var(--caci-red);
+  --text-success:     var(--caci-success);
+  --text-warning:     var(--caci-warning);
+
+  --border-default:   var(--caci-n200);
+  --border-hover:     var(--caci-n400);
+  --border-focus:     var(--caci-focus);
+  --border-danger:    var(--caci-red);
+  --border-selected:  var(--caci-blue);
+
+  --focus-ring:       var(--caci-focus);
+  --focus-ring-bg:    var(--caci-focus-bg);
+
+  --tab-active:       var(--caci-n900);
+  --tab-indicator:    var(--caci-red);
+  --tab-inactive:     var(--caci-n600);
+
+  --alert-info-bg:         #DDF4FF;
+  --alert-info-fg:         #0969DA;
+  --alert-info-border:     rgba(9,105,218,0.2);
+  --alert-warning-bg:      var(--caci-warning-bg);
+  --alert-warning-fg:      var(--caci-warning);
+  --alert-warning-border:  rgba(154,103,0,0.25);
+
+  --sidebar-width:     220px;
+  --toolbar-height:    52px;
+
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md:  12px;
+  --sp-lg:  16px;
+  --sp-xl:  20px;
+  --sp-2xl: 24px;
+  --sp-3xl: 40px;
+  --sp-4xl: 60px;
+
+  --radius-xs:   2px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   10px;
+  --radius-pill: 9999px;
+
+  --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:   'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-size-base: 14px;
+  --line-height-base: 1.5;
+
+  /* local aliases used throughout */
+  --accent:        var(--caci-blue);
+  --danger-bg:     var(--caci-red-bg);
+}
+
+[data-theme="dark"] {
+  --bg-page:          #0D1117;
+  --bg-card:          #161B22;
+  --bg-input:         #0D1117;
+  --bg-prefix:        #21262D;
+  --bg-hover:         #21262D;
+
+  --text-primary:     #E6EDF3;
+  --text-secondary:   #8B949E;
+  --text-muted:       #484F58;
+  --text-placeholder: #484F58;
+  --text-link:        #4D9FFF;
+  --text-danger:      #E8003A;
+  --text-warning:     #D29922;
+
+  --border-default:   #30363D;
+  --border-hover:     #484F58;
+  --border-focus:     #58A6FF;
+  --border-selected:  #4D9FFF;
+
+  --focus-ring:       #58A6FF;
+  --focus-ring-bg:    rgba(88,166,255,0.1);
+
+  --tab-active:       #E6EDF3;
+  --tab-indicator:    #E8003A;
+  --tab-inactive:     #8B949E;
+
+  --alert-info-bg:         rgba(56,139,253,0.1);
+  --alert-info-fg:         #58A6FF;
+  --alert-info-border:     rgba(56,139,253,0.2);
+  --alert-warning-bg:      rgba(187,128,9,0.1);
+  --alert-warning-fg:      #D29922;
+  --alert-warning-border:  rgba(187,128,9,0.2);
+
+  --caci-n50:   #21262D;
+  --caci-n100:  #21262D;
+  --caci-n200:  #30363D;
+  --caci-n400:  #484F58;
+  --caci-n600:  #8B949E;
+  --caci-n700:  #8B949E;
+  --caci-n900:  #E6EDF3;
+  --caci-success-bg: #0d2818;
+  --caci-warning-bg: #2d2000;
+  --danger-bg:  #2d0010;
+}
+
+/* ── utilities.css ── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--caci-n100) 25%, var(--caci-n50) 50%, var(--caci-n100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, #21262D 25%, #30363D 50%, #21262D 75%);
+  background-size: 200% 100%;
+}
+.skel-text    { height: 14px; }
+.skel-text-sm { height: 12px; }
+.skel-avatar  { border-radius: 50% !important; }
+.skel-pill    { border-radius: var(--radius-pill) !important; }
+
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.hidden { display: none !important; }
+.pointer { cursor: pointer; }
+
+/* ── components.css ── */
+.caci-avatar {
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 13px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--caci-blue);
+}
+.caci-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-lg);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-lg);
+}
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-lg);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+.modal-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; }
+.modal-close-btn {
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  transition: background 0.12s;
+}
+.modal-close-btn:hover { background: var(--bg-hover); }
+.modal-body { padding: var(--sp-lg); overflow-y: auto; flex: 1; }
+.modal-footer {
+  padding: var(--sp-md) var(--sp-lg);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-sm);
+  flex-shrink: 0;
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--caci-red);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.form-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-md);
+  padding-bottom: var(--sp-xs);
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* ── Badge colours from theme.css ── */
+.badge-active   { background-color: var(--caci-success-bg); color: var(--caci-success); }
+.badge-inactive { background-color: var(--caci-n100);       color: var(--caci-n600); }
+.badge-visitor  { background-color: var(--caci-blue-bg);    color: var(--caci-blue-dim); }
+.badge-prospect { background-color: var(--caci-warning-bg); color: var(--caci-warning); }
+.badge-flagged  { background-color: var(--caci-red-bg);     color: var(--caci-red-dim); }
+
+/* ── Alert utilities ── */
+.alert-info {
+  background: var(--alert-info-bg);
+  color: var(--alert-info-fg);
+  border: 1px solid var(--alert-info-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+.alert-warning {
+  background: var(--alert-warning-bg);
+  color: var(--alert-warning-fg);
+  border: 1px solid var(--alert-warning-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+/* ── Base reset ── */
+[data-reduced-motion="1"] * { transition: none !important; animation: none !important; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ── Settings modal shell ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: var(--sp-2xl);
+}
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  width: 70vw;
+  height: 80vh;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,.35);
+  transition: background 0.25s;
+}
+
+/* Header */
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-xl) var(--sp-2xl) 0;
+  flex-shrink: 0;
+}
+.modal-head-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.head-actions { display: flex; align-items: center; gap: var(--sp-xs); }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: none; cursor: pointer; color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+  transition: background 0.12s, color 0.12s;
+}
+.icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* Offline banner */
+.offline-banner {
+  display: none;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-2xl);
+  background: var(--alert-warning-bg);
+  border-bottom: 1px solid var(--alert-warning-border);
+  font-size: 13px;
+  color: var(--alert-warning-fg);
+  flex-shrink: 0;
+}
+.offline-banner.show { display: flex; }
+.offline-banner i { font-size: 15px; }
+
+/* Body split */
+.modal-body-split {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 210px;
+  min-width: 210px;
+  padding: 0 var(--sp-sm) var(--sp-lg);
+  border-right: 1px solid var(--border-default);
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 7px var(--sp-md);
+  background: var(--caci-n100);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+  margin: var(--sp-sm) 0;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.search-box:focus-within {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,75,160,.12);
+}
+.search-box i { font-size: 14px; color: var(--text-placeholder); flex-shrink: 0; transition: color 0.15s; }
+.search-box:focus-within i { color: var(--accent); }
+.search-box input {
+  border: none; background: transparent; font-size: 13px;
+  color: var(--text-primary); font-family: var(--font-sans); outline: none; flex: 1; width: 0; min-width: 0;
+}
+.search-box input::placeholder { color: var(--text-placeholder); }
+
+.nav-sep {
+  font-size: 11px; font-weight: 600; color: var(--text-placeholder);
+  letter-spacing: 0.6px; text-transform: uppercase;
+  padding: var(--sp-md) var(--sp-sm) var(--sp-xs);
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px var(--sp-sm);
+  border-radius: var(--radius-sm);
+  border: none; background: transparent;
+  font-size: 13.5px; color: var(--text-secondary);
+  cursor: pointer; text-align: left; width: 100%;
+  font-family: var(--font-sans); line-height: 1.3;
+  transition: background 0.12s, color 0.12s;
+}
+.nav-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-btn.active { background: var(--caci-n100); color: var(--text-primary); font-weight: 600; }
+.nav-btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.nav-btn i { font-size: 15px; flex-shrink: 0; }
+.nav-spacer { flex: 1; }
+
+.theme-btn {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 7px var(--sp-sm); border-radius: var(--radius-sm);
+  border: none; background: transparent; color: var(--text-secondary);
+  cursor: pointer; font-family: var(--font-sans); font-size: 13.5px;
+  transition: background 0.12s, color 0.12s;
+}
+.theme-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.theme-btn i { font-size: 15px; flex-shrink: 0; }
+
+/* Content area */
+.content {
+  flex: 1; overflow-y: auto;
+  padding: var(--sp-xs) var(--sp-3xl) var(--sp-3xl) var(--sp-2xl);
+  min-width: 0; scrollbar-width: none;
+}
+.content::-webkit-scrollbar { display: none; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Section titles */
+.sec {
+  font-size: 15px; font-weight: 700; color: var(--text-primary);
+  margin: var(--sp-xl) 0 var(--sp-sm);
+  padding-bottom: var(--sp-sm);
+  border-bottom: 1px solid var(--border-default);
+}
+.sec:first-child { margin-top: var(--sp-sm); }
+
+/* Rows */
+.row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 0; border-bottom: 1px solid var(--caci-n100); gap: var(--sp-lg);
+}
+.row:last-child { border-bottom: none; }
+.lbl { font-size: 13.5px; color: var(--text-primary); }
+.lbl small {
+  display: block; font-size: 12px; color: var(--text-secondary);
+  margin-top: 3px; line-height: 1.45; font-weight: 400; max-width: 360px;
+}
+.field-r { display: flex; align-items: center; gap: var(--sp-sm); flex-shrink: 0; }
+
+/* Inputs */
+.content input[type=text],
+.content input[type=email],
+.content input[type=password],
+.content input[type=tel],
+.content input[type=date],
+.content input[type=time] {
+  padding: 6px var(--sp-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  height: 34px; min-width: 190px;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.25s;
+}
+.content input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--focus-ring-bg);
+}
+.content input.error { border-color: var(--border-danger) !important; }
+.content input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+select {
+  padding: 0 18px 0 0; border: none; background: transparent;
+  color: var(--text-primary); font-family: var(--font-sans); font-size: 13.5px;
+  cursor: pointer; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C959F' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0 center; outline: none;
+}
+textarea {
+  width: 100%; margin-top: var(--sp-sm); padding: var(--sp-sm) var(--sp-md);
+  border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+  font-size: 13px; background: var(--bg-input); color: var(--text-primary);
+  font-family: var(--font-sans); resize: vertical; min-height: 80px; line-height: 1.5;
+  transition: border-color 0.15s, background 0.25s;
+}
+textarea:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--focus-ring-bg); }
+textarea::placeholder { color: var(--text-placeholder); }
+
+/* Toggle */
+.toggle { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.t-track { position: absolute; inset: 0; border-radius: 11px; background: var(--caci-n200); transition: background 0.18s; cursor: pointer; }
+.toggle input:checked ~ .t-track { background: var(--accent); }
+.toggle input:disabled ~ .t-track { opacity: 0.45; cursor: not-allowed; }
+.t-thumb {
+  position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; transition: transform 0.18s;
+  pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle input:checked ~ .t-thumb { transform: translateX(16px); }
+
+/* Buttons */
+.btn {
+  padding: 6px var(--sp-lg); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: var(--font-sans); cursor: pointer;
+  height: 34px; white-space: nowrap; display: inline-flex; align-items: center;
+  gap: var(--sp-xs); transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.btn-ghost { border: 1px solid var(--border-default); background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-hover); }
+.btn-primary { border: 1px solid var(--caci-blue); background: var(--caci-blue); color: #fff; font-weight: 500; }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-danger { border: 1px solid var(--caci-red); background: transparent; color: var(--caci-red); }
+.btn-danger:hover { background: var(--caci-red-bg); }
+.btn-warning { border: 1px solid var(--caci-warning); background: transparent; color: var(--caci-warning); }
+.btn-warning:hover { background: var(--caci-warning-bg); }
+.btn-sm { padding: 4px var(--sp-md); height: 28px; font-size: 12.5px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.save-bar {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: var(--sp-sm); margin-top: var(--sp-xl);
+  padding-top: var(--sp-md); border-top: 1px solid var(--border-default);
+}
+
+/* Avatar (settings variant — extends caci-avatar) */
+.settings-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--caci-blue-bg); color: var(--caci-blue-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 20px; cursor: pointer;
+  border: 2px solid var(--border-default);
+  position: relative; overflow: hidden;
+  transition: border-color 0.15s; flex-shrink: 0;
+}
+.settings-avatar img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.settings-avatar:hover .av-overlay { opacity: 1; }
+.av-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.15s; color: #fff; font-size: 16px;
+}
+
+/* Upload progress */
+.upload-progress { margin-top: var(--sp-sm); display: none; }
+.upload-bar-track { height: 4px; background: var(--caci-n200); border-radius: 2px; overflow: hidden; }
+.upload-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.1s linear; }
+.upload-status { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* Email pending */
+.email-pending {
+  display: none; align-items: center; gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md);
+  background: var(--alert-warning-bg);
+  border: 1px solid var(--alert-warning-border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px; color: var(--alert-warning-fg); margin-top: var(--sp-xs);
+}
+.email-pending.show { display: flex; }
+.email-pending i { flex-shrink: 0; }
+
+/* Badges */
+.badge {
+  padding: 2px 9px; border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+}
+.badge-blue   { background: var(--caci-blue-bg); color: var(--caci-blue-dim); }
+.badge-green  { background: var(--caci-success-bg); color: var(--caci-success); }
+.badge-yellow { background: var(--caci-warning-bg); color: var(--caci-warning); }
+.badge-grey   { background: var(--caci-n100); color: var(--caci-n700); border: 1px solid var(--caci-n200); }
+.badge-red    { background: var(--caci-red-bg); color: var(--caci-red); }
+.partial-badge {
+  display: inline-block; padding: 1px 6px; border-radius: 10px;
+  font-size: 10px; font-weight: 500;
+  background: var(--caci-warning-bg); color: var(--caci-warning);
+  border: 1px solid var(--caci-warning); margin-left: 6px; vertical-align: middle;
+}
+
+/* Contrast warning */
+.contrast-warn {
+  display: none; align-items: center; gap: 6px;
+  padding: 6px var(--sp-sm);
+  background: var(--alert-warning-bg);
+  border: 1px solid var(--alert-warning-border);
+  border-radius: var(--radius-sm);
+  font-size: 12px; color: var(--alert-warning-fg); margin-top: var(--sp-sm);
+}
+.contrast-warn.show { display: flex; }
+
+/* Segmented controls */
+.seg {
+  display: flex; border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-input);
+}
+.seg-btn {
+  padding: 5px var(--sp-md); border: none; background: transparent;
+  cursor: pointer; color: var(--text-secondary); font-size: 13px;
+  font-family: var(--font-sans); display: flex; align-items: center; gap: 5px;
+  transition: background 0.12s, color 0.12s;
+}
+.seg-btn + .seg-btn { border-left: 1px solid var(--border-default); }
+.seg-btn.active { background: var(--caci-n100); color: var(--text-primary); font-weight: 500; }
+.seg-btn i { font-size: 14px; }
+
+/* Swatches */
+.swatches { display: flex; gap: var(--sp-sm); flex-wrap: wrap; align-items: center; }
+.swatch {
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.12s, border-color 0.12s; position: relative;
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.active { border-color: var(--text-primary); transform: scale(1.1); }
+.swatch.active::after {
+  content: '✓'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+
+/* Language list */
+.lang-option {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-sm) var(--sp-md); border-radius: var(--radius-sm);
+  cursor: pointer; transition: background 0.12s;
+}
+.lang-option:hover { background: var(--bg-hover); }
+.lang-option.active { background: var(--caci-blue-bg); }
+.lang-list {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); overflow: hidden; margin-top: var(--sp-xs);
+}
+
+/* Preview panel */
+.preview-box {
+  background: var(--caci-n50); border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); padding: var(--sp-md) var(--sp-lg); margin-top: var(--sp-sm);
+}
+.preview-box .p-title {
+  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--sp-sm);
+}
+.preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-sm); }
+.preview-item { font-size: 13px; }
+.preview-item span { color: var(--text-secondary); display: block; font-size: 11.5px; margin-bottom: 2px; }
+
+/* Notification matrix */
+.matrix-wrap { overflow-x: auto; scrollbar-width: none; margin-top: var(--sp-xs); }
+.matrix-wrap::-webkit-scrollbar { display: none; }
+.matrix { width: 100%; border-collapse: collapse; font-size: 13px; }
+.matrix th {
+  padding: var(--sp-sm) var(--sp-sm); text-align: center; font-weight: 600;
+  color: var(--text-secondary); font-size: 12px; white-space: nowrap;
+  border-bottom: 1px solid var(--border-default);
+}
+.matrix th:first-child { text-align: left; min-width: 150px; }
+.matrix td {
+  padding: var(--sp-sm); border-bottom: 1px solid var(--caci-n100);
+  vertical-align: middle; text-align: center;
+}
+.matrix td:first-child { text-align: left; font-size: 13px; color: var(--text-primary); }
+.matrix tr:last-child td { border-bottom: none; }
+.soon-col { opacity: 0.45; }
+.ch-head { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.ch-head i { font-size: 16px; }
+
+/* Notification cards (mobile) */
+.notif-cards { display: none; }
+.notif-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); padding: var(--sp-md); margin-bottom: var(--sp-sm);
+}
+.notif-card-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--sp-sm); }
+.notif-channels { display: flex; flex-wrap: wrap; gap: var(--sp-sm); }
+.notif-ch { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-secondary); min-width: 90px; }
+.notif-ch .ch-name { flex: 1; }
+
+/* Sessions */
+.session-card {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-md) 0; border-bottom: 1px solid var(--caci-n100);
+}
+.session-card:last-child { border-bottom: none; }
+.session-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-sm);
+  background: var(--caci-n100); border: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--text-secondary); flex-shrink: 0;
+}
+.session-info { flex: 1; min-width: 0; }
+.session-name { font-size: 13.5px; font-weight: 500; color: var(--text-primary); }
+.session-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Login history */
+.history-list { font-size: 13px; color: var(--text-secondary); }
+.history-item {
+  display: flex; gap: var(--sp-sm); padding: 7px 0;
+  border-bottom: 1px solid var(--caci-n100); line-height: 1.4;
+}
+.history-item:last-child { border-bottom: none; }
+.history-item i { flex-shrink: 0; margin-top: 1px; }
+.show-more-btn {
+  width: 100%; padding: var(--sp-sm); margin-top: 6px; font-size: 13px;
+  color: var(--text-link); background: none;
+  border: 1px dashed var(--border-default); border-radius: var(--radius-sm);
+  cursor: pointer; font-family: var(--font-sans); transition: background 0.12s;
+}
+.show-more-btn:hover { background: var(--caci-n50); }
+
+/* Password strength */
+.strength-bar { display: flex; gap: 3px; margin-top: 6px; }
+.strength-seg { height: 4px; flex: 1; border-radius: 2px; background: var(--caci-n200); transition: background 0.2s; }
+.strength-label { font-size: 12px; margin-top: 4px; }
+
+/* Quiet hours */
+.time-row { display: flex; align-items: center; gap: var(--sp-sm); flex-wrap: wrap; }
+.time-row label { font-size: 13px; color: var(--text-secondary); }
+
+/* Danger zone — uses caci-card pattern */
+.danger-card {
+  border: 1px solid var(--caci-red);
+  border-radius: var(--radius-md);
+  padding: var(--sp-md) var(--sp-lg);
+  margin-top: var(--sp-sm);
+  background: var(--caci-red-bg);
+}
+.danger-card .d-title { font-size: 13.5px; font-weight: 600; color: var(--caci-red); margin-bottom: var(--sp-xs); }
+.danger-card p { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--sp-md); }
+
+/* Password change modal (uses modal-box from components.css) */
+.pwd-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200;
+  display: none; align-items: center; justify-content: center; padding: var(--sp-xl);
+}
+.pwd-overlay.open { display: flex; }
+.pwd-modal {
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg); width: 100%; max-width: 420px;
+  padding: var(--sp-2xl); box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.pwd-modal h3 { font-size: 15px; font-weight: 700; margin-bottom: var(--sp-lg); color: var(--text-primary); }
+.pwd-field { margin-bottom: var(--sp-md); }
+.pwd-field label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; }
+.pwd-field input { width: 100%; min-width: 0; }
+.pwd-actions { display: flex; justify-content: flex-end; gap: var(--sp-sm); margin-top: var(--sp-xl); }
+
+/* Toast — matches notyf override style from components.css */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--caci-n800); color: #fff;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-md) var(--sp-lg);
+  font-size: 13px; font-family: var(--font-sans);
+  display: flex; align-items: center; gap: var(--sp-sm);
+  opacity: 0; transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none; white-space: nowrap; z-index: 400;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.toast-error { background: #9B1C1C; }
+.toast.toast-warn  { background: #92400E; }
+.toast i { font-size: 15px; }
+
+/* Mobile tab strip */
+.tab-strip { display: none; }
+
+/* ── Responsive ── */
+@media (max-width: 639px) {
+  .backdrop { padding: 0; align-items: flex-end; }
+  .modal {
+    width: calc(100% - 24px); height: 80vh; max-height: 80vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0; margin: 0 12px;
+  }
+  .modal-head { padding: var(--sp-xl) var(--sp-xl) 0; }
+  .modal-body-split { flex-direction: column; margin-top: 0; overflow: hidden; }
+  .sidebar { display: none; }
+  .content { padding: var(--sp-lg) var(--sp-xl) var(--sp-3xl); overflow-y: auto; }
+  .tab-strip {
+    display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid var(--border-default);
+    padding: 4px var(--sp-xl) 0; gap: 2px; flex-shrink: 0; scrollbar-width: none;
+  }
+  .tab-strip::-webkit-scrollbar { display: none; }
+  .tab-item {
+    display: flex; align-items: center; gap: 6px; padding: var(--sp-sm) var(--sp-md);
+    border: none; background: none; cursor: pointer; font-family: var(--font-sans);
+    font-size: 13.5px; color: var(--tab-inactive); white-space: nowrap;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.12s, border-color 0.12s; flex-shrink: 0;
+  }
+  .tab-item i { font-size: 15px; }
+  .tab-item:hover { color: var(--tab-active); }
+  .tab-item.active { color: var(--tab-active); font-weight: 600; border-bottom-color: var(--tab-indicator); }
+  .row { flex-wrap: wrap; gap: var(--sp-sm); }
+  .lbl { max-width: 100%; }
+  .field-r { width: 100%; }
+  .content input[type=text], .content input[type=email], .content input[type=password],
+  .content input[type=tel], .content input[type=date], .content input[type=time] { min-width: 0; width: 100%; }
+  .row > .toggle, .row > .badge, .row > .seg, .row > .btn-danger, .row > .btn-ghost, .row > .btn-warning { width: auto; margin-left: auto; }
+  .save-bar { flex-direction: column-reverse; gap: var(--sp-sm); }
+  .save-bar .btn-ghost, .save-bar .btn-primary { width: 100%; justify-content: center; }
+  .matrix-wrap { display: none; }
+  .notif-cards { display: block; }
+  .preview-grid { grid-template-columns: 1fr; }
+  #headerThemeBtn { display: flex; }
+  .offline-banner { padding: var(--sp-sm) var(--sp-xl); }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .backdrop { padding: var(--sp-xl); }
+  .modal { width: 100%; max-width: 680px; height: 80vh; margin: auto; }
+  .sidebar { width: 180px; min-width: 180px; padding: var(--sp-md) var(--sp-sm) var(--sp-lg); }
+  .content { padding: var(--sp-lg) var(--sp-2xl) var(--sp-3xl); }
+  .matrix-wrap { display: none; }
+  .notif-cards { display: block; }
+  #headerThemeBtn { display: flex; }
+}
+@media (min-width: 1024px) {
+  .backdrop { padding: var(--sp-2xl); }
+  .modal { width: 70vw; height: 80vh; }
+  #headerThemeBtn { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Offline banner -->
+<div id="offlineBanner" class="offline-banner" style="position:fixed;top:0;left:0;right:0;z-index:500">
+  <i class="ti ti-wifi-off"></i>
+  <span>No connection — changes will be queued and saved when you reconnect.</span>
+</div>
+
+<div class="backdrop">
+ <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+
+  <!-- Header -->
+  <div class="modal-head">
+    <span class="modal-head-title" id="settingsTitle">Settings</span>
+    <div class="head-actions">
+      <button class="icon-btn" id="headerThemeBtn" onclick="toggleTheme()" title="Toggle theme"><i class="ti ti-moon" id="headerThemeIcon"></i></button>
+      <button class="icon-btn" onclick="showToast('Settings closed','check')" title="Close"><i class="ti ti-x"></i></button>
+    </div>
+  </div>
+
+  <!-- Mobile tab strip -->
+  <div class="tab-strip" id="tabStrip">
+    <button class="tab-item active" id="tab-profile"       onclick="goTab('profile',this)"><i class="ti ti-user"></i>Profile</button>
+    <button class="tab-item"        id="tab-appearance"    onclick="goTab('appearance',this)"><i class="ti ti-palette"></i>Appearance</button>
+    <button class="tab-item"        id="tab-language"      onclick="goTab('language',this)"><i class="ti ti-world"></i>Language</button>
+    <button class="tab-item"        id="tab-notifications" onclick="goTab('notifications',this)"><i class="ti ti-bell"></i>Notifications</button>
+    <button class="tab-item"        id="tab-security"      onclick="goTab('security',this)"><i class="ti ti-shield-lock"></i>Security</button>
+  </div>
+
+  <div class="modal-body-split">
+
+   <!-- Sidebar -->
+   <nav class="sidebar scrollbar-hide" id="sideNav" aria-label="Settings navigation">
+    <div class="search-box" role="search">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input type="text" placeholder="Search settings" aria-label="Search settings" oninput="filterNav(this.value)" id="navSearch"/>
+    </div>
+    <div class="nav-sep">Account</div>
+    <button class="nav-btn active" id="nav-profile"       onclick="go('profile',this)"><i class="ti ti-user-circle"></i>Profile</button>
+    <button class="nav-btn"        id="nav-appearance"    onclick="go('appearance',this)"><i class="ti ti-palette"></i>Appearance</button>
+    <button class="nav-btn"        id="nav-language"      onclick="go('language',this)"><i class="ti ti-world"></i>Language &amp; Region</button>
+    <div class="nav-sep">Preferences</div>
+    <button class="nav-btn"        id="nav-notifications" onclick="go('notifications',this)"><i class="ti ti-bell"></i>Notifications</button>
+    <button class="nav-btn"        id="nav-security"      onclick="go('security',this)"><i class="ti ti-shield-lock"></i>Privacy &amp; Security</button>
+    <div class="nav-spacer"></div>
+    <button class="theme-btn" onclick="toggleTheme()">
+      <i class="ti ti-moon" id="themeIcon"></i><span id="themeLabel">Dark mode</span>
+    </button>
+   </nav>
+
+   <!-- Content -->
+   <div class="content scrollbar-hide" id="mainArea">
+
+    <!-- Skeleton -->
+    <div id="skeletonView" style="padding:8px 0">
+      <div class="skeleton skel-text" style="width:40%;margin-bottom:16px;height:18px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--caci-n100);gap:16px">
+        <div style="flex:1"><div class="skeleton skel-text" style="width:60%;margin-bottom:8px"></div><div class="skeleton skel-text-sm" style="width:40%"></div></div>
+        <div class="skeleton" style="height:34px;width:190px;border-radius:var(--radius-sm)"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--caci-n100);gap:16px">
+        <div style="flex:1"><div class="skeleton skel-text" style="width:60%"></div></div>
+        <div class="skeleton" style="height:34px;width:190px;border-radius:var(--radius-sm)"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--caci-n100);gap:16px">
+        <div style="flex:1"><div class="skeleton skel-text" style="width:80%"></div></div>
+        <div class="skeleton" style="height:34px;width:190px;border-radius:var(--radius-sm)"></div>
+      </div>
+      <div style="display:flex;align-items:center;padding:13px 0;gap:16px">
+        <div class="skeleton skel-avatar" style="width:52px;height:52px;flex-shrink:0"></div>
+        <div style="flex:1"><div class="skeleton skel-text" style="width:60%;margin-bottom:8px"></div><div class="skeleton skel-text-sm" style="width:30%"></div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <section class="panel" id="panel-profile">
+      <p class="sec">Profile photo</p>
+      <div class="row">
+        <span class="lbl">Avatar<small>JPEG, PNG or WEBP · max 5 MB · cropped to 1:1.</small></span>
+        <div class="field-r" style="flex-direction:column;align-items:flex-end;gap:6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="settings-avatar" id="av" title="Upload photo" onclick="triggerUpload()">
+              <span id="avInitials">A</span>
+              <div class="av-overlay"><i class="ti ti-camera"></i></div>
+            </div>
+            <div>
+              <button class="btn btn-ghost btn-sm" onclick="triggerUpload()"><i class="ti ti-upload"></i>Upload</button>
+              <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleUpload(this)"/>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="removeAvatar()">Remove</button>
+          </div>
+          <div class="upload-progress" id="uploadProgress">
+            <div class="upload-bar-track"><div class="upload-bar-fill" id="uploadFill"></div></div>
+            <div class="upload-status" id="uploadStatus">Uploading…</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="sec">Personal information</p>
+      <div class="row">
+        <span class="lbl">Display name<small>Max 80 characters.</small></span>
+        <input type="text" id="displayName" value="Abraham Bossman" oninput="syncAv()" maxlength="80"/>
+      </div>
+      <div class="row">
+        <span class="lbl">Email address<small>A verification email is sent when you change this.</small></span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <input type="email" id="emailInput" value="abraham@cacint.org" onchange="checkEmailChange()"/>
+          <div class="email-pending" id="emailPending">
+            <i class="ti ti-mail"></i>
+            <span>Verification pending — check your inbox to confirm the new address.</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Phone number<small>E.164 format — required for SMS notifications.</small></span>
+        <input type="tel" id="phoneInput" value="+233240000000"/>
+      </div>
+      <div class="row">
+        <span class="lbl">Date of birth<small>Minimum age: 13 years.</small></span>
+        <input type="date" value="1990-05-15"/>
+      </div>
+      <div class="row">
+        <span class="lbl">Gender</span>
+        <div class="field-r"><select><option>Male</option><option>Female</option><option>Prefer not to say</option></select></div>
+      </div>
+      <div class="row">
+        <span class="lbl">Marital status</span>
+        <div class="field-r"><select><option>Single</option><option>Married</option><option>Widowed</option><option>Divorced</option><option>Prefer not to say</option></select></div>
+      </div>
+
+      <p class="sec">Password</p>
+      <div class="row">
+        <span class="lbl">Change password<small>Last changed 3 months ago.</small></span>
+        <button class="btn btn-ghost btn-sm" onclick="openPwdModal()"><i class="ti ti-lock"></i>Change password</button>
+      </div>
+
+      <div class="save-bar">
+        <button class="btn btn-ghost" onclick="showToast('Changes discarded','check')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProfile()"><i class="ti ti-check"></i>Save changes</button>
+      </div>
+    </section>
+
+    <!-- APPEARANCE -->
+    <section class="panel" id="panel-appearance">
+      <p class="sec">Theme</p>
+      <div class="row">
+        <span class="lbl">Colour scheme<small>System follows your OS preference and updates live.</small></span>
+        <div class="seg" id="themeSeg">
+          <button class="seg-btn" onclick="setThemeSeg(this,'light')"><i class="ti ti-sun"></i>Light</button>
+          <button class="seg-btn active" onclick="setThemeSeg(this,'system')"><i class="ti ti-device-laptop"></i>System</button>
+          <button class="seg-btn" onclick="setThemeSeg(this,'dark')"><i class="ti ti-moon"></i>Dark</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Accent colour<small>Applied across buttons, links, and active states.</small></span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div class="swatches">
+            <div class="swatch active" data-hex="#004BA0" style="background:#004BA0" title="CACI Blue" onclick="setAccent('#004BA0',this)"></div>
+            <div class="swatch" data-hex="#C60026" style="background:#C60026" title="CACI Red" onclick="setAccent('#C60026',this)"></div>
+            <div class="swatch" data-hex="#0D9488" style="background:#0D9488" title="Teal" onclick="setAccent('#0D9488',this)"></div>
+            <div class="swatch" data-hex="#D97706" style="background:#D97706" title="Amber" onclick="setAccent('#D97706',this)"></div>
+            <div class="swatch" data-hex="#16A34A" style="background:#16A34A" title="Green" onclick="setAccent('#16A34A',this)"></div>
+            <div class="swatch" data-hex="#7C3AED" style="background:#7C3AED" title="Purple" onclick="setAccent('#7C3AED',this)"></div>
+          </div>
+          <div class="contrast-warn" id="contrastWarn"><i class="ti ti-alert-triangle"></i>Low contrast on light backgrounds — consider a darker shade.</div>
+        </div>
+      </div>
+
+      <p class="sec">Typography &amp; density</p>
+      <div class="row">
+        <span class="lbl">Font size</span>
+        <div class="seg">
+          <button class="seg-btn" onclick="setFontSize('12px',this)">Small</button>
+          <button class="seg-btn active" onclick="setFontSize('14px',this)">Medium</button>
+          <button class="seg-btn" onclick="setFontSize('16px',this)">Large</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">UI density<small>Compact reduces vertical spacing by ~25%.</small></span>
+        <div class="seg">
+          <button class="seg-btn active" onclick="segSelect(this)">Default</button>
+          <button class="seg-btn" onclick="segSelect(this)">Compact</button>
+        </div>
+      </div>
+
+      <p class="sec">Layout</p>
+      <div class="row">
+        <span class="lbl">Sidebar default state<small>Desktop only.</small></span>
+        <div class="seg"><button class="seg-btn active" onclick="segSelect(this)">Expanded</button><button class="seg-btn" onclick="segSelect(this)">Collapsed</button></div>
+      </div>
+      <div class="row">
+        <span class="lbl">Dashboard layout</span>
+        <div class="seg">
+          <button class="seg-btn active" onclick="segSelect(this)"><i class="ti ti-layout-grid"></i>Grid</button>
+          <button class="seg-btn" onclick="segSelect(this)"><i class="ti ti-list"></i>List</button>
+        </div>
+      </div>
+
+      <p class="sec">Accessibility</p>
+      <div class="row">
+        <span class="lbl">Reduced motion<small>Disables all non-essential animations and transitions.</small></span>
+        <label class="toggle"><input type="checkbox" id="reducedMotionToggle" onchange="setReducedMotion(this.checked)"/><div class="t-track"></div><div class="t-thumb"></div></label>
+      </div>
+      <div class="row">
+        <span class="lbl">High contrast<small>Raises contrast ratios to WCAG AAA.</small></span>
+        <label class="toggle"><input type="checkbox"/><div class="t-track"></div><div class="t-thumb"></div></label>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-secondary);padding:10px 0">Appearance settings are saved locally on this device only.</p>
+    </section>
+
+    <!-- LANGUAGE & REGION -->
+    <section class="panel" id="panel-language">
+      <p class="sec">Language</p>
+      <div style="padding:8px 0 4px;font-size:13px;color:var(--text-secondary)">Languages marked <span class="partial-badge">partial</span> are below 100% translation coverage and fall back to English for missing strings.</div>
+      <div class="lang-list" id="langList" style="margin-top:10px">
+        <div class="lang-option active" onclick="selectLang(this,'en-GH')" data-lang="en-GH">
+          <span>English <span style="color:var(--text-secondary);font-size:12px">en-GH</span></span>
+          <i class="ti ti-check" style="color:var(--accent)"></i>
+        </div>
+        <div class="lang-option" onclick="selectLang(this,'fr-FR')" data-lang="fr-FR">
+          <span>Français <span style="color:var(--text-secondary);font-size:12px">fr-FR</span></span>
+        </div>
+        <div class="lang-option" onclick="selectLang(this,'tw')" data-lang="tw">
+          <span>Twi <span style="color:var(--text-secondary);font-size:12px">tw</span> <span class="partial-badge">partial</span></span>
+        </div>
+        <div class="lang-option" onclick="selectLang(this,'ee')" data-lang="ee">
+          <span>Ewe <span style="color:var(--text-secondary);font-size:12px">ee</span> <span class="partial-badge">partial</span></span>
+        </div>
+        <div class="lang-option" onclick="selectLang(this,'gaa')" data-lang="gaa">
+          <span>Ga <span style="color:var(--text-secondary);font-size:12px">gaa</span> <span class="partial-badge">partial</span></span>
+        </div>
+        <div class="lang-option" onclick="selectLang(this,'dag')" data-lang="dag">
+          <span>Dagbani <span style="color:var(--text-secondary);font-size:12px">dag</span> <span class="partial-badge">partial</span></span>
+        </div>
+      </div>
+
+      <p class="sec">Region</p>
+      <div class="row">
+        <span class="lbl">Timezone</span>
+        <div class="field-r">
+          <select id="tzSel" onchange="updatePreview()">
+            <optgroup label="Africa"><option value="Africa/Accra" selected>Africa/Accra (GMT+0)</option><option>Africa/Lagos (GMT+1)</option><option>Africa/Nairobi (GMT+3)</option></optgroup>
+            <optgroup label="Europe"><option>Europe/London</option><option>Europe/Paris</option></optgroup>
+            <optgroup label="Americas"><option>America/New_York</option><option>America/Los_Angeles</option></optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Date format</span>
+        <div class="field-r">
+          <select id="dateFmtSel" onchange="updatePreview()">
+            <option value="dd/MM/yyyy">dd/MM/yyyy (default)</option>
+            <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+            <option value="iso">yyyy-MM-dd (ISO)</option>
+            <option value="d MMM yyyy">d MMM yyyy</option>
+            <option value="d MMMM yyyy">d MMMM yyyy</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Time format</span>
+        <div class="seg" id="timeSeg">
+          <button class="seg-btn active" onclick="segSelect(this);updatePreview()">12-hour</button>
+          <button class="seg-btn" onclick="segSelect(this);updatePreview()">24-hour</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">First day of week</span>
+        <div class="field-r">
+          <select id="weekSel" onchange="updatePreview()"><option>Sunday</option><option>Monday</option><option>Friday</option><option>Saturday</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Currency</span>
+        <div class="field-r">
+          <select id="currSel" onchange="updatePreview()"><option>GHS</option><option>USD</option><option>GBP</option><option>EUR</option><option>NGN</option><option>XOF</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <span class="lbl">Number format</span>
+        <div class="field-r">
+          <select id="numSel" onchange="updatePreview()">
+            <option value="en_GH">1,500.00 — en_GH</option>
+            <option value="de_DE">1.500,00 — de_DE</option>
+            <option value="fr_FR">1 500,00 — fr_FR</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="sec">Live preview</p>
+      <div class="preview-box">
+        <div class="p-title">Formatted sample</div>
+        <div class="preview-grid">
+          <div class="preview-item"><span>Date</span><strong id="prev-date">22/05/2026</strong></div>
+          <div class="preview-item"><span>Time</span><strong id="prev-time">3:45 PM</strong></div>
+          <div class="preview-item"><span>Currency</span><strong id="prev-currency">GHS 1,500.00</strong></div>
+          <div class="preview-item"><span>Week starts</span><strong id="prev-week">Sunday</strong></div>
+        </div>
+      </div>
+      <div class="save-bar">
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-primary" onclick="showToast('Language & region saved','check')"><i class="ti ti-check"></i>Save changes</button>
+      </div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section class="panel" id="panel-notifications">
+      <p class="sec">Notification channels</p>
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th><div class="ch-head"><i class="ti ti-app-window"></i>In-app</div></th>
+              <th><div class="ch-head"><i class="ti ti-mail"></i>Email</div></th>
+              <th><div class="ch-head"><i class="ti ti-message-2"></i>SMS</div></th>
+              <th><div class="ch-head"><i class="ti ti-bell-ringing"></i>Push</div></th>
+              <th class="soon-col"><div class="ch-head"><i class="ti ti-brand-whatsapp"></i>WhatsApp<br><span style="font-size:10px;color:var(--text-placeholder)">coming soon</span></div></th>
+            </tr>
+          </thead>
+          <tbody id="notifMatrix"></tbody>
+        </table>
+      </div>
+      <div class="notif-cards" id="notifCards"></div>
+      <div style="margin-top:10px;display:flex;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="resetMatrix()"><i class="ti ti-refresh"></i>Reset to defaults</button>
+      </div>
+
+      <p class="sec">Quiet hours</p>
+      <div class="row">
+        <span class="lbl">Enable quiet hours<small>SMS and Push suppressed during this window.</small></span>
+        <label class="toggle"><input type="checkbox" id="quietToggle" onchange="toggleQuiet()"/><div class="t-track"></div><div class="t-thumb"></div></label>
+      </div>
+      <div id="quietOptions" style="display:none;padding:10px 0 6px">
+        <div class="time-row">
+          <label>From</label>
+          <input type="time" value="22:00" style="min-width:0;width:120px"/>
+          <label>To</label>
+          <input type="time" value="06:00" style="min-width:0;width:120px"/>
+          <span style="font-size:12px;color:var(--text-secondary)">(wraps midnight if end &lt; start)</span>
+        </div>
+      </div>
+
+      <p class="sec">Digest mode</p>
+      <div class="row">
+        <span class="lbl">Email digest<small>system_alert and giving_receipt always sent immediately.</small></span>
+        <div class="seg">
+          <button class="seg-btn active" onclick="segSelect(this)">Individual</button>
+          <button class="seg-btn" onclick="segSelect(this)">Daily</button>
+          <button class="seg-btn" onclick="segSelect(this)">Weekly</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRIVACY & SECURITY -->
+    <section class="panel" id="panel-security">
+      <p class="sec">Two-factor authentication</p>
+      <div class="row">
+        <span class="lbl">TOTP authenticator<small>Use an authenticator app to generate one-time codes.</small></span>
+        <div class="field-r">
+          <span class="badge badge-yellow status-badge" id="tfaBadge">Not enabled</span>
+          <button class="btn btn-ghost btn-sm" id="tfaBtn" onclick="toggle2FA()">Enable</button>
+        </div>
+      </div>
+
+      <p class="sec">Active sessions</p>
+      <div id="sessionList">
+        <div class="session-card">
+          <div class="session-icon"><i class="ti ti-device-laptop"></i></div>
+          <div class="session-info">
+            <div class="session-name">Chrome on macOS <span class="badge badge-blue status-badge" style="font-size:11px;margin-left:4px">This device</span></div>
+            <div class="session-meta">Accra, Ghana · Active now</div>
+          </div>
+        </div>
+        <div class="session-card" id="sess2">
+          <div class="session-icon"><i class="ti ti-device-mobile"></i></div>
+          <div class="session-info"><div class="session-name">Safari on iPhone</div><div class="session-meta">Accra, Ghana · 2 hours ago</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="revokeSession('sess2')">Revoke</button>
+        </div>
+        <div class="session-card" id="sess3">
+          <div class="session-icon"><i class="ti ti-device-desktop"></i></div>
+          <div class="session-info"><div class="session-name">Firefox on Windows</div><div class="session-meta">Kumasi, Ghana · Yesterday</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="revokeSession('sess3')">Revoke</button>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn btn-warning btn-sm" onclick="revokeAll()"><i class="ti ti-logout"></i>Sign out all other sessions</button>
+      </div>
+
+      <p class="sec">Login history <span style="font-size:12px;font-weight:400;color:var(--text-secondary)">(last 30 events)</span></p>
+      <div class="history-list" id="historyList"></div>
+
+      <p class="sec">Data &amp; account</p>
+      <div class="row">
+        <span class="lbl">Export my data<small>ZIP of profile, giving history, and audit log. Sent within 24 hours.</small></span>
+        <button class="btn btn-ghost btn-sm" id="exportBtn" onclick="requestExport()"><i class="ti ti-download"></i>Request export</button>
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="danger-card">
+          <div class="d-title"><i class="ti ti-alert-triangle" style="margin-right:5px"></i>Request account deactivation</div>
+          <p>Your account will be suspended pending admin review. This action is logged and cannot be automatically reversed.</p>
+          <button class="btn btn-danger btn-sm" id="deactivateBtn" onclick="startDeactivate()"><i class="ti ti-trash"></i>Request deactivation</button>
+        </div>
+      </div>
+    </section>
+
+   </div><!-- /content -->
+  </div><!-- /modal-body-split -->
+ </div><!-- /modal -->
+</div><!-- /backdrop -->
+
+<!-- Password change modal -->
+<div class="pwd-overlay" id="pwdOverlay">
+  <div class="pwd-modal">
+    <h3><i class="ti ti-lock" style="margin-right:6px"></i>Change password</h3>
+    <div class="pwd-field">
+      <label>Current password</label>
+      <input type="password" id="pwdCurrent" placeholder="••••••••"/>
+    </div>
+    <div class="pwd-field">
+      <label>New password <small style="color:var(--text-secondary)">(min 8 chars · 1 uppercase · 1 number)</small></label>
+      <input type="password" id="pwdNew" placeholder="••••••••" oninput="checkStrength(this.value)"/>
+      <div class="strength-bar"><div class="strength-seg" id="s1"></div><div class="strength-seg" id="s2"></div><div class="strength-seg" id="s3"></div><div class="strength-seg" id="s4"></div></div>
+      <div class="strength-label" id="strengthLabel"></div>
+    </div>
+    <div class="pwd-field">
+      <label>Confirm new password</label>
+      <input type="password" id="pwdConfirm" placeholder="••••••••"/>
+    </div>
+    <div class="pwd-actions">
+      <button class="btn btn-ghost" onclick="closePwdModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="savePassword()"><i class="ti ti-check"></i>Update password</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"><i class="ti ti-check" id="toastIcon"></i><span id="toastMsg">Saved</span></div>
+
+<script>
+// Navigation + keyboard
+const navBtns = () => [...document.querySelectorAll('.nav-btn:not([style*="display: none"])')];
+document.getElementById('sideNav').addEventListener('keydown', e => {
+  const btns = navBtns();
+  const idx = btns.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown') { e.preventDefault(); btns[(idx+1)%btns.length]?.focus(); }
+  if (e.key === 'ArrowUp')   { e.preventDefault(); btns[(idx-1+btns.length)%btns.length]?.focus(); }
+  if (e.key === 'Enter' && idx >= 0) btns[idx].click();
+});
+
+function go(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  btn.setAttribute('aria-current','page');
+  document.getElementById('mainArea').scrollTop = 0;
+  syncTab(id);
+}
+function goTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({inline:'nearest',behavior:'smooth'});
+  document.getElementById('mainArea').scrollTop = 0;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('nav-'+id);
+  if (nb) nb.classList.add('active');
+}
+function syncTab(id) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('tab-'+id);
+  if (tab) { tab.classList.add('active'); tab.scrollIntoView({inline:'nearest',behavior:'smooth'}); }
+}
+function filterNav(q) {
+  const lq = q.toLowerCase();
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.style.display = b.textContent.toLowerCase().includes(lq) ? '' : 'none';
+  });
+}
+
+// Skeleton loader
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    document.getElementById('skeletonView').style.display = 'none';
+    document.getElementById('panel-profile').classList.add('active');
+  }, 1200);
+});
+
+// Toast
+let toastTimer;
+function showToast(msg, type) {
+  clearTimeout(toastTimer);
+  const el = document.getElementById('toastEl');
+  const ic = document.getElementById('toastIcon');
+  document.getElementById('toastMsg').textContent = msg || 'Saved';
+  if (type === 'error') { ic.className='ti ti-alert-circle'; ic.style.color='#FCA5A5'; el.className='toast toast-error'; }
+  else if (type === 'warn') { ic.className='ti ti-alert-triangle'; ic.style.color='#FDE68A'; el.className='toast toast-warn'; }
+  else { ic.className='ti ti-check'; ic.style.color='#4ADE80'; el.className='toast'; }
+  el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// Offline detection
+const offlineBanner = document.getElementById('offlineBanner');
+const pendingQueue = [];
+function checkOnline() {
+  if (!navigator.onLine) { offlineBanner.classList.add('show'); }
+  else {
+    offlineBanner.classList.remove('show');
+    if (pendingQueue.length) { showToast(`${pendingQueue.length} queued change(s) saved`,'check'); pendingQueue.length=0; }
+  }
+}
+window.addEventListener('offline', checkOnline);
+window.addEventListener('online', checkOnline);
+checkOnline();
+
+function saveProfile() {
+  if (!navigator.onLine) { pendingQueue.push('profile'); showToast('No connection — change queued','warn'); }
+  else { showToast('Profile saved','check'); }
+}
+
+// Theme
+function applyTheme(dark) {
+  document.documentElement.dataset.theme = dark ? 'dark' : '';
+  ['themeIcon','headerThemeIcon'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = dark ? 'ti ti-sun' : 'ti ti-moon';
+  });
+  document.getElementById('themeLabel').textContent = dark ? 'Light mode' : 'Dark mode';
+  try { localStorage.setItem('caci-theme', dark ? 'dark' : 'light'); } catch(e) {}
+}
+function toggleTheme() { applyTheme(document.documentElement.dataset.theme !== 'dark'); }
+(function(){
+  let s; try { s = localStorage.getItem('caci-theme'); } catch(e) {}
+  applyTheme(s ? s==='dark' : true);
+})();
+function setThemeSeg(btn, mode) {
+  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (mode==='dark') applyTheme(true);
+  else if (mode==='light') applyTheme(false);
+  else applyTheme(window.matchMedia('(prefers-color-scheme:dark)').matches);
+}
+window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', e => {
+  const seg = document.querySelector('#themeSeg .seg-btn.active');
+  if (seg && seg.textContent.includes('System')) applyTheme(e.matches);
+});
+
+// Accent colour
+function luminance(hex) {
+  const r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
+  const toL = c => c<=.03928 ? c/12.92 : Math.pow((c+.055)/1.055,2.4);
+  return .2126*toL(r)+.7152*toL(g)+.0722*toL(b);
+}
+function contrastRatio(hex) { return 1.05/(luminance(hex)+.05); }
+function setAccent(hex, el) {
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.documentElement.style.setProperty('--accent', hex);
+  document.documentElement.style.setProperty('--caci-blue', hex);
+  document.getElementById('contrastWarn').classList.toggle('show', contrastRatio(hex)<3.5);
+  try { localStorage.setItem('caci-accent', hex); } catch(e) {}
+}
+(function(){
+  let a; try { a = localStorage.getItem('caci-accent'); } catch(e) {}
+  if (a) {
+    document.documentElement.style.setProperty('--accent', a);
+    document.querySelectorAll('.swatch').forEach(s => { if(s.dataset.hex===a) s.classList.add('active'); });
+  }
+})();
+
+// Font size + reduced motion
+function setFontSize(size, btn) {
+  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.documentElement.style.fontSize = size;
+  try { localStorage.setItem('caci-fontsize', size); } catch(e) {}
+}
+function setReducedMotion(on) {
+  document.documentElement.dataset.reducedMotion = on ? '1' : '0';
+  try { localStorage.setItem('caci-reduced-motion', on ? '1' : '0'); } catch(e) {}
+}
+(function(){
+  let s; try { s = localStorage.getItem('caci-reduced-motion'); } catch(e) {}
+  if (s==='1') { document.getElementById('reducedMotionToggle').checked=true; setReducedMotion(true); }
+})();
+
+function segSelect(btn) {
+  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Avatar
+let hasPhoto = false;
+function triggerUpload() { document.getElementById('avatarInput').click(); }
+function handleUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast('File too large — max 5 MB','error'); return; }
+  const prog=document.getElementById('uploadProgress'), fill=document.getElementById('uploadFill'), status=document.getElementById('uploadStatus');
+  prog.style.display='block'; fill.style.width='0%'; status.textContent='Uploading…';
+  let pct=0;
+  const iv = setInterval(()=>{
+    pct += Math.random()*18+5;
+    if (pct>=100) { pct=100; clearInterval(iv); }
+    fill.style.width=pct+'%';
+    if (pct>=100) {
+      status.textContent='Processing…';
+      setTimeout(()=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+          const av=document.getElementById('av');
+          let img=av.querySelector('img');
+          if (!img) { img=document.createElement('img'); av.appendChild(img); }
+          img.src=e.target.result;
+          document.getElementById('avInitials').style.display='none';
+          hasPhoto=true; prog.style.display='none';
+          showToast('Photo uploaded','check');
+        };
+        reader.readAsDataURL(file);
+      },400);
+    }
+  },120);
+}
+function removeAvatar() {
+  const av=document.getElementById('av'), img=av.querySelector('img');
+  if (img) img.remove();
+  document.getElementById('avInitials').style.display='';
+  hasPhoto=false; showToast('Photo removed','check');
+}
+function syncAv() {
+  if (hasPhoto) return;
+  const v=document.getElementById('displayName').value.trim();
+  document.getElementById('avInitials').textContent=v?v[0].toUpperCase():'?';
+}
+
+// Email change
+const origEmail='abraham@cacint.org';
+function checkEmailChange() {
+  const val=document.getElementById('emailInput').value.trim();
+  document.getElementById('emailPending').classList.toggle('show', val!==origEmail && val.includes('@'));
+}
+
+// Password modal
+function openPwdModal() { document.getElementById('pwdOverlay').classList.add('open'); document.getElementById('pwdCurrent').focus(); }
+function closePwdModal() {
+  document.getElementById('pwdOverlay').classList.remove('open');
+  ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id=>document.getElementById(id).value='');
+  checkStrength('');
+}
+function savePassword() {
+  const cur=document.getElementById('pwdCurrent').value;
+  const nw=document.getElementById('pwdNew').value;
+  const con=document.getElementById('pwdConfirm').value;
+  if (!cur) { showToast('Enter your current password','error'); return; }
+  if (nw.length<8||!/[A-Z]/.test(nw)||!/[0-9]/.test(nw)) { showToast('Password does not meet requirements','error'); return; }
+  if (nw!==con) { showToast('Passwords do not match','error'); return; }
+  closePwdModal(); showToast('Password updated','check');
+}
+document.getElementById('pwdOverlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePwdModal(); });
+
+// Password strength
+function checkStrength(val) {
+  const colors=['#C60026','#D97706','#1A6FC4','#16A34A'];
+  const labels=['','Weak','Fair','Strong','Very strong'];
+  let score=0;
+  if(val.length>=8) score++;
+  if(/[A-Z]/.test(val)) score++;
+  if(/[0-9]/.test(val)) score++;
+  if(/[^A-Za-z0-9]/.test(val)) score++;
+  ['s1','s2','s3','s4'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.style.background=i<score?colors[score-1]:'var(--caci-n200)'; });
+  const lbl=document.getElementById('strengthLabel');
+  if(lbl){ lbl.textContent=val.length?labels[score]:''; lbl.style.color=score>0?colors[score-1]:'var(--text-placeholder)'; }
+}
+
+// Language picker
+function selectLang(el, lang) {
+  document.querySelectorAll('.lang-option').forEach(o=>{ o.classList.remove('active'); const c=o.querySelector('.ti-check'); if(c) c.remove(); });
+  el.classList.add('active');
+  const chk=document.createElement('i'); chk.className='ti ti-check'; chk.style.color='var(--accent)';
+  el.appendChild(chk);
+  showToast('Language updated — applying…','check');
+}
+
+// Live preview
+const months3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const monthsFull=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function updatePreview() {
+  const fmt=document.getElementById('dateFmtSel').value;
+  const h24=document.querySelector('#timeSeg .seg-btn.active')?.textContent.includes('24');
+  const curr=document.getElementById('currSel').value;
+  const week=document.getElementById('weekSel').value;
+  const numFmt=document.getElementById('numSel').value;
+  let ds;
+  if(fmt==='dd/MM/yyyy') ds='22/05/2026';
+  else if(fmt==='MM/dd/yyyy') ds='05/22/2026';
+  else if(fmt==='iso') ds='2026-05-22';
+  else if(fmt==='d MMM yyyy') ds=`22 ${months3[4]} 2026`;
+  else ds=`22 ${monthsFull[4]} 2026`;
+  document.getElementById('prev-date').textContent=ds;
+  document.getElementById('prev-time').textContent=h24?'15:45':'3:45 PM';
+  const amt=numFmt==='de_DE'?'1.500,00':numFmt==='fr_FR'?'1\u202f500,00':'1,500.00';
+  document.getElementById('prev-currency').textContent=`${curr} ${amt}`;
+  document.getElementById('prev-week').textContent=week;
+}
+updatePreview();
+
+// Notification matrix
+const events=[
+  {key:'event_published',       label:'Event published'},
+  {key:'announcement',          label:'Announcement'},
+  {key:'group_message',         label:'Group message'},
+  {key:'giving_receipt',        label:'Giving receipt'},
+  {key:'prayer_request_update', label:'Prayer request'},
+  {key:'member_updated',        label:'Member updated'},
+  {key:'finance_report_ready',  label:'Finance report'},
+  {key:'system_alert',          label:'System alert', locked_inapp:true},
+];
+const defaults={
+  event_published:{inapp:1,email:1,sms:0,push:1},
+  announcement:{inapp:1,email:1,sms:1,push:1},
+  group_message:{inapp:1,email:0,sms:0,push:1},
+  giving_receipt:{inapp:1,email:1,sms:0,push:0},
+  prayer_request_update:{inapp:1,email:0,sms:0,push:1},
+  member_updated:{inapp:1,email:0,sms:0,push:0},
+  finance_report_ready:{inapp:1,email:1,sms:0,push:0},
+  system_alert:{inapp:1,email:1,sms:0,push:1},
+};
+let matrix=JSON.parse(JSON.stringify(defaults));
+const phoneVerified=true;
+
+function toggle(key,ch,val,btn) {
+  if(!navigator.onLine){ btn.checked=!val; showToast('No connection — toggle queued','warn'); pendingQueue.push(`notif:${key}:${ch}`); return; }
+  matrix[key][ch]=val?1:0; showToast('Preference saved','check');
+}
+function renderMatrix() {
+  const tbody=document.getElementById('notifMatrix'); tbody.innerHTML='';
+  const smsD=!phoneVerified?'disabled title="Add a phone number to enable SMS"':'';
+  events.forEach(ev=>{
+    const d=matrix[ev.key];
+    tbody.innerHTML+=`<tr>
+      <td>${ev.label}</td>
+      <td><label class="toggle"><input type="checkbox" ${d.inapp?'checked':''} ${ev.locked_inapp?'disabled':''} onchange="toggle('${ev.key}','inapp',this.checked,this)"/><div class="t-track"></div><div class="t-thumb"></div></label></td>
+      <td><label class="toggle"><input type="checkbox" ${d.email?'checked':''} onchange="toggle('${ev.key}','email',this.checked,this)"/><div class="t-track"></div><div class="t-thumb"></div></label></td>
+      <td><label class="toggle"><input type="checkbox" ${d.sms?'checked':''} ${smsD} onchange="toggle('${ev.key}','sms',this.checked,this)"/><div class="t-track"></div><div class="t-thumb"></div></label></td>
+      <td><label class="toggle"><input type="checkbox" ${d.push?'checked':''} onchange="toggle('${ev.key}','push',this.checked,this)"/><div class="t-track"></div><div class="t-thumb"></div></label></td>
+      <td class="soon-col"><label class="toggle"><input type="checkbox" disabled/><div class="t-track"></div><div class="t-thumb"></div></label></td>
+    </tr>`;
+  });
+  const cards=document.getElementById('notifCards'); cards.innerHTML='';
+  events.forEach(ev=>{
+    const d=matrix[ev.key];
+    cards.innerHTML+=`<div class="notif-card">
+      <div class="notif-card-title">${ev.label}</div>
+      <div class="notif-channels">
+        <div class="notif-ch"><label class="toggle" style="width:32px;height:18px"><input type="checkbox" ${d.inapp?'checked':''} ${ev.locked_inapp?'disabled':''} onchange="toggle('${ev.key}','inapp',this.checked,this)"/><div class="t-track"></div><div class="t-thumb" style="width:12px;height:12px;top:3px;left:3px"></div></label><span class="ch-name"><i class="ti ti-app-window"></i> In-app</span></div>
+        <div class="notif-ch"><label class="toggle" style="width:32px;height:18px"><input type="checkbox" ${d.email?'checked':''} onchange="toggle('${ev.key}','email',this.checked,this)"/><div class="t-track"></div><div class="t-thumb" style="width:12px;height:12px;top:3px;left:3px"></div></label><span class="ch-name"><i class="ti ti-mail"></i> Email</span></div>
+        <div class="notif-ch"><label class="toggle" style="width:32px;height:18px"><input type="checkbox" ${d.sms?'checked':''} ${!phoneVerified?'disabled':''} onchange="toggle('${ev.key}','sms',this.checked,this)"/><div class="t-track"></div><div class="t-thumb" style="width:12px;height:12px;top:3px;left:3px"></div></label><span class="ch-name"><i class="ti ti-message-2"></i> SMS</span></div>
+        <div class="notif-ch"><label class="toggle" style="width:32px;height:18px"><input type="checkbox" ${d.push?'checked':''} onchange="toggle('${ev.key}','push',this.checked,this)"/><div class="t-track"></div><div class="t-thumb" style="width:12px;height:12px;top:3px;left:3px"></div></label><span class="ch-name"><i class="ti ti-bell-ringing"></i> Push</span></div>
+        <div class="notif-ch" style="opacity:.45"><label class="toggle" style="width:32px;height:18px"><input type="checkbox" disabled/><div class="t-track"></div><div class="t-thumb" style="width:12px;height:12px;top:3px;left:3px"></div></label><span class="ch-name"><i class="ti ti-brand-whatsapp"></i> WhatsApp</span></div>
+      </div>
+    </div>`;
+  });
+}
+function resetMatrix() { matrix=JSON.parse(JSON.stringify(defaults)); renderMatrix(); showToast('Reset to defaults','check'); }
+renderMatrix();
+
+function toggleQuiet() {
+  document.getElementById('quietOptions').style.display=document.getElementById('quietToggle').checked?'block':'none';
+}
+
+// Sessions
+function revokeSession(id) {
+  const el=document.getElementById(id);
+  if(el){ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }
+  showToast('Session revoked','check');
+}
+function revokeAll() { ['sess2','sess3'].forEach(id=>revokeSession(id)); setTimeout(()=>showToast('All other sessions signed out','check'),200); }
+
+// Login history
+const allHistory=[
+  {ok:true, txt:'Chrome · Accra, GH · Today 9:41 AM'},
+  {ok:true, txt:'Safari iPhone · Accra, GH · Today 7:13 AM'},
+  {ok:false,txt:'Unknown · Lagos, NG · Yesterday 11:52 PM'},
+  {ok:true, txt:'Firefox · Kumasi, GH · Yesterday 8:30 AM'},
+  {ok:true, txt:'Chrome · Accra, GH · May 20, 2:15 PM'},
+  {ok:true, txt:'Safari iPhone · Accra, GH · May 19, 9:00 AM'},
+  {ok:false,txt:'Chrome · Unknown · May 18, 3:44 AM'},
+  {ok:true, txt:'Chrome · Accra, GH · May 17, 11:22 AM'},
+  {ok:true, txt:'Firefox · Accra, GH · May 16, 4:05 PM'},
+  {ok:true, txt:'Safari iPhone · Accra, GH · May 15, 8:50 AM'},
+];
+let historyShown=4;
+function renderHistory() {
+  const list=document.getElementById('historyList');
+  list.innerHTML=allHistory.slice(0,historyShown).map(h=>`
+    <div class="history-item">
+      <i class="ti ${h.ok?'ti-check':'ti-x'}" style="color:${h.ok?'var(--caci-success)':'var(--caci-red)'}"></i>
+      <span style="flex:1">${h.txt}${!h.ok?` <span class="badge badge-red status-badge" style="font-size:11px;margin-left:4px">Failed</span>`:''}</span>
+    </div>`).join('');
+  if(historyShown<allHistory.length) list.innerHTML+=`<button class="show-more-btn" onclick="showMoreHistory()"><i class="ti ti-chevron-down"></i> Show more (${allHistory.length-historyShown} remaining)</button>`;
+}
+function showMoreHistory() { historyShown=Math.min(historyShown+6,allHistory.length); renderHistory(); }
+renderHistory();
+
+// 2FA
+let tfaEnabled=false;
+function toggle2FA() {
+  tfaEnabled=!tfaEnabled;
+  document.getElementById('tfaBadge').className='badge status-badge '+(tfaEnabled?'badge-green':'badge-yellow');
+  document.getElementById('tfaBadge').textContent=tfaEnabled?'Enabled':'Not enabled';
+  document.getElementById('tfaBtn').textContent=tfaEnabled?'Disable':'Enable';
+  showToast(tfaEnabled?'2FA enabled':'2FA disabled','check');
+}
+
+// Data export
+let lastExport=null;
+function requestExport() {
+  const now=Date.now();
+  if(lastExport&&(now-lastExport)<86400000){ showToast(`Export already requested ${Math.round((now-lastExport)/60000)} min ago — check your email`,'warn'); return; }
+  lastExport=now;
+  document.getElementById('exportBtn').textContent='⏳ Requested';
+  document.getElementById('exportBtn').disabled=true;
+  showToast('Export requested — you\'ll receive an email within 24 hours','check');
+}
+
+// Deactivation countdown
+let deactivateReady=false, deactivateIv=null;
+function startDeactivate() {
+  if(deactivateReady){
+    showToast('Deactivation request submitted','check');
+    document.getElementById('deactivateBtn').disabled=true;
+    document.getElementById('deactivateBtn').innerHTML='<i class="ti ti-check"></i> Request submitted';
+    return;
+  }
+  if(deactivateIv) return;
+  let count=10;
+  const btn=document.getElementById('deactivateBtn');
+  btn.innerHTML=`<i class="ti ti-clock"></i> Confirm in ${count}s`; btn.disabled=true;
+  deactivateIv=setInterval(()=>{
+    count--;
+    if(count<=0){ clearInterval(deactivateIv); deactivateIv=null; deactivateReady=true; btn.disabled=false; btn.innerHTML='<i class="ti ti-trash"></i> Confirm deactivation'; btn.classList.add('btn-danger'); }
+    else btn.innerHTML=`<i class="ti ti-clock"></i> Confirm in ${count}s`;
+  },1000);
+}
+</script>
+</body>
+</html>

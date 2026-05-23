@@ -128,6 +128,7 @@ async function render(container: HTMLElement): Promise<void> {
   }
 
   _bindAll()
+  _setTab(_state.activeTab)
   _renderMembers()
   _renderStats()
 }
@@ -1692,23 +1693,23 @@ function _buildHTML(): string {
 
 <!-- ═══ SUB-NAV TABS ═══ -->
 <div class="mm-subnav">
-  <button class="mm-tab active" data-tab="members-list">
+  <button class="mm-tab ${_state!.activeTab === 'members-list' ? 'active' : ''}" data-tab="members-list">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     All Members <span class="mm-badge" id="mm-subnav-count">0</span>
   </button>
-  <button class="mm-tab" data-tab="attendance">
+  <button class="mm-tab ${_state!.activeTab === 'attendance' ? 'active' : ''}" data-tab="attendance">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
     Attendance
   </button>
-  <button class="mm-tab" data-tab="groups">
+  <button class="mm-tab ${_state!.activeTab === 'groups' ? 'active' : ''}" data-tab="groups">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
     Groups &amp; Units
   </button>
-  <button class="mm-tab" data-tab="pastoral">
+  <button class="mm-tab ${_state!.activeTab === 'pastoral' ? 'active' : ''}" data-tab="pastoral">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
     Pastoral Care
   </button>
-  <button class="mm-tab" data-tab="reports">
+  <button class="mm-tab ${_state!.activeTab === 'reports' ? 'active' : ''}" data-tab="reports">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Reports
   </button>
@@ -1723,7 +1724,7 @@ function _buildHTML(): string {
   <!-- Quick Access -->
   <div class="mm-sidebar-card">
     <div class="mm-sidebar-title">Quick Access</div>
-    <button class="mm-sidebar-item active" data-sidebar-tab="members-list">
+    <button class="mm-sidebar-item ${_state!.activeTab === 'members-list' ? 'active' : ''}" data-sidebar-tab="members-list">
       <div class="mm-sidebar-item-left">
         <svg viewBox="0 0 16 16"><path d="M10.5 14v-1.5a2.5 2.5 0 0 0-2.5-2.5H4A2.5 2.5 0 0 0 1.5 12.5V14"/><circle cx="6" cy="5" r="2.5"/><path d="M13.5 14v-1a2 2 0 0 0-2-2"/><path d="M10.5 3a2 2 0 0 1 0 4"/></svg>
         All Members
@@ -1751,26 +1752,26 @@ function _buildHTML(): string {
       </div>
       <span class="mm-count" id="mm-nav-count-new">0</span>
     </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="attendance">
+    <button class="mm-sidebar-item ${_state!.activeTab === 'attendance' ? 'active' : ''}" data-sidebar-tab="attendance">
       <div class="mm-sidebar-item-left">
         <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1"/><line x1="5" y1="1" x2="5" y2="4"/><line x1="11" y1="1" x2="11" y2="4"/><line x1="2" y1="7" x2="14" y2="7"/><polyline points="5,10 7,12 11,9"/></svg>
         Attendance
       </div>
     </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="groups">
+    <button class="mm-sidebar-item ${_state!.activeTab === 'groups' ? 'active' : ''}" data-sidebar-tab="groups">
       <div class="mm-sidebar-item-left">
         <svg viewBox="0 0 16 16"><circle cx="12" cy="3.5" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="12.5" r="2"/><line x1="5.5" y1="8.8" x2="10.5" y2="11.2"/><line x1="10.5" y1="4.8" x2="5.5" y2="7.2"/></svg>
         Groups &amp; Units
       </div>
     </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="pastoral">
+    <button class="mm-sidebar-item ${_state!.activeTab === 'pastoral' ? 'active' : ''}" data-sidebar-tab="pastoral">
       <div class="mm-sidebar-item-left">
         <svg viewBox="0 0 16 16"><path d="M13.9 3a3.7 3.7 0 0 0-5.2 0L8 3.7l-.7-.7a3.7 3.7 0 0 0-5.2 5.2l.7.7L8 14.2l5.2-5.3.7-.7a3.7 3.7 0 0 0 0-5.2z"/></svg>
         Pastoral Care
       </div>
       <span class="mm-count alert">7</span>
     </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="reports">
+    <button class="mm-sidebar-item ${_state!.activeTab === 'reports' ? 'active' : ''}" data-sidebar-tab="reports">
       <div class="mm-sidebar-item-left">
         <svg viewBox="0 0 16 16"><path d="M2 14h12M4 14v-3M8 14V8M12 14V4"/></svg>
         Reports
@@ -1856,7 +1857,7 @@ function _buildHTML(): string {
 <main class="mm-main">
 
 <!-- ░░░ MEMBERS LIST PAGE ░░░ -->
-<div class="mm-section active" id="mm-section-members-list">
+<div class="mm-section ${_state!.activeTab === 'members-list' ? 'active' : ''}" id="mm-section-members-list">
 
   <!-- Stats Row -->
   <div class="mm-stats-row">
@@ -1985,7 +1986,7 @@ function _buildHTML(): string {
 
 
 <!-- ░░░ ATTENDANCE PAGE ░░░ -->
-<div class="mm-section" id="mm-section-attendance">
+<div class="mm-section ${_state!.activeTab === 'attendance' ? 'active' : ''}" id="mm-section-attendance">
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Attendance</div>
@@ -2052,7 +2053,7 @@ function _buildHTML(): string {
 
 
 <!-- ░░░ GROUPS PAGE ░░░ -->
-<div class="mm-section" id="mm-section-groups">
+<div class="mm-section ${_state!.activeTab === 'groups' ? 'active' : ''}" id="mm-section-groups">
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Groups &amp; Units</div>
@@ -2075,7 +2076,7 @@ function _buildHTML(): string {
 
 
 <!-- ░░░ PASTORAL CARE PAGE ░░░ -->
-<div class="mm-section" id="mm-section-pastoral">
+<div class="mm-section ${_state!.activeTab === 'pastoral' ? 'active' : ''}" id="mm-section-pastoral">
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Pastoral Care</div>
@@ -2115,7 +2116,7 @@ function _buildHTML(): string {
 
 
 <!-- ░░░ REPORTS PAGE ░░░ -->
-<div class="mm-section" id="mm-section-reports">
+<div class="mm-section ${_state!.activeTab === 'reports' ? 'active' : ''}" id="mm-section-reports">
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Reports</div>
