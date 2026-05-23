@@ -277,23 +277,20 @@ async function _renderStats(): Promise<void> {
 
   // 2. Local filtering for small sidebar quick stats (stays based on loaded subset)
   const m = _state.members
-  const total = m.length
-  const active = m.filter(x => x.membership_status === 'active').length
-  const visitors = m.filter(x => x.membership_status === 'visitor').length
-
+  
   const update = (id: string, val: string) => {
     const el = _container!.querySelector(`#${id}`)
     if (el) el.textContent = val
   }
 
   // Accurate Tab Badges
-  update('mm-nav-count-all', String(counts.total))
+  update('mm-subnav-count', String(counts.total)) // Top sub-nav tab
+  update('mm-nav-count-all', String(counts.total)) // Sidebar
   update('mm-nav-count-active', String(counts.active))
   update('mm-nav-count-visitor', String(counts.visitor))
   update('mm-nav-count-new', String(counts.new))
 
-  // Main Stat Cards (can use accurate counts or local subset depending on design preference; 
-  // here we use accurate counts for consistency with tabs)
+  // Main Stat Cards
   update('mm-stat-total', String(counts.total))
   update('mm-stat-active', String(counts.active))
   update('mm-stat-visitors', String(counts.visitor))
@@ -548,7 +545,7 @@ function _openDetail(m: MemberView): void {
       _closeDetail()
       await _loadMembers()
       _renderMembers()
-      await await _renderStats()
+      await _renderStats()
     } catch (err) {
       Toast.fromError(err)
     }
@@ -751,7 +748,7 @@ async function _saveMember(): Promise<void> {
     _closeMemberModal()
     await _loadMembers()
     _renderMembers()
-    await await _renderStats()
+    await _renderStats()
   } catch (err) {
     Toast.fromError(err)
   } finally {
@@ -1296,12 +1293,12 @@ function _setTab(tabName: string): void {
   // to keep the URL and sidebar in sync.
   const routeMap: Record<string, string> = {
     'members-list': '/members',
-    'attendance':   '/attendance',
-    'groups':       '/groups',
-    'pastoral':     '/pastoral-care',
-    'reports':      '/reports'
+    'attendance': '/attendance',
+    'groups': '/groups',
+    'pastoral': '/pastoral-care',
+    'reports': '/reports'
   }
-  
+
   const targetPath = routeMap[tabName]
   if (targetPath && location.hash !== '#' + targetPath) {
     navigate(targetPath)

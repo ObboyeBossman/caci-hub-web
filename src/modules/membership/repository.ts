@@ -12,9 +12,9 @@
 //   - Re-throw all errors as RepositoryError with the raw PostgREST code
 //     preserved so renderError() / permissionGuard can map them correctly
 
-import { supabase }            from '@core/supabase'
+import { supabase } from '@core/supabase'
 import { getActiveAssemblyId } from '@core/auth'
-import { emit }                from '@core/events'
+import { emit } from '@core/events'
 import { RepositoryError, DB_ERROR_CODES } from '../../types/common.types'
 import type {
   MemberView,
@@ -129,11 +129,11 @@ export async function listMembers(
       }
 
       if (!f.includeDeleted) {
-        query = query.eq('is_active', true).is('deleted_at', null)
+        query = query.is('deleted_at', null)
       }
     } else {
-      // Default: active non-deleted only
-      query = query.eq('is_active', true).is('deleted_at', null)
+      // Default: all non-deleted members
+      query = query.is('deleted_at', null)
     }
 
     const { data, error } = await query
@@ -269,8 +269,8 @@ export async function getOwnMemberProfile(): Promise<
     const row = data as any
     return {
       ...(row as MemberView),
-      assemblyName:  (row.assemblies  as { name?: string }       | null)?.name        ?? null,
-      householdName: (row.households  as { family_name?: string } | null)?.family_name ?? null,
+      assemblyName: (row.assemblies as { name?: string } | null)?.name ?? null,
+      householdName: (row.households as { family_name?: string } | null)?.family_name ?? null,
     }
   } catch (err) {
     console.warn('[getOwnMemberProfile] unexpected error:', err)
@@ -560,15 +560,15 @@ export async function getMemberAuditLog(memberId: string): Promise<MemberAuditEn
 
     // Mirrors MemberAuditEntry.fromJson() dual-shape handling
     return (data ?? []).map((row: any) => ({
-      id:              row.id as string,
-      member_id:       row.member_id as string,
-      assembly_id:     row.assembly_id as string,
-      changed_by:      row.changed_by as string | null,
+      id: row.id as string,
+      member_id: row.member_id as string,
+      assembly_id: row.assembly_id as string,
+      changed_by: row.changed_by as string | null,
       changed_by_name: (row.user_profiles as { full_name?: string } | null)?.full_name ?? null,
-      field_changed:   row.field_changed as string,
-      old_value:       row.old_value as string | null,
-      new_value:       row.new_value as string | null,
-      changed_at:      row.changed_at as string,
+      field_changed: row.field_changed as string,
+      old_value: row.old_value as string | null,
+      new_value: row.new_value as string | null,
+      changed_at: row.changed_at as string,
     })) satisfies MemberAuditEntry[]
   } catch (err) {
     throw mapError(err, `getMemberAuditLog(${memberId})`)
@@ -685,20 +685,20 @@ export async function listHouseholds(
         .from('members')
         .select('id, first_name, last_name')
         .in('id', contactIds)
-      ;(contacts ?? []).forEach((c: any) => {
-        contactMap.set(c.id, `${c.first_name} ${c.last_name}`)
-      })
+        ; (contacts ?? []).forEach((c: any) => {
+          contactMap.set(c.id, `${c.first_name} ${c.last_name}`)
+        })
     }
 
     return rows.map((row: any) => ({
-      id:                   row.id as string,
-      assembly_id:          row.assembly_id as string,
-      family_name:          row.family_name as string,
-      address:              row.address as string | null,
-      primary_contact_id:   row.primary_contact_id as string | null,
-      created_at:           row.created_at as string,
-      updated_at:           row.updated_at as string,
-      member_count:         (row.members as { count: number }[])?.[0]?.count ?? 0,
+      id: row.id as string,
+      assembly_id: row.assembly_id as string,
+      family_name: row.family_name as string,
+      address: row.address as string | null,
+      primary_contact_id: row.primary_contact_id as string | null,
+      created_at: row.created_at as string,
+      updated_at: row.updated_at as string,
+      member_count: (row.members as { count: number }[])?.[0]?.count ?? 0,
       primary_contact_name: row.primary_contact_id ? (contactMap.get(row.primary_contact_id) ?? null) : null,
     })) satisfies HouseholdView[]
   } catch (err) {
@@ -740,14 +740,14 @@ export async function getHousehold(householdId: string): Promise<HouseholdWithMe
     if (memberError) throw memberError
 
     return {
-      id:                   row.id as string,
-      assembly_id:          row.assembly_id as string,
-      family_name:          row.family_name as string,
-      address:              row.address as string | null,
-      primary_contact_id:   row.primary_contact_id as string | null,
-      created_at:           row.created_at as string,
-      updated_at:           row.updated_at as string,
-      member_count:         (row.members as { count: number }[])?.[0]?.count ?? 0,
+      id: row.id as string,
+      assembly_id: row.assembly_id as string,
+      family_name: row.family_name as string,
+      address: row.address as string | null,
+      primary_contact_id: row.primary_contact_id as string | null,
+      created_at: row.created_at as string,
+      updated_at: row.updated_at as string,
+      member_count: (row.members as { count: number }[])?.[0]?.count ?? 0,
       primary_contact_name: row.primary_contact
         ? `${(row.primary_contact as any).first_name} ${(row.primary_contact as any).last_name}`
         : null,
