@@ -18,6 +18,8 @@ export function mountShell(): void {
   const app = document.getElementById('app')
   if (!app) return
 
+  if (app.querySelector('.shell-layout')) return
+
   app.innerHTML = `
     <nav class="topnav" id="shell-topnav"></nav>
     <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -49,6 +51,9 @@ export function mountShell(): void {
 export function mountFullscreen(): void {
   const app = document.getElementById('app')
   if (!app) return
+
+  if (!app.querySelector('.shell-layout') && app.querySelector('#page-content')) return
+
   app.innerHTML = `<div id="page-content" role="main"></div>`
 }
 

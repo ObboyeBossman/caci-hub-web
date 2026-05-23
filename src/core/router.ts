@@ -20,6 +20,8 @@ import { mountShell, mountFullscreen } from '../shell/Shell'
 
 let _activePage: PageModule | null = null
 let _currentPresentation: string = 'shell'
+let _routerStarted = false
+let _lastResolvedHash: string | null = null
 
 /**
  * Start the hash router. Call this LAST in the boot sequence —
@@ -27,6 +29,9 @@ let _currentPresentation: string = 'shell'
  * Attaches hashchange listener and resolves the current URL immediately.
  */
 export function startRouter(): void {
+  if (_routerStarted) return
+  _routerStarted = true
+  
   window.addEventListener('hashchange', _resolve)
   document.addEventListener('click', _handleLinkClick)
   _resolve()
@@ -43,7 +48,11 @@ export function navigate(path: string): void {
 // ── Internal ──────────────────────────────────────────────────────────────────
 
 async function _resolve(): Promise<void> {
-  const path   = location.hash.slice(1) || '/'
+  const currentHash = location.hash || '#/'
+  if (_lastResolvedHash === currentHash) return
+  _lastResolvedHash = currentHash
+
+  const path   = currentHash.slice(1)
   const routes = getRoutes()
   const matched = routes.find(r => _matchPath(r.path, path))
 
