@@ -79,8 +79,8 @@ ul {
   overflow: hidden;
   transition: height .3s cubic-bezier(.4, 0, .2, 1);
   position: sticky;
-  top: 52px;
-  z-index: 299;
+  top: var(--toolbar-height);
+  z-index: 400;
 }
 
 .offline-banner.show {

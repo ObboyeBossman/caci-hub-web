@@ -35,8 +35,9 @@ export function mountShell(): void {
   `
 
   // Offline banner logic
-  const banner = document.getElementById('shell-offline-banner')!
   const updateOfflineStatus = () => {
+    const banner = document.getElementById('shell-offline-banner')
+    if (!banner) return
     if (navigator.onLine) banner.classList.remove('show')
     else banner.classList.add('show')
   }
