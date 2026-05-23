@@ -9,6 +9,9 @@ import { navigate }         from '@core/router'
 import { closeDrawer }      from './Shell'
 import type { SidebarItem } from '../types/module.types'
 
+/** Membership sub-routes currently under development — block navigation */
+const COMING_SOON_PATHS = new Set(['/attendance', '/groups', '/pastoral-care', '/reports'])
+
 export class Sidebar {
   private _el: HTMLElement
   private _currentPath = ''
@@ -118,9 +121,12 @@ export class Sidebar {
 
   private _renderNavItem(item: SidebarItem): string {
     const isActive = this._isActive(item.path)
-    const badge    = item.badge ? `<span style="min-width:18px;height:18px;background:var(--caci-red);color:#fff;font-size:10px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${item.badge}</span>` : ''
+    const isComingSoon = COMING_SOON_PATHS.has(item.path)
+    const badge = isComingSoon
+      ? `<span style="min-width:30px;height:16px;background:var(--caci-blue-bg);color:var(--caci-blue);font-size:9px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;letter-spacing:0.03em">SOON</span>`
+      : item.badge ? `<span style="min-width:18px;height:18px;background:var(--caci-red);color:#fff;font-size:10px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${item.badge}</span>` : ''
     return `
-      <button class="sidebar-item ${isActive ? 'active' : ''}" data-route="${item.path}">
+      <button class="sidebar-item ${isActive ? 'active' : ''} ${isComingSoon ? 'coming-soon' : ''}" data-route="${item.path}" ${isComingSoon ? 'data-coming-soon="true"' : ''} style="${isComingSoon ? 'opacity:0.65;' : ''}">
         <i class="bi bi-${item.icon}" style="font-size:15px;flex-shrink:0"></i>
         <span class="sidebar-item-label">${item.label}</span>
         ${badge}
@@ -150,7 +156,14 @@ export class Sidebar {
     this._el.querySelectorAll<HTMLElement>('[data-route]').forEach(btn => {
       btn.addEventListener('click', () => {
         const route = btn.dataset['route']
-        if (route) { closeDrawer(); navigate(route) }
+        if (!route) return
+        if (btn.dataset['comingSoon'] === 'true') {
+          closeDrawer()
+          _showComingSoon(btn.textContent?.trim() ?? 'This section')
+          return
+        }
+        closeDrawer()
+        navigate(route)
       })
     })
 
@@ -192,4 +205,46 @@ export class Sidebar {
       btn.classList.toggle('active', active)
     })
   }
+}
+
+/** Shows a "coming soon" toast for disabled membership nav items */
+function _showComingSoon(section: string): void {
+  const existing = document.getElementById('caci-coming-soon-toast')
+  if (existing) existing.remove()
+
+  const toast = document.createElement('div')
+  toast.id = 'caci-coming-soon-toast'
+  toast.style.cssText = `
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 10000; display: flex; align-items: flex-start; gap: 12px;
+    background: var(--bg-card); border: 1px solid var(--border-default);
+    border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    max-width: 340px; width: calc(100% - 32px);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  `
+  toast.innerHTML = `
+    <div style="
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      background: var(--caci-blue-bg); display: flex; align-items: center;
+      justify-content: center; font-size: 18px; color: var(--caci-blue);
+    "><i class="bi bi-hammer"></i></div>
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
+        Coming Soon
+      </div>
+      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+        <strong style="color:var(--text-primary)">${section}</strong> is currently being built and will be released soon. Stay tuned!
+      </div>
+    </div>
+    <button id="caci-cs-close" style="
+      background: none; border: none; cursor: pointer; padding: 2px;
+      color: var(--text-secondary); font-size: 14px; flex-shrink: 0;
+    "><i class="bi bi-x-lg"></i></button>
+  `
+
+  document.body.appendChild(toast)
+
+  toast.querySelector('#caci-cs-close')?.addEventListener('click', () => toast.remove())
+  setTimeout(() => toast?.remove(), 5000)
 }
