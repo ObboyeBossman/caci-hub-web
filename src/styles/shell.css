@@ -66,6 +66,32 @@ ul {
   flex-shrink: 0;
 }
 
+.offline-banner {
+  background: var(--caci-danger);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  transition: height .3s cubic-bezier(.4, 0, .2, 1);
+  position: sticky;
+  top: 52px;
+  z-index: 299;
+}
+
+.offline-banner.show {
+  height: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, .15);
+}
+
+.offline-banner svg, .offline-banner i {
+  font-size: 15px;
+}
+
 .topnav-sidebar-area {
   flex-shrink: 0;
   display: flex;

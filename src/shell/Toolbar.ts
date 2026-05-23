@@ -79,11 +79,11 @@ export class Toolbar {
   private _initAssemblySync(): void {
     const assemblyId = getActiveAssemblyId()
     
-    // First try to load from session storage (populated during assembly selection)
-    const sessionAsm = sessionStorage.getItem('selectedAssembly')
-    if (sessionAsm) {
+    // First try to load from persistent storage (populated during assembly selection)
+    const savedAsm = localStorage.getItem('caci:selected_assembly')
+    if (savedAsm) {
       try {
-        const asm = JSON.parse(sessionAsm) as { name: string }
+        const asm = JSON.parse(savedAsm) as { name: string }
         if (asm && asm.name) this._updateAssemblyName(asm.name)
       } catch (e) {}
     } else if (!assemblyId) {
@@ -98,14 +98,14 @@ export class Toolbar {
         if (asmData && asmData.name) {
           this._updateAssemblyName(asmData.name)
           
-          // Also update sessionStorage to keep things in sync across reloads
-          if (sessionAsm) {
+          // Also update localStorage to keep things in sync across reloads
+          if (savedAsm) {
              try {
-               const asm = JSON.parse(sessionAsm) as { name: string }
-               sessionStorage.setItem('selectedAssembly', JSON.stringify({ ...asm, name: asmData.name }))
+               const asm = JSON.parse(savedAsm) as { name: string }
+               localStorage.setItem('caci:selected_assembly', JSON.stringify({ ...asm, name: asmData.name }))
              } catch(e) {}
           } else {
-             sessionStorage.setItem('selectedAssembly', JSON.stringify({ id: assemblyId, name: asmData.name }))
+             localStorage.setItem('caci:selected_assembly', JSON.stringify({ id: assemblyId, name: asmData.name }))
           }
         }
       })
@@ -127,12 +127,12 @@ export class Toolbar {
           if (payload.new && payload.new.name) {
             this._updateAssemblyName(payload.new.name)
             
-            // Sync with session storage
-            const currentSession = sessionStorage.getItem('selectedAssembly')
-            if (currentSession) {
+            // Sync with persistent storage
+            const currentSaved = localStorage.getItem('caci:selected_assembly')
+            if (currentSaved) {
                try {
-                 const asm = JSON.parse(currentSession) as { name: string }
-                 sessionStorage.setItem('selectedAssembly', JSON.stringify({ ...asm, name: payload.new.name }))
+                 const asm = JSON.parse(currentSaved) as { name: string }
+                 localStorage.setItem('caci:selected_assembly', JSON.stringify({ ...asm, name: payload.new.name }))
                } catch(e) {}
             }
           }

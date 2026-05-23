@@ -22,6 +22,10 @@ export function mountShell(): void {
 
   app.innerHTML = `
     <nav class="topnav" id="shell-topnav"></nav>
+    <div class="offline-banner" id="shell-offline-banner">
+      <i class="bi bi-wifi-off"></i>
+      <span>You're offline — some data may be out of date.</span>
+    </div>
     <div class="drawer-backdrop" id="drawerBackdrop"></div>
     <div class="shell-layout">
       <aside class="dash-sidebar" id="shell-sidebar" aria-label="Main navigation"></aside>
@@ -29,6 +33,16 @@ export function mountShell(): void {
     </div>
     <div class="toast" id="toast"></div>
   `
+
+  // Offline banner logic
+  const banner = document.getElementById('shell-offline-banner')!
+  const updateOfflineStatus = () => {
+    if (navigator.onLine) banner.classList.remove('show')
+    else banner.classList.add('show')
+  }
+  window.addEventListener('online',  updateOfflineStatus)
+  window.addEventListener('offline', updateOfflineStatus)
+  updateOfflineStatus()
 
   // Mount toolbar
   const toolbarEl = document.getElementById('shell-topnav')!

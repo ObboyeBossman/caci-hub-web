@@ -72,10 +72,11 @@ export async function loadCurrentUser(): Promise<void> {
 
   // super_admin has no RLS restriction and must select an assembly explicitly.
   // All other roles are auto-scoped to their assembly_id via RLS.
-  _activeAssemblyId =
-    p.role === 'national_admin' || p.role === 'district_overseer'
-      ? null
-      : (p.assembly_id as string | null)
+  if (p.role === 'national_admin' || p.role === 'district_overseer') {
+    _activeAssemblyId = localStorage.getItem('caci:active_assembly_id')
+  } else {
+    _activeAssemblyId = (p.assembly_id as string | null)
+  }
 }
 
 /** Returns the current authenticated user, or null. */
@@ -98,6 +99,7 @@ export const getActiveAssemblyId = (): string | null => _activeAssemblyId
  */
 export function setActiveAssemblyId(id: string): void {
   _activeAssemblyId = id
+  localStorage.setItem('caci:active_assembly_id', id)
   emit('auth:assemblyChanged', { assemblyId: id })
 }
 

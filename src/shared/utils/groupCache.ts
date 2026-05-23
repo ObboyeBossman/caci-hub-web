@@ -9,6 +9,9 @@
 //   auth:signedOut → clearGroupCache()
 
 import { on } from '@core/events'
+import { storageGet, storageSet, storageRemove } from './storage'
+
+const STORAGE_KEY = 'group_summaries'
 
 export interface GroupSummary {
   id:          string
@@ -40,10 +43,18 @@ export function initGroupCache(
   _bulkFetcher = bulkFetcher
   _initialised = true
 
+  // Hydrate from persistence
+  const saved = storageGet<Record<string, GroupSummary>>(STORAGE_KEY, {})
+  Object.entries(saved).forEach(([id, g]) => _cache.set(id, g))
+
   on('group:updated',  (d) => { const { id } = d as { id: string }; invalidateGroup(id) })
   on('group:deleted',  (d) => { const { id } = d as { id: string }; invalidateGroup(id) })
   on('auth:signedOut', () => clearGroupCache())
   on('auth:assemblyChanged', () => clearGroupCache())
+}
+
+function _persist(): void {
+  storageSet(STORAGE_KEY, Object.fromEntries(_cache))
 }
 
 export async function getGroupSummary(id: string): Promise<GroupSummary | null> {
@@ -55,7 +66,10 @@ export async function getGroupSummary(id: string): Promise<GroupSummary | null> 
   }
 
   const group = await _fetcher(id)
-  if (group) _cache.set(id, group)
+  if (group) {
+    _cache.set(id, group)
+    _persist()
+  }
   return group
 }
 
@@ -72,17 +86,22 @@ export async function getGroupSummaries(ids: string[]): Promise<GroupSummary[]> 
   }
 
   const fetched = await _bulkFetcher(uncached)
-  fetched.forEach(g => _cache.set(g.id, g))
+  if (fetched.length > 0) {
+    fetched.forEach(g => _cache.set(g.id, g))
+    _persist()
+  }
 
   return [...cached, ...fetched]
 }
 
 export function invalidateGroup(id: string): void {
   _cache.delete(id)
+  _persist()
 }
 
 export function clearGroupCache(): void {
   _cache.clear()
+  storageRemove(STORAGE_KEY)
 }
 
 export function getGroupCacheSize(): number {

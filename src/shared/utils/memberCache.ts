@@ -13,6 +13,9 @@
 //   auth:signedOut   → clearMemberCache()
 
 import { on } from '@core/events'
+import { storageGet, storageSet, storageRemove } from './storage'
+
+const STORAGE_KEY = 'member_summaries'
 
 export interface MemberSummary {
   id:              string
@@ -47,12 +50,20 @@ export function initMemberCache(
   _bulkFetcher = bulkFetcher
   _initialised = true
 
+  // Hydrate from persistence
+  const saved = storageGet<Record<string, MemberSummary>>(STORAGE_KEY, {})
+  Object.entries(saved).forEach(([id, m]) => _cache.set(id, m))
+
   // Bind invalidation listeners once
   on('member:updated',  (d) => { const { id } = d as { id: string }; invalidateMember(id) })
   on('member:deleted',  (d) => { const { id } = d as { id: string }; invalidateMember(id) })
   on('member:restored', (d) => { const { id } = d as { id: string }; invalidateMember(id) })
   on('auth:signedOut',  () => clearMemberCache())
   on('auth:assemblyChanged', () => clearMemberCache())
+}
+
+function _persist(): void {
+  storageSet(STORAGE_KEY, Object.fromEntries(_cache))
 }
 
 /**
@@ -68,7 +79,10 @@ export async function getMemberSummary(id: string): Promise<MemberSummary | null
   }
 
   const member = await _fetcher(id)
-  if (member) _cache.set(id, member)
+  if (member) {
+    _cache.set(id, member)
+    _persist()
+  }
   return member
 }
 
@@ -89,7 +103,10 @@ export async function getMemberSummaries(ids: string[]): Promise<MemberSummary[]
   }
 
   const fetched = await _bulkFetcher(uncached)
-  fetched.forEach(m => _cache.set(m.id, m))
+  if (fetched.length > 0) {
+    fetched.forEach(m => _cache.set(m.id, m))
+    _persist()
+  }
 
   return [...cached, ...fetched]
 }
@@ -97,11 +114,13 @@ export async function getMemberSummaries(ids: string[]): Promise<MemberSummary[]
 /** Remove a specific member from the cache (forces re-fetch on next access). */
 export function invalidateMember(id: string): void {
   _cache.delete(id)
+  _persist()
 }
 
 /** Clear the entire cache (on logout or assembly switch). */
 export function clearMemberCache(): void {
   _cache.clear()
+  storageRemove(STORAGE_KEY)
 }
 
 /** Returns the current cache size (useful for debugging). */
