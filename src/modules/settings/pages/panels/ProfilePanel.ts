@@ -129,6 +129,39 @@ function linkField(label: string, href: string | null | undefined): string {
 // Panel HTML
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Lightweight loading skeleton — shown while getOwnMemberProfile() is in-flight.
+ * Uses the same panel ID so tab switching still works during load.
+ */
+export function profilePanelSkeleton(): string {
+  const shimRow = `
+    <div class="prof-grid-row">
+      <div class="prof-field"><span class="prof-skeleton prof-sk-label"></span><span class="prof-skeleton prof-sk-value"></span></div>
+      <div class="prof-field"><span class="prof-skeleton prof-sk-label"></span><span class="prof-skeleton prof-sk-value"></span></div>
+    </div>`;
+  return `
+    <section class="settings-panel active" id="s-panel-profile">
+      <div class="prof-sk-banner"></div>
+      <div class="prof-avatar-row">
+        <div class="settings-avatar prof-avatar-ro prof-skeleton" style="border:none"></div>
+        <div class="prof-avatar-meta" style="gap:6px">
+          <span class="prof-skeleton prof-sk-name"></span>
+          <span class="prof-skeleton prof-sk-role"></span>
+        </div>
+      </div>
+      <div class="prof-cards">
+        <div class="prof-card">
+          <div class="prof-card-head"><span class="prof-skeleton" style="width:120px;height:14px"></span></div>
+          <div class="prof-grid">${shimRow}${shimRow}${shimRow}</div>
+        </div>
+        <div class="prof-card">
+          <div class="prof-card-head"><span class="prof-skeleton" style="width:140px;height:14px"></span></div>
+          <div class="prof-grid">${shimRow}${shimRow}</div>
+        </div>
+      </div>
+    </section>`;
+}
+
 export function profilePanelHTML(
   displayName: string,
   email:       string,

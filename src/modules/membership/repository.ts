@@ -168,6 +168,54 @@ export async function getMember(memberId: string): Promise<MemberView> {
 }
 
 /**
+ * Fetch the members_view row for the currently authenticated user.
+ * Matches on auth_user_id — the Supabase Auth UID stored on the member record.
+ *
+ * Returns null when:
+ *   - No active Supabase session exists.
+ *   - The user has no linked member record yet.
+ *
+ * Extra fields `assemblyName` and `householdName` are resolved in the same
+ * PostgREST request so the profile panel can display them without extra calls.
+ *
+ * Used by SettingsOverlay to populate the Profile tab.
+ */
+export async function getOwnMemberProfile(): Promise<
+  (MemberView & { assemblyName: string | null; householdName: string | null }) | null
+> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data, error } = await supabase
+      .from('members_view')
+      .select(
+        `*,
+         households!members_household_id_fkey(id, family_name),
+         assemblies(id, name)`
+      )
+      .eq('auth_user_id', user.id)
+      .maybeSingle()
+
+    if (error) {
+      console.warn('[getOwnMemberProfile] query error:', error)
+      return null
+    }
+    if (!data) return null
+
+    const row = data as any
+    return {
+      ...(row as MemberView),
+      assemblyName:  (row.assemblies  as { name?: string }       | null)?.name        ?? null,
+      householdName: (row.households  as { family_name?: string } | null)?.family_name ?? null,
+    }
+  } catch (err) {
+    console.warn('[getOwnMemberProfile] unexpected error:', err)
+    return null
+  }
+}
+
+/**
  * Fetch a lightweight summary of a single member — used by memberCache fetcher.
  * Returns null if the member is not found (no throw).
  */

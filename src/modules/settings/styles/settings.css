@@ -981,3 +981,26 @@
   .prof-avatar-row { padding: var(--sp-md) 0 var(--sp-lg); }
   .prof-cta-bar    { flex-wrap: wrap; }
 }
+
+/* ── Profile panel skeleton / shimmer ─────────────────────────────────────── */
+@keyframes profShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.prof-skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--bg-hover) 25%,
+    var(--border-default) 50%,
+    var(--bg-hover) 75%
+  );
+  background-size: 800px 100%;
+  animation: profShimmer 1.4s infinite linear;
+}
+.prof-sk-banner { height: 52px; border-radius: var(--radius-sm); margin: var(--sp-md) 0 var(--sp-xl); }
+.prof-sk-name   { width: 160px; height: 16px; margin-bottom: 4px; }
+.prof-sk-label  { width: 60px;  height: 11px; margin-bottom: 5px; }
+.prof-sk-value  { width: 120px; height: 14px; }
+.prof-sk-role   { width: 80px;  height: 12px; }

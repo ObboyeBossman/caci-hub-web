@@ -1,12 +1,13 @@
 // src/modules/settings/pages/SettingsOverlay.ts
 
-import { getCurrentUser } from '@core/auth';
-import { makeToast }      from './utils/settingsToast';
-import { profilePanelHTML, bindProfilePanel, onPwdStrengthInput } from './panels/ProfilePanel';
+import { getCurrentUser }  from '@core/auth';
+import { makeToast }       from './utils/settingsToast';
+import { profilePanelHTML, profilePanelSkeleton, bindProfilePanel, onPwdStrengthInput } from './panels/ProfilePanel';
 import { appearancePanelHTML, bindAppearancePanel, syncThemeSeg } from './panels/AppearancePanel';
 import { localePanelHTML, bindLocalePanel }                       from './panels/LocalePanel';
 import { notificationsPanelHTML, bindNotificationsPanel }         from './panels/NotificationsPanel';
 import { securityPanelHTML, bindSecurityPanel }                   from './panels/SecurityPanel';
+import { getOwnMemberProfile }                                    from '../../membership/repository';
 
 const TABS = ['profile','account','appearance','locale','notifications','security'] as const;
 type Tab = typeof TABS[number];
@@ -28,7 +29,7 @@ export class SettingsOverlay {
     this._instance = null;
   }
 
-  private _render(): void {
+  private async _render(): Promise<void> {
     const user        = getCurrentUser();
     const displayName = user?.fullName ?? 'User';
     const email       = user?.email    ?? '';
@@ -128,7 +129,7 @@ export class SettingsOverlay {
           </nav>
  
           <div class="settings-content scrollbar-hide">
-            ${profilePanelHTML(displayName, email, role, initials)}
+            ${profilePanelSkeleton()}
             ${appearancePanelHTML()}
             ${localePanelHTML()}
             ${notificationsPanelHTML(true)}
@@ -154,6 +155,26 @@ export class SettingsOverlay {
     this._el.querySelector('#s-pwd-new')?.addEventListener('input', (e) => {
       onPwdStrengthInput((e.target as HTMLInputElement).value, this._el!);
     });
+
+    // ── Async: fetch member profile and hydrate the profile panel ─────────────
+    const member = await getOwnMemberProfile();
+    const profileSlot = this._el?.querySelector('#s-panel-profile')?.closest('.settings-panel') ??
+                        this._el?.querySelector('#s-panel-profile');
+    const profileContent = this._el?.querySelector('#s-panel-profile');
+    if (profileContent && this._el) {
+      // Replace skeleton with real panel — swap only the active panel section
+      const panelParent = profileContent.parentElement!;
+      const wasActive   = profileContent.classList.contains('active');
+      const realHTML    = document.createElement('div');
+      realHTML.innerHTML = profilePanelHTML(displayName, email, role, initials, member ?? undefined);
+      const newPanel = realHTML.querySelector('#s-panel-profile') as HTMLElement | null;
+      if (newPanel) {
+        if (wasActive) newPanel.classList.add('active');
+        panelParent.replaceChild(newPanel, profileContent);
+        // Re-bind profile panel events on the fresh DOM node
+        bindProfilePanel(ctx);
+      }
+    }
   }
 
   private _bindShellEvents(): void {
