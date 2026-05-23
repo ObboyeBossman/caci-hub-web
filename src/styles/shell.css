@@ -69,7 +69,7 @@ ul {
 .offline-banner {
   background: var(--caci-danger);
   color: #fff;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   height: 0;
   display: flex;
@@ -89,7 +89,7 @@ ul {
 }
 
 .offline-banner svg, .offline-banner i {
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .topnav-sidebar-area {
@@ -142,7 +142,7 @@ ul {
   gap: 9px;
   color: #fff;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
   flex-shrink: 0;
   letter-spacing: -.2px;
   padding-left: 4px;
@@ -198,7 +198,7 @@ ul {
   padding: 6px 12px;
   cursor: pointer;
   color: rgba(255, 255, 255, .85);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   transition: background .15s;
   position: relative;
@@ -257,7 +257,7 @@ ul {
   gap: 9px;
   padding: 6px 0;
   border-bottom: 1px solid var(--border-default);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
@@ -343,7 +343,7 @@ body.drawer-open .dash-sidebar {
 }
 
 .sidebar-section-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -360,7 +360,7 @@ body.drawer-open .dash-sidebar {
   padding: 7px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: 1px;
@@ -432,7 +432,7 @@ body.drawer-open .dash-sidebar {
   padding: 7px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: 1px;
@@ -490,7 +490,7 @@ body.drawer-open .dash-sidebar {
   padding: 7px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-secondary);
   transition: background .15s, color .15s;
@@ -580,7 +580,7 @@ body.drawer-open .dash-sidebar {
   border-radius: 50%;
   background: var(--caci-n800);
   color: #fff;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -602,7 +602,7 @@ body.drawer-open .dash-sidebar {
 }
 
 .sidebar-profile-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -612,7 +612,7 @@ body.drawer-open .dash-sidebar {
 }
 
 .sidebar-profile-role {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -686,7 +686,7 @@ body.drawer-open .drawer-backdrop {
   color: #fff;
   padding: 10px 18px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   z-index: 800;
   opacity: 0;
@@ -726,7 +726,7 @@ body.drawer-open .drawer-backdrop {
 }
 
 .profile-popup-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -735,7 +735,7 @@ body.drawer-open .drawer-backdrop {
 }
 
 .profile-popup-role {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -744,7 +744,7 @@ body.drawer-open .drawer-backdrop {
   color: #fff !important;
   width: 38px;
   height: 38px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   border-radius: 10px;
   display: flex;
@@ -768,7 +768,7 @@ body.drawer-open .drawer-backdrop {
   gap: 10px;
   padding: 8px 10px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
@@ -801,7 +801,7 @@ body.drawer-open .drawer-backdrop {
 }
 
 .profile-menu-item .soon-chip {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .4px;
   background: var(--bg-hover);
@@ -817,7 +817,7 @@ body.drawer-open .drawer-backdrop {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-default);
   background: var(--bg-card);
@@ -835,7 +835,7 @@ body.drawer-open .drawer-backdrop {
 
 .breadcrumb-sep {
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .breadcrumb-current {
