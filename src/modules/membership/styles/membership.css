@@ -293,7 +293,7 @@
 @media(max-width:960px) {
   .mm-layout {
     display: block;
-    padding: 0;
+    padding: 16px;
   }
   .mm-mobile-hide {
     display: none !important;
