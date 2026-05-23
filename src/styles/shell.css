@@ -67,9 +67,10 @@ ul {
 }
 
 .offline-banner {
-  background: #7F1D1D; /* Even more muted maroon */
-  color: #fff;
-  font-size: 15px;
+  background: #21262D; 
+  color: #8B949E;
+  border-top: 1px solid rgba(127, 29, 29, 0.3); /* Distant red hint */
+  font-size: 14px;
   font-weight: 500;
   height: 0;
   display: flex;
@@ -90,6 +91,7 @@ ul {
 
 .offline-banner svg, .offline-banner i {
   font-size: 17px;
+  color: #7B1F1F; /* Keep icon slightly reddish for context */
 }
 
 .topnav-sidebar-area {
