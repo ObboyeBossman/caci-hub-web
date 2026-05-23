@@ -104,19 +104,26 @@ export class Sidebar {
 
   private _renderQuickLinks(): string {
     const links = [
-      { label: 'Add Member',         toast: 'Opening Add Member…',          svg: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>' },
       { label: 'Record Transaction', toast: 'Opening Record Transaction…',  svg: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
       { label: 'New Event',          toast: 'Opening New Event…',           svg: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/>' },
       { label: 'Send Message',       toast: 'Opening Compose Message…',     svg: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>' },
       { label: 'Export Reports',     toast: 'Opening Export…',              svg: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>' },
     ]
 
-    return links.map(lk => `
-      <button class="sidebar-item" data-toast="${lk.toast}">
-        <svg viewBox="0 0 24 24">${lk.svg}</svg>
-        <span class="sidebar-item-label">${lk.label}</span>
+    const addMemberSvg = '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>'
+
+    return `
+      <button class="sidebar-item" data-route="/members/add">
+        <svg viewBox="0 0 24 24">${addMemberSvg}</svg>
+        <span class="sidebar-item-label">Add Member</span>
       </button>
-    `).join('')
+      ${links.map(lk => `
+        <button class="sidebar-item" data-toast="${lk.toast}">
+          <svg viewBox="0 0 24 24">${lk.svg}</svg>
+          <span class="sidebar-item-label">${lk.label}</span>
+        </button>
+      `).join('')}
+    `
   }
 
   private _renderNavItem(item: SidebarItem): string {

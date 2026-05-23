@@ -37,6 +37,9 @@ import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from
 // ── Page constants ────────────────────────────────────────────────────────────
 const PAGE_SIZE = 12
 
+/** Tabs that are under development — block switching to them */
+const COMING_SOON_TABS = new Set(['attendance', 'groups', 'pastoral', 'reports'])
+
 // ── State ─────────────────────────────────────────────────────────────────────
 
 interface State {
@@ -1274,8 +1277,16 @@ function _renderReports(): void {
 
 function _setTab(tabName: string): void {
   if (!_state || !_container) return
-  
-  // If clicking a tab that matches a known route, navigate to it 
+
+  // Block coming-soon tabs — redirect to members-list + notify
+  if (COMING_SOON_TABS.has(tabName)) {
+    _showComingSoonTab(tabName)
+    // Ensure URL stays on /members
+    if (location.hash !== '#/members') navigate('/members')
+    return
+  }
+
+  // If clicking a tab that matches a known route, navigate to it
   // to keep the URL and sidebar in sync.
   const routeMap: Record<string, string> = {
     'members-list': '/members',
@@ -1672,11 +1683,60 @@ function _buildInitialState(): State {
 
 function _getInitialTabFromHash(): string {
   const hash = location.hash.slice(1)
-  if (hash.startsWith('/attendance')) return 'attendance'
-  if (hash.startsWith('/groups'))     return 'groups'
-  if (hash.startsWith('/pastoral-care')) return 'pastoral'
-  if (hash.startsWith('/reports'))    return 'reports'
+  // Disabled tabs — always fall back to members-list
+  if (hash.startsWith('/attendance') || hash.startsWith('/groups') || hash.startsWith('/pastoral-care') || hash.startsWith('/reports'))
+    return 'members-list'
   return 'members-list'
+}
+
+// Shows a coming-soon inline toast for disabled membership tabs
+function _showComingSoonTab(tabName: string): void {
+  const labels: Record<string, string> = {
+    attendance: 'Attendance',
+    groups: 'Groups & Units',
+    pastoral: 'Pastoral Care',
+    reports: 'Reports',
+  }
+  const section = labels[tabName] ?? tabName
+
+  const existing = document.getElementById('mm-coming-soon-toast')
+  if (existing) existing.remove()
+
+  const toast = document.createElement('div')
+  toast.id = 'mm-coming-soon-toast'
+  toast.style.cssText = `
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 10000; display: flex; align-items: flex-start; gap: 12px;
+    background: var(--bg-card); border: 1px solid var(--border-default);
+    border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    max-width: 340px; width: calc(100% - 32px);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--font-sans);
+  `
+  toast.innerHTML = `
+    <div style="
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      background: var(--caci-blue-bg); display: flex; align-items: center;
+      justify-content: center; font-size: 18px; color: var(--caci-blue);
+    "><i class="bi bi-hammer"></i></div>
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
+        Coming Soon
+      </div>
+      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+        <strong style="color:var(--text-primary)">${section}</strong> is currently being built and will be released soon. Stay tuned!
+      </div>
+    </div>
+    <button id="mm-cs-close" style="
+      background: none; border: none; cursor: pointer; padding: 2px;
+      color: var(--text-secondary); font-size: 14px; flex-shrink: 0;
+    "><i class="bi bi-x-lg"></i></button>
+  `
+
+  document.body.appendChild(toast)
+  toast.querySelector('#mm-cs-close')?.addEventListener('click', () => toast.remove())
+  setTimeout(() => toast?.remove(), 5000)
 }
 
 // ── CSS injection ─────────────────────────────────────────────────────────────
@@ -1697,21 +1757,21 @@ function _buildHTML(): string {
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     All Members <span class="mm-badge" id="mm-subnav-count">0</span>
   </button>
-  <button class="mm-tab ${_state!.activeTab === 'attendance' ? 'active' : ''}" data-tab="attendance">
+  <button class="mm-tab" data-tab="attendance" style="opacity:0.55;" title="Coming soon">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
-    Attendance
+    Attendance <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
   </button>
-  <button class="mm-tab ${_state!.activeTab === 'groups' ? 'active' : ''}" data-tab="groups">
+  <button class="mm-tab" data-tab="groups" style="opacity:0.55;" title="Coming soon">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    Groups &amp; Units
+    Groups &amp; Units <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
   </button>
-  <button class="mm-tab ${_state!.activeTab === 'pastoral' ? 'active' : ''}" data-tab="pastoral">
+  <button class="mm-tab" data-tab="pastoral" style="opacity:0.55;" title="Coming soon">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    Pastoral Care
+    Pastoral Care <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
   </button>
-  <button class="mm-tab ${_state!.activeTab === 'reports' ? 'active' : ''}" data-tab="reports">
+  <button class="mm-tab" data-tab="reports" style="opacity:0.55;" title="Coming soon">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Reports
+    Reports <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
   </button>
 </div>
 
