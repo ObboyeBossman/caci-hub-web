@@ -8,6 +8,7 @@ import { toggleDrawer } from './Shell'
 import { supabase } from '@core/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { applyTheme } from '../core/theme'
+import logoUrl from '../assets/caci-logo.png'
 
 export class Toolbar {
   private _el: HTMLElement
@@ -34,8 +35,7 @@ export class Toolbar {
           </svg>
         </button>
         <a class="logo" href="#/" id="topnav-logo">
-          <img src="/src/assets/caci-logo.png" alt="CACI Hub" class="logo-img" />
-          CACI Hub
+          <img src="${logoUrl}" alt="CACI Hub" class="logo-img" />
         </a>
       </div>
 

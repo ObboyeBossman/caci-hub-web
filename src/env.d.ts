@@ -31,3 +31,13 @@ declare module 'notyf/notyf.min.css' {
   const content: Record<string, string>
   export default content
 }
+
+// ── Static asset shims ─────────────────────────────────────────────────────────
+declare module '*.png' {
+  const src: string
+  export default src
+}
+declare module '*.svg' {
+  const src: string
+  export default src
+}
