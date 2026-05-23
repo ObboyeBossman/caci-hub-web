@@ -72,16 +72,23 @@ export const Login: PageModule = {
             <img src="${logoUrl}" alt="CACI Logo" class="auth-logo-img">
             <div class="auth-logo-text">CACI Hub</div>
           </a>
-          <div class="auth-theme-toggle" id="auth-theme-toggle" role="button" tabindex="0" aria-label="Toggle theme">
-            <span class="auth-toggle-icon">☀️</span>
-            <div class="auth-toggle-track"><div class="auth-toggle-thumb"></div></div>
-            <span class="auth-toggle-label">Light</span>
-          </div>
         </div>
 
         <!-- Container -->
         <div class="auth-container">
           <div class="auth-box">
+
+            <!-- Church Branding -->
+            <div class="auth-church-brand">
+              <div class="auth-church-logo-wrap">
+                <img src="${logoUrl}" alt="Christ Apostolic Church International logo">
+              </div>
+              <div>
+                <div class="auth-church-name">Christ Apostolic Church International</div>
+                <div class="auth-church-motto">"One Fold, One Shepherd"</div>
+              </div>
+              <div class="auth-church-divider"></div>
+            </div>
 
             <div class="auth-heading">
               <div class="auth-h1">Sign in to CACI Hub</div>
@@ -175,7 +182,7 @@ export const Login: PageModule = {
       _setLoading(true)
       try {
         await authService.signIn(emailInput.value.trim(), pwInput.value)
-        await loadCurrentUser() 
+        await loadCurrentUser()
         const user = getCurrentUser() as AppUser
 
 
@@ -194,14 +201,12 @@ export const Login: PageModule = {
         // Progress to Stage 4 (Loading/Boot Sequence)
         const { runLoading } = await import('../../../core/loading')
         runLoading()
-        
+
       } catch (err) {
         _showError(mapAuthError(err))
         _setLoading(false)
       }
     }
-
-    // Listeners
     container.querySelector('#signin-btn')
       ?.addEventListener('click', handleSignInInternal)
 
@@ -213,27 +218,6 @@ export const Login: PageModule = {
 
     container.querySelector('#eye-btn')
       ?.addEventListener('click', () => _toggleEye('signin-pw', 'eye-btn'))
-
-
-    // Theme toggle
-    const toggle = container.querySelector('#auth-theme-toggle')
-    toggle?.addEventListener('click', () => {
-      const html = document.documentElement
-      const next = html.dataset['theme'] === 'dark' ? 'light' : 'dark'
-      html.dataset['theme'] = next
-      localStorage.setItem('caci-theme', next)
-      const icon = container.querySelector('.auth-toggle-icon') as HTMLElement
-      const label = container.querySelector('.auth-toggle-label') as HTMLElement
-      if (icon) icon.textContent = next === 'dark' ? '🌙' : '☀️'
-      if (label) label.textContent = next === 'dark' ? 'Dark' : 'Light'
-    })
-
-    // Sync toggle label to current theme on mount
-    const currentTheme = document.documentElement.dataset['theme'] || 'light'
-    const icon = container.querySelector('.auth-toggle-icon') as HTMLElement
-    const label = container.querySelector('.auth-toggle-label') as HTMLElement
-    if (icon) icon.textContent = currentTheme === 'dark' ? '🌙' : '☀️'
-    if (label) label.textContent = currentTheme === 'dark' ? 'Dark' : 'Light'
   },
 
   destroy() { _container = null }

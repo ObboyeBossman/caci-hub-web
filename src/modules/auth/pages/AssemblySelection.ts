@@ -5,32 +5,20 @@
 // Stores the selection in sessionStorage so Login can display branded UI.
 
 import { supabase } from '../../../core/supabase'
-import { navigate }  from '../../../core/router'
+import { navigate } from '../../../core/router'
 import type { PageModule } from '../../../types/module.types'
 import logoUrl from '../../../assets/caci-logo.png'
 
 interface Assembly {
-  id:             string
-  name:           string
-  assembly_code:  string
-  address:        string | null
+  id: string
+  name: string
+  assembly_code: string
+  address: string | null
 }
 
 let _container: HTMLElement | null = null
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Sync the toggle button's icon + label to the current theme. */
-function syncThemeToggle(root: HTMLElement) {
-  const isDark = document.documentElement.dataset['theme'] === 'dark'
-  const icon   = root.querySelector<HTMLElement>('.auth-toggle-icon')
-  const lbl    = root.querySelector<HTMLElement>('.auth-toggle-label')
-  if (icon) icon.textContent = isDark ? '🌙' : '☀️'
-  if (lbl)  lbl.textContent  = isDark ? 'Dark' : 'Light'
-
-  // auth.css keys off `.auth-root.dark` — keep it in sync with html[data-theme]
-  root.classList.toggle('dark', isDark)
-}
 
 export const AssemblySelection: PageModule = {
 
@@ -41,7 +29,7 @@ export const AssemblySelection: PageModule = {
     console.log('[AssemblySelection] Fetching assemblies…')
 
     let data: Assembly[] | null = null
-    let fetchError: unknown     = null
+    let fetchError: unknown = null
 
     try {
       const result = await Promise.race([
@@ -54,7 +42,7 @@ export const AssemblySelection: PageModule = {
           setTimeout(() => reject(new Error('Fetch timeout')), 5000)
         ),
       ])
-      data       = result.data as Assembly[] | null
+      data = result.data as Assembly[] | null
       fetchError = result.error
     } catch (e) {
       console.error('[AssemblySelection] Fetch failed or timed out:', e)
@@ -68,26 +56,29 @@ export const AssemblySelection: PageModule = {
     container.innerHTML = `
       <div class="auth-root" id="asm-root">
 
-        <!-- Header -->
         <div class="auth-header">
           <a class="auth-logo" href="#" aria-label="CACI Hub home">
             <img src="${logoUrl}" alt="CACI Logo" class="auth-logo-img">
             <div class="auth-logo-text">CACI Hub</div>
           </a>
-          <div class="auth-theme-toggle" id="asm-theme-toggle"
-               role="button" tabindex="0" aria-label="Toggle theme">
-            <span class="auth-toggle-icon">☀️</span>
-            <div class="auth-toggle-track">
-              <div class="auth-toggle-thumb"></div>
-            </div>
-            <span class="auth-toggle-label">Light</span>
-          </div>
         </div>
         <div class="red-bar"></div>
 
         <!-- Body -->
         <div class="auth-container">
           <div class="auth-box">
+
+            <!-- Church Branding -->
+            <div class="auth-church-brand">
+              <div class="auth-church-logo-wrap">
+                <img src="${logoUrl}" alt="Christ Apostolic Church International logo">
+              </div>
+              <div>
+                <div class="auth-church-name">Christ Apostolic Church International</div>
+                <div class="auth-church-motto">"One Fold, One Shepherd"</div>
+              </div>
+              <div class="auth-church-divider"></div>
+            </div>
 
             <div class="auth-heading">
               <div class="auth-h1">Select your assembly</div>
@@ -206,12 +197,12 @@ export const AssemblySelection: PageModule = {
     `
 
     // ── Query elements ────────────────────────────────────────────────────────
-    const root        = container.querySelector<HTMLElement>('#asm-root')!
-    const items       = container.querySelectorAll<HTMLElement>('.assembly-item')
-    const searchEl    = container.querySelector<HTMLInputElement>('#asm-search')!
+    const root = container.querySelector<HTMLElement>('#asm-root')!
+    const items = container.querySelectorAll<HTMLElement>('.assembly-item')
+    const searchEl = container.querySelector<HTMLInputElement>('#asm-search')!
     const continueBtn = container.querySelector<HTMLButtonElement>('#asm-continue-btn')!
-    const emptyEl     = container.querySelector<HTMLElement>('#asm-empty')!
-    const emptyTerm   = container.querySelector<HTMLElement>('#asm-empty-term')!
+    const emptyEl = container.querySelector<HTMLElement>('#asm-empty')!
+    const emptyTerm = container.querySelector<HTMLElement>('#asm-empty-term')!
 
     let selectedId: string | null = null
 
@@ -226,10 +217,10 @@ export const AssemblySelection: PageModule = {
 
       // Persist for Login branding
       sessionStorage.setItem('selectedAssembly', JSON.stringify({
-        id:           item.dataset.id,
-        name:         item.dataset.name,
+        id: item.dataset.id,
+        name: item.dataset.name,
         assembly_code: item.dataset.code,
-        address:      item.dataset.loc || null,
+        address: item.dataset.loc || null,
       }))
 
       continueBtn.disabled = false
@@ -255,11 +246,11 @@ export const AssemblySelection: PageModule = {
 
       items.forEach(item => {
         const nameMatch = item.dataset.name!.toLowerCase().includes(q)
-        const locMatch  = item.dataset.loc!.toLowerCase().includes(q)
-        
+        const locMatch = item.dataset.loc!.toLowerCase().includes(q)
+
         // Only show if >= 2 chars typed and matches name/location
         const show = q.length >= 2 && (nameMatch || locMatch)
-        
+
         item.style.display = show ? '' : 'none'
         if (show) visible++
       })
@@ -274,28 +265,9 @@ export const AssemblySelection: PageModule = {
       if (selectedId) navigate('/login')
     })
 
-    // ── Theme toggle ──────────────────────────────────────────────────────────
-    // html[data-theme] drives theme.css; .auth-root.dark drives auth.css —
-    // we keep both in sync here.
-    const themeBtn = container.querySelector<HTMLElement>('#asm-theme-toggle')
-
-    const applyTheme = (next: 'light' | 'dark') => {
-      document.documentElement.dataset['theme'] = next
-      localStorage.setItem('caci-theme', next)
-      syncThemeToggle(root)
-    }
-
-    themeBtn?.addEventListener('click', () => {
-      const current = document.documentElement.dataset['theme'] === 'dark' ? 'dark' : 'light'
-      applyTheme(current === 'dark' ? 'light' : 'dark')
-    })
-
-    themeBtn?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); themeBtn.click() }
-    })
-
-    // Sync toggle indicator to current theme on mount
-    syncThemeToggle(root)
+    // sync root class to current theme on mount (for auth.css)
+    const isDark = document.documentElement.dataset['theme'] === 'dark'
+    root.classList.toggle('dark', isDark)
   },
 
   destroy() {

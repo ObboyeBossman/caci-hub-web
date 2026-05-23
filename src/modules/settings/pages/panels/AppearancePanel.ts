@@ -1,6 +1,7 @@
 // src/modules/settings/pages/panels/AppearancePanel.ts
 
 import type { SettingsContext } from '../utils/settingsTypes';
+import { applyTheme } from '../../../../core/theme';
 
 export function appearancePanelHTML(): string {
   return `
@@ -83,13 +84,11 @@ export function bindAppearancePanel(ctx: SettingsContext): void {
       btn.classList.add('active');
       const val = btn.dataset['themeVal']!;
       if (val === 'system') {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.dataset['theme'] = prefersDark ? 'dark' : 'light';
         localStorage.removeItem('caci-theme');
       } else {
-        document.documentElement.dataset['theme'] = val;
         localStorage.setItem('caci-theme', val);
       }
+      applyTheme();
       toast('Theme updated');
     });
   });

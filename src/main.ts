@@ -22,15 +22,17 @@ import { runSplash } from './core/splash'
 import { registerModule } from './core/registry'
 import SettingsModule from './modules/settings'
 
+import { applyTheme, initThemeListener } from './core/theme'
+
 async function boot(): Promise<void> {
   console.log('[main] CAC Hub Web starting…')
 
   // Register modules
   registerModule(SettingsModule)
 
-  // Apply saved theme immediately to prevent flash
-  const savedTheme = localStorage.getItem('caci-theme')
-  if (savedTheme) document.documentElement.dataset['theme'] = savedTheme
+  // Initialize theme (Manual pref or System default)
+  applyTheme()
+  initThemeListener()
 
   // Hand off to the splash boot flow (Stages 1 → 4)
   await runSplash()
