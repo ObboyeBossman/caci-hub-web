@@ -38,10 +38,9 @@ export function mountShell(): void {
   const updateOfflineStatus = () => {
     const banner = document.getElementById('shell-offline-banner')
     if (!banner) return
-    const isOffline = !navigator.onLine
-    if (isOffline) banner.classList.add('show')
-    else banner.classList.remove('show')
-    console.log(`[Shell] Connectivity: ${isOffline ? 'OFFLINE' : 'online'} (Banner visibility updated)`)
+    // Force show for aesthetic verification
+    banner.classList.add('show')
+    console.log(`[Shell] Banner forced to SHOW for verification`)
   }
   window.addEventListener('online',  updateOfflineStatus)
   window.addEventListener('offline', updateOfflineStatus)
