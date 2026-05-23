@@ -174,6 +174,12 @@ export function profilePanelHTML(
   const membershipNumber = member?.membership_number ?? null;
   const firstName        = member?.first_name  ?? displayName.split(' ')[0] ?? '';
   const lastName         = member?.last_name   ?? (displayName.split(' ').slice(1).join(' ') || '');
+  const derivedName      = member?.first_name ? `${member.first_name} ${member.last_name}` : displayName;
+  const derivedEmail     = member?.email ?? email;
+  const derivedInitials  = member?.first_name
+    ? (member.first_name[0] + (member.last_name ? member.last_name[0] : '')).toUpperCase()
+    : initials;
+
   const dob              = member?.date_of_birth ?? null;
   const gender           = member?.gender ?? null;
   const marital          = member?.marital_status ?? null;
@@ -194,8 +200,8 @@ export function profilePanelHTML(
 
   // ── Avatar ────────────────────────────────────────────────────────────────
   const avatarInner = profilePhoto
-    ? `<img src="${profilePhoto}" alt="${displayName}" />`
-    : `<span id="s-avatar-initials">${initials}</span>`;
+    ? `<img src="${profilePhoto}" alt="${derivedName}" />`
+    : `<span id="s-avatar-initials">${derivedInitials}</span>`;
 
   // ── Emergency contact card — only render if data exists ───────────────────
   const hasEmergency = ecName || ecPhone;
@@ -231,7 +237,7 @@ export function profilePanelHTML(
           <div class="settings-av-overlay prof-av-lock"><i class="bi bi-lock"></i></div>
         </div>
         <div class="prof-avatar-meta">
-          <span class="prof-avatar-name">${displayName}</span>
+          <span class="prof-avatar-name">${derivedName}</span>
           <span class="prof-avatar-role">${cap(role)}</span>
           ${membershipNumber
             ? `<span class="prof-avatar-number">
@@ -269,7 +275,7 @@ export function profilePanelHTML(
         <!-- Contact -->
         ${card('Contact information', 'telephone',
           row1(
-            field('Email address', val(email), ),
+            field('Email address', val(derivedEmail), ),
           ) +
           row2(
             field('Phone number',   val(phone)),
