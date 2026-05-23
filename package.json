@@ -1,7 +1,7 @@
 {
   "name": "caci-hub-web",
   "version": "1.0.0",
-  "description": "CAC Hub — Church Assembly Management Platform",
+  "description": "CACI Hub — Church Assembly Management Platform",
   "private": true,
   "scripts": {
     "dev": "vite",

@@ -1,6 +1,6 @@
-# CAC Hub Web — App Boot & Pre-Auth Flow
+# CACI Hub Web — App Boot & Pre-Auth Flow
 
-**Project:** CAC Hub Web  
+**Project:** CACI Hub Web  
 **Version:** 1.0.0  
 **Status:** Design — pre-implementation  
 **Last Updated:** May 2026  
@@ -62,7 +62,7 @@ App Launch (main.ts)
 
 ### Responsibilities
 
-- Display the CAC Hub logo and app name briefly
+- Display the CACI Hub logo and app name briefly
 - Call `supabase.auth.getSession()` to check for an existing valid session
 - Make one decision and route accordingly — nothing else
 
@@ -304,4 +304,4 @@ The shared cache warm in the Loading screen (Steps 5 and 6) is added in Phase 4 
 
 ---
 
-*Document Version: 1.0.0 · Project: CAC Hub Web · Updated May 2026*
+*Document Version: 1.0.0 · Project: CACI Hub Web · Updated May 2026*

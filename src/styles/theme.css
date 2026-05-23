@@ -1,5 +1,5 @@
 /* =============================================================================
-   CAC Hub Web — Theme CSS
+   CACI Hub Web — Theme CSS
    CACI brand tokens as CSS custom properties.
    Ported from:
      colors.dart     → brand palette
@@ -11,113 +11,130 @@
 /* ── Brand palette — from colors.dart CaciColors ─────────────────────────── */
 :root {
   /* Primary: Blue — CTA buttons, links, nav (NOT red) */
-  --caci-blue:          #004BA0;
-  --caci-blue-light:    #4D9FFF;
-  --caci-blue-mid:      #1A6FC4;
-  --caci-blue-dim:      #003578;
-  --caci-blue-bg:       #EFF5FF;
+  --caci-blue: #004BA0;
+  --caci-blue-light: #4D9FFF;
+  --caci-blue-mid: #1A6FC4;
+  --caci-blue-dim: #003578;
+  --caci-blue-bg: #EFF5FF;
 
   /* Secondary: Red — active tabs, destructive actions, errors */
-  --caci-red:           #C60026;
-  --caci-red-light:     #E8003A;
-  --caci-red-dim:       #C60026;
-  --caci-red-bg:        #FFF0F2;
-  --caci-red-glow:      rgba(232, 0, 58, 0.15);
+  --caci-red: #C60026;
+  --caci-red-light: #E8003A;
+  --caci-red-dim: #C60026;
+  --caci-red-bg: #FFF0F2;
+  --caci-red-glow: rgba(232, 0, 58, 0.15);
 
   /* Neutral scale — light (GitHub-style grey) */
-  --caci-n50:           #F6F8FA;
-  --caci-n100:          #EAEEF2;
-  --caci-n200:          #D0D7DE;
-  --caci-n400:          #8C959F;
-  --caci-n600:          #656D76;
-  --caci-n700:          #57606A;
-  --caci-n800:          #24292F;
-  --caci-n900:          #1B1F23;
+  --caci-n50: #F6F8FA;
+  --caci-n100: #EAEEF2;
+  --caci-n200: #D0D7DE;
+  --caci-n400: #8C959F;
+  --caci-n600: #656D76;
+  --caci-n700: #57606A;
+  --caci-n800: #24292F;
+  --caci-n900: #1B1F23;
 
   /* Semantic colours */
-  --caci-success:       #1A7F37;
-  --caci-success-bg:    #DAFBE1;
-  --caci-warning:       #9A6700;
-  --caci-warning-bg:    #FFF8C5;
-  --caci-danger:        #C60026;
+  --caci-success: #1A7F37;
+  --caci-success-bg: #DAFBE1;
+  --caci-warning: #9A6700;
+  --caci-warning-bg: #FFF8C5;
+  --caci-danger: #C60026;
 
   /* Focus ring — light */
-  --caci-focus:         #0969DA;
-  --caci-focus-bg:      #DDF4FF;
+  --caci-focus: #0969DA;
+  --caci-focus-bg: #DDF4FF;
 
   /* White / Night */
-  --caci-white:         #FFFFFF;
-  --caci-night:         #0D1117;
+  --caci-white: #FFFFFF;
+  --caci-night: #0D1117;
 }
 
 /* ── Semantic tokens — light mode (default) ──────────────────────────────── */
 :root {
   /* Backgrounds */
-  --bg-page:          var(--caci-n50);      /* #F6F8FA — page canvas */
-  --bg-card:          var(--caci-white);    /* card / sheet */
-  --bg-input:         var(--caci-white);    /* text field fill */
-  --bg-prefix:        var(--caci-n50);      /* input prefix block */
-  --bg-hover:         var(--caci-n50);
+  --bg-page: var(--caci-n50);
+  /* #F6F8FA — page canvas */
+  --bg-card: var(--caci-white);
+  /* card / sheet */
+  --bg-input: var(--caci-white);
+  /* text field fill */
+  --bg-prefix: var(--caci-n50);
+  /* input prefix block */
+  --bg-hover: var(--caci-n50);
 
   /* Text */
-  --text-primary:     var(--caci-n900);     /* #1B1F23 — headings, body, labels */
-  --text-secondary:   var(--caci-n600);     /* #656D76 — subtitle, hint */
-  --text-muted:       var(--caci-n700);     /* #57606A — prefix, very muted */
-  --text-placeholder: var(--caci-n400);     /* #8C959F — input placeholder */
-  --text-link:        var(--caci-blue);     /* #004BA0 — links */
-  --text-danger:      var(--caci-red);      /* #C60026 — error, required */
-  --text-success:     var(--caci-success);
-  --text-warning:     var(--caci-warning);
+  --text-primary: var(--caci-n900);
+  /* #1B1F23 — headings, body, labels */
+  --text-secondary: var(--caci-n600);
+  /* #656D76 — subtitle, hint */
+  --text-muted: var(--caci-n700);
+  /* #57606A — prefix, very muted */
+  --text-placeholder: var(--caci-n400);
+  /* #8C959F — input placeholder */
+  --text-link: var(--caci-blue);
+  /* #004BA0 — links */
+  --text-danger: var(--caci-red);
+  /* #C60026 — error, required */
+  --text-success: var(--caci-success);
+  --text-warning: var(--caci-warning);
 
   /* Borders */
-  --border-default:   var(--caci-n200);     /* #D0D7DE */
-  --border-hover:     var(--caci-n400);     /* #8C959F */
-  --border-focus:     var(--caci-focus);    /* #0969DA */
-  --border-danger:    var(--caci-red);
-  --border-selected:  var(--caci-blue);     /* #004BA0 — selected card */
+  --border-default: var(--caci-n200);
+  /* #D0D7DE */
+  --border-hover: var(--caci-n400);
+  /* #8C959F */
+  --border-focus: var(--caci-focus);
+  /* #0969DA */
+  --border-danger: var(--caci-red);
+  --border-selected: var(--caci-blue);
+  /* #004BA0 — selected card */
 
   /* Focus ring */
-  --focus-ring:       var(--caci-focus);
-  --focus-ring-bg:    var(--caci-focus-bg);
+  --focus-ring: var(--caci-focus);
+  --focus-ring-bg: var(--caci-focus-bg);
 
   /* Tab indicator */
-  --tab-active:       var(--caci-n900);
-  --tab-indicator:    var(--caci-red);      /* #C60026 — active tab underline */
-  --tab-inactive:     var(--caci-n600);
+  --tab-active: var(--caci-n900);
+  --tab-indicator: var(--caci-red);
+  /* #C60026 — active tab underline */
+  --tab-inactive: var(--caci-n600);
 
   /* Alerts */
-  --alert-info-bg:      #DDF4FF;
-  --alert-info-fg:      #0969DA;
-  --alert-info-border:  rgba(9, 105, 218, 0.2);
-  --alert-warning-bg:   var(--caci-warning-bg);
-  --alert-warning-fg:   var(--caci-warning);
+  --alert-info-bg: #DDF4FF;
+  --alert-info-fg: #0969DA;
+  --alert-info-border: rgba(9, 105, 218, 0.2);
+  --alert-warning-bg: var(--caci-warning-bg);
+  --alert-warning-fg: var(--caci-warning);
   --alert-warning-border: rgba(154, 103, 0, 0.25);
 
   /* Shell layout */
-  --sidebar-width:     220px;
-  --toolbar-height:    52px;
+  --sidebar-width: 220px;
+  --toolbar-height: 52px;
 
   /* Spacing scale — from spacing.dart CaciSpacing */
-  --sp-xs:  4px;
-  --sp-sm:  8px;
-  --sp-md:  12px;
-  --sp-lg:  16px;
-  --sp-xl:  20px;
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 12px;
+  --sp-lg: 16px;
+  --sp-xl: 20px;
   --sp-2xl: 24px;
   --sp-3xl: 40px;
   --sp-4xl: 60px;
 
   /* Border radius — from spacing.dart CaciRadius */
-  --radius-xs:   2px;
-  --radius-sm:   6px;   /* buttons, inputs, cards, alerts */
-  --radius-md:   8px;
-  --radius-lg:   10px;  /* badge pill */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  /* buttons, inputs, cards, alerts */
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  /* badge pill */
   --radius-pill: 9999px;
 
   /* Typography */
-  --font-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                 'Helvetica Neue', Arial, sans-serif;
-  --font-mono:   'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   --font-size-base: 14px;
   --line-height-base: 1.5;
 }
@@ -125,46 +142,62 @@
 /* ── Dark mode overrides — from tokens.dart CaciTokensDark ──────────────── */
 [data-theme="dark"] {
   /* Neutral scale — dark (GitHub-style) */
-  --bg-page:          #0D1117;  /* darkBase */
-  --bg-card:          #161B22;  /* darkCard */
-  --bg-input:         #0D1117;  /* inputs sit on base */
-  --bg-prefix:        #21262D;  /* darkHover */
-  --bg-hover:         #21262D;
+  --bg-page: #0D1117;
+  /* darkBase */
+  --bg-card: #161B22;
+  /* darkCard */
+  --bg-input: #0D1117;
+  /* inputs sit on base */
+  --bg-prefix: #21262D;
+  /* darkHover */
+  --bg-hover: #21262D;
 
-  --text-primary:     #E6EDF3;  /* darkTextPrim */
-  --text-secondary:   #8B949E;  /* darkTextSec */
-  --text-muted:       #484F58;  /* darkTextMuted */
+  --text-primary: #E6EDF3;
+  /* darkTextPrim */
+  --text-secondary: #8B949E;
+  /* darkTextSec */
+  --text-muted: #484F58;
+  /* darkTextMuted */
   --text-placeholder: #484F58;
-  --text-link:        #4D9FFF;  /* blueLight */
-  --text-danger:      #E8003A;  /* redLight */
-  --text-warning:     #D29922;  /* warningDark */
+  --text-link: #4D9FFF;
+  /* blueLight */
+  --text-danger: #E8003A;
+  /* redLight */
+  --text-warning: #D29922;
+  /* warningDark */
 
-  --border-default:   #30363D;  /* darkBorder */
-  --border-hover:     #484F58;
-  --border-focus:     #58A6FF;  /* focusDark */
-  --border-selected:  #4D9FFF;
+  --border-default: #30363D;
+  /* darkBorder */
+  --border-hover: #484F58;
+  --border-focus: #58A6FF;
+  /* focusDark */
+  --border-selected: #4D9FFF;
 
-  --focus-ring:       #58A6FF;
-  --focus-ring-bg:    rgba(88, 166, 255, 0.1);
+  --focus-ring: #58A6FF;
+  --focus-ring-bg: rgba(88, 166, 255, 0.1);
 
-  --tab-active:       #E6EDF3;
-  --tab-indicator:    #E8003A;  /* redLight */
-  --tab-inactive:     #8B949E;
+  --tab-active: #E6EDF3;
+  --tab-indicator: #E8003A;
+  /* redLight */
+  --tab-inactive: #8B949E;
 
-  --alert-info-bg:      rgba(56, 139, 253, 0.1);
-  --alert-info-fg:      #58A6FF;
-  --alert-info-border:  rgba(56, 139, 253, 0.2);
-  --alert-warning-bg:   rgba(187, 128, 9, 0.1);
-  --alert-warning-fg:   #D29922;
+  --alert-info-bg: rgba(56, 139, 253, 0.1);
+  --alert-info-fg: #58A6FF;
+  --alert-info-border: rgba(56, 139, 253, 0.2);
+  --alert-warning-bg: rgba(187, 128, 9, 0.1);
+  --alert-warning-fg: #D29922;
   --alert-warning-border: rgba(187, 128, 9, 0.2);
 }
 
 /* ── Base reset / global styles ───────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
@@ -183,61 +216,106 @@ html, body {
 /* ── Bootstrap variable overrides ────────────────────────────────────────── */
 /* Override Bootstrap's default blue with CACI blue */
 :root {
-  --bs-primary:         var(--caci-blue);
-  --bs-primary-rgb:     0, 75, 160;
-  --bs-danger:          var(--caci-red);
-  --bs-danger-rgb:      198, 0, 38;
-  --bs-success:         var(--caci-success);
-  --bs-border-color:    var(--caci-n200);
-  --bs-border-radius:   var(--radius-sm);
+  --bs-primary: var(--caci-blue);
+  --bs-primary-rgb: 0, 75, 160;
+  --bs-danger: var(--caci-red);
+  --bs-danger-rgb: 198, 0, 38;
+  --bs-success: var(--caci-success);
+  --bs-border-color: var(--caci-n200);
+  --bs-border-radius: var(--radius-sm);
   --bs-body-font-family: var(--font-sans);
-  --bs-body-font-size:  var(--font-size-base);
-  --bs-body-color:      var(--text-primary);
-  --bs-body-bg:         var(--bg-page);
-  --bs-link-color:      var(--text-link);
+  --bs-body-font-size: var(--font-size-base);
+  --bs-body-color: var(--text-primary);
+  --bs-body-bg: var(--bg-page);
+  --bs-link-color: var(--text-link);
   --bs-link-hover-color: var(--caci-blue-mid);
 }
 
 /* ── Shimmer skeleton animation ─────────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--caci-n100) 25%,
-    var(--caci-n50)  50%,
-    var(--caci-n100) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--caci-n100) 25%,
+      var(--caci-n50) 50%,
+      var(--caci-n100) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--radius-sm);
 }
 
 /* ── Utility classes ─────────────────────────────────────────────────────── */
-.text-caci-blue    { color: var(--caci-blue) !important; }
-.text-caci-red     { color: var(--caci-red) !important; }
-.bg-caci-blue      { background-color: var(--caci-blue) !important; }
-.bg-surface        { background-color: var(--bg-card) !important; }
-.border-default    { border-color: var(--border-default) !important; }
+.text-caci-blue {
+  color: var(--caci-blue) !important;
+}
+
+.text-caci-red {
+  color: var(--caci-red) !important;
+}
+
+.bg-caci-blue {
+  background-color: var(--caci-blue) !important;
+}
+
+.bg-surface {
+  background-color: var(--bg-card) !important;
+}
+
+.border-default {
+  border-color: var(--border-default) !important;
+}
 
 /* Scrollbar utility */
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
 /* ── Status badge colours ────────────────────────────────────────────────── */
 /* Mirrors membership_status.dart + member_status_badge.dart */
-.badge-active   { background-color: var(--caci-success-bg); color: var(--caci-success); }
-.badge-inactive { background-color: var(--caci-n100);       color: var(--caci-n600); }
-.badge-visitor  { background-color: var(--caci-blue-bg);    color: var(--caci-blue-dim); }
-.badge-prospect { background-color: var(--caci-warning-bg); color: var(--caci-warning); }
-.badge-transfer { background-color: var(--caci-blue-bg);    color: var(--caci-blue-mid); }
-.badge-deceased { background-color: var(--caci-n100);       color: var(--caci-n700); }
-.badge-flagged  { background-color: var(--caci-red-bg);     color: var(--caci-red-dim); }
+.badge-active {
+  background-color: var(--caci-success-bg);
+  color: var(--caci-success);
+}
+
+.badge-inactive {
+  background-color: var(--caci-n100);
+  color: var(--caci-n600);
+}
+
+.badge-visitor {
+  background-color: var(--caci-blue-bg);
+  color: var(--caci-blue-dim);
+}
+
+.badge-prospect {
+  background-color: var(--caci-warning-bg);
+  color: var(--caci-warning);
+}
+
+.badge-transfer {
+  background-color: var(--caci-blue-bg);
+  color: var(--caci-blue-mid);
+}
+
+.badge-deceased {
+  background-color: var(--caci-n100);
+  color: var(--caci-n700);
+}
+
+.badge-flagged {
+  background-color: var(--caci-red-bg);
+  color: var(--caci-red-dim);
+}

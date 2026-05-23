@@ -1,5 +1,5 @@
 // src/main.ts
-// CAC Hub Web — App Entry Point
+// CACI Hub Web — App Entry Point
 //
 // The boot sequence is now orchestrated by the splash screen:
 //   Stage 1 (splash.ts)        → 2s branded splash + session check
@@ -25,7 +25,7 @@ import SettingsModule from './modules/settings'
 import { applyTheme, initThemeListener } from './core/theme'
 
 async function boot(): Promise<void> {
-  console.log('[main] CAC Hub Web starting…')
+  console.log('[main] CACI Hub Web starting…')
 
   // Register modules
   registerModule(SettingsModule)

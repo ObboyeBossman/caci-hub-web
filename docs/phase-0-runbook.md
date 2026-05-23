@@ -1,4 +1,4 @@
-# CAC Hub Web — Phase 0 Runbook: Project Setup
+# CACI Hub Web — Phase 0 Runbook: Project Setup
 
 **Goal:** A running Vite + TypeScript + Supabase project that can authenticate a user and render a blank shell.  
 **Duration:** 2–3 days  
@@ -87,7 +87,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'CAC Hub',
+        name: 'CACI Hub',
         short_name: 'CACHub',
         theme_color: '#C0392B',
       },
@@ -364,7 +364,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 // import { loadCurrentUser }             from '@core/auth'
 
 async function boot(): Promise<void> {
-  console.log('[main] CAC Hub Web starting...')
+  console.log('[main] CACI Hub Web starting...')
   // 1. Register modules  — Phase 3+
   // 2. Load current user — Phase 3+
   // 3. Init modules      — Phase 3+
@@ -410,14 +410,14 @@ Single page, single mount point. Everything renders into `#app`.
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="CAC Hub — Church Assembly Management" />
+  <meta name="description" content="CACI Hub — Church Assembly Management" />
   <meta name="theme-color" content="#C0392B" />
 
   <link rel="icon" href="/favicon.ico" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/caci-logo.png" />
 
-  <title>CAC Hub</title>
+  <title>CACI Hub</title>
 </head>
 <body>
   <div id="app"></div>
@@ -430,7 +430,7 @@ Single page, single mount point. Everything renders into `#app`.
 
 ```json
 {
-  "name": "CAC Hub",
+  "name": "CACI Hub",
   "short_name": "CACHub",
   "description": "Church Assembly Management Platform",
   "start_url": "/",
@@ -453,7 +453,7 @@ npm run dev
 ```
 
 - Browser opens to a blank white page
-- Console shows `[main] CAC Hub Web starting...` and `[main] Boot complete`
+- Console shows `[main] CACI Hub Web starting...` and `[main] Boot complete`
 - Supabase smoke test (if added) logs `OK` with a row from `assemblies`
 - No TypeScript compiler errors (`tsc --noEmit` passes clean)
 - No red console entries

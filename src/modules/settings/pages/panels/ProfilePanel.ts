@@ -1,67 +1,288 @@
 // src/modules/settings/pages/panels/ProfilePanel.ts
 
 import type { SettingsContext } from '../utils/settingsTypes';
+import type { MemberView }      from '../../../../types/member.types';
+import { getCurrentUser }       from '@core/auth';
 
-export function profilePanelHTML(displayName: string, email: string, role: string, initials: string): string {
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+function friendlyStatus(raw: string | null | undefined): string {
+  const map: Record<string, string> = {
+    active:   'Active member',
+    inactive: 'Inactive',
+    visitor:  'Visitor',
+    prospect: 'Prospective member',
+    transfer: 'Transfer pending',
+    deceased: 'Deceased',
+  };
+  return raw ? (map[raw] ?? raw) : '—';
+}
+
+function statusBadgeClass(raw: string | null | undefined): string {
+  const map: Record<string, string> = {
+    active:   'settings-badge-green',
+    inactive: 'settings-badge-grey',
+    visitor:  'settings-badge-blue',
+    prospect: 'settings-badge-yellow',
+    transfer: 'settings-badge-blue',
+    deceased: 'settings-badge-grey',
+  };
+  return raw ? (map[raw] ?? 'settings-badge-grey') : 'settings-badge-grey';
+}
+
+function fmtDate(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function cap(s: string | null | undefined): string {
+  if (!s) return '—';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function val(s: string | null | undefined): string {
+  return s?.trim() || '—';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field renderers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A single labelled field — used inside prof-grid or standalone.
+ */
+function field(label: string, value: string, opts: { mono?: boolean; locked?: boolean; link?: boolean } = {}): string {
+  const valueClass = [
+    'prof-field-value',
+    opts.mono   ? 'prof-field-mono'   : '',
+    opts.locked ? 'prof-field-locked' : '',
+  ].filter(Boolean).join(' ');
+
+  const lockIcon = opts.locked
+    ? `<i class="bi bi-lock prof-lock-icon" title="System assigned"></i>`
+    : '';
+
+  return `
+    <div class="prof-field">
+      <span class="prof-field-label">${label}</span>
+      <span class="${valueClass}">${lockIcon}${value}</span>
+    </div>`;
+}
+
+/** Two fields side by side in a responsive grid row. */
+function row2(a: string, b: string): string {
+  return `<div class="prof-grid-row">${a}${b}</div>`;
+}
+
+/** One field taking the full width of a grid row. */
+function row1(a: string): string {
+  return `<div class="prof-grid-row prof-grid-row--full">${a}</div>`;
+}
+
+/** A card-style group with a title and grid content. */
+function card(title: string, icon: string, content: string, adminLocked = false): string {
+  const banner = adminLocked ? `
+    <div class="prof-admin-banner">
+      <i class="bi bi-shield-lock"></i>
+      <span>Managed by your assembly administrator.</span>
+    </div>` : '';
+
+  return `
+    <div class="prof-card">
+      <div class="prof-card-head">
+        <i class="bi bi-${icon} prof-card-icon"></i>
+        <span class="prof-card-title">${title}</span>
+      </div>
+      ${banner}
+      <div class="prof-grid">
+        ${content}
+      </div>
+    </div>`;
+}
+
+/** A badge rendered as a field value. */
+function badgeField(label: string, text: string, badgeClass: string): string {
+  return `
+    <div class="prof-field">
+      <span class="prof-field-label">${label}</span>
+      <span class="settings-badge ${badgeClass}">${text}</span>
+    </div>`;
+}
+
+/** An external link rendered as a field value. */
+function linkField(label: string, href: string | null | undefined): string {
+  const display = href
+    ? `<a href="${href}" target="_blank" rel="noreferrer" class="prof-link">${href}</a>`
+    : '—';
+  return field(label, display);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Panel HTML
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function profilePanelHTML(
+  displayName: string,
+  email:       string,
+  role:        string,
+  initials:    string,
+  member?:     Partial<MemberView>,
+): string {
+
+  // ── Derived values ────────────────────────────────────────────────────────
+  const membershipNumber = member?.membership_number ?? null;
+  const firstName        = member?.first_name  ?? displayName.split(' ')[0] ?? '';
+  const lastName         = member?.last_name   ?? (displayName.split(' ').slice(1).join(' ') || '');
+  const dob              = member?.date_of_birth ?? null;
+  const gender           = member?.gender ?? null;
+  const marital          = member?.marital_status ?? null;
+  const phone            = member?.phone_number ?? null;
+  const whatsapp         = member?.whatsapp_number ?? null;
+  const address          = member?.physical_address ?? null;
+  const occupation       = member?.occupation ?? null;
+  const facebook         = member?.facebook_url ?? null;
+  const instagram        = member?.instagram_url ?? null;
+  const profilePhoto     = member?.profile_photo_url ?? null;
+  const status           = member?.membership_status ?? null;
+  const joinDate         = member?.join_date ?? null;
+  const ecName           = member?.emergency_contact_name ?? null;
+  const ecPhone          = member?.emergency_contact_phone ?? null;
+  const ecRel            = member?.emergency_contact_relationship ?? null;
+  const assemblyDisplay  = (member as any)?.assemblyName ?? member?.assembly_id ?? '—';
+  const householdDisplay = (member as any)?.householdName ?? (member?.household_id ? 'Assigned' : '—');
+
+  // ── Avatar ────────────────────────────────────────────────────────────────
+  const avatarInner = profilePhoto
+    ? `<img src="${profilePhoto}" alt="${displayName}" />`
+    : `<span id="s-avatar-initials">${initials}</span>`;
+
+  // ── Emergency contact card — only render if data exists ───────────────────
+  const hasEmergency = ecName || ecPhone;
+  const emergencyCard = hasEmergency ? card(
+    'Emergency contact', 'heart-pulse',
+    row2(
+      field('Name', val(ecName)),
+      field('Phone', val(ecPhone)),
+    ) +
+    row1(
+      field('Relationship', cap(ecRel)),
+    ),
+    true,
+  ) : '';
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return `
     <section class="settings-panel active" id="s-panel-profile">
-      <p class="settings-sec">Profile photo</p>
-      <div class="settings-row">
-        <span class="settings-lbl">Avatar<small>JPEG, PNG or WEBP · max 5 MB.</small></span>
-        <div class="settings-field-r">
-          <div class="settings-avatar" id="s-avatar" title="Click to upload photo">
-            <span id="s-avatar-initials">${initials}</span>
-            <div class="settings-av-overlay"><i class="bi bi-camera"></i></div>
-          </div>
-          <input type="file" id="s-avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none"/>
-          <div>
-            <button class="btn btn-ghost btn-sm" id="s-avatar-upload-btn">Upload</button>
-            <div class="settings-upload-progress" id="s-upload-progress">
-              <div class="settings-upload-bar-track">
-                <div class="settings-upload-bar-fill" id="s-upload-bar"></div>
-              </div>
-              <div class="settings-upload-status" id="s-upload-status"></div>
-            </div>
-          </div>
+
+      <!-- Notice banner -->
+      <div class="prof-notice-banner">
+        <i class="bi bi-info-circle-fill prof-notice-icon"></i>
+        <div class="prof-notice-body">
+          <strong>Profile editing coming soon</strong>
+          <span>To correct any information, contact your assembly administrator.</span>
         </div>
       </div>
 
-      <p class="settings-sec">Personal information</p>
-      <div class="settings-row">
-        <span class="settings-lbl">Display name</span>
-        <div class="settings-field-r">
-          <input type="text" id="s-display-name" value="${displayName}" style="min-width:240px"/>
+      <!-- Avatar row -->
+      <div class="prof-avatar-row">
+        <div class="settings-avatar prof-avatar-ro" title="Photo editing not yet available">
+          ${avatarInner}
+          <div class="settings-av-overlay prof-av-lock"><i class="bi bi-lock"></i></div>
+        </div>
+        <div class="prof-avatar-meta">
+          <span class="prof-avatar-name">${displayName}</span>
+          <span class="prof-avatar-role">${cap(role)}</span>
+          ${membershipNumber
+            ? `<span class="prof-avatar-number">
+                <i class="bi bi-lock prof-lock-icon"></i>${membershipNumber}
+               </span>`
+            : `<span class="prof-avatar-number prof-field-locked">
+                <i class="bi bi-lock prof-lock-icon"></i>Membership number pending
+               </span>`
+          }
         </div>
       </div>
-      <div class="settings-row">
-        <span class="settings-lbl">Email address<small>Changes require email verification.</small></span>
-        <div class="settings-field-r" style="flex-direction:column;align-items:flex-start">
-          <input type="email" id="s-email" value="${email}" style="min-width:240px"/>
-          <div class="settings-email-pending" id="s-email-pending">
-            <i class="bi bi-envelope-exclamation"></i>
-            Verification email sent — check your inbox.
-            <button class="btn btn-ghost btn-sm" style="margin-left:auto">Resend</button>
-          </div>
-        </div>
+
+      <!-- Cards -->
+      <div class="prof-cards">
+
+        <!-- Personal -->
+        ${card('Personal information', 'person',
+          row2(
+            field('First name',  val(firstName)),
+            field('Last name',   val(lastName)),
+          ) +
+          row2(
+            field('Date of birth', fmtDate(dob)),
+            badgeField('Gender', cap(gender),
+              gender === 'male' ? 'settings-badge-blue'
+              : gender === 'female' ? 'settings-badge-yellow'
+              : 'settings-badge-grey'),
+          ) +
+          row2(
+            field('Marital status', cap(marital)),
+            field('Occupation',     val(occupation)),
+          ),
+        )}
+
+        <!-- Contact -->
+        ${card('Contact information', 'telephone',
+          row1(
+            field('Email address', val(email), ),
+          ) +
+          row2(
+            field('Phone number',   val(phone)),
+            field('WhatsApp',       val(whatsapp)),
+          ) +
+          row1(
+            field('Physical address', val(address)),
+          ),
+        )}
+
+        <!-- Social -->
+        ${card('Social profiles', 'share',
+          row1(linkField('Facebook',  facebook)) +
+          row1(linkField('Instagram', instagram)),
+        )}
+
+        <!-- Emergency contact -->
+        ${emergencyCard}
+
+        <!-- Church & household -->
+        ${card('Church & household', 'building',
+          row2(
+            badgeField('Membership status', friendlyStatus(status), statusBadgeClass(status)),
+            field('Joined', fmtDate(joinDate)),
+          ) +
+          row2(
+            field('Assembly',  assemblyDisplay),
+            field('Household', householdDisplay),
+          ),
+          true,
+        )}
+
       </div>
-      <div class="settings-row">
-        <span class="settings-lbl">Role / Title<small>Visible to other members.</small></span>
-        <div class="settings-field-r">
-          <input type="text" id="s-role" value="${role}" style="min-width:240px"/>
-        </div>
+
+      <!-- Bottom CTA -->
+      <div class="prof-cta-bar">
+        <i class="bi bi-envelope-paper"></i>
+        <span>Something look incorrect?</span>
+        <button class="btn btn-ghost btn-sm" id="s-profile-contact-admin">
+          Contact your administrator
+        </button>
       </div>
-      <div class="settings-row">
-        <span class="settings-lbl">Bio</span>
-        <div class="settings-field-r" style="flex:1;max-width:380px">
-          <textarea id="s-bio" placeholder="A short bio visible on your profile…" style="min-width:240px"></textarea>
-        </div>
-      </div>
-      <div class="settings-save-bar">
-        <button class="btn btn-ghost" id="s-profile-cancel">Cancel</button>
-        <button class="btn btn-primary" id="s-profile-save"><i class="bi bi-check2"></i> Save changes</button>
-      </div>
+
     </section>
 
+    <!-- Account panel — kept in DOM for tab shell -->
     <section class="settings-panel" id="s-panel-account">
       <p class="settings-sec">Password</p>
       <div class="settings-row">
@@ -101,52 +322,22 @@ export function profilePanelHTML(displayName: string, email: string, role: strin
   `;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Bindings
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function bindProfilePanel(ctx: SettingsContext): void {
   const { el, toast } = ctx;
 
-  el.querySelector('#s-profile-save')?.addEventListener('click', () => toast('Profile saved'));
-  el.querySelector('#s-profile-cancel')?.addEventListener('click', () => toast('Changes discarded'));
-
-  el.querySelector('#s-email')?.addEventListener('change', () => {
-    el.querySelector('#s-email-pending')?.classList.add('show');
+  el.querySelector('#s-profile-contact-admin')?.addEventListener('click', () => {
+    const user    = getCurrentUser();
+    const subject = encodeURIComponent('Profile update request');
+    const body    = encodeURIComponent(
+      `Hello,\n\nI would like to update some details on my profile.\n\nName: ${user?.fullName ?? ''}\nEmail: ${user?.email ?? ''}\n\nDetails to update:\n\n`,
+    );
+    window.location.href = `mailto:admin@yourchurch.org?subject=${subject}&body=${body}`;
   });
 
-  // Avatar upload
-  const avatarBtn   = el.querySelector('#s-avatar-upload-btn');
-  const avatarInput = el.querySelector<HTMLInputElement>('#s-avatar-input');
-  const avatarEl    = el.querySelector<HTMLElement>('#s-avatar');
-  avatarBtn?.addEventListener('click', () => avatarInput?.click());
-  avatarEl?.addEventListener('click', () => avatarInput?.click());
-  avatarInput?.addEventListener('change', () => {
-    const file = avatarInput.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast('File exceeds 5 MB limit', 'error'); return; }
-    const progress = el.querySelector<HTMLElement>('#s-upload-progress')!;
-    const bar      = el.querySelector<HTMLElement>('#s-upload-bar')!;
-    const status   = el.querySelector<HTMLElement>('#s-upload-status')!;
-    progress.style.display = 'block';
-    let pct = 0;
-    const iv = setInterval(() => {
-      pct = Math.min(pct + 10, 100);
-      bar.style.width = pct + '%';
-      status.textContent = pct < 100 ? `Uploading… ${pct}%` : 'Upload complete';
-      if (pct === 100) {
-        clearInterval(iv);
-        setTimeout(() => { progress.style.display = 'none'; }, 1500);
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = document.createElement('img');
-          img.src = ev.target!.result as string;
-          el.querySelector('#s-avatar-initials')?.remove();
-          avatarEl?.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-        toast('Avatar updated');
-      }
-    }, 80);
-  });
-
-  // Password modal
   el.querySelector('#s-change-pwd-btn')?.addEventListener('click', () => {
     el.querySelector<HTMLElement>('#s-pwd-overlay')!.classList.add('open');
   });

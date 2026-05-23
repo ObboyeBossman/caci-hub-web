@@ -7,7 +7,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'CAC Hub',
+        name: 'CACI Hub',
         short_name: 'CACHub',
         description: 'Church Assembly Management Platform',
         theme_color: '#C60026',
@@ -39,9 +39,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@core':    resolve(__dirname, 'src/core'),
-      '@shared':  resolve(__dirname, 'src/shared'),
-      '@types':   resolve(__dirname, 'src/types'),
+      '@core': resolve(__dirname, 'src/core'),
+      '@shared': resolve(__dirname, 'src/shared'),
+      '@types': resolve(__dirname, 'src/types'),
       '@modules': resolve(__dirname, 'src/modules'),
     },
   },

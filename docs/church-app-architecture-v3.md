@@ -1,4 +1,4 @@
-# CAC Hub Web — Architecture & Implementation Document
+# CACI Hub Web — Architecture & Implementation Document
 
 **Version:** 3.0.0
 **Architecture Pattern:** Modular Monolith · Vertical Slice · Manifest-Driven · Capability-Based
@@ -54,7 +54,7 @@
 
 ## 1. Project Overview
 
-CAC Hub is an enterprise-grade, modular web platform for managing all aspects of a church assembly — membership, finance, events, media, communication, giving, groups, attendance, volunteers, and pastoral care — through a unified, permission-aware, role-driven interface.
+CACI Hub is an enterprise-grade, modular web platform for managing all aspects of a church assembly — membership, finance, events, media, communication, giving, groups, attendance, volunteers, and pastoral care — through a unified, permission-aware, role-driven interface.
 
 The platform is built around a **plug-in module architecture**. Adding a new feature module requires no edits to existing modules, the shell, or the router. The app discovers and composes itself from registered modules at boot time.
 

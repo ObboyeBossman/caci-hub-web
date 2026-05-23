@@ -90,12 +90,16 @@ export class SettingsOverlay {
         </div>
 
         <div class="settings-tab-strip">
-          ${TABS.map((t, i) => `
-            <button class="settings-tab-item ${i === 0 ? 'active' : ''}" data-tab="${t}">
-              <i class="bi bi-${_tabIcon(t)}"></i> ${_tabLabel(t)}
-            </button>`).join('')}
+          ${TABS.map((t, i) => {
+            const isDisabled = t !== 'profile';
+            return `
+              <button class="settings-tab-item ${i === 0 ? 'active' : ''} ${isDisabled ? 'disabled' : ''}" data-tab="${t}">
+                <i class="bi bi-${_tabIcon(t)}"></i> ${_tabLabel(t)}
+                ${isDisabled ? '<span class="soon-badge">SOON</span>' : ''}
+              </button>`;
+          }).join('')}
         </div>
-
+ 
         <div class="settings-body-split">
           <nav class="settings-sidebar scrollbar-hide">
             <div class="settings-search-box">
@@ -103,18 +107,26 @@ export class SettingsOverlay {
               <input type="text" placeholder="Search settings" id="s-nav-search"/>
             </div>
             <div class="settings-nav-sep">Account</div>
-            ${['profile','account','appearance','locale'].map((t, i) => `
-              <button class="settings-nav-btn ${i === 0 ? 'active' : ''}" data-tab="${t}">
-                <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
-              </button>`).join('')}
+            ${['profile', 'account', 'appearance', 'locale'].map((t, i) => {
+              const isDisabled = t !== 'profile';
+              return `
+                <button class="settings-nav-btn ${i === 0 ? 'active' : ''} ${isDisabled ? 'disabled' : ''}" data-tab="${t}">
+                  <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
+                  ${isDisabled ? '<span class="soon-badge">SOON</span>' : ''}
+                </button>`;
+            }).join('')}
             <div class="settings-nav-sep">Preferences</div>
-            ${['notifications','security'].map(t => `
-              <button class="settings-nav-btn" data-tab="${t}">
-                <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
-              </button>`).join('')}
+            ${['notifications', 'security'].map(t => {
+              const isDisabled = t !== 'profile';
+              return `
+                <button class="settings-nav-btn ${isDisabled ? 'disabled' : ''}" data-tab="${t}">
+                  <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
+                  ${isDisabled ? '<span class="soon-badge">SOON</span>' : ''}
+                </button>`;
+            }).join('')}
             <div class="settings-nav-spacer"></div>
           </nav>
-
+ 
           <div class="settings-content scrollbar-hide">
             ${profilePanelHTML(displayName, email, role, initials)}
             ${appearancePanelHTML()}
@@ -147,6 +159,7 @@ export class SettingsOverlay {
   private _bindShellEvents(): void {
     if (!this._el) return;
     const el = this._el;
+    const toast = makeToast(el);
 
     el.querySelector('#s-close-btn')?.addEventListener('click', () => SettingsOverlay.close());
     el.addEventListener('click', (e) => { if (e.target === el) SettingsOverlay.close(); });
@@ -155,7 +168,13 @@ export class SettingsOverlay {
     document.addEventListener('keydown', this._escHandler);
 
     el.querySelectorAll<HTMLElement>('[data-tab]').forEach(btn => {
-      btn.addEventListener('click', () => this._switchTab(btn.dataset['tab'] as Tab));
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('disabled')) {
+          toast(`${_tabLabel(btn.dataset['tab'] as Tab)} is coming soon!`, 'warn');
+          return;
+        }
+        this._switchTab(btn.dataset['tab'] as Tab);
+      });
     });
 
     el.querySelector('#s-nav-search')?.addEventListener('input', (e) => {

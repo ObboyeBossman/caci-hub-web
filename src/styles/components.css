@@ -1,5 +1,5 @@
 /* =============================================================================
-   CAC Hub Web — Components CSS
+   CACI Hub Web — Components CSS
    Modal, ConfirmDialog, EmptyState, StatusBadge, Avatar, Toast overrides
    ============================================================================= */
 
@@ -38,7 +38,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -48,13 +48,15 @@
   transition: opacity 0.2s;
 }
 
-.modal-backdrop.visible { opacity: 1; }
+.modal-backdrop.visible {
+  opacity: 1;
+}
 
 .modal-box {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
@@ -64,7 +66,9 @@
   transition: transform 0.2s;
 }
 
-.modal-backdrop.visible .modal-box { transform: translateY(0); }
+.modal-backdrop.visible .modal-box {
+  transform: translateY(0);
+}
 
 .modal-header {
   display: flex;
@@ -97,7 +101,9 @@
   transition: background 0.12s;
 }
 
-.modal-close-btn:hover { background: var(--bg-hover); }
+.modal-close-btn:hover {
+  background: var(--bg-hover);
+}
 
 .modal-body {
   padding: var(--sp-lg);
@@ -126,9 +132,20 @@
   margin-bottom: var(--sp-md);
 }
 
-.confirm-dialog-icon.danger { background: var(--caci-red-bg); color: var(--caci-red); }
-.confirm-dialog-icon.warning { background: var(--caci-warning-bg); color: var(--caci-warning); }
-.confirm-dialog-icon.info { background: var(--caci-blue-bg); color: var(--caci-blue); }
+.confirm-dialog-icon.danger {
+  background: var(--caci-red-bg);
+  color: var(--caci-red);
+}
+
+.confirm-dialog-icon.warning {
+  background: var(--caci-warning-bg);
+  color: var(--caci-warning);
+}
+
+.confirm-dialog-icon.info {
+  background: var(--caci-blue-bg);
+  color: var(--caci-blue);
+}
 
 .confirm-dialog-title {
   font-size: 15px;

@@ -1,4 +1,4 @@
-# CAC Hub Web — Folder Structure v3
+# CACI Hub Web — Folder Structure v3
 # Changes from v2:
 #   - Households pages added to membership module (4 pages: list, detail, create, edit)
 #   - Household types added to member.types.ts

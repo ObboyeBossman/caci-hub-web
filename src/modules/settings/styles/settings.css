@@ -326,6 +326,41 @@
   border: 1px solid var(--caci-warning); margin-left: 6px; vertical-align: middle;
 }
 
+/* Soon badge for disabled sections */
+.soon-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: auto;
+  line-height: 1;
+}
+
+.settings-tab-item.disabled .soon-badge {
+  margin-left: 6px;
+}
+
+/* Disabled nav buttons */
+.settings-nav-btn.disabled,
+.settings-tab-item.disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.settings-nav-btn.disabled:hover,
+.settings-tab-item.disabled:hover {
+  background: transparent;
+}
+
+.settings-nav-btn.disabled i,
+.settings-tab-item.disabled i {
+  filter: grayscale(1);
+}
+
 /* Contrast warning */
 .settings-contrast-warn {
   display: none; align-items: center; gap: 6px;
@@ -583,4 +618,366 @@
 @media (min-width: 1024px) {
   .settings-overlay { padding: var(--sp-2xl); }
   .settings-modal { width: 70vw; height: 80vh; }
+}
+/* =============================================================================
+   Profile panel — V1 read-only additions
+   Append to the bottom of settings.css
+   ============================================================================= */
+
+/* ── Notice banner (top of profile panel) ────────────────────────────────── */
+.prof-notice-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  padding: var(--sp-md) var(--sp-lg);
+  background: var(--alert-info-bg);
+  border: 1px solid var(--alert-info-border);
+  border-radius: var(--radius-sm);
+  margin: var(--sp-md) 0 var(--sp-lg);
+}
+
+.prof-notice-icon {
+  color: var(--alert-info-fg);
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.prof-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.prof-notice-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.prof-notice-body span {
+  color: var(--text-secondary);
+}
+
+/* ── Read-only value text ─────────────────────────────────────────────────── */
+.prof-ro-value {
+  font-size: 13.5px;
+  color: var(--text-primary);
+  text-align: right;
+  max-width: 280px;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+/* Muted variant — for system-assigned values like membership number */
+.prof-ro-muted {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Lock icon (system-assigned rows) ────────────────────────────────────── */
+.prof-lock-icon {
+  font-size: 12px;
+  color: var(--text-placeholder);
+  flex-shrink: 0;
+}
+
+/* ── Avatar — read-only state ────────────────────────────────────────────── */
+.prof-avatar-ro {
+  cursor: default;
+}
+
+.prof-av-lock {
+  /* Always slightly visible so the user knows it's locked */
+  opacity: 0;
+  transition: opacity 0.15s;
+  cursor: default;
+}
+
+.prof-avatar-ro:hover .prof-av-lock {
+  opacity: 1;
+}
+
+/* ── Admin-controlled section banner ─────────────────────────────────────── */
+.prof-admin-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 8px var(--sp-md);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-xs);
+}
+
+.prof-admin-banner i {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── External links in read-only rows ────────────────────────────────────── */
+.prof-link {
+  font-size: 13.5px;
+  color: var(--text-link);
+  text-decoration: none;
+  word-break: break-all;
+  max-width: 240px;
+  display: inline-block;
+}
+
+.prof-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Bottom CTA bar ──────────────────────────────────────────────────────── */
+.prof-cta-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-md) var(--sp-lg);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-sm);
+  margin-top: var(--sp-xl);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.prof-cta-bar span {
+  flex: 1;
+}
+
+/* ── Mobile adjustments ──────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .prof-notice-banner {
+    flex-direction: column;
+    gap: var(--sp-sm);
+    margin-bottom: var(--sp-md);
+  }
+
+  .prof-ro-value {
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .prof-cta-bar {
+    flex-wrap: wrap;
+  }
+
+  .prof-admin-banner {
+    flex-wrap: wrap;
+  }
+}
+
+/* =============================================================================
+   Profile panel — V1 layout additions
+   Append to the bottom of settings.css
+   ============================================================================= */
+
+/* ── Notice banner ───────────────────────────────────────────────────────── */
+.prof-notice-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  padding: var(--sp-md) var(--sp-lg);
+  background: var(--alert-info-bg);
+  border: 1px solid var(--alert-info-border);
+  border-radius: var(--radius-sm);
+  margin: var(--sp-md) 0 var(--sp-xl);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.prof-notice-icon {
+  color: var(--alert-info-fg);
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.prof-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.prof-notice-body strong { color: var(--text-primary); font-weight: 600; }
+.prof-notice-body span   { color: var(--text-secondary); }
+
+/* ── Avatar row ──────────────────────────────────────────────────────────── */
+.prof-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-lg);
+  padding: var(--sp-lg) 0 var(--sp-xl);
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: var(--sp-xl);
+}
+.prof-avatar-ro  { cursor: default; width: 64px; height: 64px; font-size: 22px; }
+.prof-av-lock    { opacity: 0; cursor: default; transition: opacity 0.15s; }
+.prof-avatar-ro:hover .prof-av-lock { opacity: 1; }
+
+.prof-avatar-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.prof-avatar-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.prof-avatar-role {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.prof-avatar-number {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* ── Cards container ─────────────────────────────────────────────────────── */
+.prof-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-lg);
+}
+
+/* ── Individual card ─────────────────────────────────────────────────────── */
+.prof-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.prof-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-md) var(--sp-lg);
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-default);
+}
+.prof-card-icon  { font-size: 14px; color: var(--text-secondary); }
+.prof-card-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+
+/* ── Admin-locked section banner ─────────────────────────────────────────── */
+.prof-admin-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 7px var(--sp-lg);
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-default);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.prof-admin-banner i { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+
+/* ── Grid layout inside a card ───────────────────────────────────────────── */
+.prof-grid {
+  padding: var(--sp-sm) var(--sp-lg) var(--sp-md);
+}
+.prof-grid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--sp-2xl);
+  border-bottom: 1px solid var(--border-default);
+}
+.prof-grid-row--full {
+  grid-template-columns: 1fr;
+}
+.prof-grid-row:last-child { border-bottom: none; }
+
+/* ── Individual field ────────────────────────────────────────────────────── */
+.prof-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--sp-md) 0;
+}
+/* When two fields share a row, add a subtle divider between them */
+.prof-grid-row:not(.prof-grid-row--full) .prof-field:first-child {
+  border-right: 1px solid var(--border-default);
+  padding-right: var(--sp-2xl);
+  margin-right: calc(-1 * var(--sp-2xl));
+}
+.prof-grid-row:not(.prof-grid-row--full) .prof-field:last-child {
+  padding-left: var(--sp-xl);
+}
+
+.prof-field-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.prof-field-value {
+  font-size: 13.5px;
+  color: var(--text-primary);
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.prof-field-mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.3px;
+}
+.prof-field-locked { color: var(--text-secondary); }
+
+/* ── Lock icon ───────────────────────────────────────────────────────────── */
+.prof-lock-icon {
+  font-size: 11px;
+  color: var(--text-placeholder);
+  flex-shrink: 0;
+}
+
+/* ── External links ──────────────────────────────────────────────────────── */
+.prof-link {
+  font-size: 13.5px;
+  color: var(--text-link);
+  text-decoration: none;
+  word-break: break-all;
+}
+.prof-link:hover { text-decoration: underline; }
+
+/* ── Bottom CTA ──────────────────────────────────────────────────────────── */
+.prof-cta-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-md) var(--sp-lg);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-sm);
+  margin-top: var(--sp-xl);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.prof-cta-bar i  { font-size: 14px; flex-shrink: 0; }
+.prof-cta-bar span { flex: 1; }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .prof-grid-row {
+    grid-template-columns: 1fr;
+  }
+  .prof-grid-row:not(.prof-grid-row--full) .prof-field:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--border-default);
+    padding-right: 0;
+    margin-right: 0;
+  }
+  .prof-avatar-row { padding: var(--sp-md) 0 var(--sp-lg); }
+  .prof-cta-bar    { flex-wrap: wrap; }
 }

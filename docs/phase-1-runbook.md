@@ -1,4 +1,4 @@
-# CAC Hub Web — Phase 1 Runbook: Core Layer
+# CACI Hub Web — Phase 1 Runbook: Core Layer
 
 **Goal:** All infrastructure that modules depend on — registry, router, auth, permissions, events, middleware, guards.  
 **Duration:** 3–4 days  
@@ -567,7 +567,7 @@ import { hasPermission } from '@core/permissions'
 // Modules registered here in Phase 3+
 
 async function boot(): Promise<void> {
-  console.log('[main] CAC Hub Web starting...')
+  console.log('[main] CACI Hub Web starting...')
 
   // 1. Load authenticated user (required before routing)
   await loadCurrentUser()

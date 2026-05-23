@@ -1,36 +1,43 @@
 /* =============================================================================
-   CAC Hub Web — Utilities CSS
+   CACI Hub Web — Utilities CSS
    Text utilities, skeleton pulse, scrollbar-hide, spacing helpers
    ============================================================================= */
 
 /* ── Skeleton / shimmer ──────────────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--caci-n100) 25%,
-    var(--caci-n50)  50%,
-    var(--caci-n100) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--caci-n100) 25%,
+      var(--caci-n50) 50%,
+      var(--caci-n100) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--radius-sm);
 }
 
 [data-theme="dark"] .skeleton {
-  background: linear-gradient(
-    90deg,
-    #21262D 25%,
-    #30363D 50%,
-    #21262D 75%
-  );
+  background: linear-gradient(90deg,
+      #21262D 25%,
+      #30363D 50%,
+      #21262D 75%);
   background-size: 200% 100%;
 }
 
 /* Skeleton shapes */
-.skel-text    { height: 14px; }
-.skel-text-sm { height: 12px; }
-.skel-avatar  { border-radius: 50% !important; }
-.skel-pill    { border-radius: var(--radius-pill) !important; }
+.skel-text {
+  height: 14px;
+}
+
+.skel-text-sm {
+  height: 12px;
+}
+
+.skel-avatar {
+  border-radius: 50% !important;
+}
+
+.skel-pill {
+  border-radius: var(--radius-pill) !important;
+}
 
 /* ── Text utilities ──────────────────────────────────────────────────────── */
 .text-truncate-2 {
@@ -41,17 +48,42 @@
 }
 
 /* ── Spacing helpers ─────────────────────────────────────────────────────── */
-.mt-auto { margin-top: auto; }
-.gap-xs  { gap: var(--sp-xs); }
-.gap-sm  { gap: var(--sp-sm); }
-.gap-md  { gap: var(--sp-md); }
-.gap-lg  { gap: var(--sp-lg); }
+.mt-auto {
+  margin-top: auto;
+}
+
+.gap-xs {
+  gap: var(--sp-xs);
+}
+
+.gap-sm {
+  gap: var(--sp-sm);
+}
+
+.gap-md {
+  gap: var(--sp-md);
+}
+
+.gap-lg {
+  gap: var(--sp-lg);
+}
 
 /* ── Visibility ──────────────────────────────────────────────────────────── */
-.hidden        { display: none !important; }
-.invisible     { visibility: hidden !important; }
-.pointer       { cursor: pointer; }
-.no-select     { user-select: none; }
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden !important;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.no-select {
+  user-select: none;
+}
 
 /* ── Page content padding ────────────────────────────────────────────────── */
 .page-container {
