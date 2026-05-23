@@ -295,6 +295,9 @@
     display: block;
     padding: 0;
   }
+  .mm-mobile-hide {
+    display: none !important;
+  }
 }
 
 /* ─── Sub-nav tabs ───────────────────────────────────────────────────────────── */

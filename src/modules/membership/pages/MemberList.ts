@@ -1785,7 +1785,7 @@ function _buildHTML(): string {
 <aside>
 
   <!-- Quick Access -->
-  <div class="mm-sidebar-card">
+  <div class="mm-sidebar-card mm-mobile-hide">
     <div class="mm-sidebar-title">Quick Access</div>
     <button class="mm-sidebar-item ${_state!.activeTab === 'members-list' ? 'active' : ''}" data-sidebar-tab="members-list">
       <div class="mm-sidebar-item-left">
