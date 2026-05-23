@@ -37,13 +37,14 @@ export function mountShell(): void {
   // Offline banner logic
   const updateOfflineStatus = () => {
     const banner = document.getElementById('shell-offline-banner')
+    console.log(`[Shell] Connectivity: ${navigator.onLine ? 'online' : 'OFFLINE'} (Banner: ${!!banner})`)
     if (!banner) return
     if (navigator.onLine) banner.classList.remove('show')
     else banner.classList.add('show')
   }
   window.addEventListener('online',  updateOfflineStatus)
   window.addEventListener('offline', updateOfflineStatus)
-  updateOfflineStatus()
+  setTimeout(updateOfflineStatus, 100)
 
   // Mount toolbar
   const toolbarEl = document.getElementById('shell-topnav')!

@@ -78,8 +78,8 @@ ul {
   gap: 8px;
   overflow: hidden;
   transition: height .3s cubic-bezier(.4, 0, .2, 1);
-  position: sticky;
-  top: var(--toolbar-height);
+  position: relative;
+  flex-shrink: 0;
   z-index: 400;
 }
 
