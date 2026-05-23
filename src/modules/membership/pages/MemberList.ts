@@ -27,6 +27,7 @@ import { getCurrentUser } from '@core/auth'
 import { hasPermission } from '@core/permissions'
 import {
   listMembers,
+  getMemberCounts,
   deactivateMember,
   updateMember,
 } from '../repository'
@@ -133,7 +134,7 @@ async function render(container: HTMLElement): Promise<void> {
   _bindAll()
   _setTab(_state.activeTab)
   _renderMembers()
-  _renderStats()
+  await _renderStats()
 }
 
 function destroy(): void {
@@ -268,37 +269,42 @@ function _renderMembers(): void {
   _bindRowEvents()
 }
 
-function _renderStats(): void {
+async function _renderStats(): Promise<void> {
   if (!_state || !_container) return
+
+  // 1. Fetch server-side accurate totals for main tab nav
+  const counts = await getMemberCounts()
+
+  // 2. Local filtering for small sidebar quick stats (stays based on loaded subset)
   const m = _state.members
   const total = m.length
   const active = m.filter(x => x.membership_status === 'active').length
   const visitors = m.filter(x => x.membership_status === 'visitor').length
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30)
-  const newMonth = m.filter(x => new Date(x.join_date ?? x.created_at) >= cutoff).length
 
   const update = (id: string, val: string) => {
     const el = _container!.querySelector(`#${id}`)
     if (el) el.textContent = val
   }
 
-  update('mm-stat-total', String(total))
-  update('mm-stat-active', String(active))
-  update('mm-stat-visitors', String(visitors))
-  update('mm-stat-new', String(newMonth))
-  update('mm-stat-total-pct', `${active} active (${total ? Math.round(active / total * 100) : 0}%)`)
+  // Accurate Tab Badges
+  update('mm-nav-count-all', String(counts.total))
+  update('mm-nav-count-active', String(counts.active))
+  update('mm-nav-count-visitor', String(counts.visitor))
+  update('mm-nav-count-new', String(counts.new))
 
-  // Sidebar quick stats
-  update('mm-qs-active', String(active))
-  update('mm-qs-visitor', String(visitors))
+  // Main Stat Cards (can use accurate counts or local subset depending on design preference; 
+  // here we use accurate counts for consistency with tabs)
+  update('mm-stat-total', String(counts.total))
+  update('mm-stat-active', String(counts.active))
+  update('mm-stat-visitors', String(counts.visitor))
+  update('mm-stat-new', String(counts.new))
+  update('mm-stat-total-pct', `${counts.active} active (${counts.total ? Math.round(counts.active / counts.total * 100) : 0}%)`)
+
+  // Sidebar quick stats (typically reflects the "Current Assembly" active view)
+  update('mm-qs-active', String(counts.active))
+  update('mm-qs-visitor', String(counts.visitor))
   update('mm-qs-inactive', String(m.filter(x => x.membership_status === 'inactive').length))
   update('mm-qs-prospect', String(m.filter(x => x.membership_status === 'prospect').length))
-
-  // Count badges in nav items
-  update('mm-nav-count-all', String(total))
-  update('mm-nav-count-active', String(active))
-  update('mm-nav-count-visitor', String(visitors))
-  update('mm-nav-count-new', String(newMonth))
 }
 
 function _renderPagination(): void {
@@ -542,7 +548,7 @@ function _openDetail(m: MemberView): void {
       _closeDetail()
       await _loadMembers()
       _renderMembers()
-      _renderStats()
+      await await _renderStats()
     } catch (err) {
       Toast.fromError(err)
     }
@@ -745,7 +751,7 @@ async function _saveMember(): Promise<void> {
     _closeMemberModal()
     await _loadMembers()
     _renderMembers()
-    _renderStats()
+    await await _renderStats()
   } catch (err) {
     Toast.fromError(err)
   } finally {
@@ -789,7 +795,7 @@ async function _bulkChangeStatus(): Promise<void> {
   _clearSelection()
   await _loadMembers()
   _renderMembers()
-  _renderStats()
+  await _renderStats()
 }
 
 async function _bulkExport(): Promise<void> {
@@ -823,7 +829,7 @@ async function _bulkRemove(): Promise<void> {
   _clearSelection()
   await _loadMembers()
   _renderMembers()
-  _renderStats()
+  await _renderStats()
 }
 
 // ── Attendance sub-page ───────────────────────────────────────────────────────
@@ -1553,7 +1559,7 @@ function _bindRowEvents(): void {
         Toast.success(`${m.first_name} ${m.last_name} deactivated.`)
         await _loadMembers()
         _renderMembers()
-        _renderStats()
+        await _renderStats()
       } catch (err) {
         Toast.fromError(err)
       }

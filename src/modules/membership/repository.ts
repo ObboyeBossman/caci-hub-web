@@ -148,6 +148,69 @@ export async function listMembers(
 }
 
 /**
+ * Fetch accurate counts for different member categories.
+ * Bypasses the listMembers fetch limit to ensure UI badges are always correct.
+ */
+export async function getMemberCounts(): Promise<{
+  total: number
+  active: number
+  visitor: number
+  new: number
+}> {
+  const assemblyId = getActiveAssemblyId()
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30)
+
+  try {
+    // 1. Total (Active + Non-deleted)
+    const qTotal = supabase
+      .from('members_view')
+      .select('*', { count: 'exact', head: true })
+      .is('deleted_at', null)
+    if (assemblyId) qTotal.eq('assembly_id', assemblyId)
+    const { count: total } = await qTotal
+
+    // 2. Active status
+    const qActive = supabase
+      .from('members_view')
+      .select('*', { count: 'exact', head: true })
+      .eq('membership_status', 'active')
+      .is('deleted_at', null)
+    if (assemblyId) qActive.eq('assembly_id', assemblyId)
+    const { count: active } = await qActive
+
+    // 3. Visitor status
+    const qVisitor = supabase
+      .from('members_view')
+      .select('*', { count: 'exact', head: true })
+      .eq('membership_status', 'visitor')
+      .is('deleted_at', null)
+    if (assemblyId) qVisitor.eq('assembly_id', assemblyId)
+    const { count: visitor } = await qVisitor
+
+    // 4. New (Joined or Registered in last 30 days)
+    const iso = cutoff.toISOString()
+    const qNew = supabase
+      .from('members_view')
+      .select('*', { count: 'exact', head: true })
+      .or(`join_date.gte.${iso},and(join_date.is.null,created_at.gte.${iso})`)
+      .is('deleted_at', null)
+    if (assemblyId) qNew.eq('assembly_id', assemblyId)
+    const { count: newCount } = await qNew
+
+    return {
+      total:   total   || 0,
+      active:  active  || 0,
+      visitor: visitor || 0,
+      new:     newCount || 0,
+    }
+  } catch (err) {
+    console.error('[repository] Failed to fetch member counts:', err)
+    return { total: 0, active: 0, visitor: 0, new: 0 }
+  }
+}
+
+
+/**
  * Fetch a single member by ID through members_view.
  * Mirrors: SupabaseMemberDataSource.fetchMember()
  * Throws RepositoryError with code PGRST116 if not found.
