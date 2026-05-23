@@ -275,7 +275,7 @@ export function profilePanelHTML(
       <div class="prof-cta-bar">
         <i class="bi bi-envelope-paper"></i>
         <span>Something look incorrect?</span>
-        <button class="btn btn-ghost btn-sm" id="s-profile-contact-admin">
+        <button class="btn btn-ghost btn-sm" id="s-profile-contact-admin" disabled>
           Contact your administrator
         </button>
       </div>
@@ -329,14 +329,7 @@ export function profilePanelHTML(
 export function bindProfilePanel(ctx: SettingsContext): void {
   const { el, toast } = ctx;
 
-  el.querySelector('#s-profile-contact-admin')?.addEventListener('click', () => {
-    const user    = getCurrentUser();
-    const subject = encodeURIComponent('Profile update request');
-    const body    = encodeURIComponent(
-      `Hello,\n\nI would like to update some details on my profile.\n\nName: ${user?.fullName ?? ''}\nEmail: ${user?.email ?? ''}\n\nDetails to update:\n\n`,
-    );
-    window.location.href = `mailto:admin@yourchurch.org?subject=${subject}&body=${body}`;
-  });
+  // Contact admin button is disabled in V1
 
   el.querySelector('#s-change-pwd-btn')?.addEventListener('click', () => {
     el.querySelector<HTMLElement>('#s-pwd-overlay')!.classList.add('open');
