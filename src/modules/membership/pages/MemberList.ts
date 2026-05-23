@@ -283,6 +283,14 @@ async function _renderStats(): Promise<void> {
     if (el) el.textContent = val
   }
 
+  const updateBar = (id: string, val: number, total: number) => {
+    const el = _container!.querySelector<HTMLElement>(`#${id}`)
+    if (el) {
+      const pct = total > 0 ? Math.round((val / total) * 100) : 0
+      el.style.width = `${pct}%`
+    }
+  }
+
   // Accurate Tab Badges
   update('mm-subnav-count', String(counts.total)) // Top sub-nav tab
   update('mm-nav-count-all', String(counts.total)) // Sidebar
@@ -296,12 +304,25 @@ async function _renderStats(): Promise<void> {
   update('mm-stat-visitors', String(counts.visitor))
   update('mm-stat-new', String(counts.new))
   update('mm-stat-total-pct', `${counts.active} active (${counts.total ? Math.round(counts.active / counts.total * 100) : 0}%)`)
+  
+  updateBar('mm-stat-total-bar', counts.active, counts.total)
+  updateBar('mm-stat-active-bar', counts.active, counts.total)
+  updateBar('mm-stat-visitors-bar', counts.visitor, counts.total)
+  updateBar('mm-stat-new-bar', counts.new, counts.total)
 
   // Sidebar quick stats (typically reflects the "Current Assembly" active view)
+  const inc = m.filter(x => x.membership_status === 'inactive').length
+  const pro = m.filter(x => x.membership_status === 'prospect').length
+  
   update('mm-qs-active', String(counts.active))
   update('mm-qs-visitor', String(counts.visitor))
-  update('mm-qs-inactive', String(m.filter(x => x.membership_status === 'inactive').length))
-  update('mm-qs-prospect', String(m.filter(x => x.membership_status === 'prospect').length))
+  update('mm-qs-inactive', String(inc))
+  update('mm-qs-prospect', String(pro))
+
+  updateBar('mm-qs-active-bar', counts.active, counts.total)
+  updateBar('mm-qs-visitor-bar', counts.visitor, counts.total)
+  updateBar('mm-qs-inactive-bar', inc, counts.total)
+  updateBar('mm-qs-prospect-bar', pro, counts.total)
 }
 
 function _renderPagination(): void {
@@ -1339,6 +1360,94 @@ function _setSidebarItem(tabName: string, quickFilter?: string): void {
   if (quickFilter) _renderMembers()
 }
 
+// ── Mobile filter dropdown ────────────────────────────────────────────────────
+
+function _bindMobileFilterDropdown(): void {
+  if (!_container) return
+  const trigger = _container.querySelector<HTMLElement>('#mm-fddTrigger')
+  const panel   = _container.querySelector<HTMLElement>('#mm-fddPanel')
+  const wrap    = _container.querySelector<HTMLElement>('#mm-fddWrap')
+  if (!trigger || !panel || !wrap) return
+
+  const open  = () => { panel.classList.add('mm-fdd-open'); trigger.setAttribute('aria-expanded', 'true');  _syncFddHint() }
+  const close = () => { panel.classList.remove('mm-fdd-open'); trigger.setAttribute('aria-expanded', 'false') }
+  const isOpen = () => panel.classList.contains('mm-fdd-open')
+
+  trigger.addEventListener('click', e => { e.stopPropagation(); isOpen() ? close() : open() })
+  document.addEventListener('click', e => { if (!wrap.contains(e.target as Node)) close() })
+
+  // Accordion headers
+  _container.querySelectorAll<HTMLElement>('[data-fdd-sec]').forEach(hdr => {
+    const toggle = () => {
+      const sec   = hdr.dataset['fddSec']!
+      const items = _container!.querySelector<HTMLElement>(`#mm-fddI-${sec}`)
+      const chev  = hdr.querySelector<SVGElement>('.mm-fdd-chev')
+      if (!items) return
+      const nowOpen = !items.classList.contains('mm-fdd-items-open')
+      items.classList.toggle('mm-fdd-items-open', nowOpen)
+      chev?.classList.toggle('mm-fdd-chev-open', nowOpen)
+      hdr.setAttribute('aria-expanded', String(nowOpen))
+    }
+    hdr.addEventListener('click', toggle)
+    hdr.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() } })
+  })
+
+  // Checkbox rows
+  _container.querySelectorAll<HTMLElement>('[data-fdd-g]').forEach(row => {
+    row.addEventListener('click', () => {
+      if (!_state) return
+      const cb  = row.querySelector<HTMLElement>('.mm-fdd-cb')!
+      const g   = row.dataset['fddG']!
+      const v   = row.dataset['fddV']!
+      const on  = !cb.classList.contains('mm-fdd-on')
+      cb.classList.toggle('mm-fdd-on', on)
+      if (g === 'status')      { on ? _state.statusFilters.add(v) : _state.statusFilters.delete(v) }
+      else if (g === 'gender') { on ? _state.genderFilters.add(v) : _state.genderFilters.delete(v) }
+      _syncFddUI()
+    })
+  })
+
+  // Clear all
+  _container.querySelector('#mm-fddClearAll')?.addEventListener('click', () => {
+    if (!_state) return
+    _state.statusFilters.clear()
+    _state.genderFilters.clear()
+    _container!.querySelectorAll<HTMLElement>('.mm-fdd-cb.mm-fdd-on').forEach(cb => cb.classList.remove('mm-fdd-on'))
+    _syncFddUI()
+    _updateFilterCount()
+    _state.page = 1
+    _renderMembers()
+  })
+
+  // Apply
+  _container.querySelector('#mm-fddApply')?.addEventListener('click', () => {
+    _updateFilterCount()
+    _state!.page = 1
+    _renderMembers()
+    close()
+  })
+}
+
+function _syncFddUI(): void {
+  if (!_state || !_container) return
+  // Pill count on trigger button
+  const total = _state.statusFilters.size + _state.genderFilters.size
+  const pill  = _container.querySelector<HTMLElement>('#mm-fddPill')
+  if (pill) { pill.textContent = String(total); pill.style.display = total > 0 ? '' : 'none' }
+  // Per-section badges
+  ;[['status', _state.statusFilters.size], ['gender', _state.genderFilters.size]].forEach(([g, n]) => {
+    const b = _container!.querySelector<HTMLElement>(`#mm-fddB-${g}`)
+    if (b) { b.textContent = String(n); b.style.display = (n as number) > 0 ? '' : 'none' }
+  })
+  _syncFddHint()
+}
+
+function _syncFddHint(): void {
+  if (!_state || !_container) return
+  const hint = _container.querySelector<HTMLElement>('#mm-fddHint')
+  if (hint) hint.textContent = `${_state.filtered.length} member${_state.filtered.length !== 1 ? 's' : ''}`
+}
+
 // ── Event binding ─────────────────────────────────────────────────────────────
 
 function _bindAll(): void {
@@ -1502,6 +1611,9 @@ function _bindAll(): void {
   _container.querySelector('#mm-viewFullProfile')?.addEventListener('click', () => {
     if (_state?.detailMember) navigate(`/members/${_state.detailMember.id}`)
   })
+
+  // Mobile filter dropdown
+  _bindMobileFilterDropdown()
 }
 
 /** Rebind events that are part of dynamically rendered rows/cards */
@@ -1848,7 +1960,7 @@ function _buildHTML(): string {
     </button>
   </div>
 
-  <!-- Filters -->
+  <!-- Filters (desktop sidebar — hidden on mobile, replaced by toolbar dropdown) -->
   <div class="mm-sidebar-card" id="mm-filterPanel">
     <div class="mm-sidebar-title" style="display:flex;align-items:center;justify-content:space-between;">
       Filters
@@ -1905,13 +2017,13 @@ function _buildHTML(): string {
   <div class="mm-sidebar-card mm-mobile-hide">
     <div class="mm-sidebar-title">Quick Stats</div>
     <div class="mm-qs-item"><span class="mm-qs-label">Active</span><span class="mm-qs-val" id="mm-qs-active">—</span></div>
-    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" style="width:90%;background:var(--mm-blue);"></div></div>
+    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" id="mm-qs-active-bar" style="width:0;background:var(--mm-blue);"></div></div>
     <div class="mm-qs-item"><span class="mm-qs-label">Visitor</span><span class="mm-qs-val" id="mm-qs-visitor">—</span></div>
-    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" style="width:28%;background:#0969da;"></div></div>
+    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" id="mm-qs-visitor-bar" style="width:0;background:#0969da;"></div></div>
     <div class="mm-qs-item"><span class="mm-qs-label">Inactive</span><span class="mm-qs-val" id="mm-qs-inactive">—</span></div>
-    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" style="width:10%;background:var(--mm-text-muted);"></div></div>
+    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" id="mm-qs-inactive-bar" style="width:0;background:var(--mm-text-muted);"></div></div>
     <div class="mm-qs-item"><span class="mm-qs-label">Prospect</span><span class="mm-qs-val" id="mm-qs-prospect">—</span></div>
-    <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:5%;background:var(--mm-gold);"></div></div>
+    <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-qs-prospect-bar" style="width:0;background:var(--mm-gold);"></div></div>
   </div>
 
 </aside>
@@ -1934,19 +2046,19 @@ function _buildHTML(): string {
       <div class="mm-stat-label">Active</div>
       <div class="mm-stat-value" id="mm-stat-active">—</div>
       <div class="mm-stat-sub">Active members</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:90%;background:var(--mm-blue);"></div></div>
+      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-active-bar" style="width:0;background:var(--mm-blue);"></div></div>
     </div>
     <div class="mm-stat-card">
       <div class="mm-stat-label">Visitors</div>
       <div class="mm-stat-value" id="mm-stat-visitors">—</div>
       <div class="mm-stat-sub">Total visitors</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:26%;background:var(--mm-red);"></div></div>
+      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-visitors-bar" style="width:0;background:var(--mm-red);"></div></div>
     </div>
     <div class="mm-stat-card">
       <div class="mm-stat-label">New This Month</div>
       <div class="mm-stat-value" id="mm-stat-new">—</div>
       <div class="mm-stat-sub">Last 30 days</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:40%;background:var(--mm-gold);"></div></div>
+      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-new-bar" style="width:0;background:var(--mm-gold);"></div></div>
     </div>
   </div>
 
@@ -1964,6 +2076,80 @@ function _buildHTML(): string {
       <option value="joined-asc">Joined (Oldest)</option>
       <option value="status">Status</option>
     </select>
+
+    <!-- Mobile-only filter dropdown -->
+    <div class="mm-fdd-wrap" id="mm-fddWrap">
+      <button class="mm-fdd-trigger" id="mm-fddTrigger" aria-haspopup="true" aria-expanded="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        Filters
+        <span class="mm-fdd-pill" id="mm-fddPill" style="display:none">0</span>
+      </button>
+
+      <div class="mm-fdd-panel" id="mm-fddPanel" role="dialog" aria-label="Filter options">
+        <div class="mm-fdd-hdr">
+          <span class="mm-fdd-hdr-title">Filter members</span>
+          <button class="mm-fdd-clear-all" id="mm-fddClearAll">Clear all</button>
+        </div>
+        <div class="mm-fdd-body">
+
+          <!-- Status accordion -->
+          <div class="mm-fdd-section">
+            <div class="mm-fdd-acc-hdr mm-fdd-acc-open" data-fdd-sec="status" tabindex="0" role="button" aria-expanded="true">
+              <div class="mm-fdd-acc-left">
+                <span class="mm-fdd-acc-label">Status</span>
+                <span class="mm-fdd-acc-badge" id="mm-fddB-status" style="display:none"></span>
+              </div>
+              <svg class="mm-fdd-chev mm-fdd-chev-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="mm-fdd-items mm-fdd-items-open" id="mm-fddI-status">
+              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="active">
+                <div class="mm-fdd-cb ${_state!.statusFilters.has('active') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
+                <span class="mm-fdd-lbl">Active</span>
+              </div>
+              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="visitor">
+                <div class="mm-fdd-cb ${_state!.statusFilters.has('visitor') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
+                <span class="mm-fdd-lbl">Visitor</span>
+              </div>
+              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="prospect">
+                <div class="mm-fdd-cb ${_state!.statusFilters.has('prospect') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
+                <span class="mm-fdd-lbl">Prospect</span>
+              </div>
+              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="inactive">
+                <div class="mm-fdd-cb ${_state!.statusFilters.has('inactive') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
+                <span class="mm-fdd-lbl mm-fdd-lbl-dim">Inactive</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gender accordion -->
+          <div class="mm-fdd-section">
+            <div class="mm-fdd-acc-hdr" data-fdd-sec="gender" tabindex="0" role="button" aria-expanded="false">
+              <div class="mm-fdd-acc-left">
+                <span class="mm-fdd-acc-label">Gender</span>
+                <span class="mm-fdd-acc-badge" id="mm-fddB-gender" style="display:none"></span>
+              </div>
+              <svg class="mm-fdd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="mm-fdd-items" id="mm-fddI-gender">
+              <div class="mm-fdd-row" data-fdd-g="gender" data-fdd-v="male">
+                <div class="mm-fdd-cb ${_state!.genderFilters.has('male') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
+                <span class="mm-fdd-lbl">Male</span>
+              </div>
+              <div class="mm-fdd-row" data-fdd-g="gender" data-fdd-v="female">
+                <div class="mm-fdd-cb ${_state!.genderFilters.has('female') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
+                <span class="mm-fdd-lbl">Female</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="mm-fdd-footer">
+          <span class="mm-fdd-hint" id="mm-fddHint"></span>
+          <button class="mm-fdd-apply" id="mm-fddApply">Apply</button>
+        </div>
+      </div>
+    </div>
+
     <div class="mm-view-toggle">
       <button class="mm-view-btn active" id="mm-gridViewBtn" title="Grid view">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>

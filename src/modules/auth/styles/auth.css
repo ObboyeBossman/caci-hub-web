@@ -178,7 +178,7 @@
 }
 
 .auth-toggle-icon {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   line-height: 1;
 }
 
@@ -559,7 +559,7 @@
   padding: 10px 12px;
   border-radius: 6px;
   margin-bottom: 16px;
-  font-size: 15px;
+  font-size: var(--font-size-base);
   line-height: 1.5;
 }
 
@@ -587,7 +587,7 @@
   border-radius: 6px;
   padding: 12px;
   margin-top: 10px;
-  font-size: 15px;
+  font-size: var(--font-size-base);
   display: none;
 }
 
@@ -734,7 +734,7 @@
 }
 
 .auth-resend-text {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   color: var(--auth-text-secondary);
   margin-bottom: 8px;
 }
@@ -747,7 +747,7 @@
   background: var(--auth-info-bg);
   border: 1px solid var(--auth-info-border);
   border-radius: 6px;
-  font-size: 15px;
+  font-size: var(--font-size-base);
   color: var(--auth-info-fg);
 }
 
@@ -760,7 +760,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 15px;
+  font-size: var(--font-size-base);
   color: var(--auth-text-secondary);
   text-decoration: none;
   margin-bottom: 16px;
@@ -917,7 +917,7 @@
 }
 
 .assembly-name {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--auth-text-primary);
   margin: 0 0 1px;

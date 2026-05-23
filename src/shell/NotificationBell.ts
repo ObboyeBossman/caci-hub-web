@@ -21,14 +21,14 @@ export function initNotificationBell(): void {
 export function setNotificationCount(count: number): void {
   _count = count
   const badge = document.getElementById('notif-badge')
-  if (!badge) return
+  const dot   = document.getElementById('topnav-notif-dot')
 
   if (count <= 0) {
-    badge.style.display = 'none'
-    badge.textContent = '0'
+    if (badge) { badge.style.display = 'none'; badge.textContent = '0' }
+    if (dot)   dot.style.display = 'none'
   } else {
-    badge.style.display = 'flex'
-    badge.textContent = count > 99 ? '99+' : String(count)
+    if (badge) { badge.style.display = 'flex'; badge.textContent = count > 99 ? '99+' : String(count) }
+    if (dot)   dot.style.display = 'block'
   }
 }
 

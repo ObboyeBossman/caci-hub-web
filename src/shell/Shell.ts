@@ -43,7 +43,7 @@ export function mountShell(): void {
     else banner.classList.remove('show')
     console.log(`[Shell] Connectivity changed: ${isOffline ? 'OFFLINE' : 'online'}`)
   }
-  window.addEventListener('online',  updateOfflineStatus)
+  window.addEventListener('online', updateOfflineStatus)
   window.addEventListener('offline', updateOfflineStatus)
   setTimeout(updateOfflineStatus, 100)
 
@@ -113,7 +113,7 @@ export function toggleDrawer(): void {
 }
 
 // Legacy aliases kept for backward compat
-export const openMobileDrawer  = openDrawer
+export const openMobileDrawer = openDrawer
 export const closeMobileDrawer = closeDrawer
 export const toggleMobileDrawer = toggleDrawer
 

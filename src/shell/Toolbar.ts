@@ -3,9 +3,9 @@
 // Mirrors: new shell design (topnav pattern).
 
 import { getCurrentUser, getActiveAssemblyId } from '@core/auth'
-import { navigate }       from '@core/router'
-import { toggleDrawer }   from './Shell'
-import { supabase }       from '@core/supabase'
+import { navigate } from '@core/router'
+import { toggleDrawer } from './Shell'
+import { supabase } from '@core/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { applyTheme } from '../core/theme'
 
@@ -18,9 +18,9 @@ export class Toolbar {
   }
 
   render(): void {
-    const now  = new Date()
-    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+    const now = new Date()
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`
 
     this._el.className = 'topnav'
@@ -45,7 +45,16 @@ export class Toolbar {
           <div class="info-dot"></div>
           <span id="toolbar-assembly-name-btn">Loading assembly...</span>
           <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
 
+      <div class="topnav-right-area">
+        <button class="topnav-avatar-btn" id="topnav-avatar-btn" aria-label="Assembly info">
+          <div class="info-dot"></div>
+          <div class="topnav-avatar" id="topnav-asm-avatar-initials">UA</div>
+          <span class="topnav-notif-dot" id="topnav-notif-dot" style="display:none"></span>
+
+          <!-- The popover anchors to the avatar now -->
           <div class="info-popover" id="infoPopover">
             <div class="info-popover-row">
               <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -72,20 +81,33 @@ export class Toolbar {
   private _updateAssemblyName(name: string): void {
     const btnSpan = this._el.querySelector('#toolbar-assembly-name-btn')
     const popSpan = this._el.querySelector('#toolbar-assembly-name-popover')
+    const avEl = this._el.querySelector('#topnav-asm-avatar-initials')
+    const ctxSpan = document.getElementById('shell-asm-name')
+
     if (btnSpan) btnSpan.textContent = name
     if (popSpan) popSpan.textContent = name
+    if (ctxSpan) ctxSpan.textContent = name
+
+    if (avEl) {
+      avEl.textContent = name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    }
   }
 
   private _initAssemblySync(): void {
     const assemblyId = getActiveAssemblyId()
-    
+
     // First try to load from persistent storage (populated during assembly selection)
     const savedAsm = localStorage.getItem('caci:selected_assembly')
     if (savedAsm) {
       try {
         const asm = JSON.parse(savedAsm) as { name: string }
         if (asm && asm.name) this._updateAssemblyName(asm.name)
-      } catch (e) {}
+      } catch (e) { }
     } else if (!assemblyId) {
       this._updateAssemblyName('Global View')
       return // Super admin not tied to any assembly yet
@@ -97,15 +119,15 @@ export class Toolbar {
         const asmData = data as { name: string } | null
         if (asmData && asmData.name) {
           this._updateAssemblyName(asmData.name)
-          
+
           // Also update localStorage to keep things in sync across reloads
           if (savedAsm) {
-             try {
-               const asm = JSON.parse(savedAsm) as { name: string }
-               localStorage.setItem('caci:selected_assembly', JSON.stringify({ ...asm, name: asmData.name }))
-             } catch(e) {}
+            try {
+              const asm = JSON.parse(savedAsm) as { name: string }
+              localStorage.setItem('caci:selected_assembly', JSON.stringify({ ...asm, name: asmData.name }))
+            } catch (e) { }
           } else {
-             localStorage.setItem('caci:selected_assembly', JSON.stringify({ id: assemblyId, name: asmData.name }))
+            localStorage.setItem('caci:selected_assembly', JSON.stringify({ id: assemblyId, name: asmData.name }))
           }
         }
       })
@@ -126,14 +148,14 @@ export class Toolbar {
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assemblies', filter: `id=eq.${assemblyId}` }, payload => {
           if (payload.new && payload.new.name) {
             this._updateAssemblyName(payload.new.name)
-            
+
             // Sync with persistent storage
             const currentSaved = localStorage.getItem('caci:selected_assembly')
             if (currentSaved) {
-               try {
-                 const asm = JSON.parse(currentSaved) as { name: string }
-                 localStorage.setItem('caci:selected_assembly', JSON.stringify({ ...asm, name: payload.new.name }))
-               } catch(e) {}
+              try {
+                const asm = JSON.parse(currentSaved) as { name: string }
+                localStorage.setItem('caci:selected_assembly', JSON.stringify({ ...asm, name: payload.new.name }))
+              } catch (e) { }
             }
           }
         })
@@ -160,12 +182,16 @@ export class Toolbar {
 
     // Info popover toggle
     const infoBtn = this._el.querySelector('#topnav-info-btn') as HTMLElement | null
+    const avBtn = this._el.querySelector('#topnav-avatar-btn') as HTMLElement | null
     const popover = this._el.querySelector('#infoPopover') as HTMLElement | null
 
-    infoBtn?.addEventListener('click', (e) => {
+    const toggle = (e: Event) => {
       e.stopPropagation()
       popover?.classList.toggle('show')
-    })
+    }
+
+    infoBtn?.addEventListener('click', toggle)
+    avBtn?.addEventListener('click', toggle)
 
     // Close on outside click
     document.addEventListener('click', (e) => {
@@ -186,10 +212,10 @@ let _profileOverlay: HTMLElement | null = null
 export function showProfilePopup(): void {
   if (_profileOverlay) { _closeProfilePopup(); return }
 
-  const user     = getCurrentUser()
+  const user = getCurrentUser()
   const initials = user ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'U'
   const displayName = user?.fullName ?? 'User'
-  const roleLabel   = user?.role?.replace(/_/g, ' ') ?? 'Member'
+  const roleLabel = user?.role?.replace(/_/g, ' ') ?? 'Member'
 
   // Anchor above the sidebar profile button, aligned to its left edge
   const anchor = document.getElementById('sidebar-profile-btn')
@@ -240,7 +266,7 @@ export function showProfilePopup(): void {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation()
       const action = btn.dataset['action']
-      
+
       if (action === 'logout') {
         _closeProfilePopup()
         showLogoutConfirm()
@@ -377,7 +403,7 @@ export function showLogoutConfirm(): void {
     confirmBtn.innerHTML = '<span class="auth-spinner" style="width:14px;height:14px;border-width:2px;margin-right:8px"></span> Signing out…'
     confirmBtn.style.pointerEvents = 'none'
     confirmBtn.style.opacity = '0.8'
-    
+
     // Tiny delay for visual feedback
     await new Promise(r => setTimeout(r, 600))
     overlay.remove()
@@ -395,7 +421,7 @@ function _closeProfilePopup(): void {
 
 async function _handleLogout(): Promise<void> {
   try {
-    const { supabase }        = await import('@core/supabase')
+    const { supabase } = await import('@core/supabase')
     const { clearCurrentUser } = await import('@core/auth')
     await supabase.auth.signOut()
     clearCurrentUser()
