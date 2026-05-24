@@ -35,7 +35,8 @@ export class Toolbar {
           </svg>
         </button>
         <a class="logo" href="#/" id="topnav-logo">
-          <img src="${logoUrl}" alt="CACI Hub" class="logo-img" />
+          <img src="${logoUrl}" alt="" class="logo-img" />
+          <span class="logo-text">CACI Hub</span>
         </a>
       </div>
 
