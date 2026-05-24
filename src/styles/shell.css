@@ -150,6 +150,7 @@ ul {
   padding-left: 4px;
   white-space: nowrap;
   transition: opacity .15s;
+  text-decoration: none;
 }
 
 .logo-cross {
