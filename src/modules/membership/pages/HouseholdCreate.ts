@@ -5,7 +5,7 @@ import type { PageModule } from '../../../types/module.types'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { createHousehold, getHouseholdDropdownItems } from '../repository'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 import type { HouseholdDropdownItem } from '../../../types/member.types'
 
 const HouseholdCreate: PageModule = {

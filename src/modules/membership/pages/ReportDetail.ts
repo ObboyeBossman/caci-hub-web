@@ -5,7 +5,7 @@ import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
 import { listMembers } from '../repository'
-import { fmtDate, injectMembershipCSS } from '../member-helpers'
+import { fmtDate, injectMembershipCSS } from '../utils/member-helpers'
 
 const REPORT_LABELS: Record<string, string> = {
   'new-members': 'New Members Report',

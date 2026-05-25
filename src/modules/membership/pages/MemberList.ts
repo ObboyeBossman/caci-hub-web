@@ -34,7 +34,7 @@ import {
 } from '../repository'
 import { registerMember, exportMembersCsv, downloadCsv } from '../services/memberService'
 import { CreateMemberSchema, UpdateMemberSchema } from '../schemas/member.schema'
-import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from '../utils/member-helpers'
 
 // ── Page constants ────────────────────────────────────────────────────────────
 const PAGE_SIZE = 12

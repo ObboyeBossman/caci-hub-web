@@ -8,7 +8,7 @@ import { navigate } from '@core/router'
 import { registerMember } from '../services/memberService'
 import { getHouseholdDropdownItems } from '../repository'
 import { CreateMemberSchema } from '../schemas/member.schema'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 const AddMember: PageModule = {
   async render(container) {

@@ -4,7 +4,7 @@
 import type { PageModule } from '../../../types/module.types'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 interface Group { id: string; name: string; type: string; leader: string; members: number; day: string; desc: string }
 

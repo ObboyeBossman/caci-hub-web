@@ -1,4 +1,4 @@
-// src/modules/auth/pages/Dashboard.ts
+// src/modules/dashboard/pages/Dashboard.ts
 // Temporary placeholder for the authenticated root page.
 // This will eventually be replaced by the Dashboard module.
 

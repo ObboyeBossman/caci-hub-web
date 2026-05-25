@@ -3,7 +3,7 @@
 
 import type { PageModule } from '../../../types/module.types'
 import { listMembers } from '../repository'
-import { avatarColor, initials, fmtDate, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, fmtDate, injectMembershipCSS } from '../utils/member-helpers'
 import { navigate } from '@core/router'
 
 const NewMembersWidget: PageModule = {

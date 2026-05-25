@@ -8,7 +8,7 @@ import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { getMember, deactivateMember, getMemberAuditLog } from '../repository'
 import type { MemberView, MemberAuditEntry } from '../../../types/member.types'
-import { avatarColor, initials, fmtDate, statusBadge, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, fmtDate, statusBadge, injectMembershipCSS } from '../utils/member-helpers'
 import { getCurrentUser } from '@core/auth'
 
 const MyProfile: PageModule = {

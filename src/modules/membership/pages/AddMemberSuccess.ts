@@ -4,7 +4,7 @@
 import type { PageModule } from '../../../types/module.types'
 import { navigate } from '@core/router'
 import { getMember } from '../repository'
-import { avatarColor, initials, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, injectMembershipCSS } from '../utils/member-helpers'
 
 const AddMemberSuccess: PageModule = {
   async render(container: HTMLElement) {

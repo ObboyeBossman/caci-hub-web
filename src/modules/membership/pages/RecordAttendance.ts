@@ -5,7 +5,7 @@ import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
 import { listMembers } from '../repository'
-import { avatarColor, initials, statusBadge, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, statusBadge, injectMembershipCSS } from '../utils/member-helpers'
 import type { MemberView } from '../../../types/member.types'
 
 let _container: HTMLElement | null = null

@@ -7,7 +7,7 @@ import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { getHousehold, deleteHousehold, getAvailablePrimaryContacts, setPrimaryContact } from '../repository'
 import type { HouseholdWithMembers } from '../../../types/member.types'
-import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from '../utils/member-helpers'
 
 let _container: HTMLElement | null = null
 

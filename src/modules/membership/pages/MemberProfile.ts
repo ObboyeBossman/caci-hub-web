@@ -8,7 +8,7 @@ import { navigate }                    from '@core/router'
 import { getCurrentUser }                  from '@core/auth'
 import { getMember, deactivateMember, updateMember, getMemberAuditLog, provisionUser } from '../repository'
 import type { MemberView, MemberAuditEntry } from '../../../types/member.types'
-import { avatarColor, initials, fmtDate, statusBadge, injectMembershipCSS } from '../member-helpers'
+import { avatarColor, initials, fmtDate, statusBadge, injectMembershipCSS } from '../utils/member-helpers'
 
 let _container: HTMLElement | null = null
 

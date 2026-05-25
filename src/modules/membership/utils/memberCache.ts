@@ -1,4 +1,4 @@
-// src/shared/utils/memberCache.ts
+// src/modules/membership/utils/memberCache.ts
 // In-memory member summary cache for cross-module use.
 // Provides fast name/avatar lookups without re-querying the database.
 //
@@ -13,7 +13,7 @@
 //   auth:signedOut   → clearMemberCache()
 
 import { on } from '@core/events'
-import { storageGet, storageSet, storageRemove } from './storage'
+import { storageGet, storageSet, storageRemove } from '@shared/utils/storage'
 
 const STORAGE_KEY = 'member_summaries'
 

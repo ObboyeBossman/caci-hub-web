@@ -1,4 +1,4 @@
-// src/shared/utils/groupCache.ts
+/// src/modules/membership/utils/groupCache.ts
 // In-memory group summary cache for cross-module use.
 // Same pattern as memberCache.ts — see that file for design notes.
 //
@@ -9,7 +9,7 @@
 //   auth:signedOut → clearGroupCache()
 
 import { on } from '@core/events'
-import { storageGet, storageSet, storageRemove } from './storage'
+import { storageGet, storageSet, storageRemove } from '@shared/utils/storage'
 
 const STORAGE_KEY = 'group_summaries'
 

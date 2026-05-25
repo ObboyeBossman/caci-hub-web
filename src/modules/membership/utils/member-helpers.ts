@@ -1,4 +1,4 @@
-// src/modules/membership/member-helpers.ts
+// src/modules/membership/utils/member-helpers.ts
 // Shared presentation helpers used across membership pages.
 // Extracted from MemberList.ts and MemberProfile.ts to avoid duplication.
 

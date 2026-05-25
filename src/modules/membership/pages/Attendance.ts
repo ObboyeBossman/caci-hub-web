@@ -4,7 +4,7 @@
 import type { PageModule } from '../../../types/module.types'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 interface AttSession { id: string; name: string; type: string; date: string; time: string; present: number; absent: number; excused: number }
 

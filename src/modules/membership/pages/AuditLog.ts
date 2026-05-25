@@ -6,7 +6,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { navigate } from '@core/router'
 import { supabase } from '@core/supabase'
 import { getActiveAssemblyId } from '@core/auth'
-import { fmtDate, injectMembershipCSS } from '../member-helpers'
+import { fmtDate, injectMembershipCSS } from '../utils/member-helpers'
 import { Toast } from '@shared/components/Toast'
 
 interface AuditRow {

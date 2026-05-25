@@ -5,7 +5,7 @@ import type { PageModule } from '../../../types/module.types'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { listMembers } from '../repository'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 const FlagMember: PageModule = {
   async render(container) {

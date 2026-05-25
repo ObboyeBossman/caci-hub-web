@@ -13,8 +13,8 @@
 //   2. Caches self-clear via auth:signedOut listener (already registered in initMemberCache)
 
 import type { ModuleManifest }  from '../../types/module.types'
-import { initMemberCache }      from '@shared/utils/memberCache'
-import { initGroupCache }       from '@shared/utils/groupCache'
+import { initMemberCache }      from './utils/memberCache'
+import { initGroupCache }       from './utils/groupCache'
 import { emit }                 from '@core/events'
 import { getActiveAssemblyId }  from '@core/auth'
 import { membershipRoutes }     from './routes'

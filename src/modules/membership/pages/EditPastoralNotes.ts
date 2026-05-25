@@ -6,7 +6,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { getMember, updateMember } from '../repository'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 const EditPastoralNotes: PageModule = {
   async render(container) {

@@ -6,7 +6,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { getHousehold, updateHousehold, getHouseholdDropdownItems } from '../repository'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 const HouseholdEdit: PageModule = {
   async render(container) {

@@ -188,6 +188,9 @@ export class Toolbar {
 
     const toggle = (e: Event) => {
       e.stopPropagation()
+      if (popover && e.currentTarget && !(e.currentTarget as HTMLElement).contains(popover)) {
+        (e.currentTarget as HTMLElement).appendChild(popover)
+      }
       popover?.classList.toggle('show')
     }
 

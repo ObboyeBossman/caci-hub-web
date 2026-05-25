@@ -9,7 +9,7 @@ import { navigate } from '@core/router'
 import { getMember, updateMember } from '../repository'
 import { getHouseholdDropdownItems } from '../repository'
 import { UpdateMemberSchema } from '../schemas/member.schema'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 import type { MemberView } from '../../../types/member.types'
 
 const EditMember: PageModule = {

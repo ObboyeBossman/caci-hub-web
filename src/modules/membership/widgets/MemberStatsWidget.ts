@@ -3,7 +3,7 @@
 
 import type { PageModule } from '../../../types/module.types'
 import { listMembers } from '../repository'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 const MemberStatsWidget: PageModule = {
   async render(container) {

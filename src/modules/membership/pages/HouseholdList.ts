@@ -7,7 +7,7 @@ import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { listHouseholds, deleteHousehold } from '../repository'
 import type { HouseholdView } from '../../../types/member.types'
-import { injectMembershipCSS } from '../member-helpers'
+import { injectMembershipCSS } from '../utils/member-helpers'
 
 let _container: HTMLElement | null = null
 let _households: HouseholdView[] = []
