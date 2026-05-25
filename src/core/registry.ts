@@ -52,26 +52,7 @@ export function getSidebarItems(): SidebarItem[] {
     .sort((a, b) => a.order - b.order)
 }
 
-/**
- * Aggregate widgets from all modules, filtered by permission predicate,
- * sorted by order. Used by the Dashboard page.
- */
-export function getWidgets(
-  can: (perm: string) => boolean
-): WidgetDefinition[] {
-  return _modules
-    .flatMap(m => m.widgets ?? [])
-    .filter(w => can(w.permission))
-    .sort((a, b) => a.order - b.order)
-}
 
-/**
- * Returns all modules that declare a given capability.
- * Used by cross-cutting consumers (search, notifications, quick actions).
- */
-export function getCapabilities(type: Capability): ModuleManifest[] {
-  return _modules.filter(m => m.capabilities?.includes(type))
-}
 
 /**
  * Returns the route path of the first registered module (lowest order sidebar item).

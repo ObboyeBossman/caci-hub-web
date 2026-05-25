@@ -39,11 +39,7 @@ export function formatRelativeTime(dateStr: string | null): string {
   return formatDate(dateStr)
 }
 
-/** "01 Jan 1990" → age: "34" */
-export function formatAge(dateOfBirth: string | null): string {
-  if (!dateOfBirth) return '—'
-  return String(dayjs().diff(dayjs(dateOfBirth), 'year'))
-}
+
 
 // ── Names ─────────────────────────────────────────────────────────────────────
 
@@ -77,27 +73,4 @@ export function formatPhone(phone: string | null): string {
 /** "ACA-2026-0042" */
 export function formatMembershipNumber(num: string | null): string {
   return num ?? 'Pending'
-}
-
-// ── Status labels ─────────────────────────────────────────────────────────────
-
-/** "active" → "Active" */
-export function formatStatus(status: string): string {
-  return status.charAt(0).toUpperCase() + status.slice(1)
-}
-
-// ── Numbers ───────────────────────────────────────────────────────────────────
-
-/** 1234567 → "1,234,567" */
-export function formatNumber(n: number): string {
-  return new Intl.NumberFormat('en-GB').format(n)
-}
-
-/** 1234567.89 → "GH₵ 1,234,567.89" */
-export function formatCurrency(amount: number, currency = 'GHS'): string {
-  return new Intl.NumberFormat('en-GH', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-  }).format(amount)
 }

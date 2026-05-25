@@ -30,13 +30,3 @@ export function storageRemove(key: string): void {
     // Silently ignore
   }
 }
-
-export function storageClear(): void {
-  try {
-    Object.keys(localStorage)
-      .filter(k => k.startsWith(PREFIX))
-      .forEach(k => localStorage.removeItem(k))
-  } catch {
-    // Silently ignore
-  }
-}

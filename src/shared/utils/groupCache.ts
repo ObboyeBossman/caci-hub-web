@@ -103,7 +103,3 @@ export function clearGroupCache(): void {
   _cache.clear()
   storageRemove(STORAGE_KEY)
 }
-
-export function getGroupCacheSize(): number {
-  return _cache.size
-}

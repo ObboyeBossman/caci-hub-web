@@ -122,8 +122,3 @@ export function clearMemberCache(): void {
   _cache.clear()
   storageRemove(STORAGE_KEY)
 }
-
-/** Returns the current cache size (useful for debugging). */
-export function getMemberCacheSize(): number {
-  return _cache.size
-}
