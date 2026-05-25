@@ -483,6 +483,30 @@ export async function assignMembershipNumber(memberId: string): Promise<string> 
   }
 }
 
+/**
+ * Call the provision-user Edge Function.
+ * Mirrors: Phase 2 manual user provisioning
+ */
+export async function provisionUser(payload: {
+  memberId: string
+  role: string
+  path: 'invite' | 'default_password' | 'explicit'
+  email?: string
+  password?: string
+}): Promise<any> {
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      'provision-user',
+      { body: payload }
+    )
+
+    if (error) throw error
+    return data
+  } catch (err) {
+    throw mapError(err, 'provisionUser')
+  }
+}
+
 // ── Photo upload ──────────────────────────────────────────────────────────────
 
 /**

@@ -5,7 +5,8 @@ import type { PageModule }             from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast }                       from '@shared/components/Toast'
 import { navigate }                    from '@core/router'
-import { getMember, deactivateMember, updateMember, getMemberAuditLog } from '../repository'
+import { getCurrentUser }                  from '@core/auth'
+import { getMember, deactivateMember, updateMember, getMemberAuditLog, provisionUser } from '../repository'
 import type { MemberView, MemberAuditEntry } from '../../../types/member.types'
 import { avatarColor, initials, fmtDate, statusBadge, injectMembershipCSS } from '../member-helpers'
 
@@ -36,6 +37,8 @@ const MemberProfile: PageModule = {
     const s  = statusBadge(member.membership_status)
     const bg = avatarColor(`${member.first_name} ${member.last_name}`)
     const ini = initials(member.first_name, member.last_name)
+    const currentUser = getCurrentUser()
+    const isAdmin = currentUser?.role === 'admin'
 
     container.innerHTML = `
 <div class="mm-root" style="padding:24px;max-width:900px;margin:0 auto;">
@@ -66,9 +69,11 @@ const MemberProfile: PageModule = {
         <span class="mm-badge ${s.cls}">${s.label}</span>
         <span class="mm-badge ${member.gender === 'female' ? 'purple' : ''}">${member.gender}</span>
         ${member.marital_status ? `<span class="mm-badge">${member.marital_status}</span>` : ''}
+        ${member.auth_user_id ? `<span class="mm-badge" style="background:#e0f2fe;color:#0369a1;border-color:#b9e6fe;"><i class="bi bi-shield-check"></i> Login active</span>` : ''}
       </div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      ${isAdmin && !member.auth_user_id ? `<button class="mm-btn-primary" id="mp-provisionBtn" style="background:var(--caci-accent);">Provision login</button>` : ''}
       <button class="mm-btn-primary" id="mp-editBtn">Edit Profile</button>
       <button class="mm-btn-outline" id="mp-smsBtn">Send SMS</button>
       <button class="mm-btn-danger" id="mp-deactivateBtn">Deactivate</button>
@@ -155,7 +160,44 @@ const MemberProfile: PageModule = {
     </div>
 
   </div>
-</div>`
+  </div>
+</div>
+
+<!-- Provision Modal -->
+${isAdmin && !member.auth_user_id ? `
+<div id="mp-provisionModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:var(--mm-bg-card);border-radius:12px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+    <h3 style="margin-top:0;margin-bottom:16px;">Provision Login</h3>
+    <form id="mp-provisionForm">
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Email (Required for invite/explicit)</label>
+        <input type="email" id="prov-email" value="${member.email ?? ''}" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Role</label>
+        <select id="prov-role" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
+          <option value="member">Member</option>
+          <option value="volunteer">Volunteer</option>
+          <option value="secretary">Secretary</option>
+          <option value="pastor">Pastor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Provisioning Method</label>
+        <select id="prov-path" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
+          <option value="invite">Send Email Invite</option>
+          <option value="default_password">Use Assembly Default Password</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <button type="button" id="prov-cancel" class="mm-btn-outline">Cancel</button>
+        <button type="submit" id="prov-submit" class="mm-btn-primary">Provision</button>
+      </div>
+    </form>
+  </div>
+</div>` : ''}
+`
 
     // Tab switching
     container.querySelectorAll<HTMLButtonElement>('[data-mptab]').forEach(btn => {
@@ -168,6 +210,43 @@ const MemberProfile: PageModule = {
         })
       })
     })
+
+    // Provision
+    const provBtn = container.querySelector('#mp-provisionBtn')
+    const provModal = container.querySelector<HTMLElement>('#mp-provisionModal')
+    const provForm = container.querySelector<HTMLFormElement>('#mp-provisionForm')
+    const provCancel = container.querySelector('#prov-cancel')
+
+    if (provBtn && provModal && provForm && provCancel) {
+      provBtn.addEventListener('click', () => provModal.style.display = 'flex')
+      provCancel.addEventListener('click', () => provModal.style.display = 'none')
+
+      provForm.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const submitBtn = provForm.querySelector<HTMLButtonElement>('#prov-submit')!
+        const email = provForm.querySelector<HTMLInputElement>('#prov-email')!.value.trim()
+        const role = provForm.querySelector<HTMLSelectElement>('#prov-role')!.value
+        const path = provForm.querySelector<HTMLSelectElement>('#prov-path')!.value as any
+        
+        submitBtn.disabled = true
+        submitBtn.textContent = 'Provisioning...'
+        
+        try {
+          const res = await provisionUser({ memberId: member.id, role, path, email })
+          Toast.success('User provisioned successfully.')
+          provModal.style.display = 'none'
+          
+          // Re-render the page to update the states (badge instead of button)
+          await MemberProfile.render(container)
+        } catch (err: any) {
+          Toast.error(err?.message || 'Provisioning failed.')
+          console.error(err)
+        } finally {
+          submitBtn.disabled = false
+          submitBtn.textContent = 'Provision'
+        }
+      })
+    }
 
     // Back
     container.querySelector('#mp-back')?.addEventListener('click', () => navigate('/members'))

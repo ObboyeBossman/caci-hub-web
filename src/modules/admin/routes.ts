@@ -12,12 +12,6 @@ export const adminRoutes: RouteDefinition[] = [
     permission: 'admin.access',
   },
   {
-    path: '/admin/users/provision',
-    page: () => import('./pages/ProvisionUser'),
-    middleware: ['auth', 'permissions'],
-    permission: 'admin.access',
-  },
-  {
     path: '/admin/audit',
     page: () => import('./pages/GlobalAuditLog'),
     middleware: ['auth', 'permissions'],

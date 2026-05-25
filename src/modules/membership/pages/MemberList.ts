@@ -30,6 +30,7 @@ import {
   getMemberCounts,
   deactivateMember,
   updateMember,
+  provisionUser,
 } from '../repository'
 import { registerMember, exportMembersCsv, downloadCsv } from '../services/memberService'
 import { CreateMemberSchema, UpdateMemberSchema } from '../schemas/member.schema'
@@ -449,6 +450,9 @@ function _openDetail(m: MemberView): void {
   const bg = avatarColor(`${m.first_name} ${m.last_name}`)
   const ini = initials(m.first_name, m.last_name)
   const s = statusBadge(m.membership_status)
+  
+  const currentUser = getCurrentUser()
+  const isAdmin = currentUser?.role === 'admin'
 
   body.innerHTML = `
 <div class="mm-detail-tabs">
@@ -466,6 +470,7 @@ function _openDetail(m: MemberView): void {
       <span class="mm-badge ${s.cls}">${s.label}</span>
       <span class="mm-badge ${m.gender === 'female' ? 'purple' : ''}">${m.gender}</span>
       ${m.marital_status ? `<span class="mm-badge">${m.marital_status}</span>` : ''}
+      ${m.auth_user_id ? `<span class="mm-badge" style="background:#e0f2fe;color:#0369a1;border-color:#b9e6fe;"><i class="bi bi-shield-check"></i> Login active</span>` : ''}
     </div>
   </div>
 
@@ -505,6 +510,7 @@ function _openDetail(m: MemberView): void {
   </div>` : ''}
 
   <div class="mm-detail-actions">
+    ${isAdmin && !m.auth_user_id ? `<button class="mm-btn-primary" id="mm-detail-provisionBtn" style="background:var(--caci-accent);">Provision login</button>` : ''}
     <button class="mm-btn-primary" data-edit-id="${m.id}">Edit Profile</button>
     <button class="mm-btn-outline" id="mm-detail-sms">Send SMS</button>
     <button class="mm-btn-danger" id="mm-detail-deactivate">Deactivate</button>
@@ -526,7 +532,43 @@ function _openDetail(m: MemberView): void {
     <textarea class="mm-form-textarea" id="mm-newNoteText" placeholder="Add an internal admin note…" style="margin-top:5px;"></textarea>
     <button class="mm-btn-primary" style="margin-top:8px;" id="mm-saveNote">Save Note</button>
   </div>
-</div>`
+</div>
+
+<!-- Provision Modal -->
+${isAdmin && !m.auth_user_id ? `
+<div id="mm-detail-provisionModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:var(--mm-bg-card);border-radius:12px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+    <h3 style="margin-top:0;margin-bottom:16px;">Provision Login</h3>
+    <form id="mm-detail-provisionForm">
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Email (Required for invite/explicit)</label>
+        <input type="email" id="prov-email" value="${m.email ?? ''}" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;" />
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Role</label>
+        <select id="prov-role" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
+          <option value="member">Member</option>
+          <option value="volunteer">Volunteer</option>
+          <option value="secretary">Secretary</option>
+          <option value="pastor">Pastor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Provisioning Method</label>
+        <select id="prov-path" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
+          <option value="invite">Send Email Invite</option>
+          <option value="default_password">Use Assembly Default Password</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <button type="button" id="prov-cancel" class="mm-btn-outline">Cancel</button>
+        <button type="submit" id="prov-submit" class="mm-btn-primary">Provision</button>
+      </div>
+    </form>
+  </div>
+</div>` : ''}
+`
 
   panel.classList.add('open')
   overlay.classList.add('open')
@@ -571,6 +613,47 @@ function _openDetail(m: MemberView): void {
       Toast.fromError(err)
     }
   })
+
+  // Provision Login
+  const provBtn = body.querySelector('#mm-detail-provisionBtn')
+  const provModal = body.querySelector<HTMLElement>('#mm-detail-provisionModal')
+  const provForm = body.querySelector<HTMLFormElement>('#mm-detail-provisionForm')
+  const provCancel = body.querySelector('#prov-cancel')
+
+  if (provBtn && provModal && provForm && provCancel) {
+    provBtn.addEventListener('click', () => provModal.style.display = 'flex')
+    provCancel.addEventListener('click', () => provModal.style.display = 'none')
+
+    provForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const submitBtn = provForm.querySelector<HTMLButtonElement>('#prov-submit')!
+      const email = provForm.querySelector<HTMLInputElement>('#prov-email')!.value.trim()
+      const role = provForm.querySelector<HTMLSelectElement>('#prov-role')!.value
+      const path = provForm.querySelector<HTMLSelectElement>('#prov-path')!.value as any
+      
+      submitBtn.disabled = true
+      submitBtn.textContent = 'Provisioning...'
+      
+      try {
+        const res = await provisionUser({ memberId: m.id, role, path, email })
+        Toast.success('User provisioned successfully.')
+        provModal.style.display = 'none'
+        
+        // Update local state and re-open detail panel to show badge
+        const updated = _state!.members.find(x => x.id === m.id)
+        if (updated) {
+          (updated as any).auth_user_id = res.userId || 'provisioned'
+          _openDetail(updated)
+        }
+      } catch (err: any) {
+        Toast.error(err?.message || 'Provisioning failed.')
+        console.error(err)
+      } finally {
+        submitBtn.disabled = false
+        submitBtn.textContent = 'Provision'
+      }
+    })
+  }
 
   // Save note (updates pastoral_notes via updateMember)
   body.querySelector('#mm-saveNote')?.addEventListener('click', async () => {
