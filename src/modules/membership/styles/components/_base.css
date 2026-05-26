@@ -1,0 +1,10 @@
+/* _base.css
+   Base typography & reset scoped to .mm-root. */
+
+.mm-root {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-size: var(--font-size-base);
+  color: var(--mm-text-primary);
+  background: var(--mm-bg-base);
+  line-height: 1.5;
+}

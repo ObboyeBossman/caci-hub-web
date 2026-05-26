@@ -162,6 +162,14 @@ requiresMfa(role)            // currently always false; enable in Phase 3
 
 ---
 
+## The `accounts` Module
+
+The `accounts/` module centralizes all system login provisioning and role management.
+- Gated entirely by `accounts.access` (currently granted only to `admin`, `district_overseer`, and `national_admin`).
+- Data flows strictly via `accounts` repository and events (e.g. `account:provisioned`, `account:roleChanged`). `accounts` never imports business logic from `membership`, and `membership` deep-links (`navigate`) to `accounts` instead of rendering inline Modals.
+
+---
+
 ## Sidebar Filtering
 
 Sidebar items also declare a `permission` field. The shell reads all registered `SidebarItem[]` from the registry, filters by `hasPermission(user.role, item.permission)`, sorts by `order`, and renders. No sidebar item is ever visible to a role that lacks its permission.

@@ -7,7 +7,14 @@ const SettingsModule: ModuleManifest = {
   description: 'User settings and preferences',
   icon: 'gear-fill',
   enabled: true,
-  routes: [],
+  routes: [
+    {
+      path: '/change-password',
+      page: () => import('./pages/ChangePassword'),
+      middleware: ['auth'], // intentional no mustChangePassword
+      presentation: 'fullscreen',
+    }
+  ],
   sidebar: [],
 
   async init() {

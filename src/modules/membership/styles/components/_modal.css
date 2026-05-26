@@ -1,0 +1,113 @@
+/* _modal.css
+   Modal overlay, right-drawer (Add / Edit Member),
+   and centred modal (Attendance Session, Group, Flag). */
+
+/* ─── Shared overlay ──────────────────────────────────────────────────────── */
+.mm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--mm-overlay-bg);
+  z-index: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+}
+.mm-modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* ─── Right-drawer modal ──────────────────────────────────────────────────── */
+.mm-modal-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 601;
+  background: var(--mm-bg-card);
+  border-left: 1px solid var(--mm-border);
+  width: min(480px, 96vw);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+  pointer-events: none;
+  overflow: hidden;
+}
+.mm-modal-drawer.open { transform: translateX(0); pointer-events: auto; }
+
+/* ─── Centred modal ───────────────────────────────────────────────────────── */
+.mm-modal-centred {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%);
+  z-index: 601;
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 12px;
+  width: min(520px, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+}
+.mm-modal-centred.open {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .mm-modal-centred {
+    width: 100%;
+    max-width: 100%;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    border-radius: 16px 16px 0 0;
+    max-height: 92vh;
+  }
+  .mm-modal-centred.open { transform: none; }
+}
+
+/* ─── Shared header / body / footer ──────────────────────────────────────── */
+.mm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--mm-border);
+  background: var(--mm-bg-card);
+  flex-shrink: 0;
+}
+.mm-modal-title { font-size: var(--font-size-base); font-weight: 600; color: var(--mm-text-primary); }
+
+.mm-modal-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--mm-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+}
+.mm-modal-close:hover { background: var(--mm-bg-hover); }
+.mm-modal-close svg   { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+.mm-modal-body   { flex: 1; overflow-y: auto; padding: 20px; }
+
+.mm-modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--mm-border);
+  justify-content: flex-end;
+  background: var(--mm-bg-card);
+  flex-shrink: 0;
+}

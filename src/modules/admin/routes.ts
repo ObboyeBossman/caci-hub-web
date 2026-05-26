@@ -6,15 +6,9 @@ import type { RouteDefinition } from '../../types/module.types'
 
 export const adminRoutes: RouteDefinition[] = [
   {
-    path: '/admin/users',
-    page: () => import('./pages/UserManagement'),
-    middleware: ['auth', 'permissions'],
-    permission: 'admin.access',
-  },
-  {
     path: '/admin/audit',
     page: () => import('./pages/GlobalAuditLog'),
-    middleware: ['auth', 'permissions'],
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
     permission: 'admin.access',
   },
 ]

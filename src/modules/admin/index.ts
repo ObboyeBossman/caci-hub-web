@@ -11,15 +11,15 @@ const AdminModule: ModuleManifest = {
   version:     '0.1.0',
   description: 'User management, provisioning, global audit log (Phase 2)',
   icon:        'shield-lock',
-  enabled:     false,   // ← invisible to the entire app until Phase 2
+  enabled:     true,
 
   routes: adminRoutes,
 
   sidebar: [
     {
-      label:      'Admin',
+      label:      'Security & Audit',
       icon:       'shield-lock',
-      path:       '/admin/users',
+      path:       '/admin/audit',
       permission: 'admin.access',
       order:      90,
     }

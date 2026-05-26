@@ -1,0 +1,75 @@
+/* _layout.css
+   Two-column module grid, sticky subnav, and page-section show/hide. */
+
+/* ─── Module grid ─────────────────────────────────────────────────────────── */
+.mm-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+  padding: 20px 24px;
+  max-width: 1320px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .mm-layout {
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mm-layout {
+    display: block;
+    padding: 16px;
+  }
+  .mm-mobile-hide {
+    display: none !important;
+  }
+}
+
+/* ─── Subnav ──────────────────────────────────────────────────────────────── */
+.mm-subnav {
+  background: var(--mm-bg-card);
+  border-bottom: 1px solid var(--mm-border);
+  padding: 0 24px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.mm-subnav::-webkit-scrollbar { display: none; }
+
+.mm-tab {
+  font-size: var(--font-size-base);
+  padding: 10px 14px;
+  color: var(--mm-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  background: none;
+  font-family: inherit;
+}
+.mm-tab:hover { color: var(--mm-text-primary); }
+.mm-tab.active {
+  color: var(--mm-text-primary);
+  border-bottom-color: var(--mm-red);
+  font-weight: 500;
+}
+
+/* ─── Page sections ───────────────────────────────────────────────────────── */
+.mm-section        { display: none; }
+.mm-section.active { display: block; }

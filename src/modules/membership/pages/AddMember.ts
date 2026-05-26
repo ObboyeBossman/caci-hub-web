@@ -95,9 +95,9 @@ function _buildHTML(): string { return `
         <input class="mm-form-input" id="am-fOccupation" placeholder="Job title or profession">
       </div>
       <div class="mm-form-group">
-        <label class="mm-form-label">Phone Number *</label>
+        <label class="mm-form-label">Phone Number</label>
         <input class="mm-form-input" id="am-fPhone" placeholder="+233 …" type="tel">
-        <div class="mm-form-error" id="am-err-phone">Phone number is required.</div>
+        <div class="mm-form-error" id="am-err-phone">At least one of phone number or email is required.</div>
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Email</label>
@@ -172,6 +172,7 @@ async function _save(container: HTMLElement): Promise<void> {
   const firstName = get('am-fFirstName')
   const lastName  = get('am-fLastName')
   const phone     = get('am-fPhone')
+  const email     = get('am-fEmail')
   const gender    = get('am-fGender')
 
   let valid = true
@@ -180,7 +181,7 @@ async function _save(container: HTMLElement): Promise<void> {
 
   if (!firstName) showErr('am-err-firstName', 'am-fFirstName'); else hideErr('am-err-firstName', 'am-fFirstName')
   if (!lastName)  showErr('am-err-lastName',  'am-fLastName');  else hideErr('am-err-lastName',  'am-fLastName')
-  if (!phone)     showErr('am-err-phone',     'am-fPhone');     else hideErr('am-err-phone',     'am-fPhone')
+  if (!phone && !email) showErr('am-err-phone', 'am-fPhone'); else hideErr('am-err-phone', 'am-fPhone')
   if (!gender)    showErr('am-err-gender',    'am-fGender');    else hideErr('am-err-gender',    'am-fGender')
   if (!valid) return
 

@@ -35,6 +35,7 @@ const rolePermissions: Record<string, string[]> = {
     'groups.*',
     'reports.view',
     'dashboard.view',
+    'admin.view',       // can view the assembly audit log (read-only)
   ],
 
   // secretary: create + edit, no delete, no dashboard, no pastoral notes
@@ -51,6 +52,7 @@ const rolePermissions: Record<string, string[]> = {
     'groups.view',
     'attendance.view',
     'profile.view',
+    'membership.members.import',
   ],
 
   // volunteer: read-only directory access

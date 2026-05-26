@@ -113,6 +113,12 @@ export const Login: PageModule = {
             <!-- Card -->
             <div class="auth-card">
 
+              <!-- Tabs -->
+              <div class="auth-tabs" style="display:flex;margin-bottom:16px;border-bottom:1px solid var(--auth-card-border);">
+                <button type="button" class="auth-tab active" data-mode="email" style="flex:1;padding:8px;background:none;border:none;border-bottom:2px solid var(--primary-color);cursor:pointer;font-weight:600;color:var(--text-primary);">Email</button>
+                <button type="button" class="auth-tab" data-mode="phone" style="flex:1;padding:8px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--text-secondary);">Phone</button>
+              </div>
+
               <!-- Error alert -->
               <div id="signin-error" class="auth-alert auth-alert-error" style="display:none;">
                 <svg class="auth-alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -122,16 +128,22 @@ export const Login: PageModule = {
               </div>
 
               <!-- Email field -->
-              <div class="auth-field">
+              <div class="auth-field" id="email-field">
                 <label class="auth-label">Email address</label>
                 <input type="email" id="signin-email-input" class="auth-input" placeholder="you@example.com" autocomplete="email">
+              </div>
+
+              <!-- Phone field -->
+              <div class="auth-field" id="phone-field" style="display:none;">
+                <label class="auth-label">Phone number</label>
+                <input type="tel" id="signin-phone-input" class="auth-input" placeholder="+233 24 123 4567" autocomplete="tel">
               </div>
 
               <!-- Password field -->
               <div class="auth-field">
                 <div class="auth-field-header">
                   <label class="auth-label">Password</label>
-                  <a class="auth-link" href="#/forgot-password" style="font-size:13px;">Forgot?</a>
+                  <a class="auth-link" id="forgot-pw-link" href="#/forgot-password" style="font-size:13px;">Forgot?</a>
                 </div>
                 <div class="auth-input-wrap">
                   <input type="password" id="signin-pw" class="auth-input" placeholder="Enter your password" autocomplete="current-password">
@@ -168,23 +180,63 @@ export const Login: PageModule = {
     `
 
     // ── 3. Internal Logic ───────────────────────────────────────────────────
+    let signInMode: 'email' | 'phone' = 'email'
+
+    container.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        const btn = e.currentTarget as HTMLButtonElement
+        signInMode = btn.dataset.mode as 'email' | 'phone'
+
+        container.querySelectorAll('.auth-tab').forEach(t => {
+          ;(t as HTMLElement).style.borderBottomColor = 'transparent'
+          ;(t as HTMLElement).style.color = 'var(--text-secondary)'
+          ;(t as HTMLElement).style.fontWeight = 'normal'
+        })
+        btn.style.borderBottomColor = 'var(--primary-color)'
+        btn.style.color = 'var(--text-primary)'
+        btn.style.fontWeight = '600'
+
+        const emailField = container.querySelector('#email-field') as HTMLElement
+        const phoneField = container.querySelector('#phone-field') as HTMLElement
+        const forgotLink = container.querySelector('#forgot-pw-link') as HTMLAnchorElement
+
+        if (signInMode === 'email') {
+          emailField.style.display = 'block'
+          phoneField.style.display = 'none'
+          forgotLink.href = '#/forgot-password'
+          forgotLink.onclick = null
+        } else {
+          emailField.style.display = 'none'
+          phoneField.style.display = 'block'
+          forgotLink.href = '#'
+          forgotLink.onclick = (ev) => {
+            ev.preventDefault()
+            _showError('To reset your password, please contact your assembly administrator.')
+          }
+        }
+      })
+    })
+
     const handleSignInInternal = async () => {
       const emailInput = container.querySelector('#signin-email-input') as HTMLInputElement
+      const phoneInput = container.querySelector('#signin-phone-input') as HTMLInputElement
       const pwInput = container.querySelector('#signin-pw') as HTMLInputElement
 
       _hideError()
 
-      if (!emailInput.value.trim() || !pwInput.value) {
-        _showError('Please enter both email and password.')
+      const identifierValue = signInMode === 'email' ? emailInput.value.trim() : phoneInput.value.trim()
+
+      if (!identifierValue || !pwInput.value) {
+        _showError('Please enter your credentials.')
         return
       }
 
       _setLoading(true)
       try {
-        await authService.signIn(emailInput.value.trim(), pwInput.value)
+        const identifier = signInMode === 'email' ? { email: identifierValue } : { phone: identifierValue }
+        await authService.signIn(identifier, pwInput.value)
         await loadCurrentUser()
         const user = getCurrentUser() as AppUser
-
 
         // ── Membership Verification ──────────────────────────────────────────
         // Users must belong to the selected assembly to proceed.
@@ -197,12 +249,14 @@ export const Login: PageModule = {
           return
         }
 
-
         // Progress to Stage 4 (Loading/Boot Sequence)
         const { runLoading } = await import('../../../core/loading')
         runLoading()
 
       } catch (err) {
+        // As per plan, surface standard inline error "Invalid credentials. Please try again."
+        // Or if mapAuthError handles it specifically, use that.
+        // Let's rely on mapAuthError which returns "Invalid email or password."
         _showError(mapAuthError(err))
         _setLoading(false)
       }
@@ -214,6 +268,9 @@ export const Login: PageModule = {
       ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
 
     container.querySelector('#signin-email-input')
+      ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
+
+    container.querySelector('#signin-phone-input')
       ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
 
     container.querySelector('#eye-btn')

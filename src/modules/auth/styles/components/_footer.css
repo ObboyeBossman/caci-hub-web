@@ -1,0 +1,18 @@
+/* _footer.css
+   Page-level footer with copyright text and nav links. */
+
+.auth-footer {
+  text-align: center;
+  font-size: 14px;
+  color: var(--auth-footer);
+  padding: 0 16px 24px;
+  flex-shrink: 0;
+  background: var(--auth-body-bg);
+}
+
+.auth-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}

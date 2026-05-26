@@ -1,0 +1,101 @@
+/* _assembly.css
+   Assembly selection list — shown after login when a user
+   belongs to multiple CACI assemblies. */
+
+.section-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--auth-text-muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  display: block;
+}
+
+.assembly-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* ── Individual row ───────────────────────────────────────── */
+.assembly-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--auth-card-border);
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--auth-card-bg);
+  transition: border-color .15s, background .15s;
+  position: relative;
+}
+.assembly-item:hover    { border-color: var(--auth-text-muted); background: var(--auth-body-bg); }
+.assembly-item.selected { border-color: var(--auth-selected-border); background: var(--auth-selected-bg); }
+
+/* ── Avatar ───────────────────────────────────────────────── */
+.assembly-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--auth-body-bg);
+  border: 1px solid var(--auth-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--auth-text-secondary);
+  overflow: hidden;
+}
+.assembly-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+/* ── Info block ───────────────────────────────────────────── */
+.assembly-info { flex: 1; min-width: 0; }
+
+.assembly-name {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--auth-text-primary);
+  margin: 0 0 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.assembly-item.selected .assembly-name { color: var(--auth-btn-primary); }
+.auth-root.dark .assembly-item.selected .assembly-name { color: var(--auth-link); }
+
+.assembly-loc {
+  font-size: 13px;
+  color: var(--auth-text-secondary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+.assembly-loc-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.assembly-loc svg  { flex-shrink: 0; opacity: 0.8; }
+
+/* ── Selection radio indicator ────────────────────────────── */
+.assembly-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid var(--auth-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+.assembly-item.selected .assembly-check { background: var(--auth-btn-primary); border-color: var(--auth-btn-primary); }
+
+.assembly-check i { font-style: normal; font-size: 11px; line-height: 1; color: #fff; display: none; user-select: none; }
+.assembly-item.selected .assembly-check i { display: block; }
+
+/* ── Continue button spacing ──────────────────────────────── */
+#asm-continue-btn { margin-top: 16px !important; }

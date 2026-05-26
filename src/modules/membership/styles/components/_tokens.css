@@ -1,0 +1,139 @@
+/* _tokens.css
+   Module-scoped colour & design tokens.
+   All other component files consume these via var(--mm-*). */
+
+/* ─── Light mode ──────────────────────────────────────────────────────────── */
+.mm-root {
+  --mm-red:               #C60026;
+  --mm-red-dim:           #a8001f;
+  --mm-red-glow:          rgba(198, 0, 38, .12);
+  --mm-blue:              #004BA0;
+  --mm-blue-mid:          #1a5fb4;
+  --mm-blue-dark:         #003578;
+  --mm-blue-light:        #1a5fb4;
+  --mm-gold:              #FBBF24;
+  --mm-green:             #1a7f37;
+  --mm-green-bg:          #dafbe1;
+
+  /* Surface */
+  --mm-bg-base:           var(--bg-base,   #f6f8fa);
+  --mm-bg-card:           var(--bg-card,   #ffffff);
+  --mm-bg-card2:          var(--bg-card2,  #f6f8fa);
+  --mm-bg-hover:          var(--bg-hover,  #eaeef2);
+
+  /* Borders */
+  --mm-border:            var(--border,        #d0d7de);
+  --mm-border-subtle:     var(--border-subtle, #eaeef2);
+
+  /* Text */
+  --mm-text-primary:      var(--text-primary,   #1b1f23);
+  --mm-text-secondary:    var(--text-secondary, #656d76);
+  --mm-text-muted:        var(--text-muted,     #8c959f);
+
+  /* Inputs */
+  --mm-input-bg:          var(--input-bg,     #fff);
+  --mm-input-border:      var(--input-border, #d0d7de);
+  --mm-input-focus:       var(--input-focus,  #004BA0);
+  --mm-input-shadow:      var(--input-shadow, rgba(0, 75, 160, .12));
+
+  /* Table */
+  --mm-table-header-bg:   var(--table-header-bg,  #f6f8fa);
+  --mm-table-row-hover:   var(--table-row-hover,   #f0f4ff);
+
+  /* Badges */
+  --mm-badge-bg:              #eaeef2;
+  --mm-badge-color:           #656d76;
+  --mm-badge-red-bg:          #ffeef0;
+  --mm-badge-red-color:       var(--mm-red);
+  --mm-badge-green-bg:        #dafbe1;
+  --mm-badge-green-color:     #1a7f37;
+  --mm-badge-yellow-bg:       #fff8c5;
+  --mm-badge-yellow-color:    #9a6700;
+  --mm-badge-blue-bg:         #ddf4ff;
+  --mm-badge-blue-color:      #0969da;
+  --mm-badge-purple-bg:       #f3e8ff;
+  --mm-badge-purple-color:    #7c3aed;
+
+  /* Sidebar / chips */
+  --mm-sidebar-active-bg:     #f0f4ff;
+  --mm-sidebar-active-color:  var(--mm-blue);
+  --mm-chip-bg:               #eaeef2;
+  --mm-chip-active-bg:        #dbeafe;
+  --mm-chip-active-color:     var(--mm-blue);
+  --mm-chip-active-border:    rgba(0, 75, 160, .3);
+
+  /* Misc */
+  --mm-stat-bar-bg:       #eaeef2;
+  --mm-overlay-bg:        rgba(0, 0, 0, .45);
+  --mm-bulk-bar-bg:       var(--mm-blue);
+  --mm-fab-bg:            var(--mm-red);
+
+  /* Attendance status */
+  --mm-att-present-bg:    #dafbe1;
+  --mm-att-present-color: #1a7f37;
+  --mm-att-absent-bg:     #ffeef0;
+  --mm-att-absent-color:  var(--mm-red);
+  --mm-att-excused-bg:    #fff8c5;
+  --mm-att-excused-color: #9a6700;
+}
+
+/* ─── Dark mode overrides ─────────────────────────────────────────────────── */
+[data-theme="dark"] .mm-root {
+  --mm-red:               #E8003A;
+  --mm-red-dim:           #C60026;
+  --mm-red-glow:          rgba(232, 0, 58, .15);
+  --mm-blue:              #4D9FFF;
+  --mm-blue-mid:          #1a6fc4;
+  --mm-blue-dark:         #004BA0;
+  --mm-blue-light:        #4D9FFF;
+
+  --mm-bg-base:           #0d1117;
+  --mm-bg-card:           #161b22;
+  --mm-bg-card2:          #1c2128;
+  --mm-bg-hover:          #21262d;
+
+  --mm-border:            #30363d;
+  --mm-border-subtle:     #21262d;
+
+  --mm-text-primary:      #e6edf3;
+  --mm-text-secondary:    #8b949e;
+  --mm-text-muted:        #484f58;
+
+  --mm-input-bg:          #161b22;
+  --mm-input-border:      #30363d;
+  --mm-input-focus:       #4D9FFF;
+  --mm-input-shadow:      rgba(77, 159, 255, .12);
+
+  --mm-table-header-bg:   #1c2128;
+  --mm-table-row-hover:   rgba(77, 159, 255, .06);
+
+  --mm-badge-bg:              #21262d;
+  --mm-badge-color:           #8b949e;
+  --mm-badge-red-bg:          rgba(232, 0, 58, .15);
+  --mm-badge-red-color:       var(--mm-red);
+  --mm-badge-green-bg:        rgba(26, 127, 55, .2);
+  --mm-badge-green-color:     #3fb950;
+  --mm-badge-yellow-bg:       rgba(154, 103, 0, .2);
+  --mm-badge-yellow-color:    #d29922;
+  --mm-badge-blue-bg:         rgba(9, 105, 218, .2);
+  --mm-badge-blue-color:      #79c0ff;
+  --mm-badge-purple-bg:       rgba(124, 58, 237, .2);
+  --mm-badge-purple-color:    #c084fc;
+
+  --mm-sidebar-active-bg:     rgba(77, 159, 255, .1);
+  --mm-chip-bg:               #21262d;
+  --mm-chip-active-bg:        rgba(77, 159, 255, .15);
+  --mm-chip-active-color:     var(--mm-blue);
+  --mm-chip-active-border:    rgba(77, 159, 255, .3);
+
+  --mm-stat-bar-bg:       #21262d;
+  --mm-overlay-bg:        rgba(0, 0, 0, .65);
+  --mm-bulk-bar-bg:       #1c2128;
+
+  --mm-att-present-bg:    rgba(26, 127, 55, .2);
+  --mm-att-present-color: #3fb950;
+  --mm-att-absent-bg:     rgba(232, 0, 58, .15);
+  --mm-att-absent-color:  var(--mm-red);
+  --mm-att-excused-bg:    rgba(154, 103, 0, .2);
+  --mm-att-excused-color: #d29922;
+}

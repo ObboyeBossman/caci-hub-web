@@ -5,8 +5,11 @@ import type { PageModule }             from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast }                       from '@shared/components/Toast'
 import { navigate }                    from '@core/router'
-import { getCurrentUser }                  from '@core/auth'
-import { getMember, deactivateMember, updateMember, getMemberAuditLog, provisionUser } from '../repository'
+import { getCurrentUser }                  from '../../../core/auth'
+import { hasPermission }                   from '../../../core/permissions'
+import { supabase }                        from '../../../core/supabase'
+import { emit }                            from '../../../core/events'
+import { getMember, deactivateMember, updateMember, getMemberAuditLog } from '../repository'
 import type { MemberView, MemberAuditEntry } from '../../../types/member.types'
 import { avatarColor, initials, fmtDate, statusBadge, injectMembershipCSS } from '../utils/member-helpers'
 
@@ -73,10 +76,12 @@ const MemberProfile: PageModule = {
       </div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      ${isAdmin && !member.auth_user_id ? `<button class="mm-btn-primary" id="mp-provisionBtn" style="background:var(--caci-accent);">Provision login</button>` : ''}
       <button class="mm-btn-primary" id="mp-editBtn">Edit Profile</button>
       <button class="mm-btn-outline" id="mp-smsBtn">Send SMS</button>
       <button class="mm-btn-danger" id="mp-deactivateBtn">Deactivate</button>
+      ${!member.auth_user_id && hasPermission(currentUser?.role || '', 'admin.users.provision') ? `<button class="mm-btn-outline" id="mp-provisionBtn">Provision Login</button>` : ''}
+      ${member.auth_user_id && hasPermission(currentUser?.role || '', 'admin.users.reset') ? `<button class="mm-btn-outline" id="mp-resetPwBtn">Reset Password</button>` : ''}
+      ${member.auth_user_id && hasPermission(currentUser?.role || '', 'admin.users.delete') ? `<button class="mm-btn-danger" style="background:#fee2e2;color:#b91c1c;border-color:#fecaca;" id="mp-deleteAuthBtn">Delete Login</button>` : ''}
     </div>
   </div>
 
@@ -163,40 +168,8 @@ const MemberProfile: PageModule = {
   </div>
 </div>
 
-<!-- Provision Modal -->
-${isAdmin && !member.auth_user_id ? `
-<div id="mp-provisionModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background:var(--mm-bg-card);border-radius:12px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-    <h3 style="margin-top:0;margin-bottom:16px;">Provision Login</h3>
-    <form id="mp-provisionForm">
-      <div style="margin-bottom:12px;">
-        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Email (Required for invite/explicit)</label>
-        <input type="email" id="prov-email" value="${member.email ?? ''}" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;" />
-      </div>
-      <div style="margin-bottom:12px;">
-        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Role</label>
-        <select id="prov-role" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
-          <option value="member">Member</option>
-          <option value="volunteer">Volunteer</option>
-          <option value="secretary">Secretary</option>
-          <option value="pastor">Pastor</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Provisioning Method</label>
-        <select id="prov-path" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
-          <option value="invite">Send Email Invite</option>
-          <option value="default_password">Use Assembly Default Password</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:12px;justify-content:flex-end;">
-        <button type="button" id="prov-cancel" class="mm-btn-outline">Cancel</button>
-        <button type="submit" id="prov-submit" class="mm-btn-primary">Provision</button>
-      </div>
-    </form>
   </div>
-</div>` : ''}
+</div>
 `
 
     // Tab switching
@@ -210,43 +183,6 @@ ${isAdmin && !member.auth_user_id ? `
         })
       })
     })
-
-    // Provision
-    const provBtn = container.querySelector('#mp-provisionBtn')
-    const provModal = container.querySelector<HTMLElement>('#mp-provisionModal')
-    const provForm = container.querySelector<HTMLFormElement>('#mp-provisionForm')
-    const provCancel = container.querySelector('#prov-cancel')
-
-    if (provBtn && provModal && provForm && provCancel) {
-      provBtn.addEventListener('click', () => provModal.style.display = 'flex')
-      provCancel.addEventListener('click', () => provModal.style.display = 'none')
-
-      provForm.addEventListener('submit', async (e) => {
-        e.preventDefault()
-        const submitBtn = provForm.querySelector<HTMLButtonElement>('#prov-submit')!
-        const email = provForm.querySelector<HTMLInputElement>('#prov-email')!.value.trim()
-        const role = provForm.querySelector<HTMLSelectElement>('#prov-role')!.value
-        const path = provForm.querySelector<HTMLSelectElement>('#prov-path')!.value as any
-        
-        submitBtn.disabled = true
-        submitBtn.textContent = 'Provisioning...'
-        
-        try {
-          const res = await provisionUser({ memberId: member.id, role, path, email })
-          Toast.success('User provisioned successfully.')
-          provModal.style.display = 'none'
-          
-          // Re-render the page to update the states (badge instead of button)
-          await MemberProfile.render(container)
-        } catch (err: any) {
-          Toast.error(err?.message || 'Provisioning failed.')
-          console.error(err)
-        } finally {
-          submitBtn.disabled = false
-          submitBtn.textContent = 'Provision'
-        }
-      })
-    }
 
     // Back
     container.querySelector('#mp-back')?.addEventListener('click', () => navigate('/members'))
@@ -275,6 +211,39 @@ ${isAdmin && !member.auth_user_id ? `
       } catch (err) {
         Toast.fromError(err)
       }
+    })
+
+    // Provision
+    container.querySelector('#mp-provisionBtn')?.addEventListener('click', () => {
+      navigate(`/admin/provision-user?memberId=${member.id}`)
+    })
+
+    // Reset Password
+    container.querySelector('#mp-resetPwBtn')?.addEventListener('click', async () => {
+      if (!confirm(`Reset ${member.first_name} ${member.last_name} to assembly default password? They will be required to change it on next login.`)) return
+      const { error } = await supabase.functions.invoke('reset-member-password', {
+        body: { memberId: member.id }
+      })
+      if (error) {
+        Toast.error(error.message ?? 'Failed to reset password.')
+        return
+      }
+      Toast.success('Password reset to assembly default.')
+    })
+
+    // Delete Auth
+    container.querySelector('#mp-deleteAuthBtn')?.addEventListener('click', async () => {
+      if (!confirm(`Remove login access for ${member.first_name}? Their member record is not affected.`)) return
+      const { error } = await supabase.functions.invoke('delete-member-auth', {
+        body: { memberId: member.id }
+      })
+      if (error) {
+        Toast.error(error.message ?? 'Failed to delete login account.')
+        return
+      }
+      Toast.success('Login account removed.')
+      emit('member:updated', { memberId: member.id })
+      navigate(`/members/${member.id}`)
     })
   },
 

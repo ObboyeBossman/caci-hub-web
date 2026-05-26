@@ -11,7 +11,7 @@ import { loadCurrentUser, getCurrentUser } from './auth'
 import { registerModule, initModules }  from './registry'
 import { startRouter, navigate }        from './router'
 import { hasPermission }                from './permissions'
-import { mountShell }                   from '../shell/Shell'
+import { mountShell, mountFullscreen }    from '../shell/Shell'
 import { initNotificationBell }         from '../shell/NotificationBell'
 
 // Modules (same list as before — kept here so main.ts stays minimal)
@@ -64,9 +64,14 @@ export async function runLoading(): Promise<void> {
     if (label) label.textContent  = text
   }
 
+  // Yield to the browser paint cycle so each setProgress update is rendered
+  // before the next heavy synchronous operation begins.
+  const tick = () => new Promise<void>(r => requestAnimationFrame(() => setTimeout(r, 0)))
+
   try {
     // Step 1: Load user profile ──────────────────────────────────────────────
     setProgress(20, 'Loading your profile…')
+    await tick()
     await loadCurrentUser()
     const user = getCurrentUser()
     console.log('[loading] Profile load result:', { userId: user?.id, role: user?.role })
@@ -74,6 +79,11 @@ export async function runLoading(): Promise<void> {
     if (!user) {
       // No valid profile → kick back to login
       console.warn('[loading] No valid profile found. Redirecting to login.')
+      
+      // MUST register AuthModule and mount layout before router can handle /login
+      registerModule(AuthModule)
+      mountFullscreen()
+      
       startRouter()
       navigate('/login')
       return
@@ -82,17 +92,20 @@ export async function runLoading(): Promise<void> {
 
     // Step 2: Register modules ───────────────────────────────────────────────
     setProgress(40, 'Registering modules…')
+    await tick()
     registerModule(AuthModule)
     registerModule(MembershipModule)
     registerModule(AdminModule)
 
     // Step 3: Mount shell chrome ─────────────────────────────────────────────
     setProgress(60, 'Mounting shell…')
+    await tick()
     mountShell()
     initNotificationBell()
 
     // Step 4: Run module init hooks ──────────────────────────────────────────
     setProgress(80, 'Starting services…')
+    await tick()
     await initModules({
       supabase,
       eventBus:    { emit, on },
@@ -103,6 +116,7 @@ export async function runLoading(): Promise<void> {
     // Step 5: Kick off router ────────────────────────────────────────────────
     console.log('[loading] Step 5: Ready. Starting router.')
     setProgress(100, 'Ready')
+    await tick()
     emit('app:ready')
 
     // If we're still on an auth-related page (login, select-assembly),

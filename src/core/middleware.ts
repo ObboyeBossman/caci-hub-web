@@ -12,6 +12,7 @@
 import { authGuard }        from './guards/authGuard'
 import { permissionGuard }  from './guards/permissionGuard'
 import { onboardingGuard }  from './guards/onboardingGuard'
+import { mustChangePasswordGuard } from './guards/mustChangePasswordGuard'
 import type { RouteDefinition, GuardResult, GuardFn } from '../types/module.types'
 
 /** Registry of all available guard keys → guard functions. */
@@ -19,6 +20,7 @@ const guardMap: Record<string, GuardFn> = {
   auth:        authGuard,
   permissions: permissionGuard,
   onboarding:  onboardingGuard,
+  mustChangePassword: mustChangePasswordGuard,
 }
 
 /**

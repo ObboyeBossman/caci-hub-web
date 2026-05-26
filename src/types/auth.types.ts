@@ -38,6 +38,7 @@ export interface AppUser {
   role:            UserRole      // user_profiles.role
   assemblyId:      string | null // user_profiles.assembly_id; null only for super-admin before assembly selection
   isActive:        boolean       // user_profiles.is_active
+  must_change_password: boolean  // user_profiles.must_change_password
 
   // MFA state — from supabase.auth.mfa.listFactors()
   // Mirrors: auth_user.dart isMfaEnrolled + isMfaVerified
@@ -56,7 +57,7 @@ export function canEditPastoralNotes(role: UserRole): boolean {
 }
 
 export function canViewAuditLog(role: UserRole): boolean {
-  return role === 'admin'
+  return role === 'admin' || role === 'pastor'
 }
 
 export function canManageUsers(role: UserRole): boolean {

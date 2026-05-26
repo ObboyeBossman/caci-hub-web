@@ -76,8 +76,11 @@ export const authService = {
 
   // ── Email & password ───────────────────────────────────────────────────────
 
-  async signIn(email: string, password: string): Promise<AuthResponse> {
-    const res = await supabase.auth.signInWithPassword({ email, password })
+  async signIn(identifier: { email?: string; phone?: string }, password: string): Promise<AuthResponse> {
+    const creds = identifier.email 
+      ? { email: identifier.email, password } 
+      : { phone: identifier.phone!, password };
+    const res = await supabase.auth.signInWithPassword(creds as any)
     if (res.error) throw res.error
     return res
   },

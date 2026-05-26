@@ -64,6 +64,7 @@ export async function loadCurrentUser(): Promise<void> {
     role:         p.role,
     assemblyId:   (p.assembly_id as string) ?? null,
     isActive:     p.is_active as boolean,
+    must_change_password: p.must_change_password as boolean,
     // MFA state is checked lazily in the onboarding guard.
     // Setting defaults here; Phase 3 auth module will set real values.
     isMfaEnrolled:  false,

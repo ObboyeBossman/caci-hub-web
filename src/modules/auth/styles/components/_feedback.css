@@ -1,0 +1,69 @@
+/* _feedback.css
+   Success icon, email-sent icon, resend section,
+   reset-context banner, and back link. */
+
+/* ── Success icon ─────────────────────────────────────────── */
+.auth-success-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--auth-success-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+.auth-success-icon svg { width: 24px; height: 24px; stroke: var(--auth-success-fg); }
+
+/* ── Email icon ───────────────────────────────────────────── */
+.auth-email-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--auth-info-bg);
+  border-radius: 50%;
+}
+.auth-email-icon svg { width: 32px; height: 32px; stroke: var(--auth-info-fg); }
+
+/* ── Resend section ───────────────────────────────────────── */
+.auth-resend-section {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--auth-divider);
+}
+.auth-resend-text {
+  font-size: var(--font-size-base);
+  color: var(--auth-text-secondary);
+  margin-bottom: 8px;
+}
+
+/* ── Reset context banner ─────────────────────────────────── */
+.auth-reset-context {
+  text-align: center;
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--auth-info-bg);
+  border: 1px solid var(--auth-info-border);
+  border-radius: 6px;
+  font-size: var(--font-size-base);
+  color: var(--auth-info-fg);
+}
+.auth-reset-email { font-weight: 600; }
+
+/* ── Back link ────────────────────────────────────────────── */
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-base);
+  color: var(--auth-text-secondary);
+  text-decoration: none;
+  margin-bottom: 16px;
+  transition: color .15s;
+}
+.auth-back-link:hover  { color: var(--auth-text-primary); }
+.auth-back-link svg    { width: 14px; height: 14px; stroke: currentColor; }

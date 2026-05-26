@@ -1,0 +1,55 @@
+/* _links-divider.css
+   Anchor links, horizontal divider with text, and alert banners. */
+
+/* ── Links ───────────────────────────────────────────────── */
+.auth-link {
+  color: var(--auth-link);
+  text-decoration: none;
+  font-size: 16px;
+  transition: opacity .15s;
+  cursor: pointer;
+}
+.auth-link:hover { opacity: .8; }
+
+/* ── Divider ──────────────────────────────────────────────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--auth-text-muted);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--auth-divider);
+}
+
+/* ── Alerts ───────────────────────────────────────────────── */
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+.auth-alert-icon  { flex-shrink: 0; margin-top: 1px; }
+
+.auth-alert-info {
+  background: var(--auth-info-bg);
+  color: var(--auth-info-fg);
+  border: 1px solid var(--auth-info-border);
+}
+.auth-alert-error {
+  background: var(--auth-error-alert-bg);
+  color: var(--auth-error-alert-fg);
+  border: 1px solid var(--auth-error-border);
+}

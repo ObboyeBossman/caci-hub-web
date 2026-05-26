@@ -1,0 +1,56 @@
+/* _branding.css
+   Church branding block (logo + name + motto)
+   and the red accent bar beneath the header. */
+
+/* ── Church brand block ───────────────────────────────────── */
+.auth-church-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.auth-church-logo-wrap {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--auth-card-bg);
+  border: 1px solid var(--auth-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.auth-church-logo-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+.auth-church-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--auth-text-primary);
+  text-align: center;
+  line-height: 1.35;
+  letter-spacing: -.1px;
+}
+.auth-church-motto {
+  font-size: 14px;
+  color: var(--auth-text-muted);
+  text-align: center;
+  font-style: italic;
+  letter-spacing: .02em;
+  margin-top: 1px;
+}
+.auth-church-divider {
+  width: 36px;
+  height: 1px;
+  background: var(--auth-divider);
+  margin: 2px auto 0;
+}
+
+/* ── Red accent bar (below header) ───────────────────────── */
+.red-bar {
+  height: 3px;
+  background: var(--auth-tab-bar);
+  flex-shrink: 0;
+}

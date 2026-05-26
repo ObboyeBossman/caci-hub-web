@@ -20,7 +20,8 @@ import 'notyf/notyf.min.css'
 
 import { runSplash } from './core/splash'
 import { registerModule } from './core/registry'
-import SettingsModule from './modules/settings'
+import SettingsModule  from './modules/settings'
+import AccountsModule  from './modules/accounts'
 
 import { applyTheme, initThemeListener } from './core/theme'
 
@@ -29,6 +30,7 @@ async function boot(): Promise<void> {
 
   // Register modules
   registerModule(SettingsModule)
+  registerModule(AccountsModule)
 
   // Initialize theme (Manual pref or System default)
   applyTheme()

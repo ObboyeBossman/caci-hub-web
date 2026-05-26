@@ -106,20 +106,35 @@ serve(async (req: Request) => {
     })
 
     let imported = 0
+    const numberingErrors: { reason: string }[] = []
+
     if (validRows.length > 0) {
-      const { error: insErr } = await supabaseAdmin.from('members').insert(validRows)
-      if (insErr) {
-        // If batch insert fails, we can either throw or try to report why.
-        // For simplicity, we throw for now, but we could make it more granular.
-        throw insErr
+      const { data: insertedRows, error: insErr } = await supabaseAdmin
+        .from('members')
+        .insert(validRows)
+        .select('id')
+      if (insErr) throw insErr
+      imported = insertedRows?.length ?? 0
+
+      // Assign membership numbers sequentially (atomic DB lock per row)
+      for (const row of (insertedRows ?? [])) {
+        try {
+          await supabaseAdmin.rpc('assign_membership_number', {
+            p_member_id: row.id,
+            p_assembly_id: assemblyId,
+          })
+        } catch (numErr) {
+          const msg = numErr instanceof Error ? numErr.message : String(numErr)
+          numberingErrors.push({ reason: `Failed to assign number for member ${row.id}: ${msg}` })
+        }
       }
-      imported = validRows.length
     }
 
     return new Response(JSON.stringify({
       imported,
       skipped: errors.length,
-      errors
+      errors,
+      numberingErrors,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

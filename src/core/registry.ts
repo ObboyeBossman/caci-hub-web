@@ -42,14 +42,45 @@ export function getRoutes(): RouteDefinition[] {
   return _modules.flatMap(m => m.routes ?? [])
 }
 
+export interface ContextualSidebarItem extends SidebarItem {
+  moduleName: string
+}
+
 /**
- * Aggregate sidebar items sorted by order.
- * The shell filters these by hasPermission() before rendering.
+ * Aggregate sidebar items sorted by order, injecting the parent module name.
+ * The shell filters these by hasPermission() and current module before rendering.
  */
-export function getSidebarItems(): SidebarItem[] {
+export function getSidebarItems(): ContextualSidebarItem[] {
   return _modules
-    .flatMap(m => m.sidebar ?? [])
+    .flatMap(m => (m.sidebar ?? []).map(item => ({ ...item, moduleName: m.name })))
     .sort((a, b) => a.order - b.order)
+}
+
+/**
+ * Given a URL path, determine which module owns it.
+ * Handles parameterized routes like `/members/:id` matching `/members/abc-123`.
+ */
+export function getModuleForPath(path: string): string | null {
+  if (!path) return null
+  for (const m of _modules) {
+    if (m.routes?.some(r => matchesRoute(r.path, path))) {
+      return m.name
+    }
+  }
+  return null
+}
+
+/**
+ * Returns true if a live URL path matches a route template that may contain `:param` segments.
+ * e.g. `/members/abc-123` matches `/members/:id`
+ */
+function matchesRoute(template: string, path: string): boolean {
+  if (template === path) return true
+  // Convert template segments to a regex: replace :param with [^/]+
+  const re = new RegExp(
+    '^' + template.replace(/:[^/]+/g, '[^/]+') + '(/.*)?$'
+  )
+  return re.test(path)
 }
 
 

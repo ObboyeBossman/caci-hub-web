@@ -30,7 +30,6 @@ import {
   getMemberCounts,
   deactivateMember,
   updateMember,
-  provisionUser,
 } from '../repository'
 import { registerMember, exportMembersCsv, downloadCsv } from '../services/memberService'
 import { CreateMemberSchema, UpdateMemberSchema } from '../schemas/member.schema'
@@ -510,7 +509,6 @@ function _openDetail(m: MemberView): void {
   </div>` : ''}
 
   <div class="mm-detail-actions">
-    ${isAdmin && !m.auth_user_id ? `<button class="mm-btn-primary" id="mm-detail-provisionBtn" style="background:var(--caci-accent);">Provision login</button>` : ''}
     <button class="mm-btn-primary" data-edit-id="${m.id}">Edit Profile</button>
     <button class="mm-btn-outline" id="mm-detail-sms">Send SMS</button>
     <button class="mm-btn-danger" id="mm-detail-deactivate">Deactivate</button>
@@ -534,40 +532,7 @@ function _openDetail(m: MemberView): void {
   </div>
 </div>
 
-<!-- Provision Modal -->
-${isAdmin && !m.auth_user_id ? `
-<div id="mm-detail-provisionModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background:var(--mm-bg-card);border-radius:12px;padding:24px;width:100%;max-width:400px;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-    <h3 style="margin-top:0;margin-bottom:16px;">Provision Login</h3>
-    <form id="mm-detail-provisionForm">
-      <div style="margin-bottom:12px;">
-        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Email (Required for invite/explicit)</label>
-        <input type="email" id="prov-email" value="${m.email ?? ''}" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;" />
-      </div>
-      <div style="margin-bottom:12px;">
-        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Role</label>
-        <select id="prov-role" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
-          <option value="member">Member</option>
-          <option value="volunteer">Volunteer</option>
-          <option value="secretary">Secretary</option>
-          <option value="pastor">Pastor</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:500;">Provisioning Method</label>
-        <select id="prov-path" style="width:100%;padding:8px;border:1px solid var(--border-default);border-radius:4px;">
-          <option value="invite">Send Email Invite</option>
-          <option value="default_password">Use Assembly Default Password</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:12px;justify-content:flex-end;">
-        <button type="button" id="prov-cancel" class="mm-btn-outline">Cancel</button>
-        <button type="submit" id="prov-submit" class="mm-btn-primary">Provision</button>
-      </div>
-    </form>
-  </div>
-</div>` : ''}
+
 `
 
   panel.classList.add('open')
@@ -613,47 +578,6 @@ ${isAdmin && !m.auth_user_id ? `
       Toast.fromError(err)
     }
   })
-
-  // Provision Login
-  const provBtn = body.querySelector('#mm-detail-provisionBtn')
-  const provModal = body.querySelector<HTMLElement>('#mm-detail-provisionModal')
-  const provForm = body.querySelector<HTMLFormElement>('#mm-detail-provisionForm')
-  const provCancel = body.querySelector('#prov-cancel')
-
-  if (provBtn && provModal && provForm && provCancel) {
-    provBtn.addEventListener('click', () => provModal.style.display = 'flex')
-    provCancel.addEventListener('click', () => provModal.style.display = 'none')
-
-    provForm.addEventListener('submit', async (e) => {
-      e.preventDefault()
-      const submitBtn = provForm.querySelector<HTMLButtonElement>('#prov-submit')!
-      const email = provForm.querySelector<HTMLInputElement>('#prov-email')!.value.trim()
-      const role = provForm.querySelector<HTMLSelectElement>('#prov-role')!.value
-      const path = provForm.querySelector<HTMLSelectElement>('#prov-path')!.value as any
-      
-      submitBtn.disabled = true
-      submitBtn.textContent = 'Provisioning...'
-      
-      try {
-        const res = await provisionUser({ memberId: m.id, role, path, email })
-        Toast.success('User provisioned successfully.')
-        provModal.style.display = 'none'
-        
-        // Update local state and re-open detail panel to show badge
-        const updated = _state!.members.find(x => x.id === m.id)
-        if (updated) {
-          (updated as any).auth_user_id = res.userId || 'provisioned'
-          _openDetail(updated)
-        }
-      } catch (err: any) {
-        Toast.error(err?.message || 'Provisioning failed.')
-        console.error(err)
-      } finally {
-        submitBtn.disabled = false
-        submitBtn.textContent = 'Provision'
-      }
-    })
-  }
 
   // Save note (updates pastoral_notes via updateMember)
   body.querySelector('#mm-saveNote')?.addEventListener('click', async () => {
@@ -1578,6 +1502,7 @@ function _bindAll(): void {
   _container.querySelector('#mm-exportBtn')?.addEventListener('click', _doExportCsv)
 
   // Add member
+  _container.querySelector('#mm-bulkImportBtn')?.addEventListener('click', () => navigate('/members/bulk-import'))
   _container.querySelector('#mm-addMemberBtn')?.addEventListener('click', () => _openMemberModal())
 
   // Detail overlay close
@@ -2245,6 +2170,7 @@ function _buildHTML(): string {
       <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export
     </button>
+    ${hasPermission(getCurrentUser()?.role || '', 'membership.members.import') ? '<button class="mm-btn-outline" id="mm-bulkImportBtn" style="gap:6px;display:flex;align-items:center;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Bulk Import</button>' : ''}
     <button class="mm-btn-primary" id="mm-addMemberBtn">
       <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Member

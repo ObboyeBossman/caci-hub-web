@@ -1,0 +1,66 @@
+/* _stats.css
+   Stats summary row at the top of list pages. */
+
+.mm-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 960px) { .mm-stats-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .mm-stats-row { grid-template-columns: 1fr 1fr; } }
+
+.mm-stat-card {
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.mm-stat-card:hover {
+  border-color: var(--mm-blue-mid);
+  box-shadow: 0 1px 4px rgba(0, 75, 160, .08);
+}
+
+.mm-stat-label {
+  font-size: 12px;
+  color: var(--mm-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 4px;
+}
+.mm-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mm-text-primary);
+  line-height: 1.2;
+}
+.mm-stat-sub {
+  font-size: 12px;
+  color: var(--mm-text-muted);
+  margin-top: 3px;
+}
+
+/* Progress bar beneath the stat */
+.mm-stat-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--mm-stat-bar-bg);
+  margin-top: 10px;
+  overflow: hidden;
+}
+.mm-stat-fill {
+  height: 3px;
+  border-radius: 2px;
+  transition: width .6s ease;
+}
+
+/* Skeleton placeholder while loading */
+.mm-stat-loading {
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 16px;
+  color: var(--mm-text-muted);
+  font-size: 24px;
+}

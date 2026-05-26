@@ -108,9 +108,9 @@ function _buildHTML(m: MemberView): string { return `
         <input class="mm-form-input" id="em-fOccupation" value="${m.occupation ?? ''}">
       </div>
       <div class="mm-form-group">
-        <label class="mm-form-label">Phone Number *</label>
+        <label class="mm-form-label">Phone Number</label>
         <input class="mm-form-input" id="em-fPhone" type="tel" value="${m.phone_number ?? ''}">
-        <div class="mm-form-error" id="em-err-phone">Phone number is required.</div>
+        <div class="mm-form-error" id="em-err-phone">At least one of phone number or email is required.</div>
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Email</label>
@@ -187,13 +187,14 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
   const firstName = get('em-fFirstName')
   const lastName  = get('em-fLastName')
   const phone     = get('em-fPhone')
+  const email     = get('em-fEmail')
 
   let valid = true
   const showErr = (e: string, i: string) => { container.querySelector(`#${e}`)?.classList.add('show'); container.querySelector(`#${i}`)?.classList.add('error'); valid = false }
   const hideErr = (e: string, i: string) => { container.querySelector(`#${e}`)?.classList.remove('show'); container.querySelector(`#${i}`)?.classList.remove('error') }
   if (!firstName) showErr('em-err-firstName','em-fFirstName'); else hideErr('em-err-firstName','em-fFirstName')
   if (!lastName)  showErr('em-err-lastName', 'em-fLastName');  else hideErr('em-err-lastName', 'em-fLastName')
-  if (!phone)     showErr('em-err-phone',    'em-fPhone');     else hideErr('em-err-phone',    'em-fPhone')
+  if (!phone && !email) showErr('em-err-phone', 'em-fPhone'); else hideErr('em-err-phone', 'em-fPhone')
   if (!valid) return
 
   const payload = {

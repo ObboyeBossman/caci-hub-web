@@ -76,6 +76,13 @@ const MembershipModule: ModuleManifest = {
       permission: 'membership.view',
       order:      50,
     },
+    {
+      label:      'Audit Log',
+      path:       '/audit-log',
+      icon:       'journal-text',
+      permission: 'admin.view',
+      order:      85,
+    },
   ],
 
   capabilities: ['dashboard-widgets', 'search', 'reports'],

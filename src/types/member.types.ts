@@ -138,3 +138,46 @@ export interface CreateHouseholdPayload {
 // ── UpdateHouseholdPayload ────────────────────────────────────────────────────
 // All fields optional — patch semantics, same as UpdateMemberPayload.
 export type UpdateHouseholdPayload = Partial<CreateHouseholdPayload>
+
+// ── Provision ─────────────────────────────────────────────────────────────────
+
+export type ProvisionPath = 'invite' | 'default_password' | 'custom_password'
+
+export interface ProvisionUserPayload {
+  memberId:  string
+  role:      string
+  path:      ProvisionPath
+  email?:    string
+  password?: string   // custom_password path only
+}
+
+export interface ProvisionUserResult {
+  userId:   string
+  email?:   string
+  phone?:   string
+  fullName: string
+  role:     string
+  path:     ProvisionPath
+}
+
+// ── Bulk import ───────────────────────────────────────────────────────────────
+
+export interface BulkMemberRow {
+  first_name:        string
+  last_name:         string
+  gender:            'male' | 'female'
+  membership_status?: string
+  phone_number?:     string | null
+  email?:            string | null
+  date_of_birth?:    string | null   // YYYY-MM-DD
+  marital_status?:   string | null
+  join_date?:        string | null   // YYYY-MM-DD
+  occupation?:       string | null
+  physical_address?: string | null
+}
+
+export interface BulkImportResult {
+  imported: number
+  skipped:  number
+  errors:   Array<{ row: number; reason: string }>
+}

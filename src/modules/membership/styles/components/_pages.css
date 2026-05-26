@@ -1,0 +1,300 @@
+/* _pages.css
+   Page-level styles for Attendance, Groups, Pastoral Care, and Reports sections.
+   These complement the shared component files above. */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ATTENDANCE PAGE
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.mm-att-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.mm-att-page-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--mm-text-primary);
+}
+
+/* Session cards grid */
+.mm-att-sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 640px) {
+  .mm-att-sessions-grid { grid-template-columns: 1fr; }
+}
+
+.mm-att-session-card {
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.mm-att-session-card:hover {
+  border-color: var(--mm-blue-mid);
+  box-shadow: 0 1px 4px rgba(0, 75, 160, .08);
+}
+.mm-att-session-date { font-size: 12px; color: var(--mm-text-muted); margin-bottom: 4px; }
+.mm-att-session-name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--mm-text-primary);
+  margin-bottom: 8px;
+}
+.mm-att-session-stats { display: flex; gap: 10px; }
+
+.mm-att-session-stat {
+  flex: 1;
+  text-align: center;
+  padding: 6px;
+  background: var(--mm-bg-card2);
+  border-radius: 6px;
+}
+.mm-att-session-stat-val { font-size: var(--font-size-base); font-weight: 700; color: var(--mm-text-primary); }
+.mm-att-session-stat-lbl { font-size: 11px; color: var(--mm-text-muted); }
+
+/* Attendance register table */
+.mm-att-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+.mm-att-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--mm-text-muted);
+  background: var(--mm-table-header-bg);
+  border-bottom: 1px solid var(--mm-border);
+}
+.mm-att-table td           { padding: 10px 12px; border-bottom: 1px solid var(--mm-border-subtle); }
+.mm-att-table tr:last-child td  { border-bottom: none; }
+.mm-att-table tr:hover td       { background: var(--mm-table-row-hover); }
+
+/* Present / Absent / Excused toggle buttons */
+.mm-att-toggle-wrap { display: flex; gap: 4px; }
+.mm-att-toggle {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--mm-border);
+  background: var(--mm-bg-card);
+  color: var(--mm-text-secondary);
+  cursor: pointer;
+  transition: background .15s;
+  font-family: inherit;
+}
+.mm-att-toggle.present { background: var(--mm-att-present-bg); color: var(--mm-att-present-color); border-color: var(--mm-att-present-color); }
+.mm-att-toggle.absent  { background: var(--mm-att-absent-bg);  color: var(--mm-att-absent-color);  border-color: var(--mm-att-absent-color); }
+.mm-att-toggle.excused { background: var(--mm-att-excused-bg); color: var(--mm-att-excused-color); border-color: var(--mm-att-excused-color); }
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   GROUPS PAGE
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.mm-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 640px) {
+  .mm-groups-grid { grid-template-columns: 1fr; }
+}
+
+.mm-group-card {
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.mm-group-card:hover {
+  border-color: var(--mm-blue-mid);
+  box-shadow: 0 1px 4px rgba(0, 75, 160, .08);
+}
+
+.mm-group-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--mm-sidebar-active-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.mm-group-icon svg { width: 18px; height: 18px; stroke: var(--mm-blue); fill: none; stroke-width: 1.5; }
+
+.mm-group-name { font-size: var(--font-size-base); font-weight: 600; color: var(--mm-text-primary); margin-bottom: 3px; }
+.mm-group-type { font-size: 13px; color: var(--mm-text-secondary); margin-bottom: 8px; }
+.mm-group-meta { display: flex; gap: 12px; font-size: 13px; color: var(--mm-text-muted); }
+.mm-group-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mm-border-subtle);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PASTORAL CARE PAGE
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.mm-pastoral-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .mm-pastoral-cols { grid-template-columns: 1fr; }
+}
+
+.mm-pc-card {
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.mm-pc-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--mm-text-muted);
+  margin-bottom: 12px;
+}
+
+/* Flag list */
+.mm-flag-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--mm-border-subtle);
+}
+.mm-flag-item:last-child { border-bottom: none; }
+
+.mm-flag-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.mm-flag-dot.followup   { background: var(--mm-blue); }
+.mm-flag-dot.absent     { background: var(--mm-red); }
+.mm-flag-dot.life-event { background: #7c3aed; }
+.mm-flag-dot.first-timer { background: #1a7f37; }
+
+.mm-flag-content { flex: 1; }
+.mm-flag-name   { font-size: var(--font-size-base); font-weight: 500; color: var(--mm-text-primary); }
+.mm-flag-reason { font-size: 13px; color: var(--mm-text-secondary); margin-top: 1px; }
+.mm-flag-date   { font-size: 12px; color: var(--mm-text-muted); margin-top: 2px; }
+.mm-flag-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.mm-pc-action-btn {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--mm-border);
+  background: var(--mm-bg-card);
+  color: var(--mm-text-secondary);
+  cursor: pointer;
+  transition: background .15s;
+  font-family: inherit;
+}
+.mm-pc-action-btn:hover { background: var(--mm-bg-hover); }
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   REPORTS PAGE
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.mm-reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 640px) {
+  .mm-reports-grid { grid-template-columns: 1fr; }
+}
+
+.mm-report-card {
+  background: var(--mm-bg-card);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 18px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.mm-report-card:hover {
+  border-color: var(--mm-blue-mid);
+  box-shadow: 0 1px 4px rgba(0, 75, 160, .08);
+}
+
+.mm-report-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--mm-sidebar-active-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.mm-report-icon svg { width: 16px; height: 16px; stroke: var(--mm-blue); fill: none; stroke-width: 1.5; }
+
+.mm-report-name { font-size: var(--font-size-base); font-weight: 600; color: var(--mm-text-primary); margin-bottom: 4px; }
+.mm-report-desc { font-size: 13px; color: var(--mm-text-secondary); line-height: 1.5; }
+.mm-report-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mm-border-subtle);
+  font-size: 12px;
+  color: var(--mm-text-muted);
+}
+
+/* Horizontal bar chart */
+.mm-chart-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.mm-chart-bar-label { font-size: 13px; color: var(--mm-text-secondary); width: 80px; flex-shrink: 0; text-align: right; }
+.mm-chart-bar-track { flex: 1; height: 16px; background: var(--mm-stat-bar-bg); border-radius: 4px; overflow: hidden; }
+.mm-chart-bar-fill  { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.mm-chart-bar-val   { font-size: 13px; font-weight: 600; color: var(--mm-text-primary); width: 35px; flex-shrink: 0; }
+
+/* Growth table */
+.mm-growth-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-base); }
+.mm-growth-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--mm-text-muted);
+  background: var(--mm-table-header-bg);
+  border-bottom: 1px solid var(--mm-border);
+}
+.mm-growth-table td           { padding: 9px 10px; border-bottom: 1px solid var(--mm-border-subtle); }
+.mm-growth-table tr:last-child td { border-bottom: none; }
+
+.mm-trend-up   { color: #1a7f37; font-weight: 600; }
+.mm-trend-down { color: var(--mm-red); font-weight: 600; }

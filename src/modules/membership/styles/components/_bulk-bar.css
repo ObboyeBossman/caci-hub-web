@@ -1,0 +1,62 @@
+/* _bulk-bar.css
+   Bulk-action bar — appears when one or more rows are selected. */
+
+.mm-bulk-bar {
+  background: var(--mm-bulk-bar-bg);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mm-bulk-bar.show { display: flex; }
+
+.mm-bulk-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+}
+
+.mm-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mm-bulk-btn {
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .2);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background .15s;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mm-bulk-btn:hover        { background: rgba(255, 255, 255, .25); }
+.mm-bulk-btn.danger {
+  background: rgba(198, 0, 38, .3);
+  border-color: rgba(198, 0, 38, .4);
+}
+
+.mm-bulk-close {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.mm-bulk-close:hover { background: rgba(255, 255, 255, .2); }

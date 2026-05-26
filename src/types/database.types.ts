@@ -60,7 +60,7 @@ export interface Database {
           name:            string
           assembly_code:   string   // format: [A-Z]{2}-[A-Z]{3,6} e.g. GH-ASSAK
           address:         string | null
-          digital_address: string | null  // GhanaPostGPS code e.g. WR-1234-5678
+          default_member_password: string | null
           is_active:       boolean
           created_at:      string
           updated_at:      string
@@ -71,6 +71,7 @@ export interface Database {
           assembly_code:   string
           address?:        string | null
           digital_address?: string | null
+          default_member_password?: string | null
           is_active?:      boolean
           created_at?:     string
           updated_at?:     string
@@ -78,14 +79,16 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['assemblies']['Insert']>
       }
 
-      // ── user_profiles — migration 20260427000003 ─────────────────────────
+      // ── user_profiles — migration 20260427000003 + 20260526000004 ──────────
       user_profiles: {
         Row: {
           id:          string   // mirrors auth.users.id — not standalone UUID
           assembly_id: string
           role:        UserRoleEnum
+          role_id:     string | null  // FK → assembly_roles.id (custom role)
           full_name:   string
           is_active:   boolean
+          must_change_password: boolean
           created_at:  string
           updated_at:  string
         }
@@ -93,12 +96,61 @@ export interface Database {
           id:          string
           assembly_id: string
           role?:       UserRoleEnum  // default: 'member'
+          role_id?:    string | null
           full_name:   string
           is_active?:  boolean
+          must_change_password?: boolean
           created_at?: string
           updated_at?: string
         }
         Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>
+      }
+
+      // ── permissions — migration 20260526000004 ────────────────────────────
+      permissions: {
+        Row: {
+          id:          string   // e.g. 'member:invite'
+          description: string | null
+        }
+        Insert: {
+          id:          string
+          description?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['permissions']['Insert']>
+      }
+
+      // ── assembly_roles — migration 20260526000004 ─────────────────────────
+      assembly_roles: {
+        Row: {
+          id:          string
+          assembly_id: string
+          name:        string
+          description: string | null
+          created_at:  string
+          updated_at:  string
+        }
+        Insert: {
+          id?:         string
+          assembly_id: string
+          name:        string
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['assembly_roles']['Insert']>
+      }
+
+      // ── role_permissions — migration 20260526000004 ───────────────────────
+      role_permissions: {
+        Row: {
+          role_id:       string
+          permission_id: string
+        }
+        Insert: {
+          role_id:       string
+          permission_id: string
+        }
+        Update: Partial<Database['public']['Tables']['role_permissions']['Insert']>
       }
 
       // ── households — migration 20260427000004 ────────────────────────────

@@ -16,7 +16,7 @@
 import { getRoutes }     from './registry'
 import { runMiddleware } from './middleware'
 import type { PageModule } from '../types/module.types'
-import { mountShell, mountFullscreen } from '../shell/Shell'
+import { mountShell, mountFullscreen, updateActiveNav } from '../shell/Shell'
 
 let _activePage: PageModule | null = null
 let _currentPresentation: string = 'shell'
@@ -52,13 +52,15 @@ async function _resolve(): Promise<void> {
   if (_lastResolvedHash === currentHash) return
   _lastResolvedHash = currentHash
 
-  const path   = currentHash.slice(1)
+  const rawPath = currentHash.slice(1)
+  const [path] = rawPath.split('?')
+  
   const routes = getRoutes()
   const matched = routes.find(r => _matchPath(r.path, path))
 
   if (!matched) {
-    console.log(`[router] No route matched: ${path}`)
-    _render404(path)
+    console.log(`[router] No route matched: ${rawPath}`)
+    _render404(rawPath)
     return
   }
 
@@ -117,6 +119,9 @@ async function _resolve(): Promise<void> {
   Object.assign(container.dataset, params)
 
   await page.render(container)
+
+  // Update sidebar active state after every navigation
+  updateActiveNav(path)
 }
 
 /**

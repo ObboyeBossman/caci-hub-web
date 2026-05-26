@@ -63,7 +63,7 @@ serve(async (req: Request) => {
     let body: {
       memberId: string
       role: string
-      path: 'invite' | 'default_password' | 'explicit'
+      path: 'invite' | 'default_password' | 'custom_password'
       email?: string
       password?: string
     }
@@ -126,7 +126,7 @@ serve(async (req: Request) => {
     }
 
     if (member.auth_user_id != null) {
-      return new Response(JSON.stringify({ error: 'This member already has a login account' }), {
+      return new Response(JSON.stringify({ error: 'This member already has a login account. Use Reset Account to clear it first.' }), {
         status: 409,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -138,22 +138,22 @@ serve(async (req: Request) => {
 
     try {
       if (path === 'invite') {
-        const email = body.email || member.email
-        if (!email) {
-          return new Response(JSON.stringify({ error: 'Email is required for invite path' }), {
+        const emailFinal = (body.email ?? member.email)?.trim().toLowerCase()
+        if (!emailFinal) {
+          return new Response(JSON.stringify({ error: 'Member has no email address. Enter one or choose a different provisioning method.' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
         }
 
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-          email,
+          email: emailFinal,
           email_confirm: false,
         })
         if (createErr || !created?.user) throw createErr
 
         newUserId = created.user.id
-        await supabaseAdmin.auth.admin.generateLink({ type: 'invite', email })
+        await supabaseAdmin.auth.admin.generateLink({ type: 'invite', email: emailFinal })
 
         const { error: insErr } = await supabaseAdmin.from('user_profiles').insert({
           id: newUserId,
@@ -165,8 +165,19 @@ serve(async (req: Request) => {
         })
         if (insErr) throw insErr
 
-        responseData = { userId: newUserId, email, fullName, role, path: 'invite' }
+        await supabaseAdmin.from('members')
+          .update({ auth_user_id: newUserId, email: emailFinal })
+          .eq('id', memberId)
+
+        responseData = { userId: newUserId, email: emailFinal, fullName, role, path: 'invite' }
       } else if (path === 'default_password') {
+        if (!member.phone_number) {
+          return new Response(JSON.stringify({ error: 'Member has no phone number. A phone number is required for this provisioning method.' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+
         const { data: assembly, error: assErr } = await supabaseAdmin
           .from('assemblies')
           .select('default_member_password')
@@ -174,22 +185,14 @@ serve(async (req: Request) => {
           .single()
         
         if (assErr || !assembly?.default_member_password) {
-          return new Response(JSON.stringify({ error: 'Assembly default password not configured. Set it in Assembly Settings.' }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          })
-        }
-
-        const phone = member.phone_number
-        if (!phone) {
-          return new Response(JSON.stringify({ error: 'Phone number is required for default password path' }), {
+          return new Response(JSON.stringify({ error: 'Assembly default password is not configured. Set it in Assembly Settings before using this option.' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
         }
 
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-          phone,
+          phone: member.phone_number,
           password: assembly.default_member_password,
           phone_confirm: true,
         })
@@ -207,26 +210,30 @@ serve(async (req: Request) => {
         })
         if (insErr) throw insErr
 
-        responseData = { userId: newUserId, phone, fullName, role, path: 'default_password' }
-      } else if (path === 'explicit') {
-        const { password, email: bodyEmail } = body
-        if (!password || password.length < 8) {
-          return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), {
+        await supabaseAdmin.from('members')
+          .update({ auth_user_id: newUserId })
+          .eq('id', memberId)
+
+        responseData = { userId: newUserId, phone: member.phone_number, fullName, role, path: 'default_password' }
+      } else if (path === 'custom_password') {
+        const emailFinal = (body.email ?? member.email)?.trim().toLowerCase()
+        if (!emailFinal) {
+          return new Response(JSON.stringify({ error: 'Email is required for custom_password path' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
         }
 
-        const email = bodyEmail || member.email
-        if (!email) {
-          return new Response(JSON.stringify({ error: 'Email is required for explicit path' }), {
+        const { password } = body
+        if (!password || password.length < 8) {
+          return new Response(JSON.stringify({ error: 'Password must be at least 8 characters.' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
         }
 
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-          email,
+          email: emailFinal,
           password,
           email_confirm: true,
         })
@@ -244,16 +251,12 @@ serve(async (req: Request) => {
         })
         if (insErr) throw insErr
 
-        responseData = { userId: newUserId, email, fullName, role, path: 'explicit' }
-      }
+        await supabaseAdmin.from('members')
+          .update({ auth_user_id: newUserId, email: emailFinal })
+          .eq('id', memberId)
 
-      // Update member record with auth_user_id
-      const { error: upErr } = await supabaseAdmin
-        .from('members')
-        .update({ auth_user_id: newUserId })
-        .eq('id', memberId)
-      
-      if (upErr) throw upErr
+        responseData = { userId: newUserId, email: emailFinal, fullName, role, path: 'custom_password' }
+      }
 
       return new Response(JSON.stringify(responseData), {
         status: 200,
@@ -264,7 +267,7 @@ serve(async (req: Request) => {
         await supabaseAdmin.auth.admin.deleteUser(newUserId).catch(() => {})
       }
       const message = e instanceof Error ? e.message : 'Provisioning failed'
-      return new Response(JSON.stringify({ error: message }), {
+      return new Response(JSON.stringify({ error: `Provisioning failed and was rolled back: ${message}` }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })

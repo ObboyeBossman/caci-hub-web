@@ -2,7 +2,7 @@
 // Renders the drawer sidebar: module tiles + quick links + theme + profile.
 // Zero knowledge of which modules exist — all driven by the registry.
 
-import { getSidebarItems } from '@core/registry'
+import { getSidebarItems, getModuleForPath } from '@core/registry'
 import { getCurrentUser } from '@core/auth'
 import { hasPermission } from '@core/permissions'
 import { navigate } from '@core/router'
@@ -23,9 +23,18 @@ export class Sidebar {
   render(): void {
     const user = getCurrentUser()
     const items = getSidebarItems()
-    const permitted = user
+    let permitted = user
       ? items.filter(item => hasPermission(user.role, item.permission))
       : []
+
+    // Contextual Navigation: Only show lower sidebar items that belong to the active module
+    const activeModule = getModuleForPath(this._currentPath)
+    if (activeModule) {
+      permitted = permitted.filter(item => (item as any).moduleName === activeModule)
+    } else {
+      // If we don't know the active module (e.g. at root path), show nothing in context area
+      permitted = []
+    }
 
     const initials = user ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'RA'
     const displayName = user?.fullName ?? 'Rev. Admin'
@@ -38,7 +47,7 @@ export class Sidebar {
         <!-- Module tiles -->
         <div class="sidebar-section">
           <div class="sidebar-section-label">Modules</div>
-          ${this._renderModuleTiles()}
+          ${this._renderModuleTiles(user)}
 
           ${permitted.length ? `
             <div class="sidebar-divider"></div>
@@ -71,42 +80,53 @@ export class Sidebar {
           <div class="toggle-track"><div class="toggle-thumb"></div></div>
         </button>
 
-        <button class="sidebar-profile-row" id="sidebar-profile-btn" aria-label="Open profile menu" aria-expanded="false">
+        <div class="sidebar-profile-row" id="sidebar-profile-btn" role="button" tabindex="0" aria-label="Open settings">
           <div class="sidebar-avatar">${initials}</div>
           <div class="sidebar-profile-info">
             <div class="sidebar-profile-name">${displayName}</div>
             <div class="sidebar-profile-role" style="text-transform:capitalize">${roleLabel}</div>
           </div>
           <div class="sidebar-profile-actions">
-            <div class="sidebar-notif-dot"></div>
-            <div class="sidebar-profile-chevron" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </div>
+            <button class="sidebar-action-btn sidebar-logout-btn" id="sidebar-logout-btn" aria-label="Log out" title="Log out">
+              <i class="bi bi-box-arrow-right"></i>
+            </button>
+            <i class="bi bi-gear sidebar-gear-icon" aria-hidden="true"></i>
           </div>
-        </button>
+        </div>
       </div>
     `
 
     this._bindEvents()
   }
 
-  private _renderModuleTiles(): string {
-    const modules = [
+  private _renderModuleTiles(user: any): string {
+    const allModules = [
       {
         label: 'Members',
         route: '/members',
         svg: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
       },
+      {
+        label: 'Accounts',
+        route: '/accounts',
+        svg: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+        permission: 'accounts.access',
+      },
     ]
 
-    return modules.map(m => `
-      <div class="mod-placeholder" data-mod-route="${m.route}">
+    const modules = user 
+      ? allModules.filter(m => !m.permission || hasPermission(user.role, m.permission))
+      : allModules.filter(m => !m.permission)
+
+    return modules.map(m => {
+      const active = this._isActive(m.route)
+      return `
+      <div class="mod-placeholder ${active ? 'active' : ''}" data-mod-route="${m.route}">
         <svg viewBox="0 0 24 24">${m.svg}</svg>
         <span class="mod-placeholder-label">${m.label}</span>
       </div>
-    `).join('')
+    `
+    }).join('')
   }
 
   private _renderQuickLinks(): string {
@@ -200,13 +220,26 @@ export class Sidebar {
       this.render()
     })
 
-    // Profile button
-    this._el.querySelector('#sidebar-profile-btn')?.addEventListener('click', (e) => {
+    // Profile row → opens Settings directly (ignore clicks that land on logout btn)
+    const profileRow = this._el.querySelector<HTMLElement>('#sidebar-profile-btn')
+    profileRow?.addEventListener('click', (e) => {
+      if ((this._el.querySelector('#sidebar-logout-btn') as HTMLElement)?.contains(e.target as Node)) return
+      closeDrawer()
+      import('@modules/settings/pages/SettingsOverlay').then(({ SettingsOverlay }) => SettingsOverlay.open())
+    })
+    // Keyboard support for the div-as-button
+    profileRow?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        profileRow.click()
+      }
+    })
+
+    // Logout button — stopPropagation so it doesn't also fire the row handler
+    this._el.querySelector('#sidebar-logout-btn')?.addEventListener('click', (e) => {
       e.stopPropagation()
-      const btn = this._el.querySelector<HTMLElement>('#sidebar-profile-btn')
-      const expanded = btn?.getAttribute('aria-expanded') === 'true'
-      btn?.setAttribute('aria-expanded', String(!expanded))
-      import('./Toolbar').then(({ showProfilePopup }) => showProfilePopup())
+      closeDrawer()
+      import('./Toolbar').then(({ showLogoutConfirm }) => showLogoutConfirm())
     })
   }
 
@@ -214,10 +247,31 @@ export class Sidebar {
     return this._currentPath === path || this._currentPath.startsWith(path + '/')
   }
 
-  setActivePath(path: string): void {
+  private _getActiveModule(path: string): string | null {
+    return getModuleForPath(path)
+  }
+
+  setActivePath(path: string, prevPath?: string): void {
+    const prevModule = prevPath ? this._getActiveModule(prevPath) : this._getActiveModule(this._currentPath)
     this._currentPath = path
+    const nextModule = this._getActiveModule(path)
+
+    // If the active module changed, do a full re-render so the Navigation section updates
+    if (prevModule !== nextModule) {
+      this.render()
+      return
+    }
+
+    // Same module — just toggle active classes without re-rendering
     this._el.querySelectorAll<HTMLElement>('[data-route]').forEach(btn => {
       const route = btn.dataset['route'] ?? ''
+      const active = path === route || path.startsWith(route + '/')
+      btn.classList.toggle('active', active)
+    })
+
+    // Update module tiles
+    this._el.querySelectorAll<HTMLElement>('[data-mod-route]').forEach(btn => {
+      const route = btn.dataset['modRoute'] ?? ''
       const active = path === route || path.startsWith(route + '/')
       btn.classList.toggle('active', active)
     })
