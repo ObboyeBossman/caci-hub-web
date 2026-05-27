@@ -123,16 +123,24 @@ export async function listMembers(
         query = query.or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`)
       }
 
-      // assemblyId — required for super_admin; RLS handles all other roles
       if (f.assemblyId) {
         query = query.eq('assembly_id', f.assemblyId)
+      } else {
+        const activeAssembly = getActiveAssemblyId()
+        if (activeAssembly) {
+          query = query.eq('assembly_id', activeAssembly)
+        }
       }
 
       if (!f.includeDeleted) {
         query = query.is('deleted_at', null)
       }
     } else {
-      // Default: all non-deleted members
+      // Default: all non-deleted members, filtered by active assembly
+      const activeAssembly = getActiveAssemblyId()
+      if (activeAssembly) {
+        query = query.eq('assembly_id', activeAssembly)
+      }
       query = query.is('deleted_at', null)
     }
 
