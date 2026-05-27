@@ -47,6 +47,12 @@ function mapError(err: unknown, context: string): RepositoryError {
   const e = err as { code?: string; message?: string; details?: string }
   const code = e.code ?? 'UNKNOWN'
   const message = _errorMessage(code, e.details)
+  
+  // Log all unmapped or unhandled errors to console so we don't lose the raw cause
+  if (code !== DB_ERROR_CODES.NOT_FOUND && code !== DB_ERROR_CODES.PERMISSION_DENIED) {
+    console.error(`[repository Error] ${context}:`, err)
+  }
+  
   return new RepositoryError(message, err, code)
 }
 
@@ -61,7 +67,7 @@ function _errorMessage(code: string, details?: string): string {
     case DB_ERROR_CODES.UNIQUE_VIOLATION:
       return _mapUniqueViolation(details ?? '')
     default:
-      return 'Something went wrong. Please try again.'
+      return `Something went wrong. Please try again. (Code: ${code})`
   }
 }
 

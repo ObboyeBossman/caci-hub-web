@@ -60,13 +60,19 @@ export const Toast = {
 
   /** Show a toast from an unknown error — maps codes to friendly messages */
   fromError(error: unknown): void {
-    const err = error as { code?: string; message?: string }
+    const err = error as { code?: string; message?: string; name?: string }
     let msg = 'Something went wrong. Please try again.'
     switch (err?.code) {
       case '42501':    msg = "You don't have permission to perform this action."; break
       case 'PGRST116': msg = 'The record was not found.'; break
       case 'PGRST301': msg = 'Your session has expired. Please log in again.'; break
       case '23505':    msg = 'A record with these details already exists.'; break
+      default:
+        // Respect custom messages passed down from RepositoryError
+        if (err?.message) {
+          msg = err.message
+        }
+        break
     }
     _getInstance().error(msg)
   },

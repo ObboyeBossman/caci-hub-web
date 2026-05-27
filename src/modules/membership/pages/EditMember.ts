@@ -11,6 +11,10 @@ import { getHouseholdDropdownItems } from '../repository'
 import { UpdateMemberSchema } from '../schemas/member.schema'
 import { injectMembershipCSS } from '../utils/member-helpers'
 import type { MemberView } from '../../../types/member.types'
+import { PhoneInput } from '@shared/components/PhoneInput'
+
+let _primaryPhone: PhoneInput | null = null
+let _secondaryPhone: PhoneInput | null = null
 
 const EditMember: PageModule = {
   async render(container) {
@@ -30,6 +34,22 @@ const EditMember: PageModule = {
 
     container.innerHTML = _buildHTML(member)
 
+    // ── Mount PhoneInput components ───────────────────────────────────────────────
+    const primarySlot   = container.querySelector<HTMLElement>('#em-phone-primary-slot')
+    const secondarySlot = container.querySelector<HTMLElement>('#em-phone-secondary-slot')
+
+    if (primarySlot) {
+      _primaryPhone = new PhoneInput({ id: 'em-primary', placeholder: '24 123 4567', selectClass: 'mm-form-select', inputClass: 'mm-form-input' })
+      _primaryPhone.mount(primarySlot)
+      if (member.primary_phone) _primaryPhone.setValue(member.primary_phone)
+    }
+
+    if (secondarySlot) {
+      _secondaryPhone = new PhoneInput({ id: 'em-secondary', placeholder: '24 123 4567', selectClass: 'mm-form-select', inputClass: 'mm-form-input' })
+      _secondaryPhone.mount(secondarySlot)
+      if (member.secondary_phone) _secondaryPhone.setValue(member.secondary_phone)
+    }
+
     // Populate household dropdown
     try {
       const items = await getHouseholdDropdownItems()
@@ -48,8 +68,10 @@ const EditMember: PageModule = {
     container.querySelector('#em-save')?.addEventListener('click', () => _save(container, id, member))
   },
 
-  destroy() {},
-}
+  destroy() {
+    _primaryPhone   = null
+    _secondaryPhone = null
+  },}
 
 export default EditMember
 
@@ -128,12 +150,14 @@ function _buildHTML(m: MemberView): string { return `
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Primary Phone</label>
-        <input class="mm-form-input" id="em-fPrimaryPhone" type="tel" value="${m.primary_phone ?? ''}">
+        <!-- PhoneInput mounts here -->
+        <div id="em-phone-primary-slot"></div>
         <div class="mm-form-error" id="em-err-phone">At least one of primary phone or email is required.</div>
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Secondary Phone</label>
-        <input class="mm-form-input" id="em-fSecondaryPhone" type="tel" value="${m.secondary_phone ?? ''}">
+        <!-- PhoneInput mounts here -->
+        <div id="em-phone-secondary-slot"></div>
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Email</label>
@@ -207,18 +231,23 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
   const get = (sel: string) =>
     (container.querySelector<HTMLInputElement | HTMLSelectElement>(`#${sel}`)?.value ?? '').trim()
 
-  const firstName = get('em-fFirstName')
-  const lastName  = get('em-fLastName')
-  const primaryPhone = get('em-fPrimaryPhone')
-  const secondaryPhone = get('em-fSecondaryPhone')
-  const email     = get('em-fEmail')
+  const firstName    = get('em-fFirstName')
+  const lastName     = get('em-fLastName')
+  const primaryPhone = _primaryPhone?.getValue()   ?? ''
+  const secondaryPhone= _secondaryPhone?.getValue() ?? ''
+  const email        = get('em-fEmail')
 
   let valid = true
   const showErr = (e: string, i: string) => { container.querySelector(`#${e}`)?.classList.add('show'); container.querySelector(`#${i}`)?.classList.add('error'); valid = false }
   const hideErr = (e: string, i: string) => { container.querySelector(`#${e}`)?.classList.remove('show'); container.querySelector(`#${i}`)?.classList.remove('error') }
   if (!firstName) showErr('em-err-firstName','em-fFirstName'); else hideErr('em-err-firstName','em-fFirstName')
   if (!lastName)  showErr('em-err-lastName', 'em-fLastName');  else hideErr('em-err-lastName', 'em-fLastName')
-  if (!primaryPhone && !email) showErr('em-err-phone', 'em-fPrimaryPhone'); else hideErr('em-err-phone', 'em-fPrimaryPhone')
+  if (!primaryPhone && !email) {
+    _primaryPhone?.setError('At least one of primary phone or email is required.')
+    valid = false
+  } else {
+    _primaryPhone?.setError(null)
+  }
   if (!valid) return
 
   const payload = {

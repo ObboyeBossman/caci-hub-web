@@ -1,87 +1,17 @@
 caci-hub-web/
     README.md
+    files_tree.md
     folder_structure.md
     vite.config.ts
     index.html
     package.json
     package-lock.json
     tsconfig.json
-    supabase/
-        verify_audit_2.sql
-        setup_rls_test_users.sql
-        setup_rls_api.sh
-        fix_function.sql
-        verify_audit.sql
-        get_test_jwts.sh
-        seed.sql
-        config.toml
-        verify_baseline.sh
-        supabase/
-            config.toml
-        functions/
-            _shared/
-                cors.ts
-            send-welcome-sms/
-                index.ts
-            generate-membership-number/
-                index.ts
-            create-member-user/
-                index.ts
-            send-welcome-email/
-                index.ts
-                templates/
-                    welcome.html
-            export-members-csv/
-                index.ts
-        migrations/
-            20260502053000_get_available_primary_contacts.sql
-            20260502100000_members_auth_user_id.sql
-            20260428000001_seed_admin_data.sql
-            20260509000003_scope_members_photos_storage_policies.sql
-            20260427000017_grant_table_privileges.sql
-            20260427000016_create_members_view.sql
-            20260509000001_fix_audit_log_fk.sql
-            20260501175358_fix_membership_number_generation_robust.sql
-            20260427000005_create_members.sql
-            20260501044602_create_member_photos_bucket.sql
-            20260502040500_household_member_constraints.sql
-            20260427000008_create_indexes.sql
-            20260516000000_grant_anon_user_profile_select.sql
-            20260427000003_create_user_profiles.sql
-            20260501161943_fix_assign_membership_number.sql
-            20260501044603_fix_members_mutation_trigger.sql
-            20260427000011_create_helper_functions.sql
-            20260427000015_audit_corrections.sql
-            20260502000000_backfill_admin_member_email.sql
-            20260427000007_add_deferrable_fk.sql
-            20260427000009_create_triggers.sql
-            20260502040000_auto_link_primary_contact.sql
-            20260509000005_fix_members_select_own_member_role_to_use_auth_user_id.sql
-            20260427000012_enable_rls.sql
-            20260503063000_grant_service_role_members.sql
-            20260501044607_fix_member_audit_log_fk.sql
-            20260427000006_create_member_audit_log.sql
-            20260501044606_enable_403_triggers_for_unauthorized_roles.sql
-            20260427000001_create_enums.sql
-            20260427999999_seed_auth_user.sql
-            20260501044604_revoke_audit_log_api_writes.sql
-            20260430000003_atomic_membership_sequence.sql
-            20260427000002_create_assemblies.sql
-            20260427000013_create_rls_policies.sql
-            20260501044605_fix_members_view_and_mutation_403.sql
-            20260427000014_rls_members_remaining.sql
-            20260427000004_create_households.sql
-            20260429000001_fix_members_view_permissions.sql
-            20260509000002_fix_access on member_audit_log _from_services_role.sql
-            20260501181500_fix_assign_membership_number_idempotent.sql
-            20260509000004_pastor_branch_enforce_member_update_columns.sql
-            20260430000002_fix_membership_sequence_race_condition.sql
-            20260430000001_create_membership_sequence_fn.sql
     docs/
         phase-0-runbook.md
+        phase-1-runbook.md
         church-app-architecture-v3.md
         folder_structure_v3.md
-        phase-1-runbook.md
     public/
         manifest.json
     reference_source/
@@ -109,66 +39,234 @@ caci-hub-web/
         supabase_member_data_source.dart
         members_manifest.dart
         member_audit_entry.dart
+    supabase/
+        config.toml
+        seed.sql
+        fix_function.sql
+        verify_audit.sql
+        verify_audit_2.sql
+        verify_baseline.sh
+        setup_rls_api.sh
+        setup_rls_test_users.sql
+        get_test_jwts.sh
+        functions/
+            _shared/
+                cors.ts
+            bulk-import-members/
+                index.ts
+            create-member-user/
+                index.ts
+            delete-member-auth/
+                index.ts
+            export-members-csv/
+                index.ts
+            generate-membership-number/
+                index.ts
+            provision-user/
+                index.ts
+            reset-member-password/
+                index.ts
+            send-welcome-email/
+                index.ts
+                templates/
+                    welcome.html
+            send-welcome-sms/
+                index.ts
+            set-assembly-default-password/
+                index.ts
+        migrations/
+            20260427000001_create_enums.sql
+            20260427000002_create_assemblies.sql
+            20260427000003_create_user_profiles.sql
+            20260427000004_create_households.sql
+            20260427000005_create_members.sql
+            20260427000006_create_member_audit_log.sql
+            20260427000007_add_deferrable_fk.sql
+            20260427000008_create_indexes.sql
+            20260427000009_create_triggers.sql
+            20260427000011_create_helper_functions.sql
+            20260427000012_enable_rls.sql
+            20260427000013_create_rls_policies.sql
+            20260427000014_rls_members_remaining.sql
+            20260427000015_audit_corrections.sql
+            20260427000016_create_members_view.sql
+            20260427000017_grant_table_privileges.sql
+            20260427999999_seed_auth_user.sql
+            20260428000001_seed_admin_data.sql
+            20260429000001_fix_members_view_permissions.sql
+            20260430000001_create_membership_sequence_fn.sql
+            20260430000002_fix_membership_sequence_race_condition.sql
+            20260430000003_atomic_membership_sequence.sql
+            20260501044602_create_member_photos_bucket.sql
+            20260501044603_fix_members_mutation_trigger.sql
+            20260501044604_revoke_audit_log_api_writes.sql
+            20260501044605_fix_members_view_and_mutation_403.sql
+            20260501044606_enable_403_triggers_for_unauthorized_roles.sql
+            20260501044607_fix_member_audit_log_fk.sql
+            20260501161943_fix_assign_membership_number.sql
+            20260501175358_fix_membership_number_generation_robust.sql
+            20260501181500_fix_assign_membership_number_idempotent.sql
+            20260502000000_backfill_admin_member_email.sql
+            20260502040000_auto_link_primary_contact.sql
+            20260502040500_household_member_constraints.sql
+            20260502053000_get_available_primary_contacts.sql
+            20260502100000_members_auth_user_id.sql
+            20260503063000_grant_service_role_members.sql
+            20260509000001_fix_audit_log_fk.sql
+            20260509000002_fix_access on member_audit_log _from_services_role.sql
+            20260509000003_scope_members_photos_storage_policies.sql
+            20260509000004_pastor_branch_enforce_member_update_columns.sql
+            20260509000005_fix_members_select_own_member_role_to_use_auth_user_id.sql
+            20260516000000_grant_anon_user_profile_select.sql
+            20260521000001_allow_anon_assemblies_select.sql
+            20260525064305_add_other_names_field.sql
+            20260525120926_regrant_members_view.sql
+            20260525123900_backfill_admin_auth_id.sql
+            20260526000001_add_assembly_default_password.sql
+            20260526000002_add_must_change_password.sql
+            20260526000003_member_contact_optional.sql
+            20260526000004_create_roles_permissions.sql
+            20260526000005_grant_roles_permissions_privileges.sql
+            20260526000006_fix_security_advisor_warnings.sql
+            20260526000007_fix_remaining_security_warnings.sql
+            20260526000008_fix_public_callable_security_definer_functions.sql
+            20260527000001_phone_migration.sql
+            20260527000002_add_member_title.sql
     src/
         main.ts
         env.d.ts
+        core/
+            auth.ts
+            events.ts
+            middleware.ts
+            permissions.ts
+            registry.ts
+            router.ts
+            supabase.ts
+            guards/
+                authGuard.ts
+                onboardingGuard.ts
+                permissionGuard.ts
         modules/
             auth/
                 index.ts
                 routes.ts
                 pages/
-                    ResetPassword.ts
-                    Login.ts
-                    Totp.ts
                     Dashboard.ts
                     ForgotPassword.ts
+                    Login.ts
+                    ResetPassword.ts
+                    Totp.ts
                 services/
                     authService.ts
+                styles/
+                    components/
+                        _forms.css
+            membership/
+                index.ts
+                routes.ts
+                repository.ts
+                pages/
+                    AddMember.ts
+                    AddMemberSuccess.ts
+                    AttendancePage.ts
+                    AuditLog.ts
+                    BulkImport.ts
+                    EditMember.ts
+                    EditPastoralNotes.ts
+                    FlagMember.ts
+                    GroupCreate.ts
+                    Groups.ts
+                    HouseholdCreate.ts
+                    HouseholdDetail.ts
+                    HouseholdEdit.ts
+                    HouseholdList.ts
+                    MemberList.ts
+                    MemberProfile.ts
+                    MyProfile.ts
+                    PastoralCare.ts
+                    RecordAttendance.ts
+                    ReportDetail.ts
+                    Reports.ts
+                schemas/
+                    bulk-import.schema.ts
+                    member.schema.ts
+                services/
+                    memberService.ts
+                styles/
+                    membership.css
+                    components/
+                        _additions.css
+                        _badges.css
+                        _base.css
+                        _bulk-bar.css
+                        _buttons.css
+                        _detail-panel.css
+                        _forms.css
+                        _layout.css
+                        _member-list.css
+                        _modal.css
+                        _pages.css
+                        _sidebar.css
+                        _stats.css
+                        _tokens.css
+                        _toolbar.css
+                utils/
+                    groupCache.ts
+                    member-helpers.ts
+                    memberCache.ts
+                widgets/
+                    MemberStatsWidget.ts
+                    NewMembersWidget.ts
+            accounts/
+                index.ts
+                routes.ts
+                pages/
+                    AccountDetail.ts
+                    AccountList.ts
+                    RoleManager.ts
+            settings/
+                index.ts
+                schemas/
+                    change-password.schema.ts
+                styles/
+                    settings.css
+                pages/
+                    ChangePassword.ts
+                    SettingsOverlay.ts
+                    panels/
+                        AppearancePanel.ts
+                        LocalePanel.ts
+                        NotificationsPanel.ts
+                        ProfilePanel.ts
+                        SecurityPanel.ts
+                    utils/
+                        settingsToast.ts
+                        settingsTypes.ts
         shared/
             components/
-                EmptyState.ts
-                StatusBadge.ts
-                Form.ts
                 Toast.ts
-                Avatar.ts
-                ConfirmDialog.ts
-                Grid.ts
-                Modal.ts
+            composables/
+                usePermission.ts
             utils/
-                pageHelpers.ts
-                memberCache.ts
-                groupCache.ts
+                debounce.ts
                 format.ts
+                pageHelpers.ts
                 storage.ts
-        styles/
-            utilities.css
-            membership.css
-            components.css
-            dashboard.css
-            shell.css
-            theme.css
-            auth.css
-        core/
-            permissions.ts
-            events.ts
-            middleware.ts
-            router.ts
-            registry.ts
-            supabase.ts
-            auth.ts
-            guards/
-                onboardingGuard.ts
-                authGuard.ts
-                permissionGuard.ts
         shell/
-            Toolbar.ts
+            Breadcrumbs.ts
             NotificationBell.ts
             Shell.ts
-            Breadcrumbs.ts
             Sidebar.ts
+            Toolbar.ts
+        styles/
+            components.css
+            shell.css
+            theme.css
+            utilities.css
         types/
-            common.types.ts
             auth.types.ts
+            common.types.ts
             database.types.ts
-            module.types.ts
             member.types.ts
+            module.types.ts

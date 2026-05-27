@@ -8,8 +8,10 @@ import { getFirstModuleRoute } from '../../../core/registry'
 import type { PageModule } from '../../../types/module.types'
 import type { AppUser } from '../../../types/auth.types'
 import logoUrl from '../../../assets/caci-logo.png'
+import { PhoneInput } from '@shared/components/PhoneInput'
 
 let _container: HTMLElement | null = null
+let _phoneInput: PhoneInput | null = null
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -136,15 +138,8 @@ export const Login: PageModule = {
               <!-- Phone field -->
               <div class="auth-field" id="phone-field" style="display:none;">
                 <label class="auth-label">Phone number</label>
-                <div style="display:flex; gap:8px;">
-                  <select id="signin-country-code" class="auth-input" style="width:110px; padding: 0 8px; cursor: pointer;">
-                    <option value="+233">🇬🇭 +233</option>
-                    <option value="+1">🇺🇸 +1</option>
-                    <option value="+44">🇬🇧 +44</option>
-                    <option value="+234">🇳🇬 +234</option>
-                  </select>
-                  <input type="tel" id="signin-phone-input" class="auth-input" placeholder="24 123 4567" autocomplete="tel" maxlength="11" style="flex:1;">
-                </div>
+                <!-- PhoneInput mounts here -->
+                <div id="signin-phone-slot"></div>
               </div>
 
               <!-- Password field -->
@@ -190,6 +185,18 @@ export const Login: PageModule = {
     // ── 3. Internal Logic ───────────────────────────────────────────────────
     let signInMode: 'email' | 'phone' = 'email'
 
+    // Mount the phone input component
+    const phoneSlot = container.querySelector<HTMLElement>('#signin-phone-slot')
+    if (phoneSlot) {
+      _phoneInput = new PhoneInput({
+        id:           'signin',
+        placeholder:  '24 123 4567',
+        selectClass:  'auth-input',
+        inputClass:   'auth-input',
+      })
+      _phoneInput.mount(phoneSlot)
+    }
+
     container.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', (e) => {
         const btn = e.currentTarget as HTMLButtonElement
@@ -227,8 +234,6 @@ export const Login: PageModule = {
 
     const handleSignInInternal = async () => {
       const emailInput = container.querySelector('#signin-email-input') as HTMLInputElement
-      const countryCode = container.querySelector('#signin-country-code') as HTMLSelectElement
-      const phoneInput = container.querySelector('#signin-phone-input') as HTMLInputElement
       const pwInput = container.querySelector('#signin-pw') as HTMLInputElement
 
       _hideError()
@@ -237,9 +242,7 @@ export const Login: PageModule = {
       if (signInMode === 'email') {
         identifierValue = emailInput.value.trim()
       } else {
-        // Strip spaces then leading zeros before concatenating with country code
-        const rawPhone = phoneInput.value.replace(/\s/g, '').replace(/^0+/, '')
-        identifierValue = rawPhone ? countryCode.value + rawPhone : ''
+        identifierValue = _phoneInput?.getValue() ?? ''
       }
 
       if (!identifierValue || !pwInput.value) {
@@ -289,35 +292,14 @@ export const Login: PageModule = {
     container.querySelector('#signin-email-input')
       ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
 
-    container.querySelector('#signin-phone-input')
-      ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
-
-    // Auto-format phone input: XX XXX XXXX (9 digits max)
-    container.querySelector('#signin-phone-input')
-      ?.addEventListener('input', (e) => {
-        const el = e.target as HTMLInputElement
-        const cursorPos = el.selectionStart ?? 0
-        const prevLen = el.value.length
-        const digits = el.value.replace(/\D/g, '').slice(0, 9)
-        let formatted = ''
-        if (digits.length <= 2) {
-          formatted = digits
-        } else if (digits.length <= 5) {
-          formatted = digits.slice(0, 2) + ' ' + digits.slice(2)
-        } else {
-          formatted = digits.slice(0, 2) + ' ' + digits.slice(2, 5) + ' ' + digits.slice(5)
-        }
-        el.value = formatted
-        // Preserve cursor: shift by the extra space chars added
-        const diff = formatted.length - prevLen
-        el.setSelectionRange(cursorPos + diff, cursorPos + diff)
-      })
-
     container.querySelector('#eye-btn')
       ?.addEventListener('click', () => _toggleEye('signin-pw', 'eye-btn'))
   },
 
-  destroy() { _container = null }
+  destroy() {
+    _phoneInput = null
+    _container  = null
+  }
 }
 
 export default Login
