@@ -136,7 +136,15 @@ export const Login: PageModule = {
               <!-- Phone field -->
               <div class="auth-field" id="phone-field" style="display:none;">
                 <label class="auth-label">Phone number</label>
-                <input type="tel" id="signin-phone-input" class="auth-input" placeholder="+233 24 123 4567" autocomplete="tel">
+                <div class="auth-input-wrap" style="display:flex; gap:8px;">
+                  <select id="signin-country-code" class="auth-input" style="width:100px; padding-right:8px; border-radius:10px; background-color:var(--auth-input-bg);">
+                    <option value="+233">🇬🇭 +233</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+234">🇳🇬 +234</option>
+                  </select>
+                  <input type="tel" id="signin-phone-input" class="auth-input" placeholder="24 123 4567" autocomplete="tel" style="flex:1;">
+                </div>
               </div>
 
               <!-- Password field -->
@@ -219,12 +227,19 @@ export const Login: PageModule = {
 
     const handleSignInInternal = async () => {
       const emailInput = container.querySelector('#signin-email-input') as HTMLInputElement
+      const countryCode = container.querySelector('#signin-country-code') as HTMLSelectElement
       const phoneInput = container.querySelector('#signin-phone-input') as HTMLInputElement
       const pwInput = container.querySelector('#signin-pw') as HTMLInputElement
 
       _hideError()
 
-      const identifierValue = signInMode === 'email' ? emailInput.value.trim() : phoneInput.value.trim()
+      let identifierValue = ''
+      if (signInMode === 'email') {
+        identifierValue = emailInput.value.trim()
+      } else {
+        const rawPhone = phoneInput.value.trim().replace(/^0+/, '')
+        identifierValue = rawPhone ? countryCode.value + rawPhone : ''
+      }
 
       if (!identifierValue || !pwInput.value) {
         _showError('Please enter your credentials.')
