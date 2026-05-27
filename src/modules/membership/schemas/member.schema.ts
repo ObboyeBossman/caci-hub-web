@@ -34,6 +34,7 @@ export const CreateMemberSchema = z.object({
   assembly_id: z.string().uuid(),
 
   // Required identity
+  title: z.string().nullable().optional(),
   first_name: z
     .string()
     .min(1, 'First name is required')
@@ -107,6 +108,7 @@ export const UpdateMemberSchema = z.object({
   id: z.string().uuid(),
 
   // Basic info
+  title: z.string().nullable().optional(),
   first_name: z.string().min(1).max(100).optional(),
   last_name: z.string().min(1).max(100).optional(),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),

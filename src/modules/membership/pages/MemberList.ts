@@ -463,7 +463,7 @@ function _openDetail(m: MemberView): void {
 <div class="mm-detail-tab-panel active" id="mm-dp-profile">
   <div class="mm-detail-avatar-wrap">
     <div class="mm-detail-avatar" style="background:${bg}">${ini}</div>
-    <div class="mm-detail-name">${m.first_name} ${m.last_name}</div>
+    <div class="mm-detail-name">${m.title ? m.title + ' ' : ''}${m.first_name} ${m.last_name}</div>
     <div class="mm-detail-id">${m.membership_number ?? 'No number yet'}</div>
     <div class="mm-detail-badges">
       <span class="mm-badge ${s.cls}">${s.label}</span>
@@ -662,7 +662,7 @@ function _clearMemberForm(): void {
     if (el) el.value = ''
   })
   const selects = [
-    'mm-fGender', 'mm-fMarital', 'mm-fStatus', 'mm-fHousehold', 'mm-fECRel',
+    'mm-fTitle', 'mm-fGender', 'mm-fMarital', 'mm-fStatus', 'mm-fHousehold', 'mm-fECRel',
   ]
   selects.forEach(id => {
     const el = _container!.querySelector<HTMLSelectElement>(`#${id}`)
@@ -680,6 +680,7 @@ function _populateMemberForm(m: MemberView): void {
     const el = _container!.querySelector<HTMLInputElement | HTMLSelectElement>(`#${id}`)
     if (el) el.value = val
   }
+  set('mm-fTitle', m.title ?? '')
   set('mm-fFirstName', m.first_name)
   set('mm-fLastName', m.last_name)
   set('mm-fGender', m.gender)
@@ -720,6 +721,7 @@ async function _saveMember(): Promise<void> {
     _container!.querySelector(`#${inputId}`)?.classList.add('error')
     valid = false
   }
+
   const hideErr = (errId: string, inputId: string) => {
     _container!.querySelector(`#${errId}`)?.classList.remove('show')
     _container!.querySelector(`#${inputId}`)?.classList.remove('error')
@@ -732,6 +734,7 @@ async function _saveMember(): Promise<void> {
   if (!valid) return
 
   const payload = {
+    title: get('mm-fTitle') || null,
     first_name: firstName,
     last_name: lastName,
     gender: gender as 'male' | 'female',
@@ -2491,6 +2494,25 @@ function _buildHTML(): string {
   <div class="mm-modal-body">
     <div class="mm-form-section-title">Personal Information</div>
     <div class="mm-form-row">
+      <div class="mm-form-field" style="max-width:120px;">
+        <label class="mm-form-label">Title</label>
+        <select class="mm-form-select" id="mm-fTitle">
+          <option value="">None</option>
+          <option value="Mr.">Mr.</option>
+          <option value="Mrs.">Mrs.</option>
+          <option value="Ms.">Ms.</option>
+          <option value="Miss">Miss</option>
+          <option value="Dr.">Dr.</option>
+          <option value="Prof.">Prof.</option>
+          <option value="Rev.">Rev.</option>
+          <option value="Pastor">Pastor</option>
+          <option value="Elder">Elder</option>
+          <option value="Deacon">Deacon</option>
+          <option value="Deaconess">Deaconess</option>
+          <option value="Apostle">Apostle</option>
+          <option value="Bishop">Bishop</option>
+        </select>
+      </div>
       <div class="mm-form-field">
         <label class="mm-form-label">First Name <span class="req">*</span></label>
         <input type="text" class="mm-form-input" id="mm-fFirstName" placeholder="e.g. Kwame">

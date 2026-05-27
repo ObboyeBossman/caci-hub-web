@@ -22,7 +22,7 @@ async function testPermissions() {
   const { data: adminProfile, error: prfErr } = await supabaseAdmin
     .from('user_profiles')
     .select('id, assembly_id')
-    .eq('role', 'admin')
+    .eq('role', 'admin') 
     .limit(1)
     .single()
     

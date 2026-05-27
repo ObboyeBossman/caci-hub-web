@@ -41,6 +41,7 @@ export interface MemberFilter {
 // Field names mirror the toJson() output keys exactly.
 export interface CreateMemberPayload {
   assembly_id:                    string
+  title?:                         string | null
   first_name:                     string
   last_name:                      string
   gender:                         Gender

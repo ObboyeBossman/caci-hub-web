@@ -57,6 +57,25 @@ function _buildHTML(): string { return `
     <h2 style="margin:0 0 24px;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Add New Member</h2>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="mm-form-group" style="grid-column:1/-1;">
+        <label class="mm-form-label">Title</label>
+        <select class="mm-form-select" id="am-fTitle" style="max-width:200px;">
+          <option value="">None</option>
+          <option value="Mr.">Mr.</option>
+          <option value="Mrs.">Mrs.</option>
+          <option value="Ms.">Ms.</option>
+          <option value="Miss">Miss</option>
+          <option value="Dr.">Dr.</option>
+          <option value="Prof.">Prof.</option>
+          <option value="Rev.">Rev.</option>
+          <option value="Pastor">Pastor</option>
+          <option value="Elder">Elder</option>
+          <option value="Deacon">Deacon</option>
+          <option value="Deaconess">Deaconess</option>
+          <option value="Apostle">Apostle</option>
+          <option value="Bishop">Bishop</option>
+        </select>
+      </div>
       <div class="mm-form-group">
         <label class="mm-form-label">First Name *</label>
         <input class="mm-form-input" id="am-fFirstName" placeholder="First name">
@@ -191,6 +210,7 @@ async function _save(container: HTMLElement): Promise<void> {
   if (!valid) return
 
   const payload = {
+    title:                           get('am-fTitle') || null,
     first_name:                      firstName,
     last_name:                       lastName,
     gender:                          gender as 'male' | 'female',

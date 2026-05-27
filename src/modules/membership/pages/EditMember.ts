@@ -72,6 +72,25 @@ function _buildHTML(m: MemberView): string { return `
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="mm-form-group" style="grid-column:1/-1;">
+        <label class="mm-form-label">Title</label>
+        <select class="mm-form-select" id="em-fTitle" style="max-width:200px;">
+          <option value="">None</option>
+          <option value="Mr." ${m.title === 'Mr.' ? 'selected' : ''}>Mr.</option>
+          <option value="Mrs." ${m.title === 'Mrs.' ? 'selected' : ''}>Mrs.</option>
+          <option value="Ms." ${m.title === 'Ms.' ? 'selected' : ''}>Ms.</option>
+          <option value="Miss" ${m.title === 'Miss' ? 'selected' : ''}>Miss</option>
+          <option value="Dr." ${m.title === 'Dr.' ? 'selected' : ''}>Dr.</option>
+          <option value="Prof." ${m.title === 'Prof.' ? 'selected' : ''}>Prof.</option>
+          <option value="Rev." ${m.title === 'Rev.' ? 'selected' : ''}>Rev.</option>
+          <option value="Pastor" ${m.title === 'Pastor' ? 'selected' : ''}>Pastor</option>
+          <option value="Elder" ${m.title === 'Elder' ? 'selected' : ''}>Elder</option>
+          <option value="Deacon" ${m.title === 'Deacon' ? 'selected' : ''}>Deacon</option>
+          <option value="Deaconess" ${m.title === 'Deaconess' ? 'selected' : ''}>Deaconess</option>
+          <option value="Apostle" ${m.title === 'Apostle' ? 'selected' : ''}>Apostle</option>
+          <option value="Bishop" ${m.title === 'Bishop' ? 'selected' : ''}>Bishop</option>
+        </select>
+      </div>
       <div class="mm-form-group">
         <label class="mm-form-label">First Name *</label>
         <input class="mm-form-input" id="em-fFirstName" value="${m.first_name}">
@@ -203,6 +222,7 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
   if (!valid) return
 
   const payload = {
+    title:                          get('em-fTitle') || null,
     first_name:                     firstName,
     last_name:                      lastName,
     gender:                         get('em-fGender') as any,

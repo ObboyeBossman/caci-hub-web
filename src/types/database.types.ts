@@ -245,6 +245,7 @@ export type Database = {
           primary_phone: string | null
           profile_photo_url: string | null
           secondary_phone: string | null
+          title: string | null
           updated_at: string
           whatsapp_number: string | null
         }
@@ -280,6 +281,7 @@ export type Database = {
           primary_phone?: string | null
           profile_photo_url?: string | null
           secondary_phone?: string | null
+          title?: string | null
           updated_at?: string
           whatsapp_number?: string | null
         }
@@ -315,6 +317,7 @@ export type Database = {
           primary_phone?: string | null
           profile_photo_url?: string | null
           secondary_phone?: string | null
+          title?: string | null
           updated_at?: string
           whatsapp_number?: string | null
         }
@@ -471,6 +474,7 @@ export type Database = {
           primary_phone: string | null
           profile_photo_url: string | null
           secondary_phone: string | null
+          title: string | null
           updated_at: string | null
           whatsapp_number: string | null
         }
@@ -508,6 +512,7 @@ export type Database = {
           primary_phone?: string | null
           profile_photo_url?: string | null
           secondary_phone?: string | null
+          title?: string | null
           updated_at?: string | null
           whatsapp_number?: string | null
         }
@@ -545,6 +550,7 @@ export type Database = {
           primary_phone?: string | null
           profile_photo_url?: string | null
           secondary_phone?: string | null
+          title?: string | null
           updated_at?: string | null
           whatsapp_number?: string | null
         }
