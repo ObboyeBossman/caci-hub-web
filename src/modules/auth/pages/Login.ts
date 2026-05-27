@@ -136,8 +136,8 @@ export const Login: PageModule = {
               <!-- Phone field -->
               <div class="auth-field" id="phone-field" style="display:none;">
                 <label class="auth-label">Phone number</label>
-                <div class="auth-input-wrap" style="display:flex; gap:8px;">
-                  <select id="signin-country-code" class="auth-input" style="width:100px; padding-right:8px; border-radius:10px; background-color:var(--auth-input-bg);">
+                <div style="display:flex; gap:8px;">
+                  <select id="signin-country-code" class="auth-input" style="width:110px; padding: 0 8px; cursor: pointer;">
                     <option value="+233">🇬🇭 +233</option>
                     <option value="+1">🇺🇸 +1</option>
                     <option value="+44">🇬🇧 +44</option>
