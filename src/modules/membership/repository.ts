@@ -553,11 +553,19 @@ export async function getMemberAuditLog(memberId: string): Promise<MemberAuditEn
   try {
     const { data, error } = await supabase
       .from('member_audit_log')
-      .select('*, user_profiles(full_name)')
+      .select('*')
       .eq('member_id', memberId)
       .order('changed_at', { ascending: false })
 
     if (error) throw error
+
+    // Manual join of user profiles
+    const actorIds = [...new Set((data ?? []).map((r: any) => r.changed_by).filter(Boolean))] as string[]
+    const actorMap = new Map<string, string>()
+    if (actorIds.length > 0) {
+      const { data: profiles } = await supabase.from('user_profiles').select('id, full_name').in('id', actorIds)
+      ;(profiles ?? []).forEach((p: any) => actorMap.set(p.id, p.full_name))
+    }
 
     // Mirrors MemberAuditEntry.fromJson() dual-shape handling
     return (data ?? []).map((row: any) => ({
@@ -565,7 +573,7 @@ export async function getMemberAuditLog(memberId: string): Promise<MemberAuditEn
       member_id: row.member_id as string,
       assembly_id: row.assembly_id as string,
       changed_by: row.changed_by as string | null,
-      changed_by_name: (row.user_profiles as { full_name?: string } | null)?.full_name ?? null,
+      changed_by_name: actorMap.get(row.changed_by) ?? null,
       field_changed: row.field_changed as string,
       old_value: row.old_value as string | null,
       new_value: row.new_value as string | null,
@@ -586,7 +594,7 @@ export async function getLastAuditEntry(
   try {
     const { data, error } = await supabase
       .from('member_audit_log')
-      .select('changed_at, user_profiles(full_name)')
+      .select('changed_at, changed_by')
       .eq('member_id', memberId)
       .order('changed_at', { ascending: false })
       .limit(1)
@@ -595,9 +603,16 @@ export async function getLastAuditEntry(
     if (error) throw error
     if (!data) return null
 
+    let changed_by_name = null
+    const row = data as any
+    if (row.changed_by) {
+      const { data: profile } = await supabase.from('user_profiles').select('full_name').eq('id', row.changed_by).maybeSingle()
+      if (profile) changed_by_name = (profile as any).full_name
+    }
+
     return {
-      changed_at: (data as any).changed_at as string,
-      changed_by_name: ((data as any).user_profiles as { full_name?: string } | null)?.full_name ?? null,
+      changed_at: row.changed_at as string,
+      changed_by_name,
     }
   } catch {
     return null

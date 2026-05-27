@@ -30,7 +30,7 @@ const AuditLog: PageModule = {
       const assemblyId = getActiveAssemblyId()
       let query = supabase
         .from('member_audit_log')
-        .select('*, user_profiles(full_name), members_view!member_audit_log_member_id_fkey(first_name, last_name)')
+        .select('*, members_view!member_audit_log_member_id_fkey(first_name, last_name)')
         .order('changed_at', { ascending: false })
         .limit(200)
 
@@ -39,6 +39,14 @@ const AuditLog: PageModule = {
       const { data, error } = await query
       if (error) throw error
 
+      // Manual join of user profiles
+      const actorIds = [...new Set((data ?? []).map((r: any) => r.changed_by).filter(Boolean))] as string[]
+      const actorMap = new Map<string, string>()
+      if (actorIds.length > 0) {
+        const { data: profiles } = await supabase.from('user_profiles').select('id, full_name').in('id', actorIds)
+        ;(profiles ?? []).forEach((p: any) => actorMap.set(p.id, p.full_name))
+      }
+
       rows = (data ?? []).map((r: any) => ({
         id:             r.id,
         member_id:      r.member_id,
@@ -46,7 +54,7 @@ const AuditLog: PageModule = {
         old_value:      r.old_value,
         new_value:      r.new_value,
         changed_at:     r.changed_at,
-        changed_by_name: r.user_profiles?.full_name ?? null,
+        changed_by_name: actorMap.get(r.changed_by) ?? null,
         member_name: r.members_view
           ? `${r.members_view.first_name} ${r.members_view.last_name}`
           : null,
