@@ -240,11 +240,17 @@ export const Login: PageModule = {
 
         // ── Membership Verification ──────────────────────────────────────────
         // Users must belong to the selected assembly to proceed.
-        // Exception: National Admins / Overseers.
+        // Exception: National Admins / Overseers (no fixed assembly_id).
+        // IMPORTANT: use an explicit allowlist — any unexpected state signs out.
         const isStaff = user?.role === 'national_admin' || user?.role === 'district_overseer'
-        if (user && !isStaff && user.assemblyId !== assembly.id) {
+        const assemblyMatches = user?.assemblyId != null && user.assemblyId === assembly.id
+
+        if (!user || (!isStaff && !assemblyMatches)) {
           await authService.signOut()
-          _showError(`You are not registered with ${assembly.name}. Please select the correct assembly.`)
+          const reason = !user
+            ? 'Your account profile could not be loaded. Please contact your administrator.'
+            : `You are not registered with ${assembly.name}. Please select the correct assembly.`
+          _showError(reason)
           _setLoading(false)
           return
         }
