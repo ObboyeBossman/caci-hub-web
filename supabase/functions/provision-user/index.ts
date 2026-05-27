@@ -2,6 +2,13 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
+// Supabase Admin API strips the leading '+' when it persists phone numbers in
+// auth.users. Normalise here so the stored value matches what the login page
+// sends after the authService.signIn normalisation.
+function normalizePhone(phone: string): string {
+  return phone.replace(/^\+/, '')
+}
+
 const ASSIGNABLE_ROLES = new Set([
   'admin',
   'pastor',
@@ -191,8 +198,9 @@ serve(async (req: Request) => {
           })
         }
 
+        const normalizedPhone = normalizePhone(member.primary_phone)
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-          phone: member.primary_phone,
+          phone: normalizedPhone,
           password: assembly.default_member_password,
           phone_confirm: true,
         })
@@ -205,6 +213,7 @@ serve(async (req: Request) => {
           assembly_id: adminAssemblyId,
           role,
           full_name: fullName,
+          phone: normalizedPhone,
           is_active: true,
           must_change_password: true,
         })

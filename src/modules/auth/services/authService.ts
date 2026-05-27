@@ -35,6 +35,14 @@ export interface HydratedUser {
   isMfaVerified: boolean
 }
 
+// ── Phone normalisation ──────────────────────────────────────────────────────
+// Supabase Admin API strips the leading '+' when it stores phone numbers in
+// auth.users, so signInWithPassword must send the same format or it will
+// never find the matching user (returns 400 invalid_credentials).
+export function normalizePhone(phone: string): string {
+  return phone.replace(/^\+/, '')
+}
+
 // ── Error mapping ─────────────────────────────────────────────────────────────
 // Mirrors: auth_repository.dart _mapAuthException()
 
@@ -82,9 +90,10 @@ export const authService = {
   // ── Email & password ───────────────────────────────────────────────────────
 
   async signIn(identifier: { email?: string; phone?: string }, password: string): Promise<AuthResponse> {
-    const creds = identifier.email 
-      ? { email: identifier.email, password } 
-      : { phone: identifier.phone!, password };
+    const creds = identifier.email
+      ? { email: identifier.email, password }
+      // Strip leading '+' — Supabase stores phone numbers without it
+      : { phone: normalizePhone(identifier.phone!), password };
     const res = await supabase.auth.signInWithPassword(creds as any)
     if (res.error) throw res.error
     return res
