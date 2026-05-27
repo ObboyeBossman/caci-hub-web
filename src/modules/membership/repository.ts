@@ -398,7 +398,6 @@ export async function updateMember(
   try {
     const { error } = await supabase
       .from('members')
-      // @ts-expect-error Supabase generic inference fault
       .update(payload as any)
       .eq('id', id)
 
@@ -421,7 +420,6 @@ export async function deactivateMember(memberId: string): Promise<void> {
   try {
     const { error } = await supabase
       .from('members')
-      // @ts-expect-error Supabase generic inference fault
       .update({
         is_active: false,
         deleted_at: new Date().toISOString(),
@@ -443,7 +441,6 @@ export async function restoreMember(memberId: string): Promise<void> {
   try {
     const { error } = await supabase
       .from('members')
-      // @ts-expect-error Supabase generic inference fault
       .update({ is_active: true, deleted_at: null } as any)
       .eq('id', memberId)
 
@@ -810,7 +807,10 @@ export async function getAvailablePrimaryContacts(
       .rpc('get_available_primary_contacts', { p_household_id: householdId } as any)
 
     if (error) throw error
-    return (data ?? []) as { id: string; full_name: string }[]
+    return (data ?? []).map((row: any) => ({
+      id: row.id,
+      full_name: `${row.first_name} ${row.last_name}`,
+    }))
   } catch (err) {
     throw mapError(err, `getAvailablePrimaryContacts(${householdId})`)
   }
@@ -857,7 +857,6 @@ export async function updateHousehold(
   try {
     const { error } = await supabase
       .from('households')
-      // @ts-expect-error Supabase generic inference fault
       .update(payload as any)
       .eq('id', id)
 

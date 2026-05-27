@@ -69,13 +69,13 @@ export async function registerMember(
   }
 
   // Step 3: create-member-user EF — only if email or phone provided
-  if (payload.email || payload.phone_number) {
+  if (payload.email || payload.primary_phone) {
     try {
       const { error } = await supabase.functions.invoke('create-member-user', {
         body: {
           memberId: member.id,
           email:    payload.email ?? null,
-          phone:    payload.phone_number ?? null,
+          phone:    payload.primary_phone ?? null,
         },
       })
       if (error) throw error
@@ -99,10 +99,10 @@ export async function registerMember(
   }
 
   // Step 5: send-welcome-sms EF
-  if (payload.phone_number) {
+  if (payload.primary_phone) {
     try {
       const { error } = await supabase.functions.invoke('send-welcome-sms', {
-        body: { memberId: member.id, phone: payload.phone_number },
+        body: { memberId: member.id, phone: payload.primary_phone },
       })
       if (error) throw error
       result.welcomeSmsSent = true

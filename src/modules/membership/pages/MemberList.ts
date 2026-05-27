@@ -205,7 +205,7 @@ function _applyFilters(): void {
     if (q) {
       const full = `${m.first_name} ${m.last_name}`.toLowerCase()
       const num = (m.membership_number ?? '').toLowerCase()
-      const ph = (m.phone_number ?? '').toLowerCase()
+      const ph = (m.primary_phone ?? '').toLowerCase()
       const occ = (m.occupation ?? '').toLowerCase()
       if (!full.includes(q) && !num.includes(q) && !ph.includes(q) && !occ.includes(q))
         return false
@@ -475,7 +475,8 @@ function _openDetail(m: MemberView): void {
 
   <div class="mm-detail-section">
     <div class="mm-detail-section-title">Contact</div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Phone</span><span class="mm-detail-field-val">${m.phone_number ?? '—'}</span></div>
+    <div class="mm-detail-field"><span class="mm-detail-field-label">Primary Phone</span><span class="mm-detail-field-val">${m.primary_phone ?? '—'}</span></div>
+    <div class="mm-detail-field"><span class="mm-detail-field-label">Secondary Phone</span><span class="mm-detail-field-val">${m.secondary_phone ?? '—'}</span></div>
     <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="font-size:12px;word-break:break-all;">${m.email ?? '—'}</span></div>
     <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size:12px;">${m.physical_address ?? '—'}</span></div>
   </div>
@@ -557,8 +558,8 @@ function _openDetail(m: MemberView): void {
 
   // SMS
   body.querySelector('#mm-detail-sms')?.addEventListener('click', () => {
-    if (m.phone_number) {
-      Toast.info(`SMS compose for ${m.first_name} ${m.last_name} — ${m.phone_number}`)
+    if (m.primary_phone) {
+      Toast.info(`SMS compose for ${m.first_name} ${m.last_name} — ${m.primary_phone}`)
     } else {
       Toast.warning('No phone number on record for this member.')
     }
@@ -653,7 +654,7 @@ function _closeMemberModal(): void {
 function _clearMemberForm(): void {
   if (!_container) return
   const ids = [
-    'mm-fFirstName', 'mm-fLastName', 'mm-fPhone', 'mm-fEmail',
+    'mm-fFirstName', 'mm-fLastName', 'mm-fPrimaryPhone', 'mm-fSecondaryPhone', 'mm-fEmail',
     'mm-fAddress', 'mm-fOccupation', 'mm-fNotes', 'mm-fECName', 'mm-fECPhone',
   ]
   ids.forEach(id => {
@@ -685,7 +686,8 @@ function _populateMemberForm(m: MemberView): void {
   set('mm-fDOB', m.date_of_birth ?? '')
   set('mm-fMarital', m.marital_status ?? '')
   set('mm-fOccupation', m.occupation ?? '')
-  set('mm-fPhone', m.phone_number ?? '')
+  set('mm-fPrimaryPhone', m.primary_phone ?? '')
+  set('mm-fSecondaryPhone', m.secondary_phone ?? '')
   set('mm-fEmail', m.email ?? '')
   set('mm-fAddress', m.physical_address ?? '')
   set('mm-fStatus', m.membership_status)
@@ -705,7 +707,8 @@ async function _saveMember(): Promise<void> {
 
   const firstName = get('mm-fFirstName')
   const lastName = get('mm-fLastName')
-  const phone = get('mm-fPhone')
+  const primaryPhone = get('mm-fPrimaryPhone')
+  const secondaryPhone = get('mm-fSecondaryPhone')
   const gender = get('mm-fGender')
   const status = get('mm-fStatus')
 
@@ -724,7 +727,7 @@ async function _saveMember(): Promise<void> {
 
   if (!firstName) showErr('mm-err-firstName', 'mm-fFirstName'); else hideErr('mm-err-firstName', 'mm-fFirstName')
   if (!lastName) showErr('mm-err-lastName', 'mm-fLastName'); else hideErr('mm-err-lastName', 'mm-fLastName')
-  if (!phone) showErr('mm-err-phone', 'mm-fPhone'); else hideErr('mm-err-phone', 'mm-fPhone')
+  if (!primaryPhone) showErr('mm-err-phone', 'mm-fPrimaryPhone'); else hideErr('mm-err-phone', 'mm-fPrimaryPhone')
   if (!gender) showErr('mm-err-gender', 'mm-fGender'); else hideErr('mm-err-gender', 'mm-fGender')
   if (!valid) return
 
@@ -733,7 +736,8 @@ async function _saveMember(): Promise<void> {
     last_name: lastName,
     gender: gender as 'male' | 'female',
     membership_status: (status || 'visitor') as MemberView['membership_status'],
-    phone_number: phone || null,
+    primary_phone: primaryPhone || null,
+    secondary_phone: secondaryPhone || null,
     email: get('mm-fEmail') || null,
     date_of_birth: get('mm-fDOB') || null,
     marital_status: (get('mm-fMarital') || null) as MemberView['marital_status'],
@@ -830,7 +834,7 @@ async function _bulkExport(): Promise<void> {
   const headers = ['Membership #', 'First Name', 'Last Name', 'Status', 'Gender', 'Phone', 'Email', 'Occupation', 'Joined']
   const rows = selected.map(m => [
     m.membership_number ?? '', m.first_name, m.last_name,
-    m.membership_status, m.gender, m.phone_number ?? '', m.email ?? '',
+    m.membership_status, m.gender, m.primary_phone ?? '', m.email ?? '',
     m.occupation ?? '', fmtDate(m.join_date),
   ])
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
@@ -930,7 +934,7 @@ function _renderAttTable(): void {
       <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
       <div>
         <div class="mm-table-name">${m.first_name} ${m.last_name}</div>
-        <div class="mm-table-email">${m.phone_number ?? '—'}</div>
+        <div class="mm-table-email">${m.primary_phone ?? '—'}</div>
       </div>
     </div>
   </td>
@@ -1731,7 +1735,7 @@ async function _doExportCsv(): Promise<void> {
     const headers = ['Membership #', 'First Name', 'Last Name', 'Status', 'Gender', 'Phone', 'Email', 'Occupation', 'Joined']
     const rows = (_state?.filtered ?? []).map(m => [
       m.membership_number ?? '', m.first_name, m.last_name,
-      m.membership_status, m.gender, m.phone_number ?? '', m.email ?? '',
+      m.membership_status, m.gender, m.primary_phone ?? '', m.email ?? '',
       m.occupation ?? '', fmtDate(m.join_date),
     ])
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
@@ -2534,9 +2538,13 @@ function _buildHTML(): string {
     <div class="mm-form-section-title">Contact</div>
     <div class="mm-form-row">
       <div class="mm-form-field">
-        <label class="mm-form-label">Phone Number <span class="req">*</span></label>
-        <input type="tel" class="mm-form-input" id="mm-fPhone" placeholder="+233 24 000 0000">
-        <div class="mm-form-error" id="mm-err-phone">Phone number is required</div>
+        <label class="mm-form-label">Primary Phone <span class="req">*</span></label>
+        <input type="tel" class="mm-form-input" id="mm-fPrimaryPhone" placeholder="+233 24 000 0000">
+        <div class="mm-form-error" id="mm-err-phone">Primary phone is required</div>
+      </div>
+      <div class="mm-form-field">
+        <label class="mm-form-label">Secondary Phone</label>
+        <input type="tel" class="mm-form-input" id="mm-fSecondaryPhone" placeholder="+233 24 000 0000">
       </div>
       <div class="mm-form-field">
         <label class="mm-form-label">Email Address</label>

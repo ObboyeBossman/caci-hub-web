@@ -91,7 +91,7 @@ function _renderTable(): void {
           <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
           <div>
             <div class="mm-table-name">${m.first_name} ${m.last_name}</div>
-            <div class="mm-table-email">${m.phone_number ?? '—'}</div>
+            <div class="mm-table-email">${m.primary_phone ?? '—'}</div>
           </div>
         </div>
       </td>

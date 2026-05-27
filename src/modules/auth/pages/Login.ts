@@ -254,10 +254,7 @@ export const Login: PageModule = {
         runLoading()
 
       } catch (err) {
-        // As per plan, surface standard inline error "Invalid credentials. Please try again."
-        // Or if mapAuthError handles it specifically, use that.
-        // Let's rely on mapAuthError which returns "Invalid email or password."
-        _showError(mapAuthError(err))
+        _showError(mapAuthError(err, signInMode))
         _setLoading(false)
       }
     }

@@ -68,14 +68,14 @@ serve(async (req: Request) => {
     // Fetch existing phone numbers in the assembly to deduplicate
     const { data: existingMembers, error: fetchErr } = await supabaseAdmin
       .from('members')
-      .select('phone_number, first_name, last_name')
+      .select('primary_phone, secondary_phone, first_name, last_name')
       .eq('assembly_id', assemblyId)
-      .not('phone_number', 'is', null)
+      .not('primary_phone', 'is', null)
 
     if (fetchErr) throw fetchErr
 
     const existingPhones = new Map(
-      existingMembers.map(m => [m.phone_number, `${m.first_name} ${m.last_name}`])
+      existingMembers.map(m => [m.primary_phone, `${m.first_name} ${m.last_name}`])
     )
 
     const validRows: any[] = []
@@ -90,10 +90,10 @@ serve(async (req: Request) => {
         return
       }
 
-      if (m.phone_number && existingPhones.has(m.phone_number)) {
+      if (m.primary_phone && existingPhones.has(m.primary_phone)) {
         errors.push({ 
           row: rowIndex, 
-          reason: `Duplicate phone: ${m.phone_number} (exists for ${existingPhones.get(m.phone_number)})` 
+          reason: `Duplicate phone: ${m.primary_phone} (exists for ${existingPhones.get(m.primary_phone)})` 
         })
         return
       }

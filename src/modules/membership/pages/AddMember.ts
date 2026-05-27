@@ -95,9 +95,13 @@ function _buildHTML(): string { return `
         <input class="mm-form-input" id="am-fOccupation" placeholder="Job title or profession">
       </div>
       <div class="mm-form-group">
-        <label class="mm-form-label">Phone Number</label>
-        <input class="mm-form-input" id="am-fPhone" placeholder="+233 …" type="tel">
-        <div class="mm-form-error" id="am-err-phone">At least one of phone number or email is required.</div>
+        <label class="mm-form-label">Primary Phone</label>
+        <input class="mm-form-input" id="am-fPrimaryPhone" placeholder="+233 …" type="tel">
+        <div class="mm-form-error" id="am-err-phone">At least one of primary phone or email is required.</div>
+      </div>
+      <div class="mm-form-group">
+        <label class="mm-form-label">Secondary Phone</label>
+        <input class="mm-form-input" id="am-fSecondaryPhone" placeholder="+233 …" type="tel">
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Email</label>
@@ -171,7 +175,8 @@ async function _save(container: HTMLElement): Promise<void> {
 
   const firstName = get('am-fFirstName')
   const lastName  = get('am-fLastName')
-  const phone     = get('am-fPhone')
+  const primaryPhone = get('am-fPrimaryPhone')
+  const secondaryPhone = get('am-fSecondaryPhone')
   const email     = get('am-fEmail')
   const gender    = get('am-fGender')
 
@@ -181,7 +186,7 @@ async function _save(container: HTMLElement): Promise<void> {
 
   if (!firstName) showErr('am-err-firstName', 'am-fFirstName'); else hideErr('am-err-firstName', 'am-fFirstName')
   if (!lastName)  showErr('am-err-lastName',  'am-fLastName');  else hideErr('am-err-lastName',  'am-fLastName')
-  if (!phone && !email) showErr('am-err-phone', 'am-fPhone'); else hideErr('am-err-phone', 'am-fPhone')
+  if (!primaryPhone && !email) showErr('am-err-phone', 'am-fPrimaryPhone'); else hideErr('am-err-phone', 'am-fPrimaryPhone')
   if (!gender)    showErr('am-err-gender',    'am-fGender');    else hideErr('am-err-gender',    'am-fGender')
   if (!valid) return
 
@@ -190,7 +195,8 @@ async function _save(container: HTMLElement): Promise<void> {
     last_name:                       lastName,
     gender:                          gender as 'male' | 'female',
     membership_status:               (get('am-fStatus') || 'visitor') as any,
-    phone_number:                    phone || null,
+    primary_phone:                   primaryPhone || null,
+    secondary_phone:                 secondaryPhone || null,
     email:                           get('am-fEmail') || null,
     date_of_birth:                   get('am-fDOB') || null,
     marital_status:                  (get('am-fMarital') || null) as any,

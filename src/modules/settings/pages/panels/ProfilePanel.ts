@@ -183,7 +183,7 @@ export function profilePanelHTML(
   const dob              = member?.date_of_birth ?? null;
   const gender           = member?.gender ?? null;
   const marital          = member?.marital_status ?? null;
-  const phone            = member?.phone_number ?? null;
+  const phone            = member?.primary_phone ?? null;
   const whatsapp         = member?.whatsapp_number ?? null;
   const address          = member?.physical_address ?? null;
   const occupation       = member?.occupation ?? null;

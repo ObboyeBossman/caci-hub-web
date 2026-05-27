@@ -97,7 +97,7 @@ const HouseholdDetail: PageModule = {
                  </td>
                  <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
                  <td style="font-size:12px;">${fmtDate(m.join_date)}</td>
-                 <td style="font-size:12px;">${m.phone_number ?? '—'}</td>
+                 <td style="font-size:12px;">${m.primary_phone ?? '—'}</td>
                  <td>
                    <button class="mm-btn-icon" data-hd-view-member="${m.id}" title="View profile">
                      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

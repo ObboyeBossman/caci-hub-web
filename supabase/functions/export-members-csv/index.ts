@@ -9,7 +9,8 @@ const COLUMN_ORDER = [
   'last_name',
   'gender',
   'date_of_birth',
-  'phone_number',
+  'primary_phone',
+  'secondary_phone',
   'email',
   'physical_address',
   'occupation',
@@ -26,7 +27,8 @@ const HEADER_LABEL: Record<string, string> = {
   last_name: 'Last Name',
   gender: 'Gender',
   date_of_birth: 'Date of Birth',
-  phone_number: 'Phone Number',
+  primary_phone: 'Primary Phone',
+  secondary_phone: 'Secondary Phone',
   email: 'Email',
   physical_address: 'Physical Address',
   occupation: 'Occupation',
@@ -135,7 +137,7 @@ serve(async (req: Request) => {
       .from('members')
       .select(`
         membership_number, first_name, last_name, gender,
-        date_of_birth, phone_number, email, physical_address,
+        date_of_birth, primary_phone, secondary_phone, email, physical_address,
         occupation, marital_status, membership_status, join_date,
         created_at, updated_at
       `)

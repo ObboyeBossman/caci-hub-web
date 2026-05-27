@@ -54,7 +54,12 @@ export const CreateMemberSchema = z.object({
   marital_status: MaritalStatusSchema.nullable().optional(),
 
   // Contact
-  phone_number: z
+  primary_phone: z
+    .string()
+    .max(30)
+    .nullable()
+    .optional(),
+  secondary_phone: z
     .string()
     .max(30)
     .nullable()
@@ -85,10 +90,10 @@ export const CreateMemberSchema = z.object({
     .optional(),
   household_id: z.string().uuid().nullable().optional(),
 }).refine(
-  (data) => data.phone_number || data.email,
+  (data) => data.primary_phone || data.email,
   {
     message: 'At least one of phone number or email is required',
-    path: ['phone_number'],
+    path: ['primary_phone'],
   }
 )
 
@@ -109,7 +114,8 @@ export const UpdateMemberSchema = z.object({
   marital_status: MaritalStatusSchema.nullable().optional(),
 
   // Contact
-  phone_number: z.string().max(30).nullable().optional(),
+  primary_phone: z.string().max(30).nullable().optional(),
+  secondary_phone: z.string().max(30).nullable().optional(),
   email: z.string().email().nullable().optional(),
   physical_address: z.string().max(300).nullable().optional(),
   occupation: z.string().max(150).nullable().optional(),

@@ -108,9 +108,13 @@ function _buildHTML(m: MemberView): string { return `
         <input class="mm-form-input" id="em-fOccupation" value="${m.occupation ?? ''}">
       </div>
       <div class="mm-form-group">
-        <label class="mm-form-label">Phone Number</label>
-        <input class="mm-form-input" id="em-fPhone" type="tel" value="${m.phone_number ?? ''}">
-        <div class="mm-form-error" id="em-err-phone">At least one of phone number or email is required.</div>
+        <label class="mm-form-label">Primary Phone</label>
+        <input class="mm-form-input" id="em-fPrimaryPhone" type="tel" value="${m.primary_phone ?? ''}">
+        <div class="mm-form-error" id="em-err-phone">At least one of primary phone or email is required.</div>
+      </div>
+      <div class="mm-form-group">
+        <label class="mm-form-label">Secondary Phone</label>
+        <input class="mm-form-input" id="em-fSecondaryPhone" type="tel" value="${m.secondary_phone ?? ''}">
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Email</label>
@@ -186,7 +190,8 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
 
   const firstName = get('em-fFirstName')
   const lastName  = get('em-fLastName')
-  const phone     = get('em-fPhone')
+  const primaryPhone = get('em-fPrimaryPhone')
+  const secondaryPhone = get('em-fSecondaryPhone')
   const email     = get('em-fEmail')
 
   let valid = true
@@ -194,7 +199,7 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
   const hideErr = (e: string, i: string) => { container.querySelector(`#${e}`)?.classList.remove('show'); container.querySelector(`#${i}`)?.classList.remove('error') }
   if (!firstName) showErr('em-err-firstName','em-fFirstName'); else hideErr('em-err-firstName','em-fFirstName')
   if (!lastName)  showErr('em-err-lastName', 'em-fLastName');  else hideErr('em-err-lastName', 'em-fLastName')
-  if (!phone && !email) showErr('em-err-phone', 'em-fPhone'); else hideErr('em-err-phone', 'em-fPhone')
+  if (!primaryPhone && !email) showErr('em-err-phone', 'em-fPrimaryPhone'); else hideErr('em-err-phone', 'em-fPrimaryPhone')
   if (!valid) return
 
   const payload = {
@@ -202,7 +207,8 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
     last_name:                      lastName,
     gender:                         get('em-fGender') as any,
     membership_status:              get('em-fStatus') as any,
-    phone_number:                   phone || null,
+    primary_phone:                  primaryPhone || null,
+    secondary_phone:                secondaryPhone || null,
     email:                          get('em-fEmail') || null,
     date_of_birth:                  get('em-fDOB') || null,
     marital_status:                 (get('em-fMarital') || null) as any,

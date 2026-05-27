@@ -100,7 +100,7 @@ serve(async (req: Request) => {
 
     const { data: member, error: memErr } = await supabaseAdmin
       .from('members')
-      .select('id, assembly_id, first_name, last_name, email, phone_number, is_active, deleted_at, auth_user_id')
+      .select('id, assembly_id, first_name, last_name, email, primary_phone, secondary_phone, is_active, deleted_at, auth_user_id')
       .eq('id', memberId)
       .single()
 
@@ -171,7 +171,7 @@ serve(async (req: Request) => {
 
         responseData = { userId: newUserId, email: emailFinal, fullName, role, path: 'invite' }
       } else if (path === 'default_password') {
-        if (!member.phone_number) {
+        if (!member.primary_phone) {
           return new Response(JSON.stringify({ error: 'Member has no phone number. A phone number is required for this provisioning method.' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -192,7 +192,7 @@ serve(async (req: Request) => {
         }
 
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-          phone: member.phone_number,
+          phone: member.primary_phone,
           password: assembly.default_member_password,
           phone_confirm: true,
         })
@@ -214,7 +214,7 @@ serve(async (req: Request) => {
           .update({ auth_user_id: newUserId })
           .eq('id', memberId)
 
-        responseData = { userId: newUserId, phone: member.phone_number, fullName, role, path: 'default_password' }
+        responseData = { userId: newUserId, phone: member.primary_phone, fullName, role, path: 'default_password' }
       } else if (path === 'custom_password') {
         const emailFinal = (body.email ?? member.email)?.trim().toLowerCase()
         if (!emailFinal) {

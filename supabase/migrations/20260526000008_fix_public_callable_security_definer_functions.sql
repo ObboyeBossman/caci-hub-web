@@ -40,10 +40,10 @@ CREATE POLICY "member_photos_authenticated_read"
   TO authenticated
   USING (bucket_id = 'member-photos');
 
-COMMENT ON POLICY "member_photos_authenticated_read" ON storage.objects IS
-  'Authenticated users can SELECT (read/download) member photos. '
-  'The `anon` role cannot list bucket contents. Public CDN URLs remain '
-  'accessible without this policy because the bucket itself is set to public.';
+-- COMMENT ON POLICY "member_photos_authenticated_read" ON storage.objects IS
+--   'Authenticated users can SELECT (read/download) member photos. '
+--   'The `anon` role cannot list bucket contents. Public CDN URLs remain '
+--   'accessible without this policy because the bucket itself is set to public.';
 
 
 -- ── 2a. assign_membership_number — revoke anon, grant authenticated ────────────

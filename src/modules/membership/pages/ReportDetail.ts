@@ -41,7 +41,7 @@ const ReportDetail: PageModule = {
       <td>${m.first_name} ${m.last_name}</td>
       <td>${m.membership_status}</td>
       <td>${fmtDate(m.join_date)}</td>
-      <td>${m.phone_number ?? '—'}</td>
+      <td>${m.primary_phone ?? '—'}</td>
     </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--mm-text-muted)">No new members in the last 30 days.</td></tr>'}
   </tbody>
 </table>`

@@ -45,7 +45,7 @@ serve(async (req: Request) => {
 
     const { data: member, error: memberError } = await supabase
       .from('members')
-      .select('first_name, phone_number')
+      .select('first_name, primary_phone')
       .eq('id', memberId)
       .single()
 
@@ -56,7 +56,7 @@ serve(async (req: Request) => {
       })
     }
 
-    if (!member.phone_number) {
+    if (!member.primary_phone) {
       return new Response(JSON.stringify({ delivered: false, reason: 'no_phone' }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -84,7 +84,7 @@ serve(async (req: Request) => {
       body: JSON.stringify({
         sender: arkeselSender,
         message: `Dear ${member.first_name}, welcome to CACI International! Your membership is now active.`,
-        recipients: [member.phone_number],
+        recipients: [member.primary_phone],
       }),
     })
 

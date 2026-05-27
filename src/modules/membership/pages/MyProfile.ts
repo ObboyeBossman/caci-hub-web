@@ -113,7 +113,8 @@ const MyProfile: PageModule = {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
         <div>
           <div class="mm-detail-section-title">Contact Details</div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Phone</span><span class="mm-detail-field-val">${member.phone_number ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Primary Phone</span><span class="mm-detail-field-val">${member.primary_phone ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Secondary Phone</span><span class="mm-detail-field-val">${member.secondary_phone ?? '—'}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="word-break:break-all;font-size:12px;">${member.email ?? '—'}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size:12px;">${member.physical_address ?? '—'}</span></div>
         </div>
@@ -162,7 +163,7 @@ const MyProfile: PageModule = {
       navigate(`/members/${member.id}/edit`)
     )
     container.querySelector('#mp-smsBtn')?.addEventListener('click', () => {
-      if (member.phone_number) Toast.info(`SMS compose for ${member.first_name} — ${member.phone_number}`)
+      if (member.primary_phone) Toast.info(`SMS compose for ${member.first_name} — ${member.primary_phone}`)
       else Toast.warning('No phone number on record.')
     })
   },

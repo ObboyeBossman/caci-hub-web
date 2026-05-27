@@ -38,14 +38,19 @@ export interface HydratedUser {
 // ── Error mapping ─────────────────────────────────────────────────────────────
 // Mirrors: auth_repository.dart _mapAuthException()
 
-export function mapAuthError(err: unknown): string {
+export function mapAuthError(err: unknown, mode: 'email' | 'phone' = 'email'): string {
   const msg = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase()
 
   if (msg.includes('rate') || msg.includes('too many')) {
     return 'Too many attempts. Please try again in 15 minutes.'
   }
   if (msg.includes('invalid') || msg.includes('credentials') || msg.includes('password')) {
-    return 'Invalid email or password.'
+    return mode === 'phone'
+      ? 'Invalid phone number or password.'
+      : 'Invalid email or password.'
+  }
+  if (msg.includes('phone') && (msg.includes('not') || msg.includes('disabled') || msg.includes('unsupported'))) {
+    return 'Phone sign-in is not enabled. Please use email or contact your administrator.'
   }
   if (msg.includes('not found') || msg.includes('no user')) {
     return 'Authentication succeeded but no user profile exists. Please contact support.'

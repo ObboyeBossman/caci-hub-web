@@ -9,7 +9,17 @@ import type { Database } from './database.types'
 
 // ── Core DB types ─────────────────────────────────────────────────────────────
 export type MemberRow  = Database['public']['Tables']['members']['Row']
-export type MemberView = Database['public']['Views']['members_view']['Row']
+export type MemberView = Database['public']['Views']['members_view']['Row'] & {
+  id: string;
+  assembly_id: string;
+  first_name: string;
+  last_name: string;
+  gender: Database['public']['Enums']['gender_type'];
+  is_active: boolean;
+  membership_status: Database['public']['Enums']['membership_status'];
+  created_at: string;
+  updated_at: string;
+}
 
 // ── Enums — mirrors gender_type.dart, membership_status.dart, marital_status.dart
 export type MemberStatus  = Database['public']['Enums']['membership_status']
@@ -37,7 +47,8 @@ export interface CreateMemberPayload {
   membership_status:              MemberStatus   // default: 'visitor'
   date_of_birth?:                 string | null  // ISO 8601 date string
   marital_status?:                MaritalStatus | null
-  phone_number?:                  string | null
+  primary_phone?:                 string | null
+  secondary_phone?:               string | null
   email?:                         string | null
   physical_address?:              string | null
   occupation?:                    string | null
@@ -167,7 +178,8 @@ export interface BulkMemberRow {
   last_name:         string
   gender:            'male' | 'female'
   membership_status?: string
-  phone_number?:     string | null
+  primary_phone?:    string | null
+  secondary_phone?:  string | null
   email?:            string | null
   date_of_birth?:    string | null   // YYYY-MM-DD
   marital_status?:   string | null

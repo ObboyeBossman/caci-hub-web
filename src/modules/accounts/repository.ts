@@ -215,7 +215,6 @@ export async function updateUserRole(userId: string, role: UserRoleEnum): Promis
   try {
     const { error } = await supabase
       .from('user_profiles')
-      // @ts-expect-error Supabase generic inference fault on user_profiles
       .update({ role } as any)
       .eq('id', userId)
 
@@ -233,7 +232,6 @@ export async function setUserActive(userId: string, active: boolean): Promise<vo
   try {
     const { error } = await supabase
       .from('user_profiles')
-      // @ts-expect-error Supabase generic inference fault on user_profiles
       .update({ is_active: active } as any)
       .eq('id', userId)
 
@@ -430,7 +428,6 @@ export async function updateAssemblyRole(
   try {
     const { error } = await supabase
       .from('assembly_roles')
-      // @ts-expect-error Supabase generic inference fault on assembly_roles
       .update(payload as any)
       .eq('id', id)
     if (error) throw error
@@ -497,7 +494,6 @@ export async function assignRoleToUser(
   try {
     const { error } = await supabase
       .from('user_profiles')
-      // @ts-expect-error Supabase generic inference fault on user_profiles
       .update({ role_id: roleId } as any)
       .eq('id', userId)
     if (error) throw error

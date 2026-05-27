@@ -6,7 +6,8 @@ export const BulkMemberRowSchema = z.object({
   gender:            z.enum(['male', 'female']),
   membership_status: z.enum(['active','inactive','visitor','prospect','transfer','deceased'])
                       .default('active'),
-  phone_number:      z.string().nullable().optional(),
+  primary_phone:     z.string().nullable().optional(),
+  secondary_phone:   z.string().nullable().optional(),
   email:             z.string().email('Invalid email').nullable().optional(),
   date_of_birth:     z.string().date('Use YYYY-MM-DD format').nullable().optional(),
   marital_status:    z.enum(['single','married','widowed','divorced','separated'])
@@ -15,10 +16,10 @@ export const BulkMemberRowSchema = z.object({
   occupation:        z.string().nullable().optional(),
   physical_address:  z.string().nullable().optional(),
 }).refine(
-  (data) => data.phone_number || data.email,
+  (data) => data.primary_phone || data.email,
   {
-    message: 'At least one of phone_number or email is required',
-    path: ['phone_number'],
+    message: 'At least one of primary_phone or email is required',
+    path: ['primary_phone'],
   }
 )
 
