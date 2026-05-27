@@ -143,7 +143,7 @@ export const Login: PageModule = {
                     <option value="+44">🇬🇧 +44</option>
                     <option value="+234">🇳🇬 +234</option>
                   </select>
-                  <input type="tel" id="signin-phone-input" class="auth-input" placeholder="24 123 4567" autocomplete="tel" style="flex:1;">
+                  <input type="tel" id="signin-phone-input" class="auth-input" placeholder="24 123 4567" autocomplete="tel" maxlength="11" style="flex:1;">
                 </div>
               </div>
 
@@ -237,7 +237,8 @@ export const Login: PageModule = {
       if (signInMode === 'email') {
         identifierValue = emailInput.value.trim()
       } else {
-        const rawPhone = phoneInput.value.trim().replace(/^0+/, '')
+        // Strip spaces then leading zeros before concatenating with country code
+        const rawPhone = phoneInput.value.replace(/\s/g, '').replace(/^0+/, '')
         identifierValue = rawPhone ? countryCode.value + rawPhone : ''
       }
 
@@ -290,6 +291,27 @@ export const Login: PageModule = {
 
     container.querySelector('#signin-phone-input')
       ?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') handleSignInInternal() })
+
+    // Auto-format phone input: XX XXX XXXX (9 digits max)
+    container.querySelector('#signin-phone-input')
+      ?.addEventListener('input', (e) => {
+        const el = e.target as HTMLInputElement
+        const cursorPos = el.selectionStart ?? 0
+        const prevLen = el.value.length
+        const digits = el.value.replace(/\D/g, '').slice(0, 9)
+        let formatted = ''
+        if (digits.length <= 2) {
+          formatted = digits
+        } else if (digits.length <= 5) {
+          formatted = digits.slice(0, 2) + ' ' + digits.slice(2)
+        } else {
+          formatted = digits.slice(0, 2) + ' ' + digits.slice(2, 5) + ' ' + digits.slice(5)
+        }
+        el.value = formatted
+        // Preserve cursor: shift by the extra space chars added
+        const diff = formatted.length - prevLen
+        el.setSelectionRange(cursorPos + diff, cursorPos + diff)
+      })
 
     container.querySelector('#eye-btn')
       ?.addEventListener('click', () => _toggleEye('signin-pw', 'eye-btn'))
