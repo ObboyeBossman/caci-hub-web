@@ -45,3 +45,8 @@ export function injectMembershipCSS(): void {
   link.href = '/src/modules/membership/styles/membership.css'
   document.head.appendChild(link)
 }
+
+export function formatName(firstName: string, lastName: string, title?: string | null): string {
+  const name = `${firstName} ${lastName}`
+  return title ? `${title} ${name}` : name
+}

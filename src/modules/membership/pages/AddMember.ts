@@ -3,6 +3,7 @@
 // The drawer uses the existing mm-modal-overlay + mm-modal-drawer classes.
 // Navigation: 4-step stepper with circular progress indicator.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule }           from '../../../types/module.types'
 import { Toast }                     from '@shared/components/Toast'
 import { navigate }                  from '@core/router'
@@ -284,7 +285,7 @@ async function _submit(container: HTMLElement): Promise<void> {
 
   try {
     const result = await registerMember(payload)
-    let msg = `${payload.first_name} ${payload.last_name} registered successfully.`
+    let msg = `${formatName(payload.first_name, payload.last_name, payload.title)} registered successfully.`
     if (result.membershipNumber) msg += ` Membership #: ${result.membershipNumber}`
     Toast.success(msg)
     navigate(`/members/${result.member.id}`)

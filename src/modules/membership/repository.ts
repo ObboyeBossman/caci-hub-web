@@ -29,6 +29,7 @@ import type {
   CreateHouseholdPayload,
   UpdateHouseholdPayload,
 } from '../../types/member.types'
+import { formatName } from './utils/member-helpers'
 
 // ── PostgREST embed — mirrors SupabaseMemberDataSource._memberViewSelect ──────
 // Join household name inline so the view row includes households.family_name.
@@ -300,7 +301,7 @@ export async function getMemberSummary(memberId: string) {
   try {
     const { data, error } = await supabase
       .from('members_view')
-      .select('id, first_name, last_name, profile_photo_url, membership_status, assembly_id')
+      .select('id, title, first_name, last_name, profile_photo_url, membership_status, assembly_id')
       .eq('id', memberId)
       .single()
 
@@ -316,7 +317,7 @@ export async function getMemberSummary(memberId: string) {
       assembly_id: string
     }
 
-    const full_name = `${d.first_name} ${d.last_name}`
+    const full_name = formatName(d.first_name, d.last_name, (d as any).title)
     const initials = [d.first_name[0], d.last_name[0]]
       .filter(Boolean)
       .join('')
@@ -345,7 +346,7 @@ export async function getMemberSummaries(ids: string[]) {
   try {
     const { data, error } = await supabase
       .from('members_view')
-      .select('id, first_name, last_name, profile_photo_url, membership_status, assembly_id')
+      .select('id, title, first_name, last_name, profile_photo_url, membership_status, assembly_id')
       .in('id', ids)
 
     if (error) return []
@@ -354,7 +355,7 @@ export async function getMemberSummaries(ids: string[]) {
       id: d.id as string,
       first_name: d.first_name as string,
       last_name: d.last_name as string,
-      full_name: `${d.first_name} ${d.last_name}`,
+      full_name: formatName(d.first_name, d.last_name, d.title),
       initials: `${(d.first_name as string)[0] ?? ''}${(d.last_name as string)[0] ?? ''}`.toUpperCase(),
       profile_photo_url: d.profile_photo_url as string | null,
       membership_status: d.membership_status as string,
@@ -710,10 +711,10 @@ export async function listHouseholds(
     if (contactIds.length > 0) {
       const { data: contacts } = await supabase
         .from('members')
-        .select('id, first_name, last_name')
+        .select('id, title, first_name, last_name')
         .in('id', contactIds)
         ; (contacts ?? []).forEach((c: any) => {
-          contactMap.set(c.id, `${c.first_name} ${c.last_name}`)
+          contactMap.set(c.id, formatName(c.first_name, c.last_name, c.title))
         })
     }
 
@@ -746,7 +747,7 @@ export async function getHousehold(householdId: string): Promise<HouseholdWithMe
         `*,
          members!members_household_id_fkey(count),
          primary_contact:members!households_primary_contact_id_fkey(
-           id, first_name, last_name
+           id, title, first_name, last_name
          )`
       )
       .eq('id', householdId)
@@ -776,7 +777,7 @@ export async function getHousehold(householdId: string): Promise<HouseholdWithMe
       updated_at: row.updated_at as string,
       member_count: (row.members as { count: number }[])?.[0]?.count ?? 0,
       primary_contact_name: row.primary_contact
-        ? `${(row.primary_contact as any).first_name} ${(row.primary_contact as any).last_name}`
+        ? formatName((row.primary_contact as any).first_name, (row.primary_contact as any).last_name, (row.primary_contact as any).title)
         : null,
       members: (memberData ?? []) as MemberView[],
     }

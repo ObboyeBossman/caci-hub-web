@@ -1,6 +1,7 @@
 // src/modules/membership/pages/HouseholdDetail.ts
 // Full household detail: header, member list, edit/delete/primary-contact actions.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
@@ -83,14 +84,14 @@ const HouseholdDetail: PageModule = {
            <tbody>
              ${household.members.map(m => {
                const s = statusBadge(m.membership_status)
-               const bg = avatarColor(`${m.first_name} ${m.last_name}`)
+               const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
                const ini = initials(m.first_name, m.last_name)
                return `<tr>
                  <td>
                    <div class="mm-table-name-cell">
                      <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
                      <div>
-                       <div class="mm-table-name">${m.first_name} ${m.last_name}</div>
+                       <div class="mm-table-name">${formatName(m.first_name, m.last_name, m.title)}</div>
                        <div class="mm-table-email">${m.email ?? '—'}</div>
                      </div>
                    </div>

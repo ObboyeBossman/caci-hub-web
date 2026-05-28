@@ -1,6 +1,7 @@
 // src/modules/membership/pages/MemberProfile.ts
 // Full-page member profile — navigated to via /members/:id
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule }             from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast }                       from '@shared/components/Toast'
@@ -38,7 +39,7 @@ const MemberProfile: PageModule = {
     }
 
     const s  = statusBadge(member.membership_status)
-    const bg = avatarColor(`${member.first_name} ${member.last_name}`)
+    const bg = avatarColor(`${formatName(member.first_name, member.last_name, member.title)}`)
     const ini = initials(member.first_name, member.last_name)
     const currentUser = getCurrentUser()
     const isAdmin = currentUser?.role === 'admin'
@@ -65,7 +66,7 @@ const MemberProfile: PageModule = {
       font-size:24px;font-weight:700;flex-shrink:0;">${ini}</div>
     <div style="flex:1;">
       <div style="font-size:22px;font-weight:700;color:var(--mm-text-primary);
-        margin-bottom:4px;">${member.first_name} ${member.last_name}</div>
+        margin-bottom:4px;">${formatName(member.first_name, member.last_name, member.title)}</div>
       <div style="font-size:12px;color:var(--mm-text-muted);font-family:monospace;
         margin-bottom:10px;">${member.membership_number ?? 'No membership number yet'}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -204,10 +205,10 @@ const MemberProfile: PageModule = {
 
     // Deactivate
     container.querySelector('#mp-deactivateBtn')?.addEventListener('click', async () => {
-      if (!confirm(`Deactivate ${member.first_name} ${member.last_name}?`)) return
+      if (!confirm(`Deactivate ${formatName(member.first_name, member.last_name, member.title)}?`)) return
       try {
         await deactivateMember(member.id)
-        Toast.success(`${member.first_name} ${member.last_name} deactivated.`)
+        Toast.success(`${formatName(member.first_name, member.last_name, member.title)} deactivated.`)
         navigate('/members')
       } catch (err) {
         Toast.fromError(err)
@@ -221,7 +222,7 @@ const MemberProfile: PageModule = {
 
     // Reset Password
     container.querySelector('#mp-resetPwBtn')?.addEventListener('click', async () => {
-      if (!confirm(`Reset ${member.first_name} ${member.last_name} to assembly default password? They will be required to change it on next login.`)) return
+      if (!confirm(`Reset ${formatName(member.first_name, member.last_name, member.title)} to assembly default password? They will be required to change it on next login.`)) return
       const { error } = await supabase.functions.invoke('reset-member-password', {
         body: { memberId: member.id }
       })

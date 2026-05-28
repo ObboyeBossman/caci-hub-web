@@ -1,6 +1,7 @@
 // src/modules/membership/pages/EditPastoralNotes.ts
 // Edit pastoral notes for a given member.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
@@ -39,7 +40,7 @@ const EditPastoralNotes: PageModule = {
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;padding:28px;">
     <h2 style="margin:0 0 6px;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Pastoral Notes</h2>
     <div style="font-size:13px;color:var(--mm-text-secondary);margin-bottom:22px;">
-      ${member.first_name} ${member.last_name} — visible to admin and pastor only.
+      ${formatName(member.first_name, member.last_name, member.title)} — visible to admin and pastor only.
     </div>
 
     <div class="mm-form-group">

@@ -1,6 +1,7 @@
 // src/modules/membership/pages/AuditLog.ts
 // Assembly-wide member audit log — visible to admin and pastor roles.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { navigate } from '@core/router'
@@ -56,7 +57,7 @@ const AuditLog: PageModule = {
         changed_at:     r.changed_at,
         changed_by_name: actorMap.get(r.changed_by) ?? null,
         member_name: r.members_view
-          ? `${r.members_view.first_name} ${r.members_view.last_name}`
+          ? `${formatName(r.members_view.first_name, r.members_view.last_name, r.members_view.title)}`
           : null,
       }))
     } catch (err) {

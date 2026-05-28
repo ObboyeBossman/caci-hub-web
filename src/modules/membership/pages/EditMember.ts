@@ -2,6 +2,7 @@
 // Standalone full-page edit-member form.
 // Reads member ID from container.dataset.id.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
@@ -90,7 +91,7 @@ function _buildHTML(m: MemberView): string { return `
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;padding:28px;">
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Edit Member</h2>
     <div style="font-size:13px;color:var(--mm-text-secondary);margin-bottom:24px;">
-      ${m.first_name} ${m.last_name} · ${m.membership_number ?? 'No membership number'}
+      ${formatName(m.first_name, m.last_name, m.title)} · ${m.membership_number ?? 'No membership number'}
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">

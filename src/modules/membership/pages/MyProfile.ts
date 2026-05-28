@@ -2,6 +2,7 @@
 // The current user's own member profile page.
 // Looks up the linked member record via getCurrentUser().
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
@@ -43,7 +44,7 @@ const MyProfile: PageModule = {
     }
 
     const s   = statusBadge(member.membership_status)
-    const bg  = avatarColor(`${member.first_name} ${member.last_name}`)
+    const bg  = avatarColor(`${formatName(member.first_name, member.last_name, member.title)}`)
     const ini = initials(member.first_name, member.last_name)
 
     container.innerHTML = `
@@ -61,7 +62,7 @@ const MyProfile: PageModule = {
       font-size:24px;font-weight:700;flex-shrink:0;">${ini}</div>
     <div style="flex:1;">
       <div style="font-size:22px;font-weight:700;color:var(--mm-text-primary);margin-bottom:4px;">
-        ${member.first_name} ${member.last_name}
+        ${formatName(member.first_name, member.last_name, member.title)}
       </div>
       <div style="font-size:12px;color:var(--mm-text-muted);font-family:monospace;margin-bottom:10px;">
         ${member.membership_number ?? 'No membership number yet'}

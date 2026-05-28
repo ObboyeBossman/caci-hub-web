@@ -1,6 +1,7 @@
 // src/modules/membership/pages/HouseholdEdit.ts
 // Edit an existing household.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
@@ -75,7 +76,7 @@ const HouseholdEdit: PageModule = {
       members.forEach(m => {
         const o = document.createElement('option')
         o.value = m.id
-        o.textContent = `${m.first_name} ${m.last_name}`
+        o.textContent = `${formatName(m.first_name, m.last_name, m.title)}`
         if (m.id === household.primary_contact_id) o.selected = true
         sel.appendChild(o)
       })

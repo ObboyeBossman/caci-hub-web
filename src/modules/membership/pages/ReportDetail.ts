@@ -1,6 +1,7 @@
 // src/modules/membership/pages/ReportDetail.ts
 // Single report detail page — renders from container.dataset.type.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
@@ -38,7 +39,7 @@ const ReportDetail: PageModule = {
   <thead><tr><th>Name</th><th>Status</th><th>Joined</th><th>Phone</th></tr></thead>
   <tbody>
     ${filtered.map(m => `<tr>
-      <td>${m.first_name} ${m.last_name}</td>
+      <td>${formatName(m.first_name, m.last_name, m.title)}</td>
       <td>${m.membership_status}</td>
       <td>${fmtDate(m.join_date)}</td>
       <td>${m.primary_phone ?? '—'}</td>

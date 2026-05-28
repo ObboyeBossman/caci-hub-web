@@ -1,6 +1,7 @@
 // src/modules/membership/widgets/NewMembersWidget.ts
 // Dashboard widget — 5 most recently joined members.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { listMembers } from '../repository'
 import { avatarColor, initials, fmtDate, injectMembershipCSS } from '../utils/member-helpers'
@@ -25,7 +26,7 @@ const NewMembersWidget: PageModule = {
       container.innerHTML = `
 <div style="display:flex;flex-direction:column;gap:10px;">
   ${members.map(m => {
-    const bg  = avatarColor(`${m.first_name} ${m.last_name}`)
+    const bg  = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
     const ini = initials(m.first_name, m.last_name)
     return `
 <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;
@@ -38,7 +39,7 @@ const NewMembersWidget: PageModule = {
   <div style="flex:1;min-width:0;">
     <div style="font-size:13px;font-weight:600;color:var(--mm-text-primary);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-      ${m.first_name} ${m.last_name}
+      ${formatName(m.first_name, m.last_name, m.title)}
     </div>
     <div style="font-size:11px;color:var(--mm-text-muted);">Joined ${fmtDate(m.join_date ?? m.created_at)}</div>
   </div>

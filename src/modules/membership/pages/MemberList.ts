@@ -18,6 +18,7 @@
 // inside the same page container via tab switching — they do NOT have
 // their own route. This matches the reference HTML's single-page design.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import type { MemberView, MemberFilter } from '../../../types/member.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
@@ -203,7 +204,7 @@ function _applyFilters(): void {
       return false
     // search
     if (q) {
-      const full = `${m.first_name} ${m.last_name}`.toLowerCase()
+      const full = `${formatName(m.first_name, m.last_name, m.title)}`.toLowerCase()
       const num = (m.membership_number ?? '').toLowerCase()
       const ph = (m.primary_phone ?? '').toLowerCase()
       const occ = (m.occupation ?? '').toLowerCase()
@@ -216,8 +217,8 @@ function _applyFilters(): void {
   // sort
   _state.filtered.sort((a, b) => {
     switch (_state!.sortMode) {
-      case 'name-asc': return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)
-      case 'name-desc': return `${b.first_name} ${b.last_name}`.localeCompare(`${a.first_name} ${a.last_name}`)
+      case 'name-asc': return `${formatName(a.first_name, a.last_name, a.title)}`.localeCompare(`${formatName(b.first_name, b.last_name, b.title)}`)
+      case 'name-desc': return `${formatName(b.first_name, b.last_name, b.title)}`.localeCompare(`${formatName(a.first_name, a.last_name, a.title)}`)
       case 'joined-asc': return (a.join_date ?? a.created_at).localeCompare(b.join_date ?? b.created_at)
       case 'joined-desc': return (b.join_date ?? b.created_at).localeCompare(a.join_date ?? a.created_at)
       case 'status': return a.membership_status.localeCompare(b.membership_status)
@@ -380,14 +381,14 @@ function _renderPagination(): void {
 
 function _gridCard(m: MemberView, selected: boolean): string {
   const s = statusBadge(m.membership_status)
-  const bg = avatarColor(`${m.first_name} ${m.last_name}`)
+  const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
   const ini = initials(m.first_name, m.last_name)
   const gCls = m.gender === 'female' ? 'purple' : ''
   return `
 <div class="mm-member-card ${selected ? 'selected' : ''}" data-member-id="${m.id}">
   <div class="mm-card-check"></div>
   <div class="mm-card-avatar" style="background:${bg}">${ini}</div>
-  <div class="mm-card-name">${m.first_name} ${m.last_name}</div>
+  <div class="mm-card-name">${formatName(m.first_name, m.last_name, m.title)}</div>
   <div class="mm-card-id">${m.membership_number ?? '—'}</div>
   <div class="mm-card-role">${m.occupation ?? 'Member'}</div>
   <div class="mm-card-footer">
@@ -402,7 +403,7 @@ function _gridCard(m: MemberView, selected: boolean): string {
 
 function _tableRow(m: MemberView, selected: boolean): string {
   const s = statusBadge(m.membership_status)
-  const bg = avatarColor(`${m.first_name} ${m.last_name}`)
+  const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
   const ini = initials(m.first_name, m.last_name)
   return `
 <tr data-row-id="${m.id}">
@@ -413,7 +414,7 @@ function _tableRow(m: MemberView, selected: boolean): string {
     <div class="mm-table-name-cell">
       <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
       <div>
-        <div class="mm-table-name">${m.first_name} ${m.last_name}</div>
+        <div class="mm-table-name">${formatName(m.first_name, m.last_name, m.title)}</div>
         <div class="mm-table-email">${m.email ?? '—'}</div>
       </div>
     </div>
@@ -446,7 +447,7 @@ function _openDetail(m: MemberView): void {
   const panel = _container.querySelector('#mm-detailPanel')!
   const overlay = _container.querySelector('#mm-detailOverlay')!
   const body = _container.querySelector<HTMLElement>('#mm-detailBody')!
-  const bg = avatarColor(`${m.first_name} ${m.last_name}`)
+  const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
   const ini = initials(m.first_name, m.last_name)
   const s = statusBadge(m.membership_status)
   
@@ -463,7 +464,7 @@ function _openDetail(m: MemberView): void {
 <div class="mm-detail-tab-panel active" id="mm-dp-profile">
   <div class="mm-detail-avatar-wrap">
     <div class="mm-detail-avatar" style="background:${bg}">${ini}</div>
-    <div class="mm-detail-name">${m.title ? m.title + ' ' : ''}${m.first_name} ${m.last_name}</div>
+    <div class="mm-detail-name">${m.title ? m.title + ' ' : ''}${formatName(m.first_name, m.last_name, m.title)}</div>
     <div class="mm-detail-id">${m.membership_number ?? 'No number yet'}</div>
     <div class="mm-detail-badges">
       <span class="mm-badge ${s.cls}">${s.label}</span>
@@ -559,7 +560,7 @@ function _openDetail(m: MemberView): void {
   // SMS
   body.querySelector('#mm-detail-sms')?.addEventListener('click', () => {
     if (m.primary_phone) {
-      Toast.info(`SMS compose for ${m.first_name} ${m.last_name} — ${m.primary_phone}`)
+      Toast.info(`SMS compose for ${formatName(m.first_name, m.last_name, m.title)} — ${m.primary_phone}`)
     } else {
       Toast.warning('No phone number on record for this member.')
     }
@@ -567,10 +568,10 @@ function _openDetail(m: MemberView): void {
 
   // Deactivate
   body.querySelector('#mm-detail-deactivate')?.addEventListener('click', async () => {
-    if (!confirm(`Deactivate ${m.first_name} ${m.last_name}? They will be marked inactive.`)) return
+    if (!confirm(`Deactivate ${formatName(m.first_name, m.last_name, m.title)}? They will be marked inactive.`)) return
     try {
       await deactivateMember(m.id)
-      Toast.success(`${m.first_name} ${m.last_name} has been deactivated.`)
+      Toast.success(`${formatName(m.first_name, m.last_name, m.title)} has been deactivated.`)
       _closeDetail()
       await _loadMembers()
       _renderMembers()
@@ -757,7 +758,7 @@ function _renderAttTable(): void {
   tbody.innerHTML = relevant.map(m => {
     const status = _state!.memberAtt[m.id] ?? 'present'
     const s = statusBadge(m.membership_status)
-    const bg = avatarColor(`${m.first_name} ${m.last_name}`)
+    const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
     const ini = initials(m.first_name, m.last_name)
     return `
 <tr>
@@ -765,7 +766,7 @@ function _renderAttTable(): void {
     <div class="mm-table-name-cell">
       <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
       <div>
-        <div class="mm-table-name">${m.first_name} ${m.last_name}</div>
+        <div class="mm-table-name">${formatName(m.first_name, m.last_name, m.title)}</div>
         <div class="mm-table-email">${m.primary_phone ?? '—'}</div>
       </div>
     </div>
@@ -1047,7 +1048,7 @@ function _openFlagModal(): void {
     _state.members.forEach(m => {
       const o = document.createElement('option')
       o.value = m.id
-      o.textContent = `${m.first_name} ${m.last_name}`
+      o.textContent = `${formatName(m.first_name, m.last_name, m.title)}`
       sel.appendChild(o)
     })
   }
@@ -1071,7 +1072,7 @@ function _saveFlag(): void {
   const member = _state.members.find(m => m.id === memberId)
   _state.pcFlags.unshift({
     id: 'f' + Date.now(),
-    member: member ? `${member.first_name} ${member.last_name}` : memberId,
+    member: member ? `${formatName(member.first_name, member.last_name, member.title)}` : memberId,
     type: _container.querySelector<HTMLSelectElement>('#mm-flagType')?.value ?? 'followup',
     reason: notes || 'Follow-up required',
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -1504,10 +1505,10 @@ function _bindRowEvents(): void {
       const id = btn.dataset['deactivateId']!
       const m = _state!.members.find(x => x.id === id)
       if (!m) return
-      if (!confirm(`Deactivate ${m.first_name} ${m.last_name}?`)) return
+      if (!confirm(`Deactivate ${formatName(m.first_name, m.last_name, m.title)}?`)) return
       try {
         await deactivateMember(id)
-        Toast.success(`${m.first_name} ${m.last_name} deactivated.`)
+        Toast.success(`${formatName(m.first_name, m.last_name, m.title)} deactivated.`)
         await _loadMembers()
         _renderMembers()
         await _renderStats()

@@ -1,6 +1,7 @@
 // src/modules/membership/pages/AddMemberSuccess.ts
 // Success/confirmation page after member registration.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { navigate } from '@core/router'
 import { getMember } from '../repository'
@@ -22,7 +23,7 @@ const AddMemberSuccess: PageModule = {
     if (memberId) {
       try {
         const m = await getMember(memberId)
-        bg  = avatarColor(`${m.first_name} ${m.last_name}`)
+        bg  = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
         ini = initials(m.first_name, m.last_name)
       } catch { /* non-fatal */ }
     }

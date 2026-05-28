@@ -1,6 +1,7 @@
 // src/modules/membership/pages/FlagMember.ts
 // Flag a member for pastoral care — full-page form.
 
+import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
@@ -14,7 +15,7 @@ const FlagMember: PageModule = {
     let memberOptions = ''
     try {
       const members = await listMembers({ includeDeleted: false }, { limit: 500, sortBy: 'last_name' })
-      memberOptions = members.map(m => `<option value="${m.id}">${m.first_name} ${m.last_name}</option>`).join('')
+      memberOptions = members.map(m => `<option value="${m.id}">${formatName(m.first_name, m.last_name, m.title)}</option>`).join('')
     } catch { /* non-fatal */ }
 
     // Pre-select if navigated from a specific member
