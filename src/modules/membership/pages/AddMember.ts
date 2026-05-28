@@ -102,8 +102,8 @@ const AddMember: PageModule = {
       reader.readAsDataURL(file)
     })
 
-    // Close / cancel
-    container.querySelector('#am-overlay-bg')?.addEventListener('click', () => _close(container))
+    // Close / cancel — only the explicit close button dismisses the overlay;
+    // clicking the backdrop is intentionally ignored to prevent accidental closes.
     container.querySelector('#am-close-btn')?.addEventListener('click', () => _close(container))
 
     // Step navigation
