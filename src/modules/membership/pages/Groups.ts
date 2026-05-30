@@ -29,8 +29,8 @@ const Groups: PageModule = {
 <div class="mm-root" style="padding:24px;max-width:1000px;margin:0 auto;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Groups & Units</h2>
-      <div style="font-size:13px;color:var(--mm-text-secondary);">${MOCK_GROUPS.length} groups</div>
+      <h2 style="margin:0;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Groups & Units</h2>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);">${MOCK_GROUPS.length} groups</div>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="mm-btn-primary" id="grp-newBtn">+ New Group</button>
@@ -46,14 +46,14 @@ const Groups: PageModule = {
   </div>
   <div class="mm-group-name">${g.name}</div>
   <div class="mm-group-type"><span class="mm-badge">${g.type}</span></div>
-  <div style="font-size:12px;color:var(--mm-text-secondary);margin:6px 0;">${g.desc}</div>
+  <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin:6px 0;">${g.desc}</div>
   <div class="mm-group-meta">
     <span>${g.members} members</span>
     ${g.day ? `<span>${g.day}s</span>` : ''}
     <span>Leader: ${g.leader}</span>
   </div>
   <div class="mm-group-actions">
-    <button class="mm-btn-outline" style="flex:1;justify-content:center;font-size:12px;"
+    <button class="mm-btn-outline" style="flex:1;justify-content:center;font-size: var(--text-sm);"
       data-grp-view="${g.id}">View Members</button>
     <button class="mm-btn-icon" data-grp-edit="${g.id}" title="Edit">
       <svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>

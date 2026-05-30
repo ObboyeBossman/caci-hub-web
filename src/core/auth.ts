@@ -1,16 +1,12 @@
 // src/core/auth.ts
 // Loads the current user from Supabase Auth + user_profiles table.
-// Manages the active assembly context (critical for super_admin).
-//
-// Mirrors: auth_repository.dart _hydrateProfile / _mapProfile (Flutter)
-//          auth_state_provider.dart currentUserProvider
+// Also resolves the user's assembly role permissions at login so they
+// are available synchronously throughout the app via getCurrentUser().
 //
 // RULES:
 //   - loadCurrentUser() MUST be called before startRouter()
 //   - getCurrentUser() returns null when unauthenticated
-//   - super_admin must select an assembly via the Toolbar before data access;
-//     getActiveAssemblyId() returns null until they do
-//   - All repository getAll() methods check getActiveAssemblyId() for super_admin
+//   - permissions[] is populated from DB at login; admin has empty [] (bypass applies)
 
 import { supabase } from './supabase'
 import { emit }     from './events'
@@ -20,11 +16,9 @@ let _currentUser: AppUser | null = null
 let _activeAssemblyId: string | null = null
 
 /**
- * Fetch the Supabase Auth user then join their user_profiles row.
- * Mirrors: auth_repository.dart _hydrateProfile()
- *
- * Called once at boot (main.ts), and again after login/logout via
- * supabase.auth.onAuthStateChange() if the app needs live updates.
+ * Fetch the Supabase Auth user, join their user_profiles row,
+ * and resolve their assembly role permissions.
+ * Called once at boot (main.ts), and again on auth state change.
  */
 export async function loadCurrentUser(): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
@@ -44,7 +38,6 @@ export async function loadCurrentUser(): Promise<void> {
     .single()
 
   if (error || !profile) {
-    // PGRST116 = no row found — user exists in auth but not provisioned yet
     console.error('[auth] user_profiles row not found or error for', user.id, error)
     _currentUser = null
     _activeAssemblyId = null
@@ -53,31 +46,42 @@ export async function loadCurrentUser(): Promise<void> {
 
   console.log('[auth] Profile loaded successfully:', profile)
 
+  const p = profile as any
 
-  // Mirrors: auth_repository.dart _mapProfile()
-  const p = profile as any // Fallback to any if inference fails, but use correct property names
+  // Resolve permissions from assembly role → role_permissions → system_permissions
+  // Admin bypass: don't bother loading permissions (admin has all access)
+  let permissions: string[] = []
+  const assemblyRoleId: string | null = p.assembly_role_id ?? null
+
+  if (p.role === 'member' && assemblyRoleId) {
+    const { data: rolePerms, error: rpErr } = await supabase
+      .from('role_permissions')
+      .select('permission_key')
+      .eq('role_id', assemblyRoleId)
+
+    if (rpErr) {
+      console.warn('[auth] Failed to load role permissions:', rpErr)
+    } else {
+      permissions = (rolePerms ?? []).map((r: any) => r.permission_key)
+    }
+  }
+
   _currentUser = {
-    id:           user.id,
-    email:        user.email ?? null,
-    phone:        user.phone ?? null,
-    fullName:     (p.full_name as string) ?? '',
-    role:         p.role,
-    assemblyId:   (p.assembly_id as string) ?? null,
-    isActive:     p.is_active as boolean,
+    id:                   user.id,
+    email:                user.email ?? null,
+    phone:                user.phone ?? null,
+    fullName:             (p.full_name as string) ?? '',
+    role:                 p.role as 'admin' | 'member',
+    assemblyId:           (p.assembly_id as string) ?? null,
+    assemblyRoleId,
+    permissions,
+    isActive:             p.is_active as boolean,
     must_change_password: p.must_change_password as boolean,
-    // MFA state is checked lazily in the onboarding guard.
-    // Setting defaults here; Phase 3 auth module will set real values.
-    isMfaEnrolled:  false,
-    isMfaVerified:  false,
+    isMfaEnrolled:        false,
+    isMfaVerified:        false,
   }
 
-  // super_admin has no RLS restriction and must select an assembly explicitly.
-  // All other roles are auto-scoped to their assembly_id via RLS.
-  if (p.role === 'national_admin' || p.role === 'district_overseer') {
-    _activeAssemblyId = localStorage.getItem('caci:active_assembly_id')
-  } else {
-    _activeAssemblyId = (p.assembly_id as string | null)
-  }
+  _activeAssemblyId = (p.assembly_id as string | null)
 }
 
 /** Returns the current authenticated user, or null. */
@@ -89,14 +93,13 @@ export const isAuthenticated = (): boolean =>
 
 /**
  * Returns the active assembly UUID.
- * null for super-admin who hasn't selected an assembly yet,
- * or when unauthenticated.
+ * null when unauthenticated.
  */
 export const getActiveAssemblyId = (): string | null => _activeAssemblyId
 
 /**
- * Set the active assembly — called by Toolbar when super_admin switches assembly.
- * Emits 'auth:assemblyChanged' so memberCache and groupCache can clear.
+ * Set the active assembly — for future multi-assembly support.
+ * Emits 'auth:assemblyChanged' so caches can clear.
  */
 export function setActiveAssemblyId(id: string): void {
   _activeAssemblyId = id
@@ -106,7 +109,6 @@ export function setActiveAssemblyId(id: string): void {
 
 /**
  * Clear current user state — called on signOut.
- * Emits 'auth:signedOut' so all caches invalidate.
  */
 export function clearCurrentUser(): void {
   _currentUser = null
@@ -116,8 +118,6 @@ export function clearCurrentUser(): void {
 
 /**
  * Subscribe to Supabase auth state changes.
- * Useful for keeping _currentUser in sync without a full page reload.
- * The auth module (Phase 3) calls this in its init() hook.
  */
 export function onAuthStateChange(
   callback: (user: AppUser | null) => void

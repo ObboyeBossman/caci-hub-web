@@ -84,7 +84,7 @@
 .mm-detail-tab {
   flex: 1;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 500;
   text-align: center;
   cursor: pointer;
@@ -112,18 +112,18 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 22px;
+  font-size: var(--text-3xl);
   font-weight: 700;
   margin: 0 auto 10px;
 }
-.mm-detail-name   { font-size: 17px; font-weight: 700; color: var(--mm-text-primary); margin-bottom: 3px; }
-.mm-detail-id     { font-size: 12px; color: var(--mm-text-muted); font-family: monospace; margin-bottom: 8px; }
+.mm-detail-name   { font-size: var(--text-xl); font-weight: 700; color: var(--mm-text-primary); margin-bottom: 3px; }
+.mm-detail-id     { font-size: var(--text-sm); color: var(--mm-text-muted); font-family: monospace; margin-bottom: 8px; }
 .mm-detail-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
 
 /* ─── Field rows ──────────────────────────────────────────────────────────── */
 .mm-detail-section        { margin-bottom: 18px; }
 .mm-detail-section-title  {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--mm-text-muted);
   text-transform: uppercase;
@@ -138,7 +138,7 @@
   border-bottom: 1px solid var(--mm-border-subtle);
 }
 .mm-detail-field:last-child { border-bottom: none; }
-.mm-detail-field-label  { font-size: 13px; color: var(--mm-text-secondary); flex-shrink: 0; width: 110px; }
+.mm-detail-field-label  { font-size: var(--text-base); color: var(--mm-text-secondary); flex-shrink: 0; width: 110px; }
 .mm-detail-field-val    { font-size: var(--font-size-base); color: var(--mm-text-primary); text-align: right; flex: 1; }
 
 /* ─── Action row at bottom of panel ──────────────────────────────────────── */
@@ -160,8 +160,8 @@
   border-bottom: 1px solid var(--mm-border-subtle);
 }
 .mm-giving-item:last-child { border-bottom: none; }
-.mm-giving-type   { font-size: 13px; color: var(--mm-text-secondary); }
-.mm-giving-date   { font-size: 12px; color: var(--mm-text-muted); }
+.mm-giving-type   { font-size: var(--text-base); color: var(--mm-text-secondary); }
+.mm-giving-date   { font-size: var(--text-sm); color: var(--mm-text-muted); }
 .mm-giving-amount { font-size: var(--font-size-base); font-weight: 600; color: var(--mm-green); }
 
 /* ─── Attendance history rows ─────────────────────────────────────────────── */
@@ -173,13 +173,13 @@
   border-bottom: 1px solid var(--mm-border-subtle);
 }
 .mm-att-row:last-child { border-bottom: none; }
-.mm-att-date  { font-size: 13px; color: var(--mm-text-secondary); }
-.mm-att-event { font-size: 13px; color: var(--mm-text-primary); }
+.mm-att-date  { font-size: var(--text-base); color: var(--mm-text-secondary); }
+.mm-att-event { font-size: var(--text-base); color: var(--mm-text-primary); }
 
 .mm-att-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding: 2px 8px;
   border-radius: 10px;
   font-weight: 500;
@@ -196,5 +196,5 @@
   padding: 10px;
   margin-bottom: 8px;
 }
-.mm-note-text { font-size: 13px; color: var(--mm-text-primary); line-height: 1.5; }
-.mm-note-meta { font-size: 12px; color: var(--mm-text-muted); margin-top: 5px; }
+.mm-note-text { font-size: var(--text-base); color: var(--mm-text-primary); line-height: 1.5; }
+.mm-note-meta { font-size: var(--text-sm); color: var(--mm-text-muted); margin-top: 5px; }

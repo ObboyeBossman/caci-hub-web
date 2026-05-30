@@ -25,7 +25,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { getCurrentUser } from '@core/auth'
-import { hasPermission } from '@core/permissions'
+import { can } from '@core/authorization/authorization-service'
 import {
   listMembers,
   getMemberCounts,
@@ -37,7 +37,7 @@ import { CreateMemberSchema, UpdateMemberSchema } from '../schemas/member.schema
 import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from '../utils/member-helpers'
 
 // ── Page constants ────────────────────────────────────────────────────────────
-const PAGE_SIZE = 12
+const PAGE_SIZE = 20
 
 /** Tabs that are under development — block switching to them */
 const COMING_SOON_TABS = new Set(['attendance', 'groups', 'pastoral', 'reports'])
@@ -136,12 +136,24 @@ async function render(container: HTMLElement): Promise<void> {
   _setTab(_state.activeTab)
   _renderMembers()
   await _renderStats()
+  
+  // Bind global click listener for dropdowns
+  document.addEventListener('click', _handleClickOutside)
 }
 
 function destroy(): void {
   if (_searchDebounce) clearTimeout(_searchDebounce)
+  document.removeEventListener('click', _handleClickOutside)
   _container = null
   _state = null
+}
+
+function _handleClickOutside(e: MouseEvent): void {
+  document.querySelectorAll<HTMLDetailsElement>('details.mm-action-menu[open]').forEach(details => {
+    if (!details.contains(e.target as Node)) {
+      details.removeAttribute('open')
+    }
+  })
 }
 
 // ── Data loading ──────────────────────────────────────────────────────────────
@@ -234,8 +246,9 @@ function _renderMembers(): void {
   _applyFilters()
 
   const { filtered, page, view, selectedIds } = _state
-  const start = (page - 1) * PAGE_SIZE
-  const pageItems = filtered.slice(start, start + PAGE_SIZE)
+  const isMobile = window.innerWidth <= 768
+  const start = isMobile ? 0 : (page - 1) * PAGE_SIZE
+  const pageItems = isMobile ? filtered : filtered.slice(start, start + PAGE_SIZE)
 
   // Results count
   const vc = _container.querySelector('#mm-visibleCount')
@@ -328,7 +341,14 @@ async function _renderStats(): Promise<void> {
 
 function _renderPagination(): void {
   if (!_state || !_container) return
+  const isMobile = window.innerWidth <= 768
   const { filtered, page } = _state
+
+  const paginationWrap = _container.querySelector<HTMLElement>('.mm-pagination')
+  if (paginationWrap) paginationWrap.style.display = isMobile ? 'none' : ''
+
+  if (isMobile) return
+
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const start = (page - 1) * PAGE_SIZE + 1
   const end = Math.min(page * PAGE_SIZE, filtered.length)
@@ -356,7 +376,7 @@ function _renderPagination(): void {
   btns.innerHTML = `
     <button class="mm-page-btn ${page === 1 ? 'disabled' : ''}" id="mm-prevPage">← Prev</button>
     ${pages.map(p => p === -1
-    ? `<span style="padding:0 2px;color:var(--mm-text-muted);font-size:13px;align-self:center;">…</span>`
+    ? `<span style="padding:0 2px;color:var(--mm-text-muted);font-size: var(--text-base);align-self:center;">…</span>`
     : `<button class="mm-page-btn ${p === page ? 'active' : ''}" data-page="${p}">${p}</button>`
   ).join('')}
     <button class="mm-page-btn ${page >= totalPages ? 'disabled' : ''}" id="mm-nextPage">Next →</button>
@@ -380,24 +400,59 @@ function _renderPagination(): void {
 // ── Card / row templates ──────────────────────────────────────────────────────
 
 function _gridCard(m: MemberView, selected: boolean): string {
-  const s = statusBadge(m.membership_status)
-  const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
+  const s   = statusBadge(m.membership_status)
+  const bg  = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
   const ini = initials(m.first_name, m.last_name)
-  const gCls = m.gender === 'female' ? 'purple' : ''
+
+  const statusBorder: Record<string, string> = {
+    active:   '#22c55e',
+    visitor:  '#0969da',
+    inactive: 'var(--mm-border)',
+    prospect: '#f59e0b',
+  }
+  const ringColor = statusBorder[m.membership_status] ?? 'var(--mm-border)'
+
+  const genderIcon = m.gender === 'female'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="2.5" width="10" height="10">
+         <circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/>
+       </svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="var(--mm-blue)" stroke-width="2.5" width="10" height="10">
+         <circle cx="10" cy="14" r="5"/><line x1="21" y1="3" x2="15" y2="9"/>
+         <line x1="15" y1="3" x2="21" y2="3"/><line x1="21" y1="3" x2="21" y2="9"/>
+       </svg>`
+
   return `
 <div class="mm-member-card ${selected ? 'selected' : ''}" data-member-id="${m.id}">
-  <div class="mm-card-check"></div>
-  <div class="mm-card-avatar" style="background:${bg}">${ini}</div>
-  <div class="mm-card-name">${formatName(m.first_name, m.last_name, m.title)}</div>
-  <div class="mm-card-id">${m.membership_number ?? '—'}</div>
-  <div class="mm-card-role">${m.occupation ?? 'Member'}</div>
-  <div class="mm-card-footer">
-    <div class="mm-card-tags">
-      <span class="mm-badge ${s.cls}">${s.label}</span>
-      <span class="mm-badge ${gCls}">${m.gender === 'female' ? 'F' : 'M'}</span>
-    </div>
-    <button class="mm-btn-outline" style="padding:3px 10px;font-size:11px;" data-view-id="${m.id}">View</button>
+
+  <div class="mm-card-menu-btn">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+      <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+    </svg>
   </div>
+
+  <div class="mm-card-check ${selected ? 'checked' : ''}" data-card-check="${m.id}"></div>
+
+  <div class="mm-card-avatar-ring" style="border-color:${ringColor}">
+    <div class="mm-card-avatar" style="background:${bg}">${ini}</div>
+    <div class="mm-card-gender-dot">${genderIcon}</div>
+  </div>
+
+  <h3 class="mm-card-name">${formatName(m.first_name, m.last_name, m.title)}</h3>
+  <div class="mm-card-id">${m.membership_number ?? '—'}</div>
+
+  <div class="mm-card-role">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+    </svg>
+    <span>${m.occupation ?? 'Member'}</span>
+  </div>
+
+  <div class="mm-card-footer">
+    <div class="mm-card-status-pill mm-card-status-${m.membership_status}">${s.label}</div>
+    <button class="mm-card-view-btn" data-view-id="${m.id}">View</button>
+  </div>
+
 </div>`
 }
 
@@ -419,12 +474,13 @@ function _tableRow(m: MemberView, selected: boolean): string {
       </div>
     </div>
   </td>
-  <td style="font-size:12px;font-family:monospace;color:var(--mm-text-muted);">${m.membership_number ?? '—'}</td>
-  <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
-  <td style="font-size:12px;">${m.occupation ?? '—'}</td>
-  <td style="font-size:12px;">${fmtDate(m.join_date)}</td>
+  <td class="mm-col-id" style="font-size: var(--text-sm);font-family:monospace;color:var(--mm-text-muted);">${m.membership_number ?? '—'}</td>
+  <td class="mm-col-status"><span class="mm-badge ${s.cls}">${s.label}</span></td>
+  <td class="mm-col-occupation" style="font-size: var(--text-sm);">${m.occupation ?? '—'}</td>
+  <td class="mm-col-joined" style="font-size: var(--text-sm);">${fmtDate(m.join_date)}</td>
   <td class="mm-col-actions">
-    <div class="mm-table-actions">
+    <!-- Desktop: inline icons -->
+    <div class="mm-table-actions mm-actions-desktop">
       <button class="mm-btn-icon" data-view-id="${m.id}" title="View profile">
         <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
@@ -435,6 +491,18 @@ function _tableRow(m: MemberView, selected: boolean): string {
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
       </button>
     </div>
+    
+    <!-- Mobile: detail dropdown -->
+    <details class="mm-action-menu mm-actions-mobile">
+      <summary class="mm-btn-icon" title="Options">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+      </summary>
+      <div class="mm-action-dropdown">
+        <button class="mm-dropdown-item" data-view-id="${m.id}">View Profile</button>
+        <button class="mm-dropdown-item" data-edit-id="${m.id}">Edit Member</button>
+        <button class="mm-dropdown-item danger" data-deactivate-id="${m.id}">Deactivate</button>
+      </div>
+    </details>
   </td>
 </tr>`
 }
@@ -478,15 +546,15 @@ function _openDetail(m: MemberView): void {
     <div class="mm-detail-section-title">Contact</div>
     <div class="mm-detail-field"><span class="mm-detail-field-label">Primary Phone</span><span class="mm-detail-field-val">${m.primary_phone ?? '—'}</span></div>
     <div class="mm-detail-field"><span class="mm-detail-field-label">Secondary Phone</span><span class="mm-detail-field-val">${m.secondary_phone ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="font-size:12px;word-break:break-all;">${m.email ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size:12px;">${m.physical_address ?? '—'}</span></div>
+    <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="font-size: var(--text-sm);word-break:break-all;">${m.email ?? '—'}</span></div>
+    <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size: var(--text-sm);">${m.physical_address ?? '—'}</span></div>
   </div>
 
   <div class="mm-detail-section">
     <div class="mm-detail-section-title">Church Info</div>
     <div class="mm-detail-field"><span class="mm-detail-field-label">Status</span><span class="mm-detail-field-val"><span class="mm-badge ${s.cls}">${s.label}</span></span></div>
     <div class="mm-detail-field"><span class="mm-detail-field-label">Joined</span><span class="mm-detail-field-val">${fmtDate(m.join_date)}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size:12px;">${m.membership_number ?? '—'}</span></div>
+    <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size: var(--text-sm);">${m.membership_number ?? '—'}</span></div>
   </div>
 
   <div class="mm-detail-section">
@@ -507,7 +575,7 @@ function _openDetail(m: MemberView): void {
   ${m.pastoral_notes ? `
   <div class="mm-detail-section">
     <div class="mm-detail-section-title">Pastoral Notes</div>
-    <div style="font-size:13px;color:var(--mm-text-primary);line-height:1.6;">${m.pastoral_notes}</div>
+    <div style="font-size: var(--text-base);color:var(--mm-text-primary);line-height:1.6;">${m.pastoral_notes}</div>
   </div>` : ''}
 
   <div class="mm-detail-actions">
@@ -518,7 +586,7 @@ function _openDetail(m: MemberView): void {
 </div>
 
 <div class="mm-detail-tab-panel" id="mm-dp-attendance">
-  <div style="font-size:13px;color:var(--mm-text-secondary);padding:20px 0;text-align:center;">
+  <div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:20px 0;text-align:center;">
     Attendance history will be shown here once the attendance module is linked.
   </div>
 </div>
@@ -771,7 +839,7 @@ function _renderAttTable(): void {
       </div>
     </div>
   </td>
-  <td style="font-size:12px;">${m.occupation ?? '—'}</td>
+  <td style="font-size: var(--text-sm);">${m.occupation ?? '—'}</td>
   <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
   <td>
     <div class="mm-att-toggle-wrap">
@@ -869,14 +937,14 @@ function _renderGroups(): void {
   </div>
   <div class="mm-group-name">${g.name}</div>
   <div class="mm-group-type"><span class="mm-badge">${g.type}</span></div>
-  <div style="font-size:12px;color:var(--mm-text-secondary);margin:6px 0;">${g.desc}</div>
+  <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin:6px 0;">${g.desc}</div>
   <div class="mm-group-meta">
     <span>${g.members} members</span>
     ${g.day ? `<span>${g.day}s</span>` : ''}
     <span>Leader: ${g.leader}</span>
   </div>
   <div class="mm-group-actions">
-    <button class="mm-btn-outline" style="flex:1;justify-content:center;font-size:12px;"
+    <button class="mm-btn-outline" style="flex:1;justify-content:center;font-size: var(--text-sm);"
       data-view-group="${g.id}">View Members</button>
     <button class="mm-btn-icon" data-edit-group="${g.id}" title="Edit group">
       <svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -965,7 +1033,7 @@ function _renderPastoral(): void {
     followup: 'followup', absent: 'absent', 'life-event': 'life-event', 'first-timer': 'first-timer',
   }
   const priorityBadge = (p: string) => p === 'high' || p === 'urgent'
-    ? `<span class="mm-badge red" style="font-size:10px;">${p.charAt(0).toUpperCase() + p.slice(1)}</span>`
+    ? `<span class="mm-badge red" style="font-size: var(--text-xs);">${p.charAt(0).toUpperCase() + p.slice(1)}</span>`
     : ''
 
   const flagsEl = _container.querySelector('#mm-pcFlagsContainer')
@@ -983,7 +1051,7 @@ function _renderPastoral(): void {
     <button class="mm-pc-action-btn" data-resolve-flag="${f.id}">Resolve</button>
   </div>
 </div>`).join('')
-      : '<div style="font-size:13px;color:var(--mm-text-secondary);padding:12px 0;">All clear — no open flags.</div>'
+      : '<div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:12px 0;">All clear — no open flags.</div>'
 
     flagsEl.querySelectorAll<HTMLButtonElement>('[data-resolve-flag]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1005,7 +1073,7 @@ function _renderPastoral(): void {
   </div>
   <div class="mm-flag-actions">
     ${ft.followedUp
-        ? '<span class="mm-badge green" style="font-size:10px;">Followed up</span>'
+        ? '<span class="mm-badge green" style="font-size: var(--text-xs);">Followed up</span>'
         : `<button class="mm-pc-action-btn" data-followup="${ft.name}">Mark done</button>`}
   </div>
 </div>`).join('')
@@ -1486,6 +1554,7 @@ function _bindRowEvents(): void {
   _container.querySelectorAll<HTMLElement>('[data-view-id]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation()
+      btn.closest('details')?.removeAttribute('open')
       const id = btn.dataset['viewId']!
       const m = _state!.members.find(x => x.id === id)
       if (m) _openDetail(m)
@@ -1495,6 +1564,7 @@ function _bindRowEvents(): void {
   _container.querySelectorAll<HTMLElement>('[data-edit-id]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation()
+      btn.closest('details')?.removeAttribute('open')
       _openMemberModal(btn.dataset['editId']!)
     })
   })
@@ -1502,6 +1572,7 @@ function _bindRowEvents(): void {
   _container.querySelectorAll<HTMLElement>('[data-deactivate-id]').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation()
+      btn.closest('details')?.removeAttribute('open')
       const id = btn.dataset['deactivateId']!
       const m = _state!.members.find(x => x.id === id)
       if (!m) return
@@ -1676,19 +1747,19 @@ function _showComingSoonTab(tabName: string): void {
     <div style="
       width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
       background: var(--caci-blue-bg); display: flex; align-items: center;
-      justify-content: center; font-size: 18px; color: var(--caci-blue);
+      justify-content: center; font-size: var(--text-xl); color: var(--caci-blue);
     "><i class="bi bi-hammer"></i></div>
     <div style="flex: 1; min-width: 0;">
-      <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
+      <div style="font-size: var(--text-base); font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
         Coming Soon
       </div>
-      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+      <div style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
         <strong style="color:var(--text-primary)">${section}</strong> is currently being built and will be released soon. Stay tuned!
       </div>
     </div>
     <button id="mm-cs-close" style="
       background: none; border: none; cursor: pointer; padding: 2px;
-      color: var(--text-secondary); font-size: 14px; flex-shrink: 0;
+      color: var(--text-secondary); font-size: var(--text-base); flex-shrink: 0;
     "><i class="bi bi-x-lg"></i></button>
   `
 
@@ -1909,7 +1980,7 @@ function _buildHTML(): string {
   <div class="mm-toolbar">
     <div class="mm-search-wrap">
       <svg class="mm-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input class="mm-search-input" type="text" id="mm-memberSearch" placeholder="Search by name, ID, phone, or occupation…">
+      <input class="mm-search-input" type="search" id="mm-memberSearch" name="caci-no-fill-search" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" placeholder="Search by name, ID, phone, or occupation…">
     </div>
     <div class="mm-toolbar-sep"></div>
     <select class="mm-sort-select" id="mm-sortSelect">
@@ -2005,7 +2076,7 @@ function _buildHTML(): string {
       <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export
     </button>
-    ${hasPermission(getCurrentUser()?.role || '', 'membership.members.import') ? '<button class="mm-btn-outline" id="mm-bulkImportBtn" style="gap:6px;display:flex;align-items:center;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Bulk Import</button>' : ''}
+    ${can(getCurrentUser()!, 'members.import') ? '<button class="mm-btn-outline" id="mm-bulkImportBtn" style="gap:6px;display:flex;align-items:center;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Bulk Import</button>' : ''}
     <button class="mm-btn-primary" id="mm-addMemberBtn">
       <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Member
@@ -2032,7 +2103,7 @@ function _buildHTML(): string {
   <!-- Results info -->
   <div class="mm-results-info">
     <div class="mm-results-count">Showing <strong id="mm-visibleCount">0</strong> members</div>
-    <div style="font-size:12px;color:var(--mm-text-muted);" id="mm-pageInfo">Page 1 of 1</div>
+    <div style="font-size: var(--text-sm);color:var(--mm-text-muted);" id="mm-pageInfo">Page 1 of 1</div>
   </div>
 
   <!-- Grid View -->
@@ -2047,10 +2118,10 @@ function _buildHTML(): string {
             <div class="mm-table-cb" id="mm-selectAllCheck"></div>
           </th>
           <th>Name</th>
-          <th>Member ID</th>
-          <th>Status</th>
-          <th>Occupation</th>
-          <th>Joined <i class="mm-sort-icon sorted">↓</i></th>
+          <th class="mm-col-id">Member ID</th>
+          <th class="mm-col-status">Status</th>
+          <th class="mm-col-occupation">Occupation</th>
+          <th class="mm-col-joined">Joined <i class="mm-sort-icon sorted">↓</i></th>
           <th class="mm-col-actions"></th>
         </tr>
       </thead>
@@ -2083,7 +2154,7 @@ function _buildHTML(): string {
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Attendance</div>
-      <div style="font-size:13px;color:var(--mm-text-secondary);margin-top:2px;">Track member attendance per service or event</div>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Track member attendance per service or event</div>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="mm-btn-outline" id="mm-newSessionBtn">
@@ -2120,14 +2191,14 @@ function _buildHTML(): string {
     </div>
   </div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;">Recent Sessions</div>
+  <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;">Recent Sessions</div>
   <div class="mm-att-sessions-grid" id="mm-attSessionsGrid"></div>
 
   <div id="mm-attTableWrap" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div>
-        <div style="font-size:14px;font-weight:600;" id="mm-attSessionLabel">—</div>
-        <div style="font-size:12px;color:var(--mm-text-secondary);margin-top:2px;" id="mm-attSessionMeta">—</div>
+        <div style="font-size: var(--text-base);font-weight:600;" id="mm-attSessionLabel">—</div>
+        <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin-top:2px;" id="mm-attSessionMeta">—</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="mm-btn-ghost" id="mm-closeAttTableBtn">← Back to Sessions</button>
@@ -2150,7 +2221,7 @@ function _buildHTML(): string {
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Groups &amp; Units</div>
-      <div style="font-size:13px;color:var(--mm-text-secondary);margin-top:2px;">Manage departments, fellowships, and ministry units</div>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Manage departments, fellowships, and ministry units</div>
     </div>
     <button class="mm-btn-primary" id="mm-newGroupBtn">
       <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -2173,7 +2244,7 @@ function _buildHTML(): string {
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Pastoral Care</div>
-      <div style="font-size:13px;color:var(--mm-text-secondary);margin-top:2px;">Follow up flags and care assignments</div>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Follow up flags and care assignments</div>
     </div>
     <button class="mm-btn-primary" id="mm-addFlagBtn">
       <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
@@ -2213,7 +2284,7 @@ function _buildHTML(): string {
   <div class="mm-att-page-header">
     <div>
       <div class="mm-att-page-title">Reports</div>
-      <div style="font-size:13px;color:var(--mm-text-secondary);margin-top:2px;">Membership analytics and downloadable reports</div>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Membership analytics and downloadable reports</div>
     </div>
     <div style="display:flex;gap:8px;">
       <select class="mm-sort-select" id="mm-reportPeriodSelect">
@@ -2250,7 +2321,7 @@ function _buildHTML(): string {
     </div>
   </div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;margin-top:8px;">Downloadable Reports</div>
+  <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;margin-top:8px;">Downloadable Reports</div>
   <div class="mm-reports-grid">
     <div class="mm-report-card">
       <div class="mm-report-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>

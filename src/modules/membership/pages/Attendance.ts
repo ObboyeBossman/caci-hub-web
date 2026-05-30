@@ -25,8 +25,8 @@ const Attendance: PageModule = {
 <div class="mm-root" style="padding:24px;max-width:960px;margin:0 auto;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Attendance</h2>
-      <div style="font-size:13px;color:var(--mm-text-secondary);">Past sessions — click to view breakdown</div>
+      <h2 style="margin:0;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Attendance</h2>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);">Past sessions — click to view breakdown</div>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="mm-btn-primary" id="att-recordBtn">Record Attendance</button>
@@ -42,7 +42,7 @@ const Attendance: PageModule = {
 <div class="mm-att-session-card" data-att-session="${s.id}" style="cursor:pointer;">
   <div class="mm-att-session-date">${s.date} · ${s.type}</div>
   <div class="mm-att-session-name">${s.name}</div>
-  <div style="font-size:11px;color:var(--mm-text-muted);margin-bottom:8px;">${s.time}</div>
+  <div style="font-size: var(--text-xs);color:var(--mm-text-muted);margin-bottom:8px;">${s.time}</div>
   <div class="mm-att-session-stats">
     <div class="mm-att-session-stat">
       <div class="mm-att-session-stat-val" style="color:var(--mm-green)">${s.present}</div>
@@ -60,7 +60,7 @@ const Attendance: PageModule = {
   <div style="margin-top:10px;background:var(--mm-border);border-radius:4px;height:4px;">
     <div style="background:var(--mm-green);width:${pct}%;height:4px;border-radius:4px;"></div>
   </div>
-  <div style="font-size:11px;color:var(--mm-text-muted);margin-top:4px;">${pct}% attendance rate</div>
+  <div style="font-size: var(--text-xs);color:var(--mm-text-muted);margin-top:4px;">${pct}% attendance rate</div>
 </div>`}).join('')}
   </div>
 </div>`

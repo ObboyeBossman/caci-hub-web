@@ -1,76 +1,46 @@
 // auth.types.ts
-// Mirrors: auth_user.dart, user_role.dart, auth_state_provider.dart
-// Source of truth for all auth-related types in the web app.
+// Source of truth for all auth-related types in the CACI Hub web app.
+//
+// RBAC model:
+//   user_profiles.role = 'admin' | 'member'  (system role — DB-enforced)
+//   user_profiles.assembly_role_id → assembly_roles → role_permissions → system_permissions
+//
+// Permission flow: User → Assembly Role → Permissions (array hydrated at login)
+// Admin bypass: user.role === 'admin' grants all permissions at app layer
 
-import type { Database } from './database.types'
+// ── SystemRole ────────────────────────────────────────────────────────────────
+// Two system roles only — enforced by CHECK constraint on user_profiles.role.
+// admin: bypasses all permission checks
+// member: requires explicit permission via assembly role
+export type SystemRole = 'admin' | 'member'
 
-// ── UserRole ─────────────────────────────────────────────────────────────────
-// Mirrors: user_role.dart (all enum values including future-phase roles)
-// Source: migration 20260427000001_create_enums.sql user_role enum
-export type UserRole = Database['public']['Enums']['user_role']
-
-// Phase 1 active roles (from user_role.dart + migration)
-export const PHASE1_ROLES = [
-  'admin',
-  'pastor',
-  'secretary',
-  'volunteer',
-  'member',
-] as const satisfies UserRole[]
-
-// ── UserProfile ───────────────────────────────────────────────────────────────
-// Mirrors: Database['public']['Tables']['user_profiles']['Row']
-// The row from user_profiles joined after Supabase Auth confirms identity.
-export type UserProfile = Database['public']['Tables']['user_profiles']['Row']
-
-// ── AppUser ───────────────────────────────────────────────────────────────────
-// Mirrors: auth_user.dart AuthUser class
-// Combines auth.users fields with user_profiles fields.
+// ── AppUser ────────────────────────────────────────────────────────────────────
 // Populated by core/auth.ts loadCurrentUser() after login.
+// Combines auth.users fields + user_profiles + resolved permissions.
 export interface AppUser {
   // From auth.users
-  id:              string
-  email:           string | null
-  phone:           string | null
+  id:    string
+  email: string | null
+  phone: string | null
 
-  // From user_profiles (joined after auth)
-  fullName:        string        // user_profiles.full_name
-  role:            UserRole      // user_profiles.role
-  assemblyId:      string | null // user_profiles.assembly_id; null only for super-admin before assembly selection
-  isActive:        boolean       // user_profiles.is_active
-  must_change_password: boolean  // user_profiles.must_change_password
+  // From user_profiles
+  fullName:   string       // user_profiles.full_name
+  role:       SystemRole   // user_profiles.role — 'admin' | 'member' only
+  assemblyId: string | null
 
-  // MFA state — from supabase.auth.mfa.listFactors()
-  // Mirrors: auth_user.dart isMfaEnrolled + isMfaVerified
-  isMfaEnrolled:   boolean
-  isMfaVerified:   boolean
-}
+  // Assembly role (optional custom role within the assembly)
+  assemblyRoleId: string | null  // user_profiles.assembly_role_id → assembly_roles
 
-// ── Role capability helpers ───────────────────────────────────────────────────
-// Mirrors: user_role.dart computed properties
-export function canManageMembers(role: UserRole): boolean {
-  return role === 'admin' || role === 'secretary'
-}
+  // Resolved permission keys for this user (from their assembly role → role_permissions)
+  // Empty array for members with no assembly role (or no permissions assigned).
+  // Admin: ignored — admin bypass is applied before this array is checked.
+  permissions: string[]
 
-export function canEditPastoralNotes(role: UserRole): boolean {
-  return role === 'admin' || role === 'pastor'
-}
+  // Account state
+  isActive:             boolean
+  must_change_password: boolean
 
-export function canViewAuditLog(role: UserRole): boolean {
-  return role === 'admin' || role === 'pastor'
-}
-
-export function canManageUsers(role: UserRole): boolean {
-  return role === 'admin'
-}
-
-export function hasDashboardAccess(role: UserRole): boolean {
-  return ['admin', 'pastor', 'national_admin', 'district_overseer'].includes(role)
-}
-
-// MFA required roles — mirrors user_role.dart requiresMfa
-// Currently false for all roles (re-enable when MFA enrollment flow is ready)
-export function requiresMfa(_role: UserRole): boolean {
-  return false
-  // Future: return ['admin', 'pastor', 'national_admin', 'district_overseer'].includes(role)
+  // MFA state
+  isMfaEnrolled: boolean
+  isMfaVerified: boolean
 }

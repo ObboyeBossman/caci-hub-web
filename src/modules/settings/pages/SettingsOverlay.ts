@@ -3,10 +3,11 @@
 import { getCurrentUser }  from '@core/auth';
 import { makeToast }       from './utils/settingsToast';
 import { profilePanelHTML, profilePanelSkeleton, bindProfilePanel, onPwdStrengthInput } from './panels/ProfilePanel';
-import { appearancePanelHTML, bindAppearancePanel, syncThemeSeg } from './panels/AppearancePanel';
+import { appearancePanelHTML, bindAppearancePanel, syncAppearancePanel } from './panels/AppearancePanel';
 import { localePanelHTML, bindLocalePanel }                       from './panels/LocalePanel';
 import { notificationsPanelHTML, bindNotificationsPanel }         from './panels/NotificationsPanel';
 import { securityPanelHTML, bindSecurityPanel }                   from './panels/SecurityPanel';
+import { accountPanelHTML, bindAccountPanel }                     from './panels/AccountPanel';
 import { getOwnMemberProfile }                                    from '../../membership/repository';
 
 const TABS = ['profile','account','appearance','locale','notifications','security'] as const;
@@ -92,7 +93,7 @@ export class SettingsOverlay {
 
         <div class="settings-tab-strip">
           ${TABS.map((t, i) => {
-            const isDisabled = t !== 'profile';
+            const isDisabled = !['profile', 'account', 'appearance'].includes(t);
             return `
               <button class="settings-tab-item ${i === 0 ? 'active' : ''} ${isDisabled ? 'disabled' : ''}" data-tab="${t}">
                 <i class="bi bi-${_tabIcon(t)}"></i> ${_tabLabel(t)}
@@ -109,7 +110,7 @@ export class SettingsOverlay {
             </div>
             <div class="settings-nav-sep">Account</div>
             ${['profile', 'account', 'appearance', 'locale'].map((t, i) => {
-              const isDisabled = t !== 'profile';
+              const isDisabled = !['profile', 'account', 'appearance'].includes(t);
               return `
                 <button class="settings-nav-btn ${i === 0 ? 'active' : ''} ${isDisabled ? 'disabled' : ''}" data-tab="${t}">
                   <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
@@ -118,11 +119,11 @@ export class SettingsOverlay {
             }).join('')}
             <div class="settings-nav-sep">Preferences</div>
             ${['notifications', 'security'].map(t => {
-              const isDisabled = t !== 'profile';
+              const isDisabled = true;
               return `
-                <button class="settings-nav-btn ${isDisabled ? 'disabled' : ''}" data-tab="${t}">
+                <button class="settings-nav-btn disabled" data-tab="${t}">
                   <i class="bi bi-${_tabIcon(t as Tab)}"></i> ${_tabLabel(t as Tab)}
-                  ${isDisabled ? '<span class="soon-badge">SOON</span>' : ''}
+                  <span class="soon-badge">SOON</span>
                 </button>`;
             }).join('')}
             <div class="settings-nav-spacer"></div>
@@ -130,6 +131,7 @@ export class SettingsOverlay {
  
           <div class="settings-content scrollbar-hide">
             ${profilePanelSkeleton()}
+            ${accountPanelHTML()}
             ${appearancePanelHTML()}
             ${localePanelHTML()}
             ${notificationsPanelHTML(true)}
@@ -145,11 +147,12 @@ export class SettingsOverlay {
     // Delegate to panels
     const ctx = { el: this._el, toast: makeToast(this._el) };
     bindProfilePanel(ctx);
+    bindAccountPanel(ctx);
     bindAppearancePanel(ctx);
     bindLocalePanel(ctx);
     bindNotificationsPanel(ctx, true);
     bindSecurityPanel(ctx);
-    syncThemeSeg(this._el);
+    syncAppearancePanel(this._el);
 
     // Wire password strength (no inline handlers needed)
     this._el.querySelector('#s-pwd-new')?.addEventListener('input', (e) => {

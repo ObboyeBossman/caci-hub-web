@@ -8,7 +8,7 @@
 
 .auth-label {
   display: block;
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--auth-text-primary);
   margin-bottom: 7px;
@@ -28,7 +28,7 @@
   border: 1px solid var(--auth-input-border);
   border-radius: 6px;
   padding: 0 12px;
-  font-size: 16px;
+  font-size: var(--text-lg);
   color: var(--auth-text-primary);
   background: var(--auth-input-bg);
   outline: none;
@@ -82,7 +82,7 @@
   border: 1px solid var(--auth-input-border);
   border-right: none;
   border-radius: 6px 0 0 6px;
-  font-size: 16px;
+  font-size: var(--text-lg);
   color: var(--auth-text-secondary);
   white-space: nowrap;
   height: 32px;
@@ -90,10 +90,10 @@
 
 /* ── Inline text under fields ────────────────────────────── */
 .auth-help-text {
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--auth-text-secondary);
   margin-top: 6px;
   line-height: 1.4;
 }
-.auth-error-msg          { font-size: 14px; color: var(--auth-error); margin-top: 6px; line-height: 1.4; display: none; }
+.auth-error-msg          { font-size: var(--text-base); color: var(--auth-error); margin-top: 6px; line-height: 1.4; display: none; }
 .auth-error-msg.show     { display: block; }

@@ -45,15 +45,15 @@ const AddMemberSuccess: PageModule = {
     <!-- Avatar -->
     <div style="width:64px;height:64px;border-radius:50%;background:${bg};
       display:flex;align-items:center;justify-content:center;color:#fff;
-      font-size:22px;font-weight:700;margin:0 auto 12px;">${ini}</div>
+      font-size: var(--text-3xl);font-weight:700;margin:0 auto 12px;">${ini}</div>
 
-    <h2 style="margin:0 0 6px;font-size:22px;font-weight:700;color:var(--mm-text-primary);">
+    <h2 style="margin:0 0 6px;font-size: var(--text-3xl);font-weight:700;color:var(--mm-text-primary);">
       ${firstName} ${lastName} Registered!
     </h2>
-    <div style="font-size:14px;color:var(--mm-text-secondary);margin-bottom:${membershipNum ? '6px' : '28px'};">
+    <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-bottom:${membershipNum ? '6px' : '28px'};">
       The member record has been created successfully.
     </div>
-    ${membershipNum ? `<div style="font-size:13px;font-family:monospace;background:var(--mm-bg-card);
+    ${membershipNum ? `<div style="font-size: var(--text-base);font-family:monospace;background:var(--mm-bg-card);
       border:1px solid var(--mm-border);border-radius:6px;padding:8px 16px;
       display:inline-block;margin-bottom:28px;color:var(--mm-text-primary);">
       Membership # <strong>${membershipNum}</strong>

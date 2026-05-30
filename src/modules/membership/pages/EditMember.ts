@@ -79,7 +79,7 @@ export default EditMember
 function _buildHTML(m: MemberView): string { return `
 <div class="mm-root" style="padding:24px;max-width:720px;margin:0 auto;">
   <button style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;"
     onclick="history.back()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -89,8 +89,8 @@ function _buildHTML(m: MemberView): string { return `
   </button>
 
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;padding:28px;">
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Edit Member</h2>
-    <div style="font-size:13px;color:var(--mm-text-secondary);margin-bottom:24px;">
+    <h2 style="margin:0 0 8px;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Edit Member</h2>
+    <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-bottom:24px;">
       ${formatName(m.first_name, m.last_name, m.title)} · ${m.membership_number ?? 'No membership number'}
     </div>
 
@@ -153,7 +153,6 @@ function _buildHTML(m: MemberView): string { return `
         <label class="mm-form-label">Primary Phone</label>
         <!-- PhoneInput mounts here -->
         <div id="em-phone-primary-slot"></div>
-        <div class="mm-form-error" id="em-err-phone">At least one of primary phone or email is required.</div>
       </div>
       <div class="mm-form-group">
         <label class="mm-form-label">Secondary Phone</label>
@@ -192,7 +191,7 @@ function _buildHTML(m: MemberView): string { return `
     </div>
 
     <div style="border-top:1px solid var(--mm-border);margin:20px 0 16px;"></div>
-    <div style="font-size:13px;font-weight:600;color:var(--mm-text-secondary);margin-bottom:14px;">EMERGENCY CONTACT</div>
+    <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-secondary);margin-bottom:14px;">EMERGENCY CONTACT</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
       <div class="mm-form-group">
         <label class="mm-form-label">Name</label>
@@ -243,12 +242,7 @@ async function _save(container: HTMLElement, id: string, original: MemberView): 
   const hideErr = (e: string, i: string) => { container.querySelector(`#${e}`)?.classList.remove('show'); container.querySelector(`#${i}`)?.classList.remove('error') }
   if (!firstName) showErr('em-err-firstName','em-fFirstName'); else hideErr('em-err-firstName','em-fFirstName')
   if (!lastName)  showErr('em-err-lastName', 'em-fLastName');  else hideErr('em-err-lastName', 'em-fLastName')
-  if (!primaryPhone && !email) {
-    _primaryPhone?.setError('At least one of primary phone or email is required.')
-    valid = false
-  } else {
-    _primaryPhone?.setError(null)
-  }
+  _primaryPhone?.setError(null)
   if (!valid) return
 
   const payload = {

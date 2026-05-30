@@ -32,7 +32,7 @@ export function securityPanelHTML(): string {
         <div class="settings-session-card" id="s-sess1">
           <div class="settings-session-icon"><i class="bi bi-laptop"></i></div>
           <div class="settings-session-info">
-            <div class="settings-session-name">Chrome on macOS <span class="settings-badge settings-badge-green" style="font-size:10px">Current</span></div>
+            <div class="settings-session-name">Chrome on macOS <span class="settings-badge settings-badge-green" style="font-size: var(--text-xs)">Current</span></div>
             <div class="settings-session-meta">Accra, GH · Active now</div>
           </div>
         </div>
@@ -101,7 +101,7 @@ export function bindSecurityPanel(ctx: SettingsContext): void {
     list.innerHTML = ALL_HISTORY.slice(0, historyShown).map(h => `
       <div class="settings-history-item">
         <i class="bi ${h.ok ? 'bi-check-circle' : 'bi-x-circle'}" style="color:${h.ok ? 'var(--caci-success)' : 'var(--caci-red)'}"></i>
-        <span style="flex:1">${h.txt}${!h.ok ? ' <span class="settings-badge settings-badge-red" style="font-size:11px;margin-left:4px">Failed</span>' : ''}</span>
+        <span style="flex:1">${h.txt}${!h.ok ? ' <span class="settings-badge settings-badge-red" style="font-size: var(--text-xs);margin-left:4px">Failed</span>' : ''}</span>
       </div>`).join('');
     if (historyShown < ALL_HISTORY.length) {
       list.innerHTML += `<button class="settings-show-more-btn" id="s-show-more">

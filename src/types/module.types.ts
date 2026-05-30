@@ -103,7 +103,7 @@ export interface ModuleContext {
     on:   (event: string, fn: (data: unknown) => void) => void
   }
   permissions: {
-    hasPermission: (role: string, permission: string) => boolean
+    hasPermission: (user: AppUser, permission: string) => boolean
   }
   currentUser: () => AppUser | null
 }

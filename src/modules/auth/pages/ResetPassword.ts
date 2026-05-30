@@ -145,8 +145,8 @@ export const ResetPassword: PageModule = {
                   Back to sign in
                 </a>
 
-                <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Set a new password</h2>
-                <p style="font-size:13px;color:var(--auth-text-secondary);margin-bottom:20px;">
+                <h2 style="font-size: var(--text-xl);font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Set a new password</h2>
+                <p style="font-size: var(--text-base);color:var(--auth-text-secondary);margin-bottom:20px;">
                   Choose a strong password that you haven't used before.
                 </p>
 
@@ -215,8 +215,8 @@ export const ResetPassword: PageModule = {
                     <path d="M5 12l5 5L20 7"/>
                   </svg>
                 </div>
-                <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Password reset successful</h2>
-                <p style="font-size:14px;color:var(--auth-text-secondary);margin-bottom:20px;">
+                <h2 style="font-size: var(--text-xl);font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Password reset successful</h2>
+                <p style="font-size: var(--text-base);color:var(--auth-text-secondary);margin-bottom:20px;">
                   Your password has been changed. You can now sign in with your new password.
                 </p>
                 <a href="#/login" class="auth-btn auth-btn-primary" style="text-decoration:none;">Continue to sign in</a>
@@ -229,8 +229,8 @@ export const ResetPassword: PageModule = {
         <!-- Footer -->
         <div class="auth-footer">
           <div class="auth-footer-links">
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Help</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Privacy</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Help</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Privacy</a>
           </div>
         </div>
 

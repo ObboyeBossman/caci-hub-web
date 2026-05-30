@@ -21,19 +21,19 @@ import 'notyf/notyf.min.css'
 import { runSplash } from './core/splash'
 import { registerModule } from './core/registry'
 import SettingsModule  from './modules/settings'
-import AccountsModule  from './modules/accounts'
 
-import { applyTheme, initThemeListener } from './core/theme'
+
+import { applyAppearance, initThemeListener } from './core/theme'
 
 async function boot(): Promise<void> {
   console.log('[main] CACI Hub Web starting…')
 
   // Register modules
   registerModule(SettingsModule)
-  registerModule(AccountsModule)
 
-  // Initialize theme (Manual pref or System default)
-  applyTheme()
+
+  // Initialize theme and appearance (Manual pref or System default)
+  applyAppearance()
   initThemeListener()
 
   // Hand off to the splash boot flow (Stages 1 → 4)
@@ -50,8 +50,8 @@ boot().catch((err) => {
         <rect x="9" y="0" width="4" height="22" rx="2" fill="#004BA0"/>
         <rect x="0" y="9" width="22" height="4" rx="2" fill="#004BA0"/>
       </svg>
-      <h1 style="font-size:16px;font-weight:600;color:#0D1117;margin:0">Failed to start</h1>
-      <p style="font-size:13px;margin:0">Check the console for details.</p>
+      <h1 style="font-size: var(--text-lg);font-weight:600;color:#0D1117;margin:0">Failed to start</h1>
+      <p style="font-size: var(--text-base);margin:0">Check the console for details.</p>
     </div>
   `
 })

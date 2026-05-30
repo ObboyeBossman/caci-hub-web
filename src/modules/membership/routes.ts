@@ -1,5 +1,5 @@
 // src/modules/membership/routes.ts
-// All membership module routes.
+// All membership module routes — permission strings updated to RBAC dot-notation.
 
 import type { RouteDefinition } from '../../types/module.types'
 
@@ -9,13 +9,13 @@ export const membershipRoutes: RouteDefinition[] = [
     path: '/members',
     page: () => import('./pages/MemberList'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
   {
     path: '/members/add',
     page: () => import('./pages/AddMember'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.create',
+    permission: 'members.create',
   },
   {
     path: '/members/success',
@@ -26,31 +26,31 @@ export const membershipRoutes: RouteDefinition[] = [
     path: '/members/bulk-import',
     page: () => import('./pages/BulkImport'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.members.import',
+    permission: 'members.import',
   },
   {
     path: '/members/:id',
     page: () => import('./pages/MemberProfile'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
   {
     path: '/members/:id/edit',
     page: () => import('./pages/EditMember'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.edit',
+    permission: 'members.edit',
   },
   {
     path: '/members/:id/pastoral-notes',
     page: () => import('./pages/EditPastoralNotes'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.edit',
+    permission: 'members.edit',
   },
   {
     path: '/members/:id/flag',
     page: () => import('./pages/FlagMember'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
 
   // ── Households ────────────────────────────────────────────────────────────
@@ -84,13 +84,13 @@ export const membershipRoutes: RouteDefinition[] = [
     path: '/groups',
     page: () => import('./pages/MemberList'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
   {
     path: '/groups/new',
     page: () => import('./pages/GroupCreate'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
 
   // ── Attendance ────────────────────────────────────────────────────────────
@@ -98,13 +98,13 @@ export const membershipRoutes: RouteDefinition[] = [
     path: '/attendance',
     page: () => import('./pages/MemberList'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
   {
     path: '/attendance/record',
     page: () => import('./pages/RecordAttendance'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
 
   // ── Pastoral Care ─────────────────────────────────────────────────────────
@@ -112,13 +112,13 @@ export const membershipRoutes: RouteDefinition[] = [
     path: '/pastoral-care',
     page: () => import('./pages/MemberList'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
   {
     path: '/flag-member',
     page: () => import('./pages/FlagMember'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'members.view',
   },
 
   // ── Reports ───────────────────────────────────────────────────────────────
@@ -126,13 +126,13 @@ export const membershipRoutes: RouteDefinition[] = [
     path: '/reports',
     page: () => import('./pages/MemberList'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'reports.view',
   },
   {
     path: '/reports/:type',
     page: () => import('./pages/ReportDetail'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'membership.view',
+    permission: 'reports.view',
   },
 
   // ── My Profile & Admin ────────────────────────────────────────────────────
@@ -141,10 +141,5 @@ export const membershipRoutes: RouteDefinition[] = [
     page: () => import('./pages/MyProfile'),
     middleware: ['auth', 'mustChangePassword'],
   },
-  {
-    path: '/audit-log',
-    page: () => import('./pages/AuditLog'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.view',
-  },
+
 ]

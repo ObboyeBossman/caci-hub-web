@@ -1,7 +1,10 @@
 // src/modules/settings/pages/panels/AppearancePanel.ts
 
 import type { SettingsContext } from '../utils/settingsTypes';
-import { applyTheme } from '../../../../core/theme';
+import { 
+  applyTheme, applyAccent, applyFontSize, applyReduceMotion, applyHighContrast,
+  getSavedAccent, getSavedFontSize, getSavedReduceMotion, getSavedHighContrast
+} from '../../../../core/theme';
 
 export function appearancePanelHTML(): string {
   return `
@@ -97,7 +100,7 @@ export function bindAppearancePanel(ctx: SettingsContext): void {
     btn.addEventListener('click', () => {
       el.querySelectorAll('[data-font]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.documentElement.style.fontSize = btn.dataset['font'] + 'px';
+      applyFontSize(btn.dataset['font']!);
       toast('Font size updated');
     });
   });
@@ -119,22 +122,58 @@ export function bindAppearancePanel(ctx: SettingsContext): void {
   // Accessibility toggles
   el.querySelector('#s-reduce-motion')?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
-    document.documentElement.dataset['reducedMotion'] = checked ? '1' : '0';
+    applyReduceMotion(checked);
     toast(checked ? 'Motion reduced' : 'Motion restored');
+  });
+
+  el.querySelector('#s-high-contrast')?.addEventListener('change', (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    applyHighContrast(checked);
+    toast(checked ? 'High contrast enabled' : 'High contrast disabled');
   });
 }
 
-export function syncThemeSeg(el: HTMLElement): void {
-  const val = localStorage.getItem('caci-theme') ?? 'system';
+export function syncAppearancePanel(el: HTMLElement): void {
+  // Theme
+  const themeVal = localStorage.getItem('caci-theme') ?? 'system';
   el.querySelectorAll<HTMLElement>('[data-theme-val]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset['themeVal'] === val);
+    btn.classList.toggle('active', btn.dataset['themeVal'] === themeVal);
   });
+
+  // Font size
+  const fontVal = getSavedFontSize() ?? '14';
+  el.querySelectorAll<HTMLElement>('[data-font]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset['font'] === fontVal);
+  });
+
+  // Accent
+  const accentVal = getSavedAccent();
+  if (accentVal) {
+    el.querySelectorAll<HTMLElement>('.settings-swatch').forEach(sw => {
+      sw.classList.toggle('active', sw.dataset['color']?.toUpperCase() === accentVal.toUpperCase());
+    });
+    const custom = el.querySelector<HTMLInputElement>('#s-color-custom');
+    if (custom) custom.value = accentVal;
+    _checkContrast(accentVal, el);
+  }
+
+  // Accessibility
+  const motionInput = el.querySelector<HTMLInputElement>('#s-reduce-motion');
+  if (motionInput) motionInput.checked = getSavedReduceMotion();
+
+  const contrastInput = el.querySelector<HTMLInputElement>('#s-high-contrast');
+  if (contrastInput) contrastInput.checked = getSavedHighContrast();
+}
+
+function _checkContrast(hex: string, el: HTMLElement): void {
+  const r = parseInt(hex.slice(1,3), 16) || 0;
+  const g = parseInt(hex.slice(3,5), 16) || 0;
+  const b = parseInt(hex.slice(5,7), 16) || 0;
+  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+  el.querySelector<HTMLElement>('#s-contrast-warn')?.classList.toggle('show', lum > 0.6);
 }
 
 function _applyAccent(hex: string, el: HTMLElement): void {
-  document.documentElement.style.setProperty('--accent', hex);
-  document.documentElement.style.setProperty('--caci-blue', hex);
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
-  el.querySelector<HTMLElement>('#s-contrast-warn')?.classList.toggle('show', lum > 0.6);
+  applyAccent(hex);
+  _checkContrast(hex, el);
 }

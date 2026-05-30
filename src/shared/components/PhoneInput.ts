@@ -87,7 +87,7 @@ export class PhoneInput {
       const lbl = document.createElement('label')
       lbl.htmlFor   = `${id}-number`
       lbl.textContent = label
-      lbl.style.cssText = 'font-size:13px; font-weight:500;'
+      lbl.style.cssText = 'font-size: var(--text-base); font-weight:500;'
       wrapper.appendChild(lbl)
     }
 
@@ -184,7 +184,7 @@ export class PhoneInput {
     if (!errEl) {
       errEl = document.createElement('div')
       errEl.className = 'phone-input-error'
-      errEl.style.cssText = 'color:#c60026;font-size:12px;margin-top:2px;'
+      errEl.style.cssText = 'color:#c60026;font-size: var(--text-sm);margin-top:2px;'
       this._root.appendChild(errEl)
     }
     errEl.textContent  = msg ?? ''

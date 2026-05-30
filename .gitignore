@@ -1,6 +1,8 @@
-# Environment
+# Environment — all tiers gitignored (never commit credentials)
 .env
 .env.local
+.env.development
+.env.production
 .env.*.local
 
 # Build output

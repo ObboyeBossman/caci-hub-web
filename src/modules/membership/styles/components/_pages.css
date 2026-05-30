@@ -43,7 +43,7 @@
   border-color: var(--mm-blue-mid);
   box-shadow: 0 1px 4px rgba(0, 75, 160, .08);
 }
-.mm-att-session-date { font-size: 12px; color: var(--mm-text-muted); margin-bottom: 4px; }
+.mm-att-session-date { font-size: var(--text-sm); color: var(--mm-text-muted); margin-bottom: 4px; }
 .mm-att-session-name {
   font-size: var(--font-size-base);
   font-weight: 600;
@@ -60,7 +60,7 @@
   border-radius: 6px;
 }
 .mm-att-session-stat-val { font-size: var(--font-size-base); font-weight: 700; color: var(--mm-text-primary); }
-.mm-att-session-stat-lbl { font-size: 11px; color: var(--mm-text-muted); }
+.mm-att-session-stat-lbl { font-size: var(--text-xs); color: var(--mm-text-muted); }
 
 /* Attendance register table */
 .mm-att-table {
@@ -71,7 +71,7 @@
 .mm-att-table th {
   text-align: left;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .4px;
@@ -88,7 +88,7 @@
 .mm-att-toggle {
   padding: 3px 10px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid var(--mm-border);
   background: var(--mm-bg-card);
@@ -141,8 +141,8 @@
 .mm-group-icon svg { width: 18px; height: 18px; stroke: var(--mm-blue); fill: none; stroke-width: 1.5; }
 
 .mm-group-name { font-size: var(--font-size-base); font-weight: 600; color: var(--mm-text-primary); margin-bottom: 3px; }
-.mm-group-type { font-size: 13px; color: var(--mm-text-secondary); margin-bottom: 8px; }
-.mm-group-meta { display: flex; gap: 12px; font-size: 13px; color: var(--mm-text-muted); }
+.mm-group-type { font-size: var(--text-base); color: var(--mm-text-secondary); margin-bottom: 8px; }
+.mm-group-meta { display: flex; gap: 12px; font-size: var(--text-base); color: var(--mm-text-muted); }
 .mm-group-actions {
   display: flex;
   gap: 6px;
@@ -173,7 +173,7 @@
   margin-bottom: 14px;
 }
 .mm-pc-card-title {
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .5px;
@@ -205,14 +205,14 @@
 
 .mm-flag-content { flex: 1; }
 .mm-flag-name   { font-size: var(--font-size-base); font-weight: 500; color: var(--mm-text-primary); }
-.mm-flag-reason { font-size: 13px; color: var(--mm-text-secondary); margin-top: 1px; }
-.mm-flag-date   { font-size: 12px; color: var(--mm-text-muted); margin-top: 2px; }
+.mm-flag-reason { font-size: var(--text-base); color: var(--mm-text-secondary); margin-top: 1px; }
+.mm-flag-date   { font-size: var(--text-sm); color: var(--mm-text-muted); margin-top: 2px; }
 .mm-flag-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
 .mm-pc-action-btn {
   padding: 3px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid var(--mm-border);
   background: var(--mm-bg-card);
@@ -264,28 +264,28 @@
 .mm-report-icon svg { width: 16px; height: 16px; stroke: var(--mm-blue); fill: none; stroke-width: 1.5; }
 
 .mm-report-name { font-size: var(--font-size-base); font-weight: 600; color: var(--mm-text-primary); margin-bottom: 4px; }
-.mm-report-desc { font-size: 13px; color: var(--mm-text-secondary); line-height: 1.5; }
+.mm-report-desc { font-size: var(--text-base); color: var(--mm-text-secondary); line-height: 1.5; }
 .mm-report-footer {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--mm-border-subtle);
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--mm-text-muted);
 }
 
 /* Horizontal bar chart */
 .mm-chart-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.mm-chart-bar-label { font-size: 13px; color: var(--mm-text-secondary); width: 80px; flex-shrink: 0; text-align: right; }
+.mm-chart-bar-label { font-size: var(--text-base); color: var(--mm-text-secondary); width: 80px; flex-shrink: 0; text-align: right; }
 .mm-chart-bar-track { flex: 1; height: 16px; background: var(--mm-stat-bar-bg); border-radius: 4px; overflow: hidden; }
 .mm-chart-bar-fill  { height: 100%; border-radius: 4px; transition: width .5s ease; }
-.mm-chart-bar-val   { font-size: 13px; font-weight: 600; color: var(--mm-text-primary); width: 35px; flex-shrink: 0; }
+.mm-chart-bar-val   { font-size: var(--text-base); font-weight: 600; color: var(--mm-text-primary); width: 35px; flex-shrink: 0; }
 
 /* Growth table */
 .mm-growth-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-base); }
 .mm-growth-table th {
   text-align: left;
   padding: 8px 10px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .4px;

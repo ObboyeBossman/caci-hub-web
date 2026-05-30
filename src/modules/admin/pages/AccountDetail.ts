@@ -8,25 +8,16 @@ import { navigate }                    from '@core/router'
 import { getAccountById, updateUserRole, setUserActive, listAssemblyRoles, assignRoleToUser } from '../repository'
 import type { AssemblyRole }           from '../repository'
 import type { UserProfileSummary }     from '../utils/userProfileCache'
-import type { UserRoleEnum }           from '../../../types/database.types'
+import type { SystemRole }           from '../../../types/auth.types'
 
 // Extended type for this page to include role_id
 interface AccountDetailSummary extends UserProfileSummary {
   roleId: string | null
 }
 
-const ASSIGNABLE_ROLES: { value: UserRoleEnum; label: string }[] = [
-  { value: 'member',           label: 'Member' },
-  { value: 'volunteer',        label: 'Volunteer' },
-  { value: 'secretary',        label: 'Secretary' },
-  { value: 'pastor',           label: 'Pastor' },
-  { value: 'finance_officer',  label: 'Finance Officer' },
-  { value: 'welfare_officer',  label: 'Welfare Officer' },
-  { value: 'cell_leader',      label: 'Cell Leader' },
-  { value: 'elder',            label: 'Elder' },
-  { value: 'children_worker',  label: 'Children Worker' },
-  { value: 'media_officer',    label: 'Media Officer' },
-  { value: 'admin',            label: 'Admin' },
+const ASSIGNABLE_ROLES: { value: SystemRole; label: string }[] = [
+  { value: 'member', label: 'Member' },
+  { value: 'admin',  label: 'Admin' },
 ]
 
 let _container: HTMLElement | null = null
@@ -61,7 +52,7 @@ async function getAccountByIdWithRoleId(userId: string): Promise<AccountDetailSu
   const { supabase } = await import('@core/supabase')
   const { data: profile, error } = await supabase
     .from('user_profiles')
-    .select('id, assembly_id, role, role_id, full_name, is_active')
+    .select('id, assembly_id, role, assembly_role_id, full_name, is_active')
     .eq('id', userId)
     .single()
   
@@ -80,8 +71,8 @@ async function getAccountByIdWithRoleId(userId: string): Promise<AccountDetailSu
     memberId: m?.id ?? null,
     fullName: p.full_name,
     email: m?.email ?? null,
-    role: p.role as UserRoleEnum,
-    roleId: p.role_id,
+    role: p.role as SystemRole,
+    roleId: p.assembly_role_id,
     isActive: p.is_active,
     assemblyId: p.assembly_id,
   }
@@ -93,7 +84,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
 
   <!-- Back -->
   <button id="ad-back" style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"/>
@@ -109,7 +100,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
       <!-- Avatar -->
       <div style="width:56px;height:56px;border-radius:50%;
         background:var(--caci-accent);display:flex;align-items:center;
-        justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0;">
+        justify-content:center;color:#fff;font-size: var(--text-2xl);font-weight:700;flex-shrink:0;">
         ${account.fullName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
       </div>
 
@@ -117,7 +108,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
         <div style="font-size:1.125rem;font-weight:700;color:var(--mm-text-primary);margin-bottom:4px;">
           ${account.fullName}
         </div>
-        <div style="font-size:12px;color:var(--mm-text-secondary);margin-bottom:10px;">
+        <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin-bottom:10px;">
           ${account.email ?? 'No email on record'}
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
@@ -132,7 +123,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${account.memberId
           ? `<button class="mm-btn-outline" id="ad-viewMember"
-               style="font-size:12px;">View Member Profile</button>`
+               style="font-size: var(--text-sm);">View Member Profile</button>`
           : ''}
         ${account.isActive
           ? `<button class="mm-btn-danger" id="ad-suspend">Suspend</button>`
@@ -148,10 +139,10 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
 
     <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;">
-        <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:500;
+        <label style="display:block;margin-bottom:6px;font-size: var(--text-base);font-weight:500;
           color:var(--mm-text-secondary);">Assigned Role</label>
         <select id="ad-roleSelect" style="width:100%;padding:9px 12px;
-          border:1px solid var(--mm-border);border-radius:6px;font-size:13px;
+          border:1px solid var(--mm-border);border-radius:6px;font-size: var(--text-base);
           font-family:inherit;background:var(--mm-bg-card);color:var(--mm-text-primary);">
           ${ASSIGNABLE_ROLES.map(r => `
             <option value="${r.value}" ${r.value === account.role ? 'selected' : ''}>
@@ -164,7 +155,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
       </button>
     </div>
 
-    <p style="margin:12px 0 0;font-size:12px;color:var(--mm-text-muted);">
+    <p style="margin:12px 0 0;font-size: var(--text-sm);color:var(--mm-text-muted);">
       System role changes take effect on the user's next login.
     </p>
   </div>
@@ -174,12 +165,12 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
     border-radius:12px;padding:24px;margin-top:20px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
       <div class="mm-detail-section-title" style="margin:0;">Assembly Custom Role</div>
-      <button id="ad-manageRolesLink" class="mm-btn-outline" style="font-size:12px;padding:4px 8px;">
+      <button id="ad-manageRolesLink" class="mm-btn-outline" style="font-size: var(--text-sm);padding:4px 8px;">
         Manage Roles
       </button>
     </div>
     
-    <p style="font-size:13px;color:var(--mm-text-secondary);margin:0 0 16px;max-width:500px;">
+    <p style="font-size: var(--text-base);color:var(--mm-text-secondary);margin:0 0 16px;max-width:500px;">
       Assign an assembly-specific role to grant additional permissions. 
       This works in combination with their base system role.
     </p>
@@ -187,7 +178,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
     <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;">
         <select id="ad-customRoleSelect" style="width:100%;padding:9px 12px;
-          border:1px solid var(--mm-border);border-radius:6px;font-size:13px;
+          border:1px solid var(--mm-border);border-radius:6px;font-size: var(--text-base);
           font-family:inherit;background:var(--mm-bg-card);color:var(--mm-text-primary);">
           <option value="">-- No Custom Role --</option>
           ${roles.map(r => `
@@ -201,7 +192,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
       </button>
     </div>
 
-    <p style="margin:12px 0 0;font-size:12px;color:var(--mm-text-muted);">
+    <p style="margin:12px 0 0;font-size: var(--text-sm);color:var(--mm-text-muted);">
       Role assignments take effect on the user's next login.
     </p>
   </div>
@@ -210,7 +201,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
 `
 
   // Back
-  container.querySelector('#ad-back')?.addEventListener('click', () => navigate('/accounts'))
+  container.querySelector('#ad-back')?.addEventListener('click', () => navigate('/admin/users'))
 
   // View member profile
   if (account.memberId) {
@@ -240,7 +231,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
   // Save system role
   container.querySelector('#ad-saveRole')?.addEventListener('click', async () => {
     const select = container.querySelector<HTMLSelectElement>('#ad-roleSelect')!
-    const newRole = select.value as UserRoleEnum
+    const newRole = select.value as SystemRole
     if (newRole === account.role) { Toast.info('No change — role is already set.'); return }
     if (!confirm(`Change ${account.fullName}'s base role to "${newRole}"?`)) return
     try {
@@ -267,7 +258,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
 
   // Manage Roles shortcut
   container.querySelector('#ad-manageRolesLink')?.addEventListener('click', () => {
-    navigate('/accounts/roles')
+    navigate('/admin/roles')
   })
 }
 

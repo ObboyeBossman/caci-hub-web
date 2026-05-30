@@ -36,8 +36,8 @@ const PastoralCare: PageModule = {
 <div class="mm-root" style="padding:24px;max-width:960px;margin:0 auto;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Pastoral Care</h2>
-      <div style="font-size:13px;color:var(--mm-text-secondary);">Track pastoral flags, first-timers, and life events.</div>
+      <h2 style="margin:0;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Pastoral Care</h2>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);">Track pastoral flags, first-timers, and life events.</div>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="mm-btn-primary" id="pc-addFlagBtn">+ Add Flag</button>
@@ -47,7 +47,7 @@ const PastoralCare: PageModule = {
 
   <!-- Active Flags -->
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;padding:20px;margin-bottom:20px;">
-    <div style="font-size:15px;font-weight:600;color:var(--mm-text-primary);margin-bottom:14px;">
+    <div style="font-size: var(--text-md);font-weight:600;color:var(--mm-text-primary);margin-bottom:14px;">
       Active Flags <span class="mm-badge red" id="pc-flagCount">0</span>
     </div>
     <div id="pc-flagsContainer"></div>
@@ -118,7 +118,7 @@ function _renderFlags(): void {
   if (countEl) countEl.textContent = String(open.length)
 
   const priorityBadge = (p: string) => p === 'high' || p === 'urgent'
-    ? `<span class="mm-badge red" style="font-size:10px;">${p}</span>` : ''
+    ? `<span class="mm-badge red" style="font-size: var(--text-xs);">${p}</span>` : ''
 
   const typeColors: Record<string, string> = {
     followup: 'followup', absent: 'absent', 'life-event': 'life-event', 'first-timer': 'first-timer',
@@ -140,7 +140,7 @@ function _renderFlags(): void {
     </button>` : ''}
   </div>
 </div>`).join('')
-      : `<div style="font-size:13px;color:var(--mm-text-secondary);padding:12px 0;">All clear — no open flags.</div>`
+      : `<div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:12px 0;">All clear — no open flags.</div>`
 
     el.querySelectorAll<HTMLButtonElement>('[data-resolve-flag]').forEach(btn => {
       btn.addEventListener('click', () => {

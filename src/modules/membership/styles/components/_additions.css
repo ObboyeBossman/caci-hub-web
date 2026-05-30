@@ -7,7 +7,7 @@
 /* mm-empty-state: richer alias for mm-empty */
 .mm-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
 .mm-empty-state .mm-empty-icon  { font-size: 48px; margin-bottom: 12px; }
-.mm-empty-state .mm-empty-title { font-size: 17px; font-weight: 600; color: var(--mm-text-primary); margin-bottom: 6px; }
+.mm-empty-state .mm-empty-title { font-size: var(--text-xl); font-weight: 600; color: var(--mm-text-primary); margin-bottom: 6px; }
 .mm-empty-state .mm-empty-sub   { font-size: var(--font-size-base); color: var(--mm-text-secondary); margin-bottom: 16px; }
 
 /* mm-list-view: wraps table views */
@@ -17,7 +17,7 @@
 .mm-att-session-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
 
 /* mm-stat-loading: skeleton placeholder */
-.mm-stat-loading { background: var(--mm-bg-card); border: 1px solid var(--mm-border); border-radius: 10px; padding: 16px; color: var(--mm-text-muted); font-size: 24px; }
+.mm-stat-loading { background: var(--mm-bg-card); border: 1px solid var(--mm-border); border-radius: 10px; padding: 16px; color: var(--mm-text-muted); font-size: var(--text-3xl); }
 
 /* mm-table-actions: action buttons inside table cells (convenience alias) */
 .mm-table-actions { display: flex; gap: 4px; align-items: center; }
@@ -44,7 +44,7 @@
   border: 1.5px solid var(--mm-blue);
   color: var(--mm-blue);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -58,7 +58,7 @@
   color: #fff;
   border-radius: 10px;
   padding: 1px 6px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   line-height: 1.6;
 }
@@ -92,8 +92,8 @@
   padding: 11px 14px;
   border-bottom: 1px solid var(--mm-border-subtle);
 }
-.mm-fdd-hdr-title { font-size: 13px; font-weight: 600; color: var(--mm-text-primary); }
-.mm-fdd-clear-all { background: none; border: none; color: var(--mm-red); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.mm-fdd-hdr-title { font-size: var(--text-base); font-weight: 600; color: var(--mm-text-primary); }
+.mm-fdd-clear-all { background: none; border: none; color: var(--mm-red); font-size: var(--text-sm); font-weight: 500; cursor: pointer; font-family: inherit; }
 
 /* ── Scrollable body ── */
 .mm-fdd-body              { max-height: 360px; overflow-y: auto; scrollbar-width: none; }
@@ -114,12 +114,12 @@
 }
 .mm-fdd-acc-hdr:active { background: var(--mm-bg-hover); }
 .mm-fdd-acc-left  { display: flex; align-items: center; gap: 7px; }
-.mm-fdd-acc-label { font-size: 13px; font-weight: 500; color: var(--mm-text-primary); }
+.mm-fdd-acc-label { font-size: var(--text-base); font-weight: 500; color: var(--mm-text-primary); }
 
 .mm-fdd-acc-badge {
   background: var(--mm-badge-blue-bg, #ddf4ff);
   color: var(--mm-badge-blue-color, #0969da);
-  font-size: 10px;
+  font-size: var(--text-xs);
   font-weight: 700;
   padding: 1px 5px;
   border-radius: 8px;
@@ -163,7 +163,7 @@
 .mm-fdd-cb svg                { width: 10px; height: 10px; opacity: 0; transition: opacity .1s; }
 .mm-fdd-cb.mm-fdd-on svg      { opacity: 1; }
 
-.mm-fdd-lbl     { font-size: 13px; color: var(--mm-text-primary); flex: 1; }
+.mm-fdd-lbl     { font-size: var(--text-base); color: var(--mm-text-primary); flex: 1; }
 .mm-fdd-lbl-dim { color: var(--mm-text-muted); }
 
 /* ── Footer ── */
@@ -176,7 +176,7 @@
   border-top: 1px solid var(--mm-border-subtle);
   background: var(--mm-bg-base);
 }
-.mm-fdd-hint { font-size: 12px; color: var(--mm-text-muted); }
+.mm-fdd-hint { font-size: var(--text-sm); color: var(--mm-text-muted); }
 .mm-fdd-apply {
   height: 34px;
   padding: 0 16px;
@@ -184,7 +184,7 @@
   background: var(--mm-blue);
   color: #fff;
   border: none;
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;

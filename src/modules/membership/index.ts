@@ -17,7 +17,8 @@ import { initMemberCache }      from './utils/memberCache'
 import { initGroupCache }       from './utils/groupCache'
 import { emit }                 from '@core/events'
 import { getActiveAssemblyId }  from '@core/auth'
-import { membershipRoutes }     from './routes'
+import { membershipRoutes }               from './routes'
+import { registerMembershipPermissions }  from './manifest'
 import {
   getMemberSummary,
   getMemberSummaries,
@@ -45,44 +46,38 @@ const MembershipModule: ModuleManifest = {
       label:      'All Members',
       path:       '/members',
       icon:       'people-fill',
-      permission: 'membership.view',
+      permission: 'members.view',
       order:      10,
     },
     {
       label:      'Attendance',
       path:       '/attendance',
       icon:       'calendar-check-fill',
-      permission: 'membership.view',
+      permission: 'members.view',
       order:      20,
     },
     {
       label:      'Groups & Units',
       path:       '/groups',
       icon:       'diagram-3-fill',
-      permission: 'membership.view',
+      permission: 'members.view',
       order:      30,
     },
     {
       label:      'Pastoral Care',
       path:       '/pastoral-care',
       icon:       'heart-fill',
-      permission: 'membership.view',
+      permission: 'members.view',
       order:      40,
     },
     {
       label:      'Reports',
       path:       '/reports',
       icon:       'bar-chart-fill',
-      permission: 'membership.view',
+      permission: 'reports.view',
       order:      50,
     },
-    {
-      label:      'Audit Log',
-      path:       '/audit-log',
-      icon:       'journal-text',
-      permission: 'admin.view',
-      order:      85,
-    },
+
   ],
 
   capabilities: ['dashboard-widgets', 'search', 'reports'],
@@ -91,14 +86,14 @@ const MembershipModule: ModuleManifest = {
     {
       id:         'new-members',
       component:  () => import('./widgets/NewMembersWidget'),
-      permission: 'membership.view',
+      permission: 'members.view',
       size:       'small',
       order:      10,
     },
     {
       id:         'member-stats',
       component:  () => import('./widgets/MemberStatsWidget'),
-      permission: 'membership.view',
+      permission: 'members.view',
       size:       'medium',
       order:      20,
     },
@@ -106,6 +101,9 @@ const MembershipModule: ModuleManifest = {
 
   // ── init() — called once at boot after loadCurrentUser() ──────────────────
   async init(_ctx) {
+    // 0. Register permissions with the platform registry
+    registerMembershipPermissions()
+
     // 1. Wire memberCache with repository fetchers
     //    The cache registers its own invalidation listeners (member:updated,
     //    member:deleted, member:restored, auth:signedOut) inside initMemberCache.

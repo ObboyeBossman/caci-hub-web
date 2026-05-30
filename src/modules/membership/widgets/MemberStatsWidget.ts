@@ -28,10 +28,10 @@ const MemberStatsWidget: PageModule = {
 <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:10px;padding:16px;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
     <div style="width:32px;height:32px;border-radius:8px;background:${color}22;
-      display:flex;align-items:center;justify-content:center;font-size:15px;">${icon}</div>
-    <div style="font-size:12px;color:var(--mm-text-muted);font-weight:500;">${label}</div>
+      display:flex;align-items:center;justify-content:center;font-size: var(--text-md);">${icon}</div>
+    <div style="font-size: var(--text-sm);color:var(--mm-text-muted);font-weight:500;">${label}</div>
   </div>
-  <div style="font-size:26px;font-weight:700;color:var(--mm-text-primary);line-height:1;">${value}</div>
+  <div style="font-size: var(--text-4xl);font-weight:700;color:var(--mm-text-primary);line-height:1;">${value}</div>
 </div>`
 
       container.innerHTML = `
@@ -42,7 +42,7 @@ const MemberStatsWidget: PageModule = {
   ${stat('New This Month',newMonth, '#9a6700', '⭐')}
 </div>`
     } catch (err) {
-      container.innerHTML = `<div style="font-size:12px;color:var(--mm-text-muted);padding:8px;">Could not load stats.</div>`
+      container.innerHTML = `<div style="font-size: var(--text-sm);color:var(--mm-text-muted);padding:8px;">Could not load stats.</div>`
     }
   },
   destroy() {},

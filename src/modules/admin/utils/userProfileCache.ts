@@ -12,7 +12,7 @@
 
 import { on }                                from '@core/events'
 import { storageGet, storageSet, storageRemove } from '@shared/utils/storage'
-import type { UserRole }                     from '../../../types/auth.types'
+import type { SystemRole }                   from '../../../types/auth.types'
 
 const STORAGE_KEY = 'account_user_profiles'
 
@@ -21,7 +21,7 @@ export interface UserProfileSummary {
   memberId:   string | null // user_profiles.member_id
   fullName:   string        // user_profiles.full_name
   email:      string | null
-  role:       UserRole
+  role:       SystemRole
   isActive:   boolean
   assemblyId: string | null
 }
