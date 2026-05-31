@@ -32,8 +32,8 @@ const HouseholdList: PageModule = {
 <div class="mm-root">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Households</h2>
-      <div style="font-size:13px;color:var(--mm-text-secondary);margin-top:2px;">Manage family households and their members</div>
+      <h2 style="margin:0;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Households</h2>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Manage family households and their members</div>
     </div>
     <button class="mm-btn-primary" id="hl-newBtn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -46,7 +46,7 @@ const HouseholdList: PageModule = {
       <svg class="mm-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input class="mm-search-input" id="hl-search" placeholder="Search households…" autocomplete="off">
     </div>
-    <div style="font-size:13px;color:var(--mm-text-secondary);margin-left:auto;">
+    <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-left:auto;">
       <span id="hl-count">0</span> households
     </div>
   </div>
@@ -113,15 +113,15 @@ function _renderRows(): void {
     <div style="display:flex;align-items:center;gap:10px;">
       <div style="width:34px;height:34px;border-radius:50%;background:var(--mm-blue);
         display:flex;align-items:center;justify-content:center;color:#fff;
-        font-size:14px;font-weight:700;flex-shrink:0;">
+        font-size: var(--text-base);font-weight:700;flex-shrink:0;">
         ${h.family_name[0]?.toUpperCase() ?? 'H'}
       </div>
       <div style="font-weight:600;color:var(--mm-text-primary);">${h.family_name}</div>
     </div>
   </td>
   <td><span class="mm-badge blue">${h.member_count} member${h.member_count === 1 ? '' : 's'}</span></td>
-  <td style="font-size:13px;">${h.primary_contact_name ?? '—'}</td>
-  <td style="font-size:12px;color:var(--mm-text-secondary);">${h.address ?? '—'}</td>
+  <td style="font-size: var(--text-base);">${h.primary_contact_name ?? '—'}</td>
+  <td style="font-size: var(--text-sm);color:var(--mm-text-secondary);">${h.address ?? '—'}</td>
   <td class="mm-col-actions">
     <div class="mm-table-actions">
       <button class="mm-btn-icon" data-hh-view="${h.id}" title="View">

@@ -90,13 +90,7 @@ export const CreateMemberSchema = z.object({
     .nullable()
     .optional(),
   household_id: z.string().uuid().nullable().optional(),
-}).refine(
-  (data) => data.primary_phone || data.email,
-  {
-    message: 'At least one of phone number or email is required',
-    path: ['primary_phone'],
-  }
-)
+})
 
 export type CreateMemberInput = z.infer<typeof CreateMemberSchema>
 

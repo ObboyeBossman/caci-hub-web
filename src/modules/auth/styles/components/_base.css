@@ -7,7 +7,7 @@
 
 .auth-root {
   font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--auth-text-primary, #1b1f23);
   background: var(--auth-body-bg, #f6f8fa);
   line-height: 1.5;

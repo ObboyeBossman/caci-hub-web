@@ -102,14 +102,14 @@
 }
 
 .page-title {
-  font-size: 20px;
+  font-size: var(--text-2xl);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
 
 .page-subtitle {
-  font-size: 13px;
+  font-size: var(--text-base);
   color: var(--text-secondary);
   margin-top: 2px;
 }
@@ -136,7 +136,7 @@
   border: 1px solid var(--alert-info-border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  font-size: 13px;
+  font-size: var(--text-base);
 }
 
 .alert-warning {
@@ -145,5 +145,5 @@
   border: 1px solid var(--alert-warning-border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  font-size: 13px;
+  font-size: var(--text-base);
 }

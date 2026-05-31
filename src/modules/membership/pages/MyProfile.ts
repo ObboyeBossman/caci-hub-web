@@ -26,8 +26,8 @@ const MyProfile: PageModule = {
       container.innerHTML = `
 <div class="mm-root" style="padding:40px;text-align:center;color:var(--mm-text-secondary);">
   <div style="font-size:40px;margin-bottom:12px;">👤</div>
-  <div style="font-size:17px;font-weight:600;color:var(--mm-text-primary);margin-bottom:8px;">No Member Profile Linked</div>
-  <div style="font-size:13px;">Your account is not yet linked to a member record.</div>
+  <div style="font-size: var(--text-xl);font-weight:600;color:var(--mm-text-primary);margin-bottom:8px;">No Member Profile Linked</div>
+  <div style="font-size: var(--text-base);">Your account is not yet linked to a member record.</div>
   <button class="mm-btn-outline" style="margin-top:20px;" onclick="history.back()">Go Back</button>
 </div>`
       return
@@ -50,7 +50,7 @@ const MyProfile: PageModule = {
     container.innerHTML = `
 <div class="mm-root" style="padding:24px;max-width:900px;margin:0 auto;">
   <div style="margin-bottom:20px;">
-    <div style="font-size:13px;color:var(--mm-text-secondary);">Logged in as: <strong>${user?.email ?? 'unknown'}</strong></div>
+    <div style="font-size: var(--text-base);color:var(--mm-text-secondary);">Logged in as: <strong>${user?.email ?? 'unknown'}</strong></div>
   </div>
 
   <!-- Profile header -->
@@ -59,12 +59,12 @@ const MyProfile: PageModule = {
     border-radius:12px;padding:24px;">
     <div style="width:72px;height:72px;border-radius:50%;background:${bg};
       display:flex;align-items:center;justify-content:center;color:#fff;
-      font-size:24px;font-weight:700;flex-shrink:0;">${ini}</div>
+      font-size: var(--text-3xl);font-weight:700;flex-shrink:0;">${ini}</div>
     <div style="flex:1;">
-      <div style="font-size:22px;font-weight:700;color:var(--mm-text-primary);margin-bottom:4px;">
+      <div style="font-size: var(--text-3xl);font-weight:700;color:var(--mm-text-primary);margin-bottom:4px;">
         ${formatName(member.first_name, member.last_name, member.title)}
       </div>
-      <div style="font-size:12px;color:var(--mm-text-muted);font-family:monospace;margin-bottom:10px;">
+      <div style="font-size: var(--text-sm);color:var(--mm-text-muted);font-family:monospace;margin-bottom:10px;">
         ${member.membership_number ?? 'No membership number yet'}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -105,7 +105,7 @@ const MyProfile: PageModule = {
           <div class="mm-detail-field"><span class="mm-detail-field-label">Status</span><span class="mm-detail-field-val"><span class="mm-badge ${s.cls}">${s.label}</span></span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Joined</span><span class="mm-detail-field-val">${fmtDate(member.join_date)}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Member Since</span><span class="mm-detail-field-val">${fmtDate(member.created_at)}</span></div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size:12px;">${member.membership_number ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size: var(--text-sm);">${member.membership_number ?? '—'}</span></div>
         </div>
       </div>
     </div>
@@ -116,8 +116,8 @@ const MyProfile: PageModule = {
           <div class="mm-detail-section-title">Contact Details</div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Primary Phone</span><span class="mm-detail-field-val">${member.primary_phone ?? '—'}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Secondary Phone</span><span class="mm-detail-field-val">${member.secondary_phone ?? '—'}</span></div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="word-break:break-all;font-size:12px;">${member.email ?? '—'}</span></div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size:12px;">${member.physical_address ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="word-break:break-all;font-size: var(--text-sm);">${member.email ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size: var(--text-sm);">${member.physical_address ?? '—'}</span></div>
         </div>
         ${member.emergency_contact_name ? `
         <div>
@@ -131,16 +131,16 @@ const MyProfile: PageModule = {
 
     <div id="mm-mptab-audit" style="display:none;">
       ${auditLog.length === 0
-        ? `<div style="font-size:13px;color:var(--mm-text-secondary);padding:20px 0;text-align:center;">No audit entries found.</div>`
+        ? `<div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:20px 0;text-align:center;">No audit entries found.</div>`
         : `<table class="mm-table">
              <thead><tr><th>Field</th><th>Old Value</th><th>New Value</th><th>Changed By</th><th>When</th></tr></thead>
              <tbody>${auditLog.map(e => `
                <tr>
-                 <td style="font-size:12px;font-family:monospace;">${e.field_changed}</td>
-                 <td style="font-size:12px;color:var(--mm-text-muted);">${e.old_value ?? '—'}</td>
-                 <td style="font-size:12px;">${e.new_value ?? '—'}</td>
-                 <td style="font-size:12px;">${e.changed_by_name ?? 'System'}</td>
-                 <td style="font-size:12px;">${fmtDate(e.changed_at)}</td>
+                 <td style="font-size: var(--text-sm);font-family:monospace;">${e.field_changed}</td>
+                 <td style="font-size: var(--text-sm);color:var(--mm-text-muted);">${e.old_value ?? '—'}</td>
+                 <td style="font-size: var(--text-sm);">${e.new_value ?? '—'}</td>
+                 <td style="font-size: var(--text-sm);">${e.changed_by_name ?? 'System'}</td>
+                 <td style="font-size: var(--text-sm);">${fmtDate(e.changed_at)}</td>
                </tr>`).join('')}
              </tbody>
            </table>`}

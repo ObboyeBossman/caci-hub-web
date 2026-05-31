@@ -35,8 +35,8 @@ const RecordAttendance: PageModule = {
 <div class="mm-root" style="padding:24px;max-width:900px;margin:0 auto;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Record Attendance</h2>
-      <div style="font-size:13px;color:var(--mm-text-secondary);">
+      <h2 style="margin:0;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Record Attendance</h2>
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);">
         ${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}
         · <span id="ra-presentCount">0</span> present / <span id="ra-absentCount">0</span> absent / <span id="ra-excusedCount">0</span> excused
       </div>
@@ -48,8 +48,8 @@ const RecordAttendance: PageModule = {
   </div>
 
   <div style="margin-bottom:14px;display:flex;gap:8px;">
-    <button class="mm-btn-outline" style="font-size:12px;padding:5px 12px;" id="ra-markAllPresent">All Present</button>
-    <button class="mm-btn-outline" style="font-size:12px;padding:5px 12px;" id="ra-markAllAbsent">All Absent</button>
+    <button class="mm-btn-outline" style="font-size: var(--text-sm);padding:5px 12px;" id="ra-markAllPresent">All Present</button>
+    <button class="mm-btn-outline" style="font-size: var(--text-sm);padding:5px 12px;" id="ra-markAllAbsent">All Absent</button>
   </div>
 
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;overflow:hidden;">
@@ -96,7 +96,7 @@ function _renderTable(): void {
           </div>
         </div>
       </td>
-      <td style="font-size:12px;">${m.occupation ?? '—'}</td>
+      <td style="font-size: var(--text-sm);">${m.occupation ?? '—'}</td>
       <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
       <td>
         <div class="mm-att-toggle-wrap">

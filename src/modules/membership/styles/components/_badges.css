@@ -4,7 +4,7 @@
 .mm-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--text-sm);
   padding: 2px 7px;
   border-radius: 10px;
   background: var(--mm-badge-bg);

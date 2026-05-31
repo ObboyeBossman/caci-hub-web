@@ -103,13 +103,13 @@ export const Login: PageModule = {
                 <img src="/caci-logo.jpeg" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div class="assembly-badge-info" style="flex: 1; min-width: 0;">
-                <p class="assembly-badge-name" style="font-size: 13px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--auth-text-primary);">${assembly.name}</p>
-                <p class="assembly-badge-loc" style="font-size: 11px; color: var(--auth-text-secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <p class="assembly-badge-name" style="font-size: var(--text-base); font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--auth-text-primary);">${assembly.name}</p>
+                <p class="assembly-badge-loc" style="font-size: var(--text-xs); color: var(--auth-text-secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   <i class="bi bi-geo-alt"></i> ${assembly.address || 'Unknown location'}
                 </p>
               </div>
 
-              <a class="auth-link" href="#/select-assembly" style="font-size: 12px; flex-shrink: 0;">Change</a>
+              <a class="auth-link" href="#/select-assembly" style="font-size: var(--text-sm); flex-shrink: 0;">Change</a>
             </div>
 
             <!-- Card -->
@@ -146,7 +146,7 @@ export const Login: PageModule = {
               <div class="auth-field">
                 <div class="auth-field-header">
                   <label class="auth-label">Password</label>
-                  <a class="auth-link" id="forgot-pw-link" href="#/forgot-password" style="font-size:13px;">Forgot?</a>
+                  <a class="auth-link" id="forgot-pw-link" href="#/forgot-password" style="font-size: var(--text-base);">Forgot?</a>
                 </div>
                 <div class="auth-input-wrap">
                   <input type="password" id="signin-pw" class="auth-input" placeholder="Enter your password" autocomplete="current-password">
@@ -163,7 +163,7 @@ export const Login: PageModule = {
 
             <!-- Footer card -->
             <div class="auth-card" style="text-align:center;padding:16px;">
-              <span style="color:var(--auth-text-secondary);font-size:14px;">Don't have an account?</span>
+              <span style="color:var(--auth-text-secondary);font-size: var(--text-base);">Don't have an account?</span>
               <a class="auth-link" href="#/login" style="margin-left:4px;">Contact your administrator</a>
             </div>
 
@@ -173,9 +173,9 @@ export const Login: PageModule = {
         <!-- Footer -->
         <div class="auth-footer">
           <div class="auth-footer-links">
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Help</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Privacy</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Terms</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Help</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Privacy</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Terms</a>
           </div>
         </div>
 
@@ -258,13 +258,11 @@ export const Login: PageModule = {
         const user = getCurrentUser() as AppUser
 
         // ── Membership Verification ──────────────────────────────────────────
-        // Users must belong to the selected assembly to proceed.
-        // Exception: National Admins / Overseers (no fixed assembly_id).
-        // IMPORTANT: use an explicit allowlist — any unexpected state signs out.
-        const isStaff = user?.role === 'national_admin' || user?.role === 'district_overseer'
+        // Users must belong to the selected assembly to log in.
+        // System roles: admin | member — no super-admin bypass.
         const assemblyMatches = user?.assemblyId != null && user.assemblyId === assembly.id
 
-        if (!user || (!isStaff && !assemblyMatches)) {
+        if (!user || !assemblyMatches) {
           await authService.signOut()
           const reason = !user
             ? 'Your account profile could not be loaded. Please contact your administrator.'

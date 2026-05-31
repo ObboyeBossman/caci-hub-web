@@ -1,12 +1,12 @@
 // src/core/guards/permissionGuard.ts
-// Checks whether the current user's role satisfies the route's declared permission.
+// Checks whether the current user is permitted to access a route.
+// Delegates to authorization-service.ts (admin bypass + permission array check).
 // Runs after authGuard in the middleware pipeline.
 //
-// If no permission is declared on the route, access is granted.
-// Mirrors: Flutter GoRouter redirect logic in auth_router.dart
+// If no permission is declared on the route, access is granted to all authenticated users.
 
 import { getCurrentUser }  from '../auth'
-import { hasPermission }   from '../permissions'
+import { can }             from '../authorization/authorization-service'
 import type { RouteDefinition, GuardResult } from '../../types/module.types'
 
 export async function permissionGuard(
@@ -20,7 +20,7 @@ export async function permissionGuard(
   // Should not reach here without authGuard first, but be defensive
   if (!user) return { allowed: false, redirect: '/login' }
 
-  return hasPermission(user.role, route.permission)
+  return can(user, route.permission)
     ? { allowed: true }
     : { allowed: false, redirect: '/unauthorized' }
 }

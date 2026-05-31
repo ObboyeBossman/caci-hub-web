@@ -17,8 +17,8 @@ export function localePanelHTML(): string {
       <div class="settings-lang-list">
         ${LANGUAGES.map(l => `
           <div class="settings-lang-option ${l.active ? 'active' : ''}" data-lang="${l.code}">
-            <span style="display:flex;align-items:center;gap:10px;font-size:13.5px">
-              <span style="font-size:18px">${l.flag}</span> ${l.label}
+            <span style="display:flex;align-items:center;gap:10px;font-size: var(--text-base)">
+              <span style="font-size: var(--text-xl)">${l.flag}</span> ${l.label}
             </span>
             ${l.active ? '<i class="bi bi-check2" style="color:var(--accent)"></i>' : ''}
           </div>`).join('')}

@@ -124,8 +124,8 @@ export const ForgotPassword: PageModule = {
             <!-- Forgot panel -->
             <div id="panel-forgot" class="auth-panel active">
               <div class="auth-card">
-                <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Reset your password</h2>
-                <p style="font-size:13px;color:var(--auth-text-secondary);margin-bottom:20px;">
+                <h2 style="font-size: var(--text-xl);font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Reset your password</h2>
+                <p style="font-size: var(--text-base);color:var(--auth-text-secondary);margin-bottom:20px;">
                   Enter your email address and we'll send you a link to reset your password.
                 </p>
 
@@ -160,9 +160,9 @@ export const ForgotPassword: PageModule = {
                   </svg>
                 </div>
 
-                <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Check your email</h2>
-                <p style="font-size:14px;color:var(--auth-text-secondary);margin-bottom:4px;">We've sent a password reset link to</p>
-                <p style="font-size:14px;font-weight:600;color:var(--auth-text-primary);margin-bottom:20px;" id="reset-email-display"></p>
+                <h2 style="font-size: var(--text-xl);font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">Check your email</h2>
+                <p style="font-size: var(--text-base);color:var(--auth-text-secondary);margin-bottom:4px;">We've sent a password reset link to</p>
+                <p style="font-size: var(--text-base);font-weight:600;color:var(--auth-text-primary);margin-bottom:20px;" id="reset-email-display"></p>
 
                 <div class="auth-alert auth-alert-info">
                   <svg class="auth-alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -174,7 +174,7 @@ export const ForgotPassword: PageModule = {
                 <div class="auth-resend-section">
                   <div class="auth-resend-text">Didn't receive the email?</div>
                   <button id="resend-btn" class="auth-btn auth-btn-secondary">Resend link</button>
-                  <div id="resend-cooldown" style="display:none;font-size:12px;color:var(--auth-text-muted);margin-top:8px;">
+                  <div id="resend-cooldown" style="display:none;font-size: var(--text-sm);color:var(--auth-text-muted);margin-top:8px;">
                     You can resend in <span id="cooldown-timer">30</span> seconds
                   </div>
                 </div>
@@ -191,8 +191,8 @@ export const ForgotPassword: PageModule = {
         <!-- Footer -->
         <div class="auth-footer">
           <div class="auth-footer-links">
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Help</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Privacy</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Help</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Privacy</a>
           </div>
         </div>
 

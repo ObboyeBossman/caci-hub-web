@@ -28,7 +28,7 @@
   flex-shrink: 0;
 }
 .auth-logo-text {
-  font-size: 17px;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--auth-logo-color);
   letter-spacing: -.2px;
@@ -81,7 +81,7 @@
 [data-theme="dark"] .auth-toggle-thumb { transform: translateX(14px); }
 
 .auth-toggle-label {
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--auth-text-primary);
   white-space: nowrap;

@@ -1,0 +1,49 @@
+// src/core/authorization/permissions.ts
+// Platform-defined permission constants.
+// These must exactly match the `key` values seeded in system_permissions via migrations.
+//
+// Naming convention: <module>.<resource>.<action> (dot-separated, lowercase only)
+// Examples: 'members.view', 'finance.offerings.edit'
+//
+// DO NOT:
+//   - Add camelCase or underscored names
+//   - Create permissions at runtime
+//   - Hardcode permission strings elsewhere in the app — import from here
+
+export const PERMISSIONS = {
+  // ── Membership: Members ─────────────────────────────────────────────────────
+  MEMBERS_VIEW:       'members.view',
+  MEMBERS_CREATE:     'members.create',
+  MEMBERS_EDIT:       'members.edit',
+  MEMBERS_DEACTIVATE: 'members.deactivate',
+  MEMBERS_IMPORT:     'members.import',
+
+  // ── Membership: Households ───────────────────────────────────────────────────
+  HOUSEHOLDS_VIEW:    'households.view',
+  HOUSEHOLDS_CREATE:  'households.create',
+  HOUSEHOLDS_EDIT:    'households.edit',
+
+  // ── Reports ───────────────────────────────────────────────────────────────────
+  REPORTS_VIEW:       'reports.view',
+  REPORTS_EXPORT:     'reports.export',
+
+  // ── Finance ───────────────────────────────────────────────────────────────────
+  FINANCE_OFFERINGS_VIEW: 'finance.offerings.view',
+  FINANCE_OFFERINGS_EDIT: 'finance.offerings.edit',
+
+  // ── Admin ─────────────────────────────────────────────────────────────────────
+  ADMIN_VIEW:           'admin.view',
+  ADMIN_USERS_MANAGE:   'admin.users.manage',
+} as const
+
+/** Union of all valid platform permission keys. */
+export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS]
+
+/** Definition shape for a permission as declared in a module manifest. */
+export interface PermissionDefinition {
+  key:          Permission | string  // string for future modules not yet in constants
+  label:        string
+  description?: string
+  category:     string
+  isAssignable: boolean
+}

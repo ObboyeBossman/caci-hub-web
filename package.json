@@ -5,9 +5,26 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:local": "vite --mode local",
+    "dev:prod": "vite --mode production",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "gen:types": "supabase gen types typescript --project-id cyjkjzcthbpkufbsyosz > src/types/database.types.ts",
+
+    "db:local:start": "supabase start",
+    "db:local:stop": "supabase stop",
+    "db:local:reset": "supabase db reset",
+    "db:local:push": "supabase db push --local",
+    "db:local:studio": "supabase studio",
+
+    "db:dev:push": "supabase db push --project-ref YOUR-DEV-REF",
+    "db:dev:diff": "supabase db diff --project-ref YOUR-DEV-REF",
+
+    "db:prod:push": "supabase db push --project-ref cyjkjzcthbpkufbsyosz",
+
+    "gen:types:dev": "supabase gen types typescript --project-id YOUR-DEV-REF > src/types/database.types.ts",
+    "gen:types:prod": "supabase gen types typescript --project-id cyjkjzcthbpkufbsyosz > src/types/database.types.ts",
+    "gen:types:local": "supabase gen types typescript --local > src/types/database.types.ts",
+
     "test": "vitest",
     "test:e2e": "playwright test",
     "lint": "eslint src --ext .ts",
@@ -38,6 +55,7 @@
     "@typescript-eslint/parser": "^8.33.0",
     "eslint": "^9.27.0",
     "prettier": "^3.5.3",
+    "supabase": "^2.102.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-pwa": "^0.21.1",

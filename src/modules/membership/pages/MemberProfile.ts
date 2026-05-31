@@ -7,7 +7,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast }                       from '@shared/components/Toast'
 import { navigate }                    from '@core/router'
 import { getCurrentUser }                  from '../../../core/auth'
-import { hasPermission }                   from '../../../core/permissions'
+import { isAdmin as userIsAdmin }          from '../../../core/authorization/authorization-service'
 import { supabase }                        from '../../../core/supabase'
 import { emit }                            from '../../../core/events'
 import { getMember, deactivateMember, updateMember, getMemberAuditLog } from '../repository'
@@ -49,7 +49,7 @@ const MemberProfile: PageModule = {
 
   <!-- Back -->
   <button id="mp-back" style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"/>
@@ -63,11 +63,11 @@ const MemberProfile: PageModule = {
     border-radius:12px;padding:24px;">
     <div style="width:72px;height:72px;border-radius:50%;background:${bg};
       display:flex;align-items:center;justify-content:center;color:#fff;
-      font-size:24px;font-weight:700;flex-shrink:0;">${ini}</div>
+      font-size: var(--text-3xl);font-weight:700;flex-shrink:0;">${ini}</div>
     <div style="flex:1;">
-      <div style="font-size:22px;font-weight:700;color:var(--mm-text-primary);
+      <div style="font-size: var(--text-3xl);font-weight:700;color:var(--mm-text-primary);
         margin-bottom:4px;">${formatName(member.first_name, member.last_name, member.title)}</div>
-      <div style="font-size:12px;color:var(--mm-text-muted);font-family:monospace;
+      <div style="font-size: var(--text-sm);color:var(--mm-text-muted);font-family:monospace;
         margin-bottom:10px;">${member.membership_number ?? 'No membership number yet'}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <span class="mm-badge ${s.cls}">${s.label}</span>
@@ -80,9 +80,9 @@ const MemberProfile: PageModule = {
       <button class="mm-btn-primary" id="mp-editBtn">Edit Profile</button>
       <button class="mm-btn-outline" id="mp-smsBtn">Send SMS</button>
       <button class="mm-btn-danger" id="mp-deactivateBtn">Deactivate</button>
-      ${!member.auth_user_id && hasPermission(currentUser?.role || '', 'admin.users.provision') ? `<button class="mm-btn-outline" id="mp-provisionBtn">Provision Login</button>` : ''}
-      ${member.auth_user_id && hasPermission(currentUser?.role || '', 'admin.users.reset') ? `<button class="mm-btn-outline" id="mp-resetPwBtn">Reset Password</button>` : ''}
-      ${member.auth_user_id && hasPermission(currentUser?.role || '', 'admin.users.delete') ? `<button class="mm-btn-danger" style="background:#fee2e2;color:#b91c1c;border-color:#fecaca;" id="mp-deleteAuthBtn">Delete Login</button>` : ''}
+      ${!member.auth_user_id && userIsAdmin(currentUser) ? `<button class="mm-btn-outline" id="mp-provisionBtn">Provision Login</button>` : ''}
+      ${member.auth_user_id && userIsAdmin(currentUser) ? `<button class="mm-btn-outline" id="mp-resetPwBtn">Reset Password</button>` : ''}
+      ${member.auth_user_id && userIsAdmin(currentUser) ? `<button class="mm-btn-danger" style="background:#fee2e2;color:#b91c1c;border-color:#fecaca;" id="mp-deleteAuthBtn">Delete Login</button>` : ''}
     </div>
   </div>
 
@@ -113,13 +113,13 @@ const MemberProfile: PageModule = {
           <div class="mm-detail-field"><span class="mm-detail-field-label">Status</span><span class="mm-detail-field-val"><span class="mm-badge ${s.cls}">${s.label}</span></span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Joined</span><span class="mm-detail-field-val">${fmtDate(member.join_date)}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Member Since</span><span class="mm-detail-field-val">${fmtDate(member.created_at)}</span></div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size:12px;">${member.membership_number ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size: var(--text-sm);">${member.membership_number ?? '—'}</span></div>
         </div>
       </div>
       ${member.pastoral_notes ? `
       <div style="margin-top:20px;">
         <div class="mm-detail-section-title">Pastoral Notes</div>
-        <div style="font-size:13px;color:var(--mm-text-primary);line-height:1.6;
+        <div style="font-size: var(--text-base);color:var(--mm-text-primary);line-height:1.6;
           background:var(--mm-bg-card2);border:1px solid var(--mm-border-subtle);
           border-radius:6px;padding:12px;">${member.pastoral_notes}</div>
       </div>` : ''}
@@ -132,8 +132,8 @@ const MemberProfile: PageModule = {
           <div class="mm-detail-section-title">Contact Details</div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Primary Phone</span><span class="mm-detail-field-val">${member.primary_phone ?? '—'}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">Secondary Phone</span><span class="mm-detail-field-val">${member.secondary_phone ?? '—'}</span></div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="word-break:break-all;font-size:12px;">${member.email ?? '—'}</span></div>
-          <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size:12px;">${member.physical_address ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="word-break:break-all;font-size: var(--text-sm);">${member.email ?? '—'}</span></div>
+          <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size: var(--text-sm);">${member.physical_address ?? '—'}</span></div>
           <div class="mm-detail-field"><span class="mm-detail-field-label">WhatsApp</span><span class="mm-detail-field-val">${member.whatsapp_number ?? '—'}</span></div>
         </div>
         ${member.emergency_contact_name ? `
@@ -149,18 +149,18 @@ const MemberProfile: PageModule = {
     <!-- Audit log -->
     <div id="mm-mptab-audit" style="display:none;">
       ${auditLog.length === 0
-        ? `<div style="font-size:13px;color:var(--mm-text-secondary);padding:20px 0;text-align:center;">
+        ? `<div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:20px 0;text-align:center;">
              No audit entries or insufficient permissions to view.
            </div>`
         : `<table class="mm-table">
              <thead><tr><th>Field</th><th>Old Value</th><th>New Value</th><th>Changed By</th><th>When</th></tr></thead>
              <tbody>${auditLog.map(e => `
                <tr>
-                 <td style="font-size:12px;font-family:monospace;">${e.field_changed}</td>
-                 <td style="font-size:12px;color:var(--mm-text-muted);">${e.old_value ?? '—'}</td>
-                 <td style="font-size:12px;">${e.new_value ?? '—'}</td>
-                 <td style="font-size:12px;">${e.changed_by_name ?? 'System'}</td>
-                 <td style="font-size:12px;">${fmtDate(e.changed_at)}</td>
+                 <td style="font-size: var(--text-sm);font-family:monospace;">${e.field_changed}</td>
+                 <td style="font-size: var(--text-sm);color:var(--mm-text-muted);">${e.old_value ?? '—'}</td>
+                 <td style="font-size: var(--text-sm);">${e.new_value ?? '—'}</td>
+                 <td style="font-size: var(--text-sm);">${e.changed_by_name ?? 'System'}</td>
+                 <td style="font-size: var(--text-sm);">${fmtDate(e.changed_at)}</td>
                </tr>`).join('')}
              </tbody>
            </table>`}
@@ -217,7 +217,7 @@ const MemberProfile: PageModule = {
 
     // Provision
     container.querySelector('#mp-provisionBtn')?.addEventListener('click', () => {
-      navigate(`/admin/provision-user?memberId=${member.id}`)
+      navigate(`/admin/users/provision/${member.id}`)
     })
 
     // Reset Password

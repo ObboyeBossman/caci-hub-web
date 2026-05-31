@@ -63,7 +63,7 @@ export async function runSplash(): Promise<void> {
       /* Text */
       #splash-app-name {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 26px; font-weight: 500; color: #fff; letter-spacing: 0.02em;
+        font-size: var(--text-4xl); font-weight: 500; color: #fff; letter-spacing: 0.02em;
         margin: 0 0 5px;
         animation: splash-fade-up 0.6s ease 0.12s both;
       }
@@ -71,7 +71,7 @@ export async function runSplash(): Promise<void> {
 
       #splash-tagline {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 11px; color: rgba(255,255,255,0.5);
+        font-size: var(--text-xs); color: rgba(255,255,255,0.5);
         letter-spacing: 0.1em; text-transform: uppercase;
         text-align: center; margin: 0 0 2.75rem; line-height: 1.7;
         animation: splash-fade-up 0.6s ease 0.22s both;
@@ -95,7 +95,7 @@ export async function runSplash(): Promise<void> {
           splash-shimmer  1.4s linear infinite;
       }
       #splash-status {
-        margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.35);
+        margin-top: 12px; font-size: var(--text-xs); color: rgba(255,255,255,0.35);
         letter-spacing: 0.05em; text-align: center;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         animation: splash-pulse 2s ease-in-out infinite;

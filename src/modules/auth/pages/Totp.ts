@@ -180,10 +180,10 @@ export const Totp: PageModule = {
                 </a>
               ` : ''}
 
-              <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">
+              <h2 style="font-size: var(--text-xl);font-weight:600;margin-bottom:8px;color:var(--auth-text-primary);">
                 ${_isEnrollment ? 'Set up Authenticator' : 'Two-factor authentication'}
               </h2>
-              <p style="font-size:13px;color:var(--auth-text-secondary);margin-bottom:20px;">
+              <p style="font-size: var(--text-base);color:var(--auth-text-secondary);margin-bottom:20px;">
                 ${_isEnrollment
                   ? 'Scan the QR code below with your authenticator app, then enter the 6-digit code to confirm.'
                   : 'Enter the 6-digit code from your authenticator app.'}
@@ -194,8 +194,8 @@ export const Totp: PageModule = {
                 <div id="qr-container" class="auth-qr-container">
                   <span class="auth-spinner" style="border-top-color:var(--auth-btn-primary);border-color:rgba(0,0,0,.1);"></span>
                 </div>
-                <p style="font-size:11px;color:var(--auth-text-muted);text-align:center;margin-bottom:16px;">
-                  Can't scan? Enter manually: <code id="totp-secret" style="font-size:11px;user-select:all;word-break:break-all;"></code>
+                <p style="font-size: var(--text-xs);color:var(--auth-text-muted);text-align:center;margin-bottom:16px;">
+                  Can't scan? Enter manually: <code id="totp-secret" style="font-size: var(--text-xs);user-select:all;word-break:break-all;"></code>
                 </p>
               ` : ''}
 
@@ -227,8 +227,8 @@ export const Totp: PageModule = {
         <!-- Footer -->
         <div class="auth-footer">
           <div class="auth-footer-links">
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Help</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Privacy</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Help</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Privacy</a>
           </div>
         </div>
 

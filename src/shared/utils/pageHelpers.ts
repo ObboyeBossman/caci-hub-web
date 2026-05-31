@@ -128,7 +128,7 @@ export function renderEmpty(
   options: EmptyStateOptions
 ): void {
   const actionHtml = options.action
-    ? `<button class="btn btn-primary" id="empty-action-btn" style="font-size:13px">
+    ? `<button class="btn btn-primary" id="empty-action-btn" style="font-size: var(--text-base)">
          ${options.action.label}
        </button>`
     : ''
@@ -165,7 +165,7 @@ export function renderError(
 ): void {
   const message = _errorMessage(error)
   const retryHtml = options?.retry
-    ? `<button class="btn btn-outline-secondary btn-sm" id="error-retry-btn" style="font-size:13px">
+    ? `<button class="btn btn-outline-secondary btn-sm" id="error-retry-btn" style="font-size: var(--text-base)">
          <i class="bi bi-arrow-clockwise me-1"></i> Try again
        </button>`
     : ''

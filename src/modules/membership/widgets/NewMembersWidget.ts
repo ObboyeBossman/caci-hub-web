@@ -10,7 +10,7 @@ import { navigate } from '@core/router'
 const NewMembersWidget: PageModule = {
   async render(container) {
     injectMembershipCSS()
-    container.innerHTML = `<div style="font-size:12px;color:var(--mm-text-muted);padding:8px;">Loading…</div>`
+    container.innerHTML = `<div style="font-size: var(--text-sm);color:var(--mm-text-muted);padding:8px;">Loading…</div>`
 
     try {
       const members = await listMembers(
@@ -19,7 +19,7 @@ const NewMembersWidget: PageModule = {
       )
 
       if (!members.length) {
-        container.innerHTML = `<div style="font-size:12px;color:var(--mm-text-muted);padding:8px;">No members yet.</div>`
+        container.innerHTML = `<div style="font-size: var(--text-sm);color:var(--mm-text-muted);padding:8px;">No members yet.</div>`
         return
       }
 
@@ -35,18 +35,18 @@ const NewMembersWidget: PageModule = {
   onmouseleave="this.style.background=''">
   <div style="width:36px;height:36px;border-radius:50%;background:${bg};
     display:flex;align-items:center;justify-content:center;color:#fff;
-    font-size:13px;font-weight:700;flex-shrink:0;">${ini}</div>
+    font-size: var(--text-base);font-weight:700;flex-shrink:0;">${ini}</div>
   <div style="flex:1;min-width:0;">
-    <div style="font-size:13px;font-weight:600;color:var(--mm-text-primary);
+    <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
       ${formatName(m.first_name, m.last_name, m.title)}
     </div>
-    <div style="font-size:11px;color:var(--mm-text-muted);">Joined ${fmtDate(m.join_date ?? m.created_at)}</div>
+    <div style="font-size: var(--text-xs);color:var(--mm-text-muted);">Joined ${fmtDate(m.join_date ?? m.created_at)}</div>
   </div>
-  <span class="mm-badge ${m.membership_status === 'active' ? 'green' : 'blue'}" style="font-size:10px;">${m.membership_status}</span>
+  <span class="mm-badge ${m.membership_status === 'active' ? 'green' : 'blue'}" style="font-size: var(--text-xs);">${m.membership_status}</span>
 </div>`
   }).join('')}
-  <button class="mm-btn-outline" style="width:100%;justify-content:center;font-size:12px;margin-top:4px;"
+  <button class="mm-btn-outline" style="width:100%;justify-content:center;font-size: var(--text-sm);margin-top:4px;"
     id="nm-viewAll">View All Members →</button>
 </div>`
 
@@ -55,7 +55,7 @@ const NewMembersWidget: PageModule = {
       })
       container.querySelector('#nm-viewAll')?.addEventListener('click', () => navigate('/members'))
     } catch {
-      container.innerHTML = `<div style="font-size:12px;color:var(--mm-text-muted);padding:8px;">Could not load recent members.</div>`
+      container.innerHTML = `<div style="font-size: var(--text-sm);color:var(--mm-text-muted);padding:8px;">Could not load recent members.</div>`
     }
   },
   destroy() {},

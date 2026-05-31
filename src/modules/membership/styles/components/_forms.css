@@ -19,7 +19,7 @@
 
 .mm-form-label {
   display: block;
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--mm-text-secondary);
   margin-bottom: 5px;
@@ -85,7 +85,7 @@
 
 /* ─── Section title ───────────────────────────────────────────────────────── */
 .mm-form-section-title {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--mm-text-muted);
   text-transform: uppercase;
@@ -96,5 +96,5 @@
 }
 
 /* ─── Inline error ────────────────────────────────────────────────────────── */
-.mm-form-error         { font-size: 12px; color: var(--mm-red); margin-top: 4px; display: none; }
+.mm-form-error         { font-size: var(--text-sm); color: var(--mm-red); margin-top: 4px; display: none; }
 .mm-form-error.show    { display: block; }

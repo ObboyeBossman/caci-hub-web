@@ -3,7 +3,7 @@
 
 .auth-footer {
   text-align: center;
-  font-size: 14px;
+  font-size: var(--text-base);
   color: var(--auth-footer);
   padding: 0 16px 24px;
   flex-shrink: 0;

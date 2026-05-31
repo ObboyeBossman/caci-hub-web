@@ -10,7 +10,7 @@ import { emit, on }                    from './events'
 import { loadCurrentUser, getCurrentUser } from './auth'
 import { registerModule, initModules }  from './registry'
 import { startRouter, navigate }        from './router'
-import { hasPermission }                from './permissions'
+import { can }                          from './authorization/authorization-service'
 import { mountShell, mountFullscreen }    from '../shell/Shell'
 import { initNotificationBell }         from '../shell/NotificationBell'
 
@@ -41,7 +41,7 @@ export async function runLoading(): Promise<void> {
         width: 5%; transition: width 0.4s ease;
       }
       #loading-status {
-        margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.35);
+        margin-top: 12px; font-size: var(--text-xs); color: rgba(255,255,255,0.35);
         letter-spacing: 0.05em; text-align: center;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
@@ -109,7 +109,7 @@ export async function runLoading(): Promise<void> {
     await initModules({
       supabase,
       eventBus:    { emit, on },
-      permissions: { hasPermission },
+      permissions: { hasPermission: can },
       currentUser: getCurrentUser,
     })
 
@@ -137,11 +137,11 @@ export async function runLoading(): Promise<void> {
     app.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
         min-height:100vh;font-family:sans-serif;color:#656D76;gap:1rem">
-        <h1 style="font-size:16px;font-weight:600;color:#0D1117;margin:0">Initialization Failed</h1>
-        <p style="font-size:13px;margin:0">${err instanceof Error ? err.message : 'Unknown error occurred.'}</p>
+        <h1 style="font-size: var(--text-lg);font-weight:600;color:#0D1117;margin:0">Initialization Failed</h1>
+        <p style="font-size: var(--text-base);margin:0">${err instanceof Error ? err.message : 'Unknown error occurred.'}</p>
         <button onclick="location.reload()"
           style="padding:6px 16px;border-radius:6px;border:1px solid #d0d7de;
-          background:#f6f8fa;cursor:pointer;font-size:13px">
+          background:#f6f8fa;cursor:pointer;font-size: var(--text-base)">
           Retry
         </button>
       </div>

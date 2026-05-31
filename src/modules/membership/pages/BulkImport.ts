@@ -15,7 +15,7 @@ const BulkImport: PageModule = {
     container.innerHTML = `
 <div class="mm-root" style="padding:24px;max-width:720px;margin:0 auto;">
   <button id="bi-back-btn" style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"/>
@@ -24,8 +24,8 @@ const BulkImport: PageModule = {
   </button>
 
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;padding:28px;">
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:var(--mm-text-primary);">Bulk Import Members</h2>
-    <div style="font-size:13px;color:var(--mm-text-secondary);margin-bottom:24px;">Upload a CSV file to import multiple members at once. The file must include required fields like first name, last name, and a contact method.</div>
+    <h2 style="margin:0 0 8px;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">Bulk Import Members</h2>
+    <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-bottom:24px;">Upload a CSV file to import multiple members at once. The file must include required fields like first name, last name, and a contact method.</div>
 
     <div class="mm-form-group">
       <label class="mm-form-label">CSV File *</label>

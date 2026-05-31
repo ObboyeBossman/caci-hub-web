@@ -205,13 +205,6 @@ function _validateStep(container: HTMLElement): boolean {
   }
 
   if (_step === 1) {
-    const phone = _primaryPhone?.getValue() ?? ''
-    const email = val('am-fEmail')
-    if (!phone && !email) {
-      _primaryPhone?.setError('At least one of phone or email is required.')
-      return false
-    }
-    _primaryPhone?.setError(null)
     return true
   }
 
@@ -325,14 +318,14 @@ function _buildPageShell(): string {
           </svg>
           <!-- Counter label centred -->
           <div id="am-step-counter" style="position:absolute;inset:0;display:flex;
-            align-items:center;justify-content:center;font-size:11px;font-weight:700;
+            align-items:center;justify-content:center;font-size: var(--text-xs);font-weight:700;
             color:var(--mm-blue);line-height:1;">1 of 4</div>
         </div>
 
         <div>
-          <div id="am-step-title" style="font-size:16px;font-weight:700;
+          <div id="am-step-title" style="font-size: var(--text-lg);font-weight:700;
             color:var(--mm-text-primary);line-height:1.2;">Personal Info</div>
-          <div id="am-step-subtitle" style="font-size:12px;color:var(--mm-text-muted);
+          <div id="am-step-subtitle" style="font-size: var(--text-sm);color:var(--mm-text-muted);
             margin-top:3px;">Next: Contact Details</div>
         </div>
       </div>
@@ -370,7 +363,7 @@ function _buildPageShell(): string {
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                   <circle cx="12" cy="13" r="4"/>
                 </svg>
-                <div style="font-size:10px;color:var(--mm-text-muted);margin-top:3px;line-height:1.2;">
+                <div style="font-size: var(--text-xs);color:var(--mm-text-muted);margin-top:3px;line-height:1.2;">
                   Add Photo
                 </div>
               </div>
@@ -460,7 +453,7 @@ function _buildPageShell(): string {
         <div class="mm-form-section-title">Phone Numbers</div>
         <div class="mm-form-row">
           <div class="mm-form-field">
-            <label class="mm-form-label">Primary Phone <span class="req">*</span></label>
+            <label class="mm-form-label">Primary Phone</label>
             <!-- PhoneInput mounts here -->
             <div id="am-phone-primary-slot"></div>
           </div>
@@ -524,7 +517,7 @@ function _buildPageShell(): string {
           <select class="mm-form-select" id="am-fHousehold">
             <option value="">— None —</option>
           </select>
-          <div style="font-size:12px;color:var(--mm-text-muted);margin-top:4px;">
+          <div style="font-size: var(--text-sm);color:var(--mm-text-muted);margin-top:4px;">
             Assign to an existing household, or leave blank.
           </div>
         </div>
@@ -569,9 +562,9 @@ function _buildPageShell(): string {
         <!-- Summary preview -->
         <div id="am-summary" style="background:var(--mm-bg-card2);border:1px solid var(--mm-border);
           border-radius:8px;padding:14px;margin-top:8px;">
-          <div style="font-size:12px;font-weight:600;color:var(--mm-text-muted);
+          <div style="font-size: var(--text-sm);font-weight:600;color:var(--mm-text-muted);
             text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Registration Summary</div>
-          <div id="am-summary-body" style="font-size:13px;color:var(--mm-text-secondary);
+          <div id="am-summary-body" style="font-size: var(--text-base);color:var(--mm-text-secondary);
             line-height:1.8;"></div>
         </div>
       </div>

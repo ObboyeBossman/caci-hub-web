@@ -3,7 +3,7 @@
    belongs to multiple CACI assemblies. */
 
 .section-label {
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--auth-text-muted);
   letter-spacing: .06em;
@@ -46,7 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--auth-text-secondary);
   overflow: hidden;
@@ -69,7 +69,7 @@
 .auth-root.dark .assembly-item.selected .assembly-name { color: var(--auth-link); }
 
 .assembly-loc {
-  font-size: 13px;
+  font-size: var(--text-base);
   color: var(--auth-text-secondary);
   margin: 0;
   display: flex;
@@ -94,7 +94,7 @@
 }
 .assembly-item.selected .assembly-check { background: var(--auth-btn-primary); border-color: var(--auth-btn-primary); }
 
-.assembly-check i { font-style: normal; font-size: 11px; line-height: 1; color: #fff; display: none; user-select: none; }
+.assembly-check i { font-style: normal; font-size: var(--text-xs); line-height: 1; color: #fff; display: none; user-select: none; }
 .assembly-item.selected .assembly-check i { display: block; }
 
 /* ── Continue button spacing ──────────────────────────────── */

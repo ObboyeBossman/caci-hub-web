@@ -74,7 +74,7 @@ const ReportDetail: PageModule = {
   </tbody>
 </table>`
     } else {
-      tableHTML = `<div style="padding:40px;text-align:center;color:var(--mm-text-secondary);font-size:13px;">
+      tableHTML = `<div style="padding:40px;text-align:center;color:var(--mm-text-secondary);font-size: var(--text-base);">
         This report is not yet available.
       </div>`
     }
@@ -84,13 +84,13 @@ const ReportDetail: PageModule = {
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div>
       <button style="display:inline-flex;align-items:center;gap:6px;
-        color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+        color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
         cursor:pointer;font-family:inherit;margin-bottom:6px;"
         onclick="history.back()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
         Back to Reports
       </button>
-      <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--mm-text-primary);">${label}</h2>
+      <h2 style="margin:0;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">${label}</h2>
     </div>
     <button class="mm-btn-outline" id="rd-exportBtn">Export CSV</button>
   </div>

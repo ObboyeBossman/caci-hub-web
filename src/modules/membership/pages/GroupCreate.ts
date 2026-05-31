@@ -14,7 +14,7 @@ const GroupCreate: PageModule = {
     container.innerHTML = `
 <div class="mm-root" style="padding:24px;max-width:640px;margin:0 auto;">
   <button style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;"
     onclick="history.back()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -24,7 +24,7 @@ const GroupCreate: PageModule = {
   </button>
 
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;padding:28px;">
-    <h2 style="margin:0 0 22px;font-size:20px;font-weight:700;color:var(--mm-text-primary);">
+    <h2 style="margin:0 0 22px;font-size: var(--text-2xl);font-weight:700;color:var(--mm-text-primary);">
       ${isEdit ? 'Edit Group' : 'New Group'}
     </h2>
 

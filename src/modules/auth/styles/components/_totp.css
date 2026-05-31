@@ -15,7 +15,7 @@
   border: 1px solid var(--auth-input-border);
   border-radius: 6px;
   text-align: center;
-  font-size: 22px;
+  font-size: var(--text-3xl);
   font-weight: 500;
   color: var(--auth-text-primary);
   background: var(--auth-input-bg);

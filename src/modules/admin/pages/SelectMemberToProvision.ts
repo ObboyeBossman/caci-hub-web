@@ -35,7 +35,7 @@ function renderTable(container: HTMLElement) {
 
   <!-- Back button & Header -->
   <button id="sm-back" style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"/>
@@ -46,7 +46,7 @@ function renderTable(container: HTMLElement) {
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
     <div>
       <h1 style="margin:0;font-size:1.375rem;font-weight:700;color:var(--mm-text-primary);">Select Member</h1>
-      <p style="margin:4px 0 0;font-size:13px;color:var(--mm-text-secondary);">
+      <p style="margin:4px 0 0;font-size: var(--text-base);color:var(--mm-text-secondary);">
         Choose a member to provision a new login account.
       </p>
     </div>
@@ -54,7 +54,7 @@ function renderTable(container: HTMLElement) {
       <input id="sm-search" type="search" placeholder="Search by name…"
         value="${_search}"
         style="padding:7px 12px;border:1px solid var(--mm-border);border-radius:6px;
-          font-size:13px;font-family:inherit;background:var(--mm-bg-card);
+          font-size: var(--text-base);font-family:inherit;background:var(--mm-bg-card);
           color:var(--mm-text-primary);min-width:200px;" />
     </div>
   </div>
@@ -62,7 +62,7 @@ function renderTable(container: HTMLElement) {
   <!-- Table -->
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;overflow:hidden;">
     ${_members.length === 0
-      ? `<div style="padding:48px;text-align:center;color:var(--mm-text-secondary);font-size:13px;">
+      ? `<div style="padding:48px;text-align:center;color:var(--mm-text-secondary);font-size: var(--text-base);">
            All members currently have active accounts (or there are no members).
          </div>`
       : `<table class="mm-table" id="sm-table">
@@ -77,10 +77,10 @@ function renderTable(container: HTMLElement) {
              ${_members.map(m => `
                <tr data-id="${m.id}">
                  <td style="font-weight:500;">${m.fullName}</td>
-                 <td style="font-size:12px;color:var(--mm-text-secondary);">${m.email ?? '—'}</td>
+                 <td style="font-size: var(--text-sm);color:var(--mm-text-secondary);">${m.email ?? '—'}</td>
                  <td style="text-align:right;">
                    <button class="mm-btn-outline" data-select="${m.id}"
-                     style="padding:4px 12px;font-size:12px;">Select</button>
+                     style="padding:4px 12px;font-size: var(--text-sm);">Select</button>
                  </td>
                </tr>`).join('')}
            </tbody>
@@ -92,7 +92,7 @@ function renderTable(container: HTMLElement) {
 
   // Back button
   container.querySelector('#sm-back')?.addEventListener('click', () => {
-    history.length > 1 ? history.back() : navigate('/accounts')
+    history.length > 1 ? history.back() : navigate('/admin/users')
   })
 
   // Search
@@ -109,7 +109,7 @@ function renderTable(container: HTMLElement) {
   // Select buttons
   container.querySelectorAll<HTMLElement>('[data-select]').forEach(btn => {
     btn.addEventListener('click', () => {
-      navigate(`/accounts/provision/${btn.dataset['select']}`)
+      navigate(`/admin/users/provision/${btn.dataset['select']}`)
     })
   })
 }

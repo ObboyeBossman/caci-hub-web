@@ -4,7 +4,7 @@
 
 import { getSidebarItems, getModuleForPath } from '@core/registry'
 import { getCurrentUser } from '@core/auth'
-import { hasPermission } from '@core/permissions'
+import { can } from '@core/authorization/authorization-service'
 import { navigate } from '@core/router'
 import { closeDrawer } from './Shell'
 import type { SidebarItem } from '../types/module.types'
@@ -24,7 +24,7 @@ export class Sidebar {
     const user = getCurrentUser()
     const items = getSidebarItems()
     let permitted = user
-      ? items.filter(item => hasPermission(user.role, item.permission))
+      ? items.filter(item => can(user, item.permission))
       : []
 
     // Contextual Navigation: Only show lower sidebar items that belong to the active module
@@ -108,14 +108,14 @@ export class Sidebar {
       },
       {
         label: 'Accounts',
-        route: '/accounts',
+        route: '/admin/users',
         svg: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-        permission: 'accounts.access',
+        permission: 'admin.users.manage',
       },
     ]
 
-    const modules = user 
-      ? allModules.filter(m => !m.permission || hasPermission(user.role, m.permission))
+    const modules = user
+      ? allModules.filter(m => !m.permission || can(user, m.permission))
       : allModules.filter(m => !m.permission)
 
     return modules.map(m => {
@@ -158,10 +158,10 @@ export class Sidebar {
     const isComingSoon = COMING_SOON_PATHS.has(item.path)
     const badge = isComingSoon
       ? `<span style="min-width:30px;height:16px;background:var(--caci-blue-bg);color:var(--caci-blue);font-size:9px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;letter-spacing:0.03em">SOON</span>`
-      : item.badge ? `<span style="min-width:18px;height:18px;background:var(--caci-red);color:#fff;font-size:10px;font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${item.badge}</span>` : ''
+      : item.badge ? `<span style="min-width:18px;height:18px;background:var(--caci-red);color:#fff;font-size: var(--text-xs);font-weight:700;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${item.badge}</span>` : ''
     return `
       <button class="sidebar-item ${isActive ? 'active' : ''} ${isComingSoon ? 'coming-soon' : ''}" data-route="${item.path}" ${isComingSoon ? 'data-coming-soon="true"' : ''} style="${isComingSoon ? 'opacity:0.65;' : ''}">
-        <i class="bi bi-${item.icon}" style="font-size:15px;flex-shrink:0"></i>
+        <i class="bi bi-${item.icon}" style="font-size: var(--text-md);flex-shrink:0"></i>
         <span class="sidebar-item-label">${item.label}</span>
         ${badge}
       </button>
@@ -239,7 +239,7 @@ export class Sidebar {
     this._el.querySelector('#sidebar-logout-btn')?.addEventListener('click', (e) => {
       e.stopPropagation()
       closeDrawer()
-      import('./Toolbar').then(({ showLogoutConfirm }) => showLogoutConfirm())
+      import('../shared/components/SignOutConfirm').then(({ showSignOutConfirm }) => showSignOutConfirm())
     })
   }
 
@@ -298,19 +298,19 @@ function _showComingSoon(section: string): void {
     <div style="
       width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
       background: var(--caci-blue-bg); display: flex; align-items: center;
-      justify-content: center; font-size: 18px; color: var(--caci-blue);
+      justify-content: center; font-size: var(--text-xl); color: var(--caci-blue);
     "><i class="bi bi-hammer"></i></div>
     <div style="flex: 1; min-width: 0;">
-      <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
+      <div style="font-size: var(--text-base); font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
         Coming Soon
       </div>
-      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+      <div style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
         <strong style="color:var(--text-primary)">${section}</strong> is currently being built and will be released soon. Stay tuned!
       </div>
     </div>
     <button id="caci-cs-close" style="
       background: none; border: none; cursor: pointer; padding: 2px;
-      color: var(--text-secondary); font-size: 14px; flex-shrink: 0;
+      color: var(--text-secondary); font-size: var(--text-base); flex-shrink: 0;
     "><i class="bi bi-x-lg"></i></button>
   `
 

@@ -113,7 +113,7 @@ export const AssemblySelection: PageModule = {
               <div id="asm-list" class="assembly-list">
                 ${assemblies.length === 0 && !fetchError ? `
                   <p style="text-align:center;color:var(--auth-text-secondary);
-                             font-size:13px;padding:20px 0;margin:0;">
+                             font-size: var(--text-base);padding:20px 0;margin:0;">
                     No assemblies found.
                   </p>` : ''}
 
@@ -158,7 +158,7 @@ export const AssemblySelection: PageModule = {
 
               <!-- No-results message (shown by JS) -->
               <div id="asm-empty" class="empty-state" style="display:none;padding:20px 0;text-align:center;">
-                <p style="font-size:13px;color:var(--auth-text-secondary);margin:0;">
+                <p style="font-size: var(--text-base);color:var(--auth-text-secondary);margin:0;">
                   No assemblies match "<span id="asm-empty-term"></span>"
                 </p>
               </div>
@@ -174,10 +174,10 @@ export const AssemblySelection: PageModule = {
             </div><!-- /.auth-card -->
 
             <div class="auth-card" style="text-align:center;padding:14px 20px;">
-              <span style="color:var(--auth-text-secondary);font-size:13px;">
+              <span style="color:var(--auth-text-secondary);font-size: var(--text-base);">
                 Can't find your assembly?
                 <a class="auth-link" href="mailto:support@cacihub.org"
-                   style="margin-left:4px;font-size:13px;">
+                   style="margin-left:4px;font-size: var(--text-base);">
                   Contact support
                 </a>
               </span>
@@ -188,9 +188,9 @@ export const AssemblySelection: PageModule = {
 
         <div class="auth-footer">
           <div class="auth-footer-links">
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Help</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Privacy</a>
-            <a class="auth-link" style="font-size:12px;color:var(--auth-footer);">Terms</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Help</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Privacy</a>
+            <a class="auth-link" style="font-size: var(--text-sm);color:var(--auth-footer);">Terms</a>
           </div>
         </div>
 

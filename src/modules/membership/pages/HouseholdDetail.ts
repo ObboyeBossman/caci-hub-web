@@ -33,7 +33,7 @@ const HouseholdDetail: PageModule = {
 <div class="mm-root" style="padding:24px;max-width:900px;margin:0 auto;">
 
   <button id="hd-back" style="display:inline-flex;align-items:center;gap:6px;
-    color:var(--mm-text-secondary);font-size:13px;border:none;background:none;
+    color:var(--mm-text-secondary);font-size: var(--text-base);border:none;background:none;
     cursor:pointer;margin-bottom:20px;font-family:inherit;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"/>
@@ -47,14 +47,14 @@ const HouseholdDetail: PageModule = {
     border-radius:12px;padding:24px;flex-wrap:wrap;">
     <div style="width:64px;height:64px;border-radius:12px;background:var(--mm-blue);
       display:flex;align-items:center;justify-content:center;color:#fff;
-      font-size:24px;font-weight:700;flex-shrink:0;">
+      font-size: var(--text-3xl);font-weight:700;flex-shrink:0;">
       ${household.family_name[0]?.toUpperCase() ?? 'H'}
     </div>
     <div style="flex:1;">
-      <div style="font-size:22px;font-weight:700;color:var(--mm-text-primary);margin-bottom:4px;">
+      <div style="font-size: var(--text-3xl);font-weight:700;color:var(--mm-text-primary);margin-bottom:4px;">
         ${household.family_name}
       </div>
-      <div style="font-size:13px;color:var(--mm-text-secondary);">
+      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);">
         ${household.address ?? 'No address on record'}
       </div>
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -73,10 +73,10 @@ const HouseholdDetail: PageModule = {
   <div style="background:var(--mm-bg-card);border:1px solid var(--mm-border);border-radius:12px;overflow:hidden;">
     <div style="padding:16px 20px;border-bottom:1px solid var(--mm-border);
       display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-size:15px;font-weight:600;color:var(--mm-text-primary);">Household Members</div>
+      <div style="font-size: var(--text-md);font-weight:600;color:var(--mm-text-primary);">Household Members</div>
     </div>
     ${household.members.length === 0
-      ? `<div style="padding:32px;text-align:center;color:var(--mm-text-secondary);font-size:13px;">
+      ? `<div style="padding:32px;text-align:center;color:var(--mm-text-secondary);font-size: var(--text-base);">
            No members linked to this household yet.
          </div>`
       : `<table class="mm-table">
@@ -97,8 +97,8 @@ const HouseholdDetail: PageModule = {
                    </div>
                  </td>
                  <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
-                 <td style="font-size:12px;">${fmtDate(m.join_date)}</td>
-                 <td style="font-size:12px;">${m.primary_phone ?? '—'}</td>
+                 <td style="font-size: var(--text-sm);">${fmtDate(m.join_date)}</td>
+                 <td style="font-size: var(--text-sm);">${m.primary_phone ?? '—'}</td>
                  <td>
                    <button class="mm-btn-icon" data-hd-view-member="${m.id}" title="View profile">
                      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
