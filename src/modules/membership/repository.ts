@@ -176,40 +176,41 @@ export async function getMemberCounts(): Promise<{
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30)
 
   try {
-    // 1. Total (Active + Non-deleted)
-    const qTotal = supabase
+    // 1. Total (non-deleted)
+    let qTotal = supabase
       .from('members_view')
       .select('*', { count: 'exact', head: true })
       .is('deleted_at', null)
-    if (assemblyId) qTotal.eq('assembly_id', assemblyId)
+    if (assemblyId) qTotal = qTotal.eq('assembly_id', assemblyId)
     const { count: total } = await qTotal
 
     // 2. Active status
-    const qActive = supabase
+    let qActive = supabase
       .from('members_view')
       .select('*', { count: 'exact', head: true })
       .eq('membership_status', 'active')
       .is('deleted_at', null)
-    if (assemblyId) qActive.eq('assembly_id', assemblyId)
+    if (assemblyId) qActive = qActive.eq('assembly_id', assemblyId)
     const { count: active } = await qActive
 
     // 3. Visitor status
-    const qVisitor = supabase
+    let qVisitor = supabase
       .from('members_view')
       .select('*', { count: 'exact', head: true })
       .eq('membership_status', 'visitor')
       .is('deleted_at', null)
-    if (assemblyId) qVisitor.eq('assembly_id', assemblyId)
+    if (assemblyId) qVisitor = qVisitor.eq('assembly_id', assemblyId)
     const { count: visitor } = await qVisitor
 
-    // 4. New (Joined or Registered in last 30 days)
+    // 4. New this month — join_date if set, otherwise fall back to created_at
+    //    (valid because members added via import this month are genuinely new)
     const iso = cutoff.toISOString()
-    const qNew = supabase
+    let qNew = supabase
       .from('members_view')
       .select('*', { count: 'exact', head: true })
       .or(`join_date.gte.${iso},and(join_date.is.null,created_at.gte.${iso})`)
       .is('deleted_at', null)
-    if (assemblyId) qNew.eq('assembly_id', assemblyId)
+    if (assemblyId) qNew = qNew.eq('assembly_id', assemblyId)
     const { count: newCount } = await qNew
 
     return {

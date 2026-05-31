@@ -133,6 +133,14 @@ async function _performSignOut(): Promise<void> {
     const { clearCurrentUser } = await import('@core/auth');
     await supabase.auth.signOut();
     clearCurrentUser();
+
+    // The Settings app is an overlay that doesn't close on normal route
+    // navigation, so we must explicitly destroy it when signing out.
+    try {
+      const { SettingsOverlay } = await import('@modules/settings/pages/SettingsOverlay');
+      SettingsOverlay.close();
+    } catch { /* ignore if not loaded */ }
+
     navigate('/login');
   } catch (err) {
     console.error('[SignOutConfirm] Sign-out failed', err);

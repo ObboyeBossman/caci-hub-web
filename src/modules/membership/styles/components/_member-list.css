@@ -72,11 +72,13 @@
 }
 .mm-member-card:hover .mm-card-check,
 .mm-member-card.selected .mm-card-check { opacity: 1; }
-.mm-card-check.checked {
+.mm-card-check.checked,
+.mm-member-card.selected .mm-card-check {
   background: var(--mm-blue);
   border-color: var(--mm-blue);
 }
-.mm-card-check.checked::after {
+.mm-card-check.checked::after,
+.mm-member-card.selected .mm-card-check::after {
   content: '';
   width: 10px; height: 6px;
   border-left: 2px solid #fff;

@@ -1544,8 +1544,16 @@ function _bindRowEvents(): void {
       // Clicking anywhere else on card toggles selection
       const id = card.dataset['memberId']!
       const sel = _state!.selectedIds
-      if (sel.has(id)) { sel.delete(id); card.classList.remove('selected') }
-      else { sel.add(id); card.classList.add('selected') }
+      const checkEl = card.querySelector('.mm-card-check')
+      if (sel.has(id)) { 
+        sel.delete(id)
+        card.classList.remove('selected')
+        if (checkEl) checkEl.classList.remove('checked')
+      } else { 
+        sel.add(id)
+        card.classList.add('selected')
+        if (checkEl) checkEl.classList.add('checked')
+      }
       _updateBulkBar()
     })
   })

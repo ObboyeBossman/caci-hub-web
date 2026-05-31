@@ -217,7 +217,7 @@ const MemberProfile: PageModule = {
 
     // Provision
     container.querySelector('#mp-provisionBtn')?.addEventListener('click', () => {
-      navigate(`/admin/provision-user?memberId=${member.id}`)
+      navigate(`/admin/users/provision/${member.id}`)
     })
 
     // Reset Password

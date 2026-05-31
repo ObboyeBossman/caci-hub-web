@@ -4,6 +4,7 @@
 import type { PageModule }             from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { Toast }                       from '@shared/components/Toast'
+import { ConfirmDialog }               from '@shared/components/ConfirmDialog'
 import { navigate }                    from '@core/router'
 import { getAccountById, updateUserRole, setUserActive, listAssemblyRoles, assignRoleToUser } from '../repository'
 import type { AssemblyRole }           from '../repository'
@@ -212,7 +213,13 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
 
   // Suspend / reactivate
   container.querySelector('#ad-suspend')?.addEventListener('click', async () => {
-    if (!confirm(`Suspend ${account.fullName}? They will lose access immediately.`)) return
+    const confirmed = await ConfirmDialog.show({
+      title: 'Suspend Account',
+      message: `Suspend ${account.fullName}? They will lose access immediately.`,
+      danger: true,
+      confirmText: 'Suspend'
+    })
+    if (!confirmed) return
     try {
       await setUserActive(account.id, false)
       Toast.success(`${account.fullName} suspended.`)
@@ -220,7 +227,12 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
     } catch (err) { Toast.fromError(err) }
   })
   container.querySelector('#ad-reactivate')?.addEventListener('click', async () => {
-    if (!confirm(`Reactivate ${account.fullName}?`)) return
+    const confirmed = await ConfirmDialog.show({
+      title: 'Reactivate Account',
+      message: `Reactivate ${account.fullName}?`,
+      confirmText: 'Reactivate'
+    })
+    if (!confirmed) return
     try {
       await setUserActive(account.id, true)
       Toast.success(`${account.fullName} reactivated.`)
@@ -233,7 +245,13 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
     const select = container.querySelector<HTMLSelectElement>('#ad-roleSelect')!
     const newRole = select.value as SystemRole
     if (newRole === account.role) { Toast.info('No change — role is already set.'); return }
-    if (!confirm(`Change ${account.fullName}'s base role to "${newRole}"?`)) return
+    const confirmed = await ConfirmDialog.show({
+      title: 'Change System Role',
+      message: `Change ${account.fullName}'s base role to "${newRole}"?`,
+      danger: true,
+      confirmText: 'Change Role'
+    })
+    if (!confirmed) return
     try {
       await updateUserRole(account.id, newRole)
       Toast.success('System role updated. Takes effect on next login.')
@@ -243,13 +261,19 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
 
   // Save assembly custom role
   container.querySelector('#ad-saveCustomRole')?.addEventListener('click', async () => {
+    const btn = container.querySelector<HTMLButtonElement>('#ad-saveCustomRole')!
     const select = container.querySelector<HTMLSelectElement>('#ad-customRoleSelect')!
     const newRoleId = select.value || null
     if (newRoleId === account.roleId) { Toast.info('No change — role is already set.'); return }
     const roleName = newRoleId ? roles.find(r => r.id === newRoleId)?.name : 'None'
-    if (!confirm(`Assign custom role "${roleName}" to ${account.fullName}?`)) return
+    const confirmed = await ConfirmDialog.show({
+      title: 'Assign Role',
+      message: `Assign custom role "${roleName}" to ${account.fullName}?`
+    })
+    if (!confirmed) return
     
     try {
+      btn.disabled = true; btn.textContent = 'Saving…'
       await assignRoleToUser(account.id, newRoleId)
       Toast.success('Custom role assigned. Takes effect on next login.')
       AccountDetail.render(container)
