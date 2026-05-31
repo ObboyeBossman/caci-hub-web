@@ -69,6 +69,8 @@ async function _resolve(): Promise<void> {
     navigate(result.redirect ?? '/login')
     return
   }
+  // Guard handled the render itself (e.g. access-denied panel) — stop here.
+  if (result.handled) return
 
   // Redirect-only routes (no page) — e.g. '/' → '/members'
   if (matched.redirect) {

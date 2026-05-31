@@ -37,5 +37,10 @@ export const routes: RouteDefinition[] = [
     page: () => import('./pages/Totp'),
     presentation: 'fullscreen',
   },
+  {
+    path: '/unauthorized',
+    page: () => import('./pages/Unauthorized'),
+    presentation: 'fullscreen',
+  },
 ]
 

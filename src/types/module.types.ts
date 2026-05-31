@@ -29,6 +29,8 @@ export interface PageModule {
 export interface GuardResult {
   allowed:   boolean
   redirect?: string
+  /** When true the guard has already painted #page-content — router skips render. */
+  handled?:  boolean
 }
 
 // ── GuardFn — the type signature every guard must satisfy ─────────────────────
