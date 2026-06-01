@@ -40,7 +40,7 @@ import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from
 const PAGE_SIZE = 20
 
 /** Tabs that are under development — block switching to them */
-const COMING_SOON_TABS = new Set(['attendance', 'groups', 'pastoral', 'reports'])
+const COMING_SOON_TABS = new Set<string>()
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -58,10 +58,6 @@ interface State {
   // filter state
   statusFilters: Set<string>
   genderFilters: Set<string>
-  // attendance
-  attSessions: AttSession[]
-  currentAttId: string | null
-  memberAtt: Record<string, 'present' | 'absent' | 'excused'>
   // groups
   groups: Group[]
   // pastoral
@@ -72,11 +68,6 @@ interface State {
   detailMember: MemberView | null
   // modal
   editingId: string | null
-}
-
-interface AttSession {
-  id: string; name: string; type: string; date: string; time: string
-  present: number; absent: number; excused: number
 }
 
 interface Group {
@@ -762,168 +753,6 @@ async function _bulkRemove(): Promise<void> {
   await _renderStats()
 }
 
-// ── Attendance sub-page ───────────────────────────────────────────────────────
-
-function _renderAttSessions(): void {
-  if (!_state || !_container) return
-  const grid = _container.querySelector('#mm-attSessionsGrid')
-  if (!grid) return
-  grid.innerHTML = _state.attSessions.map(s => `
-<div class="mm-att-session-card" data-att-session="${s.id}">
-  <div class="mm-att-session-date">${s.date} · ${s.type}</div>
-  <div class="mm-att-session-name">${s.name}</div>
-  <div class="mm-att-session-stats">
-    <div class="mm-att-session-stat">
-      <div class="mm-att-session-stat-val" style="color:var(--mm-green)">${s.present}</div>
-      <div class="mm-att-session-stat-lbl">Present</div>
-    </div>
-    <div class="mm-att-session-stat">
-      <div class="mm-att-session-stat-val" style="color:var(--mm-red)">${s.absent}</div>
-      <div class="mm-att-session-stat-lbl">Absent</div>
-    </div>
-    <div class="mm-att-session-stat">
-      <div class="mm-att-session-stat-val" style="color:var(--mm-gold)">${s.excused}</div>
-      <div class="mm-att-session-stat-lbl">Excused</div>
-    </div>
-  </div>
-</div>`).join('')
-
-  grid.querySelectorAll<HTMLElement>('[data-att-session]').forEach(card => {
-    card.addEventListener('click', () => _openAttTable(card.dataset['attSession']!))
-  })
-}
-
-function _openAttTable(sessionId: string): void {
-  if (!_state || !_container) return
-  const s = _state.attSessions.find(x => x.id === sessionId)
-  if (!s) return
-  _state.currentAttId = sessionId
-
-  const label = _container.querySelector('#mm-attSessionLabel')
-  const meta = _container.querySelector('#mm-attSessionMeta')
-  if (label) label.textContent = `${s.name} — ${s.date}`
-  if (meta) meta.textContent = `${s.type} · ${s.time} · ${s.present + s.absent + s.excused} active members`
-
-  const sessGrid = _container.querySelector<HTMLElement>('#mm-attSessionsGrid')
-  const tableWrap = _container.querySelector<HTMLElement>('#mm-attTableWrap')
-  if (sessGrid) sessGrid.style.display = 'none'
-  if (tableWrap) tableWrap.style.display = 'block'
-
-  // Pre-fill attendance state
-  _state.memberAtt = {}
-  _state.members
-    .filter(m => m.membership_status !== 'inactive')
-    .forEach(m => { _state!.memberAtt[m.id] = 'present' })
-
-  _renderAttTable()
-}
-
-function _renderAttTable(): void {
-  if (!_state || !_container) return
-  const tbody = _container.querySelector('#mm-attTableBody')
-  if (!tbody) return
-  const relevant = _state.members.filter(m => m.membership_status !== 'inactive')
-  tbody.innerHTML = relevant.map(m => {
-    const status = _state!.memberAtt[m.id] ?? 'present'
-    const s = statusBadge(m.membership_status)
-    const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
-    const ini = initials(m.first_name, m.last_name)
-    return `
-<tr>
-  <td>
-    <div class="mm-table-name-cell">
-      <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
-      <div>
-        <div class="mm-table-name">${formatName(m.first_name, m.last_name, m.title)}</div>
-        <div class="mm-table-email">${m.primary_phone ?? '—'}</div>
-      </div>
-    </div>
-  </td>
-  <td style="font-size: var(--text-sm);">${m.occupation ?? '—'}</td>
-  <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
-  <td>
-    <div class="mm-att-toggle-wrap">
-      <button class="mm-att-toggle ${status === 'present' ? 'present' : ''}" data-att-member="${m.id}" data-att-status="present">Present</button>
-      <button class="mm-att-toggle ${status === 'absent' ? 'absent' : ''}" data-att-member="${m.id}" data-att-status="absent">Absent</button>
-      <button class="mm-att-toggle ${status === 'excused' ? 'excused' : ''}" data-att-member="${m.id}" data-att-status="excused">Excused</button>
-    </div>
-  </td>
-</tr>`
-  }).join('')
-
-  // Bind toggle buttons
-  tbody.querySelectorAll<HTMLButtonElement>('[data-att-status]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const memberId = btn.dataset['attMember']!
-      const newStatus = btn.dataset['attStatus'] as 'present' | 'absent' | 'excused'
-      _state!.memberAtt[memberId] = newStatus
-      // Update buttons in the same row
-      const row = btn.closest('tr')!
-      row.querySelectorAll<HTMLButtonElement>('.mm-att-toggle').forEach(b => {
-        b.className = 'mm-att-toggle'
-        if (b.dataset['attStatus'] === newStatus) b.classList.add(newStatus)
-      })
-    })
-  })
-}
-
-function _saveAttendance(): void {
-  if (!_state) return
-  const att = _state.memberAtt
-  const present = Object.values(att).filter(v => v === 'present').length
-  const absent = Object.values(att).filter(v => v === 'absent').length
-  const excused = Object.values(att).filter(v => v === 'excused').length
-  const s = _state.attSessions.find(x => x.id === _state!.currentAttId)
-  if (s) { s.present = present; s.absent = absent; s.excused = excused }
-  _closeAttTable()
-  _renderAttSessions()
-  Toast.success('Attendance saved successfully.')
-}
-
-function _closeAttTable(): void {
-  if (!_container) return
-  const sessGrid = _container.querySelector<HTMLElement>('#mm-attSessionsGrid')
-  const tableWrap = _container.querySelector<HTMLElement>('#mm-attTableWrap')
-  if (sessGrid) sessGrid.style.display = ''
-  if (tableWrap) tableWrap.style.display = 'none'
-}
-
-// ── Attendance session modal ──────────────────────────────────────────────────
-
-function _openAttSessionModal(): void {
-  if (!_container) return
-  const dateEl = _container.querySelector<HTMLInputElement>('#mm-attSessionDate')
-  if (dateEl) dateEl.value = new Date().toISOString().split('T')[0]
-  _container.querySelector('#mm-attSessionModal')?.classList.add('open')
-  _container.querySelector('#mm-attSessionModalOverlay')?.classList.add('open')
-  document.body.style.overflow = 'hidden'
-}
-
-function _closeAttSessionModal(): void {
-  if (!_container) return
-  _container.querySelector('#mm-attSessionModal')?.classList.remove('open')
-  _container.querySelector('#mm-attSessionModalOverlay')?.classList.remove('open')
-  document.body.style.overflow = ''
-}
-
-function _saveAttSession(): void {
-  if (!_state || !_container) return
-  const name = (_container.querySelector<HTMLInputElement>('#mm-attSessionName')?.value ?? '').trim()
-  const date = _container.querySelector<HTMLInputElement>('#mm-attSessionDate')?.value ?? ''
-  if (!name || !date) { Toast.warning('Session name and date are required.'); return }
-  _state.attSessions.unshift({
-    id: 's' + Date.now(),
-    name,
-    type: _container.querySelector<HTMLSelectElement>('#mm-attSessionType')?.value ?? 'Sunday Service',
-    date: fmtDate(date),
-    time: _container.querySelector<HTMLInputElement>('#mm-attSessionTime')?.value ?? '09:00',
-    present: 0, absent: 0, excused: 0,
-  })
-  _closeAttSessionModal()
-  _renderAttSessions()
-  Toast.success('Session created.')
-}
-
 // ── Groups sub-page ───────────────────────────────────────────────────────────
 
 function _renderGroups(): void {
@@ -1226,7 +1055,6 @@ function _setTab(tabName: string): void {
   // to keep the URL and sidebar in sync.
   const routeMap: Record<string, string> = {
     'members-list': '/members',
-    'attendance': '/attendance',
     'groups': '/groups',
     'pastoral': '/pastoral-care',
     'reports': '/reports'
@@ -1256,7 +1084,6 @@ function _setTab(tabName: string): void {
   })
 
   // Render sub-page
-  if (tabName === 'attendance') _renderAttSessions()
   if (tabName === 'groups') _renderGroups()
   if (tabName === 'pastoral') _renderPastoral()
   if (tabName === 'reports') _renderReports()
@@ -1481,14 +1308,6 @@ function _bindAll(): void {
     _renderMembers()
   })
 
-  // Attendance page buttons
-  _container.querySelector('#mm-newSessionBtn')?.addEventListener('click', _openAttSessionModal)
-  _container.querySelector('#mm-markAttBtn')?.addEventListener('click', () => Toast.info('Select a session below to begin marking attendance.'))
-  _container.querySelector('#mm-attSessionModalOverlay')?.addEventListener('click', _closeAttSessionModal)
-  _container.querySelector('#mm-closeAttSessionModal')?.addEventListener('click', _closeAttSessionModal)
-  _container.querySelector('#mm-saveAttSessionBtn')?.addEventListener('click', _saveAttSession)
-  _container.querySelector('#mm-saveAttendanceBtn')?.addEventListener('click', _saveAttendance)
-  _container.querySelector('#mm-closeAttTableBtn')?.addEventListener('click', _closeAttTable)
 
   // Groups page
   _container.querySelector('#mm-newGroupBtn')?.addEventListener('click', () => _openGroupModal(null))
@@ -1671,15 +1490,7 @@ function _buildInitialState(): State {
     statusFilters: new Set(),
     genderFilters: new Set(),
     // Attendance
-    attSessions: [
-      { id: 's1', name: 'Sunday Service', type: 'Sunday Service', date: 'May 4, 2025', time: '09:00', present: 284, absent: 28, excused: 12 },
-      { id: 's2', name: 'Mid-week Prayer', type: 'Prayer Meeting', date: 'Apr 30, 2025', time: '18:30', present: 142, absent: 170, excused: 6 },
-      { id: 's3', name: 'Sunday Service', type: 'Sunday Service', date: 'Apr 27, 2025', time: '09:00', present: 271, absent: 41, excused: 8 },
-      { id: 's4', name: 'Youth Service', type: 'Youth Service', date: 'Apr 26, 2025', time: '15:00', present: 68, absent: 12, excused: 4 },
-      { id: 's5', name: 'Sunday Service', type: 'Sunday Service', date: 'Apr 20, 2025', time: '09:00', present: 268, absent: 44, excused: 10 },
-    ],
-    currentAttId: null,
-    memberAtt: {},
+    
     // Groups
     groups: [
       { id: 'g1', name: 'Worship Team', type: 'Department', leader: 'Ama Osei', members: 24, day: 'Sunday', desc: 'Leads congregational worship.' },
@@ -1720,16 +1531,15 @@ function _buildInitialState(): State {
 
 function _getInitialTabFromHash(): string {
   const hash = location.hash.slice(1)
-  // Disabled tabs — always fall back to members-list
-  if (hash.startsWith('/attendance') || hash.startsWith('/groups') || hash.startsWith('/pastoral-care') || hash.startsWith('/reports'))
-    return 'members-list'
+  if (hash.startsWith('/groups')) return 'groups'
+  if (hash.startsWith('/pastoral-care')) return 'pastoral'
+  if (hash.startsWith('/reports')) return 'reports'
   return 'members-list'
 }
 
 // Shows a coming-soon inline toast for disabled membership tabs
 function _showComingSoonTab(tabName: string): void {
   const labels: Record<string, string> = {
-    attendance: 'Attendance',
     groups: 'Groups & Units',
     pastoral: 'Pastoral Care',
     reports: 'Reports',
@@ -1794,21 +1604,18 @@ function _buildHTML(): string {
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     All Members <span class="mm-badge" id="mm-subnav-count">0</span>
   </button>
-  <button class="mm-tab" data-tab="attendance" style="opacity:0.55;" title="Coming soon">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
-    Attendance <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
-  </button>
-  <button class="mm-tab" data-tab="groups" style="opacity:0.55;" title="Coming soon">
+
+  <button class="mm-tab" data-tab="groups">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    Groups &amp; Units <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
+    Groups &amp; Units
   </button>
-  <button class="mm-tab" data-tab="pastoral" style="opacity:0.55;" title="Coming soon">
+  <button class="mm-tab" data-tab="pastoral">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    Pastoral Care <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
+    Pastoral Care
   </button>
-  <button class="mm-tab" data-tab="reports" style="opacity:0.55;" title="Coming soon">
+  <button class="mm-tab" data-tab="reports">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Reports <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
+    Reports
   </button>
 </div>
 
@@ -1849,12 +1656,7 @@ function _buildHTML(): string {
       </div>
       <span class="mm-count" id="mm-nav-count-new">0</span>
     </button>
-    <button class="mm-sidebar-item ${_state!.activeTab === 'attendance' ? 'active' : ''}" data-sidebar-tab="attendance">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1"/><line x1="5" y1="1" x2="5" y2="4"/><line x1="11" y1="1" x2="11" y2="4"/><line x1="2" y1="7" x2="14" y2="7"/><polyline points="5,10 7,12 11,9"/></svg>
-        Attendance
-      </div>
-    </button>
+
     <button class="mm-sidebar-item ${_state!.activeTab === 'groups' ? 'active' : ''}" data-sidebar-tab="groups">
       <div class="mm-sidebar-item-left">
         <svg viewBox="0 0 16 16"><circle cx="12" cy="3.5" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="12.5" r="2"/><line x1="5.5" y1="8.8" x2="10.5" y2="11.2"/><line x1="10.5" y1="4.8" x2="5.5" y2="7.2"/></svg>
@@ -2157,73 +1959,6 @@ function _buildHTML(): string {
 <!-- END MEMBERS LIST PAGE -->
 
 
-<!-- ░░░ ATTENDANCE PAGE ░░░ -->
-<div class="mm-section ${_state!.activeTab === 'attendance' ? 'active' : ''}" id="mm-section-attendance">
-  <div class="mm-att-page-header">
-    <div>
-      <div class="mm-att-page-title">Attendance</div>
-      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Track member attendance per service or event</div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button class="mm-btn-outline" id="mm-newSessionBtn">
-        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        New Session
-      </button>
-      <button class="mm-btn-primary" id="mm-markAttBtn">
-        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Mark Attendance
-      </button>
-    </div>
-  </div>
-
-  <div class="mm-stats-row">
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Last Sunday</div><div class="mm-stat-value">284</div>
-      <div class="mm-stat-sub">81.8% attendance</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:82%;background:var(--mm-blue);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Avg (This Month)</div><div class="mm-stat-value">271</div>
-      <div class="mm-stat-sub">78.1% of active</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:78%;background:var(--mm-blue);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Absent 3+ Weeks</div><div class="mm-stat-value">18</div>
-      <div class="mm-stat-sub">needs follow-up</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:22%;background:var(--mm-red);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Sessions (May)</div><div class="mm-stat-value">5</div>
-      <div class="mm-stat-sub">4 Sunday, 1 mid-week</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:60%;background:var(--mm-gold);"></div></div>
-    </div>
-  </div>
-
-  <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;">Recent Sessions</div>
-  <div class="mm-att-sessions-grid" id="mm-attSessionsGrid"></div>
-
-  <div id="mm-attTableWrap" style="display:none;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div>
-        <div style="font-size: var(--text-base);font-weight:600;" id="mm-attSessionLabel">—</div>
-        <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin-top:2px;" id="mm-attSessionMeta">—</div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="mm-btn-ghost" id="mm-closeAttTableBtn">← Back to Sessions</button>
-        <button class="mm-btn-primary" id="mm-saveAttendanceBtn">Save Attendance</button>
-      </div>
-    </div>
-    <div class="mm-table-wrap">
-      <table class="mm-att-table">
-        <thead><tr><th>Member</th><th>Role</th><th>Status</th><th>Attendance</th></tr></thead>
-        <tbody id="mm-attTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-<!-- END ATTENDANCE PAGE -->
-
-
 <!-- ░░░ GROUPS PAGE ░░░ -->
 <div class="mm-section ${_state!.activeTab === 'groups' ? 'active' : ''}" id="mm-section-groups">
   <div class="mm-att-page-header">
@@ -2389,54 +2124,6 @@ function _buildHTML(): string {
 </div>
 
 
-</div>
-
-
-<!-- ═══ ATTENDANCE SESSION MODAL ═══ -->
-<div class="mm-modal-overlay" id="mm-attSessionModalOverlay"></div>
-<div class="mm-modal-centred" id="mm-attSessionModal">
-  <div class="mm-modal-header">
-    <div class="mm-modal-title">New Attendance Session</div>
-    <button class="mm-modal-close" id="mm-closeAttSessionModal">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="mm-modal-body">
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Session Name <span class="req">*</span></label>
-        <input type="text" class="mm-form-input" id="mm-attSessionName" placeholder="e.g. Sunday Service">
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Session Type</label>
-        <select class="mm-form-select" id="mm-attSessionType">
-          <option>Sunday Service</option>
-          <option>Mid-week Service</option>
-          <option>Youth Service</option>
-          <option>Prayer Meeting</option>
-          <option>Special Event</option>
-        </select>
-      </div>
-    </div>
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Date <span class="req">*</span></label>
-        <input type="date" class="mm-form-input" id="mm-attSessionDate">
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Time</label>
-        <input type="time" class="mm-form-input" id="mm-attSessionTime" value="09:00">
-      </div>
-    </div>
-    <div class="mm-form-field">
-      <label class="mm-form-label">Notes</label>
-      <textarea class="mm-form-textarea" id="mm-attSessionNotes" placeholder="Optional notes…"></textarea>
-    </div>
-  </div>
-  <div class="mm-modal-footer">
-    <button class="mm-btn-outline" id="mm-cancelAttSession">Cancel</button>
-    <button class="mm-btn-primary" id="mm-saveAttSessionBtn">Create Session</button>
-  </div>
 </div>
 
 

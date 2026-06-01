@@ -34,6 +34,14 @@ export const PERMISSIONS = {
   // ── Admin ─────────────────────────────────────────────────────────────────────
   ADMIN_VIEW:           'admin.view',
   ADMIN_USERS_MANAGE:   'admin.users.manage',
+
+  // ── Services ─────────────────────────────────────────────────────────────────
+  SERVICES_VIEW:              'services.view',
+  SERVICES_CREATE:            'services.create',
+  SERVICES_EDIT:              'services.edit',
+  SERVICES_DELETE:            'services.delete',
+  SERVICES_TEMPLATES_MANAGE:  'services.templates.manage',
+  SERVICES_ATTENDANCE_MARK:   'services.attendance.mark',
 } as const
 
 /** Union of all valid platform permission keys. */

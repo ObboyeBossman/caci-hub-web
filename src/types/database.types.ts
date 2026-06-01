@@ -434,6 +434,229 @@ export type Database = {
           },
         ]
       }
+      service_audit_log: {
+        Row: {
+          changed_at:    string
+          changed_by:    string | null
+          field_changed: string
+          id:            string
+          new_value:     string | null
+          old_value:     string | null
+          service_id:    string
+        }
+        Insert: {
+          changed_at?:    string
+          changed_by?:    string | null
+          field_changed:  string
+          id?:            string
+          new_value?:     string | null
+          old_value?:     string | null
+          service_id:     string
+        }
+        Update: {
+          changed_at?:    string
+          changed_by?:    string | null
+          field_changed?: string
+          id?:            string
+          new_value?:     string | null
+          old_value?:     string | null
+          service_id?:    string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_audit_log_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_attendance: {
+        Row: {
+          deleted_at:  string | null
+          deleted_by:  string | null
+          id:          string
+          marked_at:   string
+          marked_by:   string | null
+          member_id:   string
+          notes:       string | null
+          service_id:  string
+          status:      Database['public']['Enums']['attendance_status']
+        }
+        Insert: {
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?:         string
+          marked_at?:  string
+          marked_by?:  string | null
+          member_id:   string
+          notes?:      string | null
+          service_id:  string
+          status?:     Database['public']['Enums']['attendance_status']
+        }
+        Update: {
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?:         string
+          marked_at?:  string
+          marked_by?:  string | null
+          member_id?:  string
+          notes?:      string | null
+          service_id?: string
+          status?:     Database['public']['Enums']['attendance_status']
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_attendance_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_attendance_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_templates: {
+        Row: {
+          assembly_id:          string
+          created_at:           string
+          created_by:           string | null
+          day_of_week:          string | null
+          deleted_at:           string | null
+          deleted_by:           string | null
+          group_id:             string | null
+          id:                   string
+          is_active:            boolean
+          recurrence:           Database['public']['Enums']['recurrence_type']
+          recurrence_end_date:  string | null
+          service_type:         string
+          start_time:           string | null
+          title:                string
+          venue:                string | null
+        }
+        Insert: {
+          assembly_id:           string
+          created_at?:           string
+          created_by?:           string | null
+          day_of_week?:          string | null
+          deleted_at?:           string | null
+          deleted_by?:           string | null
+          group_id?:             string | null
+          id?:                   string
+          is_active?:            boolean
+          recurrence?:           Database['public']['Enums']['recurrence_type']
+          recurrence_end_date?:  string | null
+          service_type:          string
+          start_time?:           string | null
+          title:                 string
+          venue?:                string | null
+        }
+        Update: {
+          assembly_id?:          string
+          created_at?:           string
+          created_by?:           string | null
+          day_of_week?:          string | null
+          deleted_at?:           string | null
+          deleted_by?:           string | null
+          group_id?:             string | null
+          id?:                   string
+          is_active?:            boolean
+          recurrence?:           Database['public']['Enums']['recurrence_type']
+          recurrence_end_date?:  string | null
+          service_type?:         string
+          start_time?:           string | null
+          title?:                string
+          venue?:                string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_templates_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          assembly_id:  string
+          created_at:   string
+          created_by:   string | null
+          deleted_at:   string | null
+          deleted_by:   string | null
+          group_id:     string | null
+          headcount:    number | null
+          id:           string
+          notes:        string | null
+          service_date: string
+          service_type: string
+          start_time:   string | null
+          status:       Database['public']['Enums']['service_status']
+          template_id:  string | null
+          title:        string
+          venue:        string | null
+        }
+        Insert: {
+          assembly_id:   string
+          created_at?:   string
+          created_by?:   string | null
+          deleted_at?:   string | null
+          deleted_by?:   string | null
+          group_id?:     string | null
+          headcount?:    number | null
+          id?:           string
+          notes?:        string | null
+          service_date:  string
+          service_type:  string
+          start_time?:   string | null
+          status?:       Database['public']['Enums']['service_status']
+          template_id?:  string | null
+          title:         string
+          venue?:        string | null
+        }
+        Update: {
+          assembly_id?:  string
+          created_at?:   string
+          created_by?:   string | null
+          deleted_at?:   string | null
+          deleted_by?:   string | null
+          group_id?:     string | null
+          headcount?:    number | null
+          id?:           string
+          notes?:        string | null
+          service_date?: string
+          service_type?: string
+          start_time?:   string | null
+          status?:       Database['public']['Enums']['service_status']
+          template_id?:  string | null
+          title?:        string
+          venue?:        string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "service_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       members_view: {
@@ -602,6 +825,7 @@ export type Database = {
       is_admin_or_secretary: { Args: never; Returns: boolean }
     }
     Enums: {
+      attendance_status: "present" | "absent" | "excused"
       gender_type: "male" | "female"
       marital_status_type:
         | "single"
@@ -616,6 +840,8 @@ export type Database = {
         | "prospect"
         | "transfer"
         | "deceased"
+      recurrence_type: "none" | "daily" | "weekly" | "biweekly" | "monthly"
+      service_status: "scheduled" | "completed" | "cancelled"
       user_role:
         | "admin"
         | "pastor"
@@ -760,6 +986,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      attendance_status: ["present", "absent", "excused"],
       gender_type: ["male", "female"],
       marital_status_type: [
         "single",
@@ -776,6 +1003,8 @@ export const Constants = {
         "transfer",
         "deceased",
       ],
+      recurrence_type: ["none", "daily", "weekly", "biweekly", "monthly"],
+      service_status: ["scheduled", "completed", "cancelled"],
       user_role: [
         "admin",
         "pastor",
