@@ -42,6 +42,22 @@ export const PERMISSIONS = {
   SERVICES_DELETE:            'services.delete',
   SERVICES_TEMPLATES_MANAGE:  'services.templates.manage',
   SERVICES_ATTENDANCE_MARK:   'services.attendance.mark',
+
+  // ── Groups ────────────────────────────────────────────────────────────────
+  GROUPS_VIEW:            'groups.view',
+  GROUPS_CREATE:          'groups.create',
+  GROUPS_EDIT:            'groups.edit',
+  GROUPS_DELETE:          'groups.delete',
+  GROUPS_MEMBERS_MANAGE:  'groups.members.manage',
+
+  // ── Finance ────────────────────────────────────────────────────────────────
+  FINANCE_VIEW:    'finance.view',
+  FINANCE_MANAGE:  'finance.manage',
+
+  // ── Pastoral Care ──────────────────────────────────────────────────────────
+  PASTORAL_VIEW:          'pastoral.view',
+  PASTORAL_MANAGE:        'pastoral.manage',
+  PASTORAL_PRAYER_MANAGE: 'pastoral.prayer.manage',
 } as const
 
 /** Union of all valid platform permission keys. */

@@ -657,6 +657,562 @@ export type Database = {
           },
         ]
       }
+      group_members: {
+        Row: {
+          id:          string
+          group_id:    string
+          member_id:   string
+          role:        Database['public']['Enums']['group_member_role']
+          joined_at:   string
+          left_at:     string | null
+          is_active:   boolean
+          created_by:  string | null
+          created_at:  string
+          deleted_at:  string | null
+          deleted_by:  string | null
+        }
+        Insert: {
+          id?:         string
+          group_id:    string
+          member_id:   string
+          role?:       Database['public']['Enums']['group_member_role']
+          joined_at?:  string
+          left_at?:    string | null
+          is_active?:  boolean
+          created_by?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+        }
+        Update: {
+          id?:         string
+          group_id?:   string
+          member_id?:  string
+          role?:       Database['public']['Enums']['group_member_role']
+          joined_at?:  string
+          left_at?:    string | null
+          is_active?:  boolean
+          created_by?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          id:           string
+          assembly_id:  string
+          name:         string
+          group_type:   Database['public']['Enums']['group_type']
+          description:  string | null
+          is_active:    boolean
+          leader_id:    string | null
+          created_by:   string | null
+          created_at:   string
+          deleted_at:   string | null
+          deleted_by:   string | null
+        }
+        Insert: {
+          id?:          string
+          assembly_id:  string
+          name:         string
+          group_type:   Database['public']['Enums']['group_type']
+          description?: string | null
+          is_active?:   boolean
+          leader_id?:   string | null
+          created_by?:  string | null
+          created_at?:  string
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Update: {
+          id?:          string
+          assembly_id?: string
+          name?:        string
+          group_type?:  Database['public']['Enums']['group_type']
+          description?: string | null
+          is_active?:   boolean
+          leader_id?:   string | null
+          created_by?:  string | null
+          created_at?:  string
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_leader_id_fkey"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pastoral_cases: {
+        Row: {
+          id:           string
+          assembly_id:  string
+          member_id:    string
+          case_type:    Database['public']['Enums']['pastoral_case_type']
+          title:        string
+          description:  string | null
+          priority:     Database['public']['Enums']['pastoral_priority']
+          status:       Database['public']['Enums']['pastoral_case_status']
+          assigned_to:  string | null
+          is_private:   boolean
+          created_by:   string | null
+          created_at:   string
+          resolved_at:  string | null
+          deleted_at:   string | null
+          deleted_by:   string | null
+        }
+        Insert: {
+          id?:          string
+          assembly_id:  string
+          member_id:    string
+          case_type:    Database['public']['Enums']['pastoral_case_type']
+          title:        string
+          description?: string | null
+          priority?:    Database['public']['Enums']['pastoral_priority']
+          status?:      Database['public']['Enums']['pastoral_case_status']
+          assigned_to?: string | null
+          is_private?:  boolean
+          created_by?:  string | null
+          created_at?:  string
+          resolved_at?: string | null
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Update: {
+          id?:          string
+          assembly_id?: string
+          member_id?:   string
+          case_type?:   Database['public']['Enums']['pastoral_case_type']
+          title?:       string
+          description?: string | null
+          priority?:    Database['public']['Enums']['pastoral_priority']
+          status?:      Database['public']['Enums']['pastoral_case_status']
+          assigned_to?: string | null
+          is_private?:  boolean
+          created_by?:  string | null
+          created_at?:  string
+          resolved_at?: string | null
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pastoral_cases_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pastoral_cases_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pastoral_visits: {
+        Row: {
+          id:               string
+          case_id:          string
+          member_id:        string
+          visited_by:       string
+          visit_type:       Database['public']['Enums']['visit_type']
+          visit_date:       string
+          notes:            string | null
+          outcome:          Database['public']['Enums']['visit_outcome']
+          next_visit_date:  string | null
+          created_at:       string
+          deleted_at:       string | null
+          deleted_by:       string | null
+        }
+        Insert: {
+          id?:              string
+          case_id:          string
+          member_id:        string
+          visited_by:       string
+          visit_type:       Database['public']['Enums']['visit_type']
+          visit_date:       string
+          notes?:           string | null
+          outcome?:         Database['public']['Enums']['visit_outcome']
+          next_visit_date?: string | null
+          created_at?:      string
+          deleted_at?:      string | null
+          deleted_by?:      string | null
+        }
+        Update: {
+          id?:              string
+          case_id?:         string
+          member_id?:       string
+          visited_by?:      string
+          visit_type?:      Database['public']['Enums']['visit_type']
+          visit_date?:      string
+          notes?:           string | null
+          outcome?:         Database['public']['Enums']['visit_outcome']
+          next_visit_date?: string | null
+          created_at?:      string
+          deleted_at?:      string | null
+          deleted_by?:      string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pastoral_visits_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "pastoral_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pastoral_visits_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prayer_requests: {
+        Row: {
+          id:           string
+          assembly_id:  string
+          member_id:    string | null
+          title:        string
+          description:  string | null
+          is_anonymous: boolean
+          status:       Database['public']['Enums']['prayer_request_status']
+          is_answered:  boolean
+          answered_at:  string | null
+          created_at:   string
+          deleted_at:   string | null
+          deleted_by:   string | null
+        }
+        Insert: {
+          id?:          string
+          assembly_id:  string
+          member_id?:   string | null
+          title:        string
+          description?: string | null
+          is_anonymous?: boolean
+          status?:      Database['public']['Enums']['prayer_request_status']
+          is_answered?: boolean
+          answered_at?: string | null
+          created_at?:  string
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Update: {
+          id?:          string
+          assembly_id?: string
+          member_id?:   string | null
+          title?:       string
+          description?: string | null
+          is_anonymous?: boolean
+          status?:      Database['public']['Enums']['prayer_request_status']
+          is_answered?: boolean
+          answered_at?: string | null
+          created_at?:  string
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prayer_requests_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prayer_requests_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_categories: {
+        Row: {
+          id:             string
+          assembly_id:    string
+          name:           string
+          category_type:  Database['public']['Enums']['finance_category_type']
+          description:    string | null
+          is_active:      boolean
+          created_by:     string | null
+          created_at:     string
+          deleted_at:     string | null
+          deleted_by:     string | null
+        }
+        Insert: {
+          id?:            string
+          assembly_id:    string
+          name:           string
+          category_type:  Database['public']['Enums']['finance_category_type']
+          description?:   string | null
+          is_active?:     boolean
+          created_by?:    string | null
+          created_at?:    string
+          deleted_at?:    string | null
+          deleted_by?:    string | null
+        }
+        Update: {
+          id?:            string
+          assembly_id?:   string
+          name?:          string
+          category_type?: Database['public']['Enums']['finance_category_type']
+          description?:   string | null
+          is_active?:     boolean
+          created_by?:    string | null
+          created_at?:    string
+          deleted_at?:    string | null
+          deleted_by?:    string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_categories_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_transactions: {
+        Row: {
+          id:               string
+          assembly_id:      string
+          category_id:      string
+          member_id:        string | null
+          transaction_type: Database['public']['Enums']['finance_transaction_type']
+          amount:           number
+          currency:         string
+          payment_method:   Database['public']['Enums']['finance_payment_method']
+          reference_number: string | null
+          transaction_date: string
+          description:      string | null
+          service_id:       string | null
+          group_id:         string | null
+          pledge_id:        string | null
+          recorded_by:      string | null
+          created_at:       string
+          deleted_at:       string | null
+          deleted_by:       string | null
+        }
+        Insert: {
+          id?:              string
+          assembly_id:      string
+          category_id:      string
+          member_id?:       string | null
+          transaction_type: Database['public']['Enums']['finance_transaction_type']
+          amount:           number
+          currency?:        string
+          payment_method:   Database['public']['Enums']['finance_payment_method']
+          reference_number?: string | null
+          transaction_date?: string
+          description?:     string | null
+          service_id?:      string | null
+          group_id?:        string | null
+          pledge_id?:       string | null
+          recorded_by?:     string | null
+          created_at?:      string
+          deleted_at?:      string | null
+          deleted_by?:      string | null
+        }
+        Update: {
+          id?:              string
+          assembly_id?:     string
+          category_id?:     string
+          member_id?:       string | null
+          transaction_type?: Database['public']['Enums']['finance_transaction_type']
+          amount?:          number
+          currency?:        string
+          payment_method?:  Database['public']['Enums']['finance_payment_method']
+          reference_number?: string | null
+          transaction_date?: string
+          description?:     string | null
+          service_id?:      string | null
+          group_id?:        string | null
+          pledge_id?:       string | null
+          recorded_by?:     string | null
+          created_at?:      string
+          deleted_at?:      string | null
+          deleted_by?:      string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_transactions_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_pledges: {
+        Row: {
+          id:           string
+          assembly_id:  string
+          member_id:    string
+          pledge_name:  string
+          total_amount: number
+          amount_paid:  number
+          currency:     string
+          start_date:   string
+          end_date:     string | null
+          status:       Database['public']['Enums']['finance_pledge_status']
+          notes:        string | null
+          created_by:   string | null
+          created_at:   string
+          deleted_at:   string | null
+          deleted_by:   string | null
+        }
+        Insert: {
+          id?:          string
+          assembly_id:  string
+          member_id:    string
+          pledge_name:  string
+          total_amount: number
+          amount_paid?: number
+          currency?:    string
+          start_date?:  string
+          end_date?:    string | null
+          status?:      Database['public']['Enums']['finance_pledge_status']
+          notes?:       string | null
+          created_by?:  string | null
+          created_at?:  string
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Update: {
+          id?:          string
+          assembly_id?: string
+          member_id?:   string
+          pledge_name?: string
+          total_amount?: number
+          amount_paid?: number
+          currency?:    string
+          start_date?:  string
+          end_date?:    string | null
+          status?:      Database['public']['Enums']['finance_pledge_status']
+          notes?:       string | null
+          created_by?:  string | null
+          created_at?:  string
+          deleted_at?:  string | null
+          deleted_by?:  string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_pledges_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_budgets: {
+        Row: {
+          id:               string
+          assembly_id:      string
+          category_id:      string
+          period:           Database['public']['Enums']['finance_budget_period']
+          year:             number
+          month:            number | null
+          quarter:          number | null
+          budgeted_amount:  number
+          actual_amount:    number
+          notes:            string | null
+          created_by:       string | null
+          created_at:       string
+          deleted_at:       string | null
+          deleted_by:       string | null
+        }
+        Insert: {
+          id?:              string
+          assembly_id:      string
+          category_id:      string
+          period:           Database['public']['Enums']['finance_budget_period']
+          year:             number
+          month?:           number | null
+          quarter?:         number | null
+          budgeted_amount:  number
+          actual_amount?:   number
+          notes?:           string | null
+          created_by?:      string | null
+          created_at?:      string
+          deleted_at?:      string | null
+          deleted_by?:      string | null
+        }
+        Update: {
+          id?:              string
+          assembly_id?:     string
+          category_id?:     string
+          period?:          Database['public']['Enums']['finance_budget_period']
+          year?:            number
+          month?:           number | null
+          quarter?:         number | null
+          budgeted_amount?: number
+          actual_amount?:   number
+          notes?:           string | null
+          created_by?:      string | null
+          created_at?:      string
+          deleted_at?:      string | null
+          deleted_by?:      string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_budgets_assembly_id_fkey"
+            columns: ["assembly_id"]
+            isOneToOne: false
+            referencedRelation: "assemblies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       members_view: {
@@ -825,7 +1381,20 @@ export type Database = {
       is_admin_or_secretary: { Args: never; Returns: boolean }
     }
     Enums: {
+      group_member_role: "leader" | "assistant_leader" | "member"
+      group_type: "department" | "age_group"
       attendance_status: "present" | "absent" | "excused"
+      finance_budget_period: "monthly" | "quarterly" | "annual"
+      finance_category_type: "income" | "expense"
+      finance_payment_method: "cash" | "momo" | "bank_transfer" | "cheque" | "other"
+      finance_pledge_status: "active" | "completed" | "defaulted" | "cancelled"
+      finance_transaction_type:
+        | "tithe"
+        | "offering"
+        | "special_offering"
+        | "pledge_payment"
+        | "donation"
+        | "expense"
       gender_type: "male" | "female"
       marital_status_type:
         | "single"
@@ -840,6 +1409,18 @@ export type Database = {
         | "prospect"
         | "transfer"
         | "deceased"
+      pastoral_case_type:
+        | 'follow_up'
+        | 'bereavement'
+        | 'illness'
+        | 'counselling'
+        | 'discipline'
+        | 'other'
+      pastoral_priority: 'low' | 'medium' | 'high' | 'urgent'
+      pastoral_case_status: 'open' | 'in_progress' | 'resolved' | 'closed'
+      visit_type: 'home_visit' | 'hospital_visit' | 'phone_call' | 'video_call' | 'in_person'
+      visit_outcome: 'positive' | 'needs_follow_up' | 'no_response' | 'referred'
+      prayer_request_status: 'active' | 'answered' | 'closed'
       recurrence_type: "none" | "daily" | "weekly" | "biweekly" | "monthly"
       service_status: "scheduled" | "completed" | "cancelled"
       user_role:
@@ -986,7 +1567,27 @@ export const Constants = {
   },
   public: {
     Enums: {
+      group_member_role: ["leader", "assistant_leader", "member"],
+      group_type: ["department", "age_group"],
       attendance_status: ["present", "absent", "excused"],
+      pastoral_case_type: ["follow_up", "bereavement", "illness", "counselling", "discipline", "other"],
+      pastoral_priority: ["low", "medium", "high", "urgent"],
+      pastoral_case_status: ["open", "in_progress", "resolved", "closed"],
+      visit_type: ["home_visit", "hospital_visit", "phone_call", "video_call", "in_person"],
+      visit_outcome: ["positive", "needs_follow_up", "no_response", "referred"],
+      prayer_request_status: ["active", "answered", "closed"],
+      finance_budget_period: ["monthly", "quarterly", "annual"],
+      finance_category_type: ["income", "expense"],
+      finance_payment_method: ["cash", "momo", "bank_transfer", "cheque", "other"],
+      finance_pledge_status: ["active", "completed", "defaulted", "cancelled"],
+      finance_transaction_type: [
+        "tithe",
+        "offering",
+        "special_offering",
+        "pledge_payment",
+        "donation",
+        "expense",
+      ],
       gender_type: ["male", "female"],
       marital_status_type: [
         "single",

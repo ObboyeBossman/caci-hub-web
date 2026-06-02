@@ -25,11 +25,17 @@ import {
   subscribeToMembers,
   subscribeToHouseholds,
 } from './repository'
+import {
+  fetchGroupSummary,
+  fetchGroupSummaries,
+  subscribeToGroups,
+} from './groups.repository'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 // ── Realtime channel refs — managed entirely by this module ───────────────────
 let _memberChannel:    RealtimeChannel | null = null
 let _householdChannel: RealtimeChannel | null = null
+let _groupsChannel:    RealtimeChannel | null = null
 
 // ── Module manifest ───────────────────────────────────────────────────────────
 const MembershipModule: ModuleManifest = {
@@ -60,7 +66,7 @@ const MembershipModule: ModuleManifest = {
       label:      'Groups & Units',
       path:       '/groups',
       icon:       'diagram-3-fill',
-      permission: 'members.view',
+      permission: 'groups.view',
       order:      30,
     },
     {
@@ -109,12 +115,8 @@ const MembershipModule: ModuleManifest = {
     //    member:deleted, member:restored, auth:signedOut) inside initMemberCache.
     initMemberCache(getMemberSummary, getMemberSummaries)
 
-    // 2. Wire groupCache — groups module not yet implemented; wire stubs
-    //    so groupCache doesn't warn on every access
-    initGroupCache(
-      async (_id) => null,   // TODO: wire real group fetcher in Phase 4g
-      async (_ids) => []
-    )
+    // 2. Wire groupCache with real repository fetchers
+    initGroupCache(fetchGroupSummary, fetchGroupSummaries)
 
     // 3. Subscribe to Realtime — only when we have an active assembly
     const assemblyId = getActiveAssemblyId()
@@ -157,6 +159,21 @@ const MembershipModule: ModuleManifest = {
       }
     })
 
+    // Groups channel
+    _groupsChannel = subscribeToGroups(assemblyId, (eventType, id) => {
+      switch (eventType) {
+        case 'INSERT':
+          emit('group:created', { id })
+          break
+        case 'UPDATE':
+          emit('group:updated', { id })
+          break
+        case 'DELETE':
+          emit('group:deleted', { id })
+          break
+      }
+    })
+
     console.info(`[membership] Realtime subscribed for assembly ${assemblyId}`)
   },
 
@@ -164,8 +181,10 @@ const MembershipModule: ModuleManifest = {
   async dispose() {
     await _memberChannel?.unsubscribe()
     await _householdChannel?.unsubscribe()
+    await _groupsChannel?.unsubscribe()
     _memberChannel    = null
     _householdChannel = null
+    _groupsChannel    = null
     console.info('[membership] Realtime unsubscribed')
   },
 }
