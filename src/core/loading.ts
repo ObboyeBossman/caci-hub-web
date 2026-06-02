@@ -15,10 +15,9 @@ import { mountShell, mountFullscreen }    from '../shell/Shell'
 import { initNotificationBell }         from '../shell/NotificationBell'
 
 // Modules (same list as before — kept here so main.ts stays minimal)
-import AuthModule        from '../modules/auth/index'
-import MembershipModule  from '../modules/membership/index'
-import AdminModule       from '../modules/admin/index'
-import ServicesModule    from '../modules/services/index'
+import AuthModule      from '../modules/auth/index'
+import MembershipModule from '../modules/membership/index'
+import AdminModule     from '../modules/admin/index'
 
 export async function runLoading(): Promise<void> {
   const app = document.getElementById('app')
@@ -97,7 +96,6 @@ export async function runLoading(): Promise<void> {
     registerModule(AuthModule)
     registerModule(MembershipModule)
     registerModule(AdminModule)
-    registerModule(ServicesModule)
 
     // Step 3: Mount shell chrome ─────────────────────────────────────────────
     setProgress(60, 'Mounting shell…')

@@ -8,7 +8,7 @@
 //   Stage 4 (loading.ts)        → profile + modules + shell + router [authenticated path]
 
 import './styles/theme.css'
-import './shell/styles/shell.css'
+import './styles/shell.css'
 import './styles/components.css'
 import './modules/auth/styles/auth.css'
 import './styles/utilities.css'
