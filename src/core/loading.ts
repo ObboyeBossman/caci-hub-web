@@ -5,19 +5,20 @@
 // Runs all initialization steps (profile, modules, shell) while displaying
 // a progress UI, then hands off to the router.
 
-import { supabase }                    from './supabase'
-import { emit, on }                    from './events'
+import { supabase } from './supabase'
+import { emit, on } from './events'
 import { loadCurrentUser, getCurrentUser } from './auth'
-import { registerModule, initModules }  from './registry'
-import { startRouter, navigate }        from './router'
-import { can }                          from './authorization/authorization-service'
-import { mountShell, mountFullscreen }    from '../shell/Shell'
-import { initNotificationBell }         from '../shell/NotificationBell'
+import { registerModule, initModules } from './registry'
+import { startRouter, navigate } from './router'
+import { can } from './authorization/authorization-service'
 
 // Modules (same list as before — kept here so main.ts stays minimal)
-import AuthModule      from '../modules/auth/index'
+import AuthModule from '../modules/auth/index'
 import MembershipModule from '../modules/membership/index'
-import AdminModule     from '../modules/admin/index'
+import AdminModule from '../modules/admin/index'
+import ServicesModule from '../modules/services/index'
+import FinanceModule from '../modules/finance/index'
+import PastoralModule from '../modules/pastoral/index'
 
 export async function runLoading(): Promise<void> {
   const app = document.getElementById('app')
@@ -56,12 +57,12 @@ export async function runLoading(): Promise<void> {
     </div>
   `
 
-  const fill  = document.getElementById('loading-progress-fill') as HTMLElement
-  const label = document.getElementById('loading-status')        as HTMLElement
+  const fill = document.getElementById('loading-progress-fill') as HTMLElement
+  const label = document.getElementById('loading-status') as HTMLElement
 
   const setProgress = (pct: number, text: string) => {
-    if (fill)  fill.style.width   = `${pct}%`
-    if (label) label.textContent  = text
+    if (fill) fill.style.width = `${pct}%`
+    if (label) label.textContent = text
   }
 
   // Yield to the browser paint cycle so each setProgress update is rendered
@@ -79,11 +80,14 @@ export async function runLoading(): Promise<void> {
     if (!user) {
       // No valid profile → kick back to login
       console.warn('[loading] No valid profile found. Redirecting to login.')
-      
+
       // MUST register AuthModule and mount layout before router can handle /login
       registerModule(AuthModule)
-      mountFullscreen()
-      
+      const appContainer = document.getElementById('app')
+      if (appContainer) {
+        appContainer.innerHTML = '<div id="page-content"></div>'
+      }
+
       startRouter()
       navigate('/login')
       return
@@ -96,19 +100,24 @@ export async function runLoading(): Promise<void> {
     registerModule(AuthModule)
     registerModule(MembershipModule)
     registerModule(AdminModule)
+    registerModule(ServicesModule)
+    registerModule(FinanceModule)
+    registerModule(PastoralModule)
 
-    // Step 3: Mount shell chrome ─────────────────────────────────────────────
-    setProgress(60, 'Mounting shell…')
+    // Step 3: Mount base container ───────────────────────────────────────────
+    setProgress(60, 'Mounting base container…')
     await tick()
-    mountShell()
-    initNotificationBell()
+    const appContainer = document.getElementById('app')
+    if (appContainer) {
+      appContainer.innerHTML = '<div id="page-content"></div>'
+    }
 
     // Step 4: Run module init hooks ──────────────────────────────────────────
     setProgress(80, 'Starting services…')
     await tick()
     await initModules({
       supabase,
-      eventBus:    { emit, on },
+      eventBus: { emit, on },
       permissions: { hasPermission: can },
       currentUser: getCurrentUser,
     })
@@ -123,7 +132,7 @@ export async function runLoading(): Promise<void> {
     // or if the hash is empty, redirect to the dashboard (/).
     const path = location.hash.slice(1)
     const isAuthPage = !path || path === '/' || path.startsWith('/login') || path.startsWith('/select-assembly') || path.startsWith('/forgot-password')
-    
+
     if (isAuthPage) {
       console.log('[loading] On auth page, redirecting to /')
       location.hash = '#/'
