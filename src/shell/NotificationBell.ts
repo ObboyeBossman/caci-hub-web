@@ -1,25 +1,22 @@
 // src/shell/NotificationBell.ts
-// Updates the notification badge count in the toolbar.
-// Driven by events from modules — the shell never polls directly.
+// ─────────────────────────────────────────────────────────────────────────────
+// Notification badge on the topnav bell icon.
+// No CSS of its own — badge elements are styled inside Toolbar.ts.
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { on } from '@core/events'
 
-let _count = 0
+let _notifCount = 0
 
-/**
- * Initialise the notification bell listener.
- * Called once from Shell.ts after mounting.
- * Listens for notification count updates emitted by any module.
- */
-export function initNotificationBell(): void {
-  on('notification:countUpdated', (data) => {
+export function _initNotificationBell(): void {
+  on('notification:countUpdated', (data: unknown) => {
     const { count } = data as { count: number }
     setNotificationCount(count)
   })
 }
 
 export function setNotificationCount(count: number): void {
-  _count = count
+  _notifCount = count
   const badge = document.getElementById('notif-badge')
   const dot   = document.getElementById('topnav-notif-dot')
 
@@ -27,11 +24,12 @@ export function setNotificationCount(count: number): void {
     if (badge) { badge.style.display = 'none'; badge.textContent = '0' }
     if (dot)   dot.style.display = 'none'
   } else {
-    if (badge) { badge.style.display = 'flex'; badge.textContent = count > 99 ? '99+' : String(count) }
-    if (dot)   dot.style.display = 'block'
+    if (badge) {
+      badge.style.display = 'flex'
+      badge.textContent   = count > 99 ? '99+' : String(count)
+    }
+    if (dot) dot.style.display = 'block'
   }
 }
 
-export function getNotificationCount(): number {
-  return _count
-}
+export function getNotificationCount(): number { return _notifCount }

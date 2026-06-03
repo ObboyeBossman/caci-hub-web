@@ -1,17 +1,44 @@
 // src/shell/Breadcrumbs.ts
-// Renders breadcrumb navigation above the page content area.
-// Called by pages that want breadcrumb context.
+// ─────────────────────────────────────────────────────────────────────────────
+// Breadcrumb nav — injected by pages into their own containers.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BREADCRUMBS_CSS = /* css */`
+/* ═══════════════════════════════════════════════════════════════════════════
+   BREADCRUMBS
+═══════════════════════════════════════════════════════════════════════════ */
+.breadcrumbs {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  padding: 0 0 14px; font-size: var(--text-sm); color: var(--text-secondary);
+}
+.breadcrumbs a { color: var(--text-secondary); text-decoration: none; transition: color 0.15s; }
+.breadcrumbs a:hover { color: var(--text-primary); }
+.breadcrumb-sep { display: flex; align-items: center; color: var(--text-placeholder); font-size: var(--text-xs); }
+.breadcrumb-current { color: var(--text-primary); font-weight: 500; }
+`
+
+function _injectBreadcrumbsCSS(): void {
+  if (document.getElementById('caci-breadcrumbs-css')) return
+  const style = document.createElement('style')
+  style.id = 'caci-breadcrumbs-css'
+  style.textContent = BREADCRUMBS_CSS
+  document.head.appendChild(style)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Public API
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface BreadcrumbItem {
   label: string
-  path?: string  // omit for the current (last) item
+  path?: string    // omit for the last (current) item
 }
 
 /**
- * Render breadcrumbs into a container element.
- * Pages call this at the top of their render() to inject nav context.
+ * Inject breadcrumb nav into a container element.
+ * Pages call this at the top of their render() to add navigation context.
  *
- * Usage:
+ * @example
  *   const header = document.createElement('div')
  *   renderBreadcrumbs(header, [
  *     { label: 'Members', path: '/members' },
@@ -19,10 +46,9 @@ export interface BreadcrumbItem {
  *   ])
  *   container.prepend(header)
  */
-export function renderBreadcrumbs(
-  container: HTMLElement,
-  items: BreadcrumbItem[]
-): void {
+export function renderBreadcrumbs(container: HTMLElement, items: BreadcrumbItem[]): void {
+  _injectBreadcrumbsCSS()
+
   const html = items
     .map((item, i) => {
       const isLast = i === items.length - 1
@@ -31,7 +57,7 @@ export function renderBreadcrumbs(
       }
       return `
         <a href="#${item.path}">${item.label}</a>
-        <span class="breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+        <span class="breadcrumb-sep"><i class="bi bi-chevron-right" aria-hidden="true"></i></span>
       `
     })
     .join('')
