@@ -58,7 +58,7 @@ const TOOLBAR_CSS = /* css */`
 /* ── Title ── */
 .topnav-title {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+  font-size: 1.143rem; font-weight: 600; letter-spacing: -0.01em;
   color: var(--text-primary); white-space: nowrap;
   cursor: pointer; user-select: none;
   text-decoration: none;
@@ -77,8 +77,8 @@ const TOOLBAR_CSS = /* css */`
   width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
   background: none; border: none; cursor: pointer;
-  border-radius: var(--r-md, 8px);
-  color: var(--text-secondary); font-size: 18px;
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-secondary); font-size: 1.286rem;
   position: relative;
   transition: background 0.15s, color 0.15s;
 }
@@ -89,9 +89,9 @@ const TOOLBAR_CSS = /* css */`
 .topnav-info-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   background: none; border: 1px solid var(--border-default);
-  border-radius: var(--r-pill, 9999px);
+  border-radius: var(--radius-pill, 9999px);
   padding: 5px 12px; cursor: pointer;
-  font-size: 13px; font-family: var(--ds-font-sans, inherit);
+  font-size: 0.929rem; font-family: var(--font-sans, inherit);
   color: var(--text-secondary);
   transition: background 0.15s, border-color 0.15s, color 0.15s;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -114,12 +114,12 @@ const TOOLBAR_CSS = /* css */`
   .topnav-info-btn {
     width: 36px; height: 36px; padding: 0;
     border-radius: 50%; border: none;
-    background: linear-gradient(135deg, var(--caci-blue, #004BA0), var(--ds-blue-light, #4D9FFF));
-    color: #fff; font-weight: 700; font-size: 14px;
+    background: linear-gradient(135deg, var(--caci-blue, #004BA0), var(--caci-blue-light, #4D9FFF));
+    color: #fff; font-weight: 700; font-size: 1rem;
     box-shadow: 0 4px 10px rgba(0,75,160,0.15);
   }
   .topnav-info-btn:hover {
-    background: linear-gradient(135deg, var(--caci-blue, #004BA0), var(--ds-blue-light, #4D9FFF));
+    background: linear-gradient(135deg, var(--caci-blue, #004BA0), var(--caci-blue-light, #4D9FFF));
     color: #fff; opacity: 0.9; border: none;
   }
   .topnav-info-btn .info-dot,
@@ -133,14 +133,14 @@ const TOOLBAR_CSS = /* css */`
   display: none; position: absolute; top: calc(100% + 8px); right: 0;
   min-width: 240px; background: var(--bg-card);
   border: 1px solid var(--border-default);
-  border-radius: var(--r-md, 8px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-overlay, 0 8px 24px rgba(0,0,0,.12));
   padding: 10px 14px; z-index: 9000;
 }
 .info-popover.show { display: block; }
 .info-popover-row {
   display: flex; align-items: center; gap: 9px; padding: 5px 0;
-  font-size: 13px; color: var(--text-secondary);
+  font-size: 0.929rem; color: var(--text-secondary);
   border-bottom: 1px solid var(--border-default);
 }
 .info-popover-row:last-child { border-bottom: none; }
@@ -156,9 +156,9 @@ const TOOLBAR_CSS = /* css */`
 #notif-badge {
   display: none; position: absolute; top: 4px; right: 4px;
   min-width: 14px; height: 14px;
-  background: var(--ds-red); color: #fff;
-  font-size: 8px; font-weight: 700;
-  border-radius: var(--r-pill);
+  background: var(--caci-red); color: #fff;
+  font-size: 0.571rem; font-weight: 700;
+  border-radius: var(--radius-pill);
   border: 1.5px solid var(--bg-topnav);
   align-items: center; justify-content: center; padding: 0 3px;
 }

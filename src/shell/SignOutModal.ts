@@ -34,7 +34,7 @@ const SIGN_OUT_CSS = /* css */`
   width: 58px; height: 58px; border-radius: 50%;
   background: var(--bg-page); border: 1px solid var(--border-default);
   display: flex; align-items: center; justify-content: center;
-  font-size: 26px; color: var(--text-secondary); margin-bottom: 18px;
+  font-size: 1.857rem; color: var(--text-secondary); margin-bottom: 18px;
 }
 .so-heading {
   font-size: var(--text-2xl); font-weight: 600; color: var(--text-primary);

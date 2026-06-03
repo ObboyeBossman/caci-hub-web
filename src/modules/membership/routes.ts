@@ -4,6 +4,13 @@
 import type { RouteDefinition } from '../../types/module.types'
 
 export const membershipRoutes: RouteDefinition[] = [
+  // ── Home ──────────────────────────────────────────────────────────────────
+  {
+    path: '/home',
+    page: () => import('./pages/Home'),
+    middleware: ['auth', 'mustChangePassword'],
+  },
+
   // ── Members ───────────────────────────────────────────────────────────────
   {
     path: '/members',

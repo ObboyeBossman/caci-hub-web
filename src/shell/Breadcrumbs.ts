@@ -9,11 +9,11 @@ const BREADCRUMBS_CSS = /* css */`
 ═══════════════════════════════════════════════════════════════════════════ */
 .breadcrumbs {
   display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
-  padding: 0 0 14px; font-size: var(--text-sm); color: var(--text-secondary);
+  padding: 0 0 14px; font-size: 0.857rem; color: var(--text-secondary);
 }
 .breadcrumbs a { color: var(--text-secondary); text-decoration: none; transition: color 0.15s; }
 .breadcrumbs a:hover { color: var(--text-primary); }
-.breadcrumb-sep { display: flex; align-items: center; color: var(--text-placeholder); font-size: var(--text-xs); }
+.breadcrumb-sep { display: flex; align-items: center; color: var(--text-placeholder); font-size: 0.785rem; }
 .breadcrumb-current { color: var(--text-primary); font-weight: 500; }
 `
 

@@ -79,7 +79,7 @@ const SIDEBAR_CSS = /* css */`
   --sb-text-dim:    var(--text-secondary, #8b949e);
   --sb-hover-bg:    rgba(255,255,255,0.07);
   --sb-active-bg:   rgba(77,159,255,0.15);
-  --sb-active-text: var(--ds-blue-light, #4D9FFF);
+  --sb-active-text: var(--caci-blue-light, #4D9FFF);
   --sb-section:     rgba(255,255,255,0.3);
   --sb-divider:     rgba(255,255,255,0.07);
   --sb-footer-bg:   rgba(0,0,0,0.2);
@@ -87,10 +87,10 @@ const SIDEBAR_CSS = /* css */`
   --sb-role-border: rgba(255,255,255,0.08);
   --sb-role-pill:   #007AFF;
   --sb-role-active: #ffffff;
-  --sb-role-idle:   var(--ds-n400, #6e7681);
+  --sb-role-idle:   var(--n400, #6e7681);
   --sb-accord-line: rgba(255,255,255,0.1);
   --sb-soon-bg:     rgba(77,159,255,0.12);
-  --sb-soon-text:   var(--ds-blue-light, #4D9FFF);
+  --sb-soon-text:   var(--caci-blue-light, #4D9FFF);
   --sb-badge-bg:    var(--caci-red, #C60026);
   --sb-scroll-thumb: rgba(77,159,255,0.4);
   --sb-glow:        rgba(77, 159, 255, 0.2);
@@ -128,23 +128,23 @@ const SIDEBAR_CSS = /* css */`
 .sb-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sb-avatar-initials {
   width: 100%; height: 100%;
-  background: linear-gradient(135deg, var(--caci-blue,#004BA0), var(--ds-blue-light,#4D9FFF));
+  background: linear-gradient(135deg, var(--caci-blue,#004BA0), var(--caci-blue-light,#4D9FFF));
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 22px; font-weight: 700; letter-spacing: 0.03em;
+  color: #fff; font-size: 1.375rem; font-weight: 700; letter-spacing: 0.03em;
 }
 
 .sb-profile-name {
-  font-size: 16px; font-weight: 600; color: var(--sb-text);
+  font-size: 1rem; font-weight: 600; color: var(--sb-text);
   text-align: center; line-height: 1.3; margin-bottom: 2px;
   animation: sb-slide-up 0.4s cubic-bezier(0.175,0.885,0.32,1.275) 100ms both;
 }
 .sb-profile-no {
-  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 0.714rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--sb-text-dim); margin-bottom: 4px; opacity: 0.7;
   animation: sb-slide-up 0.4s cubic-bezier(0.175,0.885,0.32,1.275) 125ms both;
 }
 .sb-profile-role {
-  font-size: 11px; font-weight: 500; color: var(--sb-text-dim);
+  font-size: 0.785rem; font-weight: 500; color: var(--sb-text-dim);
   text-transform: uppercase; letter-spacing: 0.06em;
   animation: sb-slide-up 0.4s cubic-bezier(0.175,0.885,0.32,1.275) 150ms both;
 }
@@ -172,7 +172,7 @@ const SIDEBAR_CSS = /* css */`
 .sb-role-btn {
   flex: 1; position: relative; z-index: 1;
   padding: 5px 12px; border: none; background: none; cursor: pointer;
-  font-size: 12px; font-weight: 500; border-radius: 9999px;
+  font-size: 0.857rem; font-weight: 500; border-radius: 9999px;
   color: var(--sb-role-idle); font-family: var(--font-sans, inherit);
   transition: color 0.25s ease;
 }
@@ -201,7 +201,7 @@ const SIDEBAR_CSS = /* css */`
 
 /* ── Section label ───────────────────────────────────────────────────────── */
 .sb-section-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.09em;
+  font-size: 0.714rem; font-weight: 700; letter-spacing: 0.09em;
   text-transform: uppercase; color: var(--sb-section);
   padding: 10px 12px 4px;
 }
@@ -211,7 +211,7 @@ const SIDEBAR_CSS = /* css */`
   width: 100%; display: flex; align-items: center; gap: 11px;
   padding: 9px 14px; border-radius: 9999px; border: none;
   background: none; cursor: pointer; text-align: left;
-  color: var(--sb-text-dim); font-size: 14px; font-weight: 500;
+  color: var(--sb-text-dim); font-size: 1rem; font-weight: 500;
   font-family: var(--font-sans, inherit);
   transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
 }
@@ -224,7 +224,7 @@ const SIDEBAR_CSS = /* css */`
   color: var(--sb-active-text); font-weight: 600;
   box-shadow: 0 0 0 1px var(--sb-active-bg);
 }
-.sb-nav-item i { font-size: 16px; flex-shrink: 0; }
+.sb-nav-item i { font-size: 1.143rem; flex-shrink: 0; }
 .sb-nav-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* active item special glow for admin */
@@ -238,18 +238,18 @@ const SIDEBAR_CSS = /* css */`
 
 /* ── Badge chips ─────────────────────────────────────────────────────────── */
 .sb-soon-badge {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
+  font-size: 0.643rem; font-weight: 700; letter-spacing: 0.04em;
   background: var(--sb-soon-bg); color: var(--sb-soon-text);
   padding: 2px 6px; border-radius: 9999px; flex-shrink: 0;
 }
 .sb-count-badge {
   min-width: 18px; height: 18px; padding: 0 5px;
   background: var(--sb-badge-bg); color: #fff;
-  font-size: 10px; font-weight: 700; border-radius: 9999px;
+  font-size: 0.714rem; font-weight: 700; border-radius: 9999px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .sb-number-badge {
-  font-size: 10px; font-weight: 600;
+  font-size: 0.714rem; font-weight: 600;
   background: var(--sb-soon-bg); color: var(--sb-soon-text);
   border: 1px solid color-mix(in srgb, var(--sb-role-pill) 25%, transparent);
   padding: 1px 7px; border-radius: 4px; flex-shrink: 0;
@@ -277,7 +277,7 @@ const SIDEBAR_CSS = /* css */`
 }
 .sb-sub-item {
   display: block; padding: 6px 8px 6px 12px;
-  font-size: 13px; font-weight: 500; color: var(--sb-text-dim);
+  font-size: 0.929rem; font-weight: 500; color: var(--sb-text-dim);
   border: none; background: none; cursor: pointer; text-align: left;
   width: 100%; border-radius: 6px; position: relative;
   font-family: var(--font-sans, inherit);
@@ -301,12 +301,12 @@ const SIDEBAR_CSS = /* css */`
   width: 100%; display: flex; align-items: center; gap: 11px;
   padding: 9px 14px; border-radius: 9999px; border: none;
   background: none; cursor: pointer; text-align: left;
-  color: var(--sb-text-dim); font-size: 14px; font-weight: 500;
+  color: var(--sb-text-dim); font-size: 1rem; font-weight: 500;
   font-family: var(--font-sans, inherit);
   transition: background 0.18s ease, color 0.18s ease;
 }
 .sb-footer-link:hover { background: var(--sb-hover-bg); color: var(--sb-text); }
-.sb-footer-link i { font-size: 16px; flex-shrink: 0; }
+.sb-footer-link i { font-size: 1.143rem; flex-shrink: 0; }
 
 /* Theme toggle row */
 .sb-theme-row {
@@ -318,8 +318,8 @@ const SIDEBAR_CSS = /* css */`
 }
 .sb-theme-row:hover { background: var(--sb-role-bg); }
 .sb-theme-left { display: flex; align-items: center; gap: 10px; }
-.sb-theme-left i { font-size: 16px; color: var(--sb-text-dim); }
-.sb-theme-label { font-size: 13px; font-weight: 500; color: var(--sb-text); font-family: var(--font-sans, inherit); }
+.sb-theme-left i { font-size: 1.143rem; color: var(--sb-text-dim); }
+.sb-theme-label { font-size: 0.929rem; font-weight: 500; color: var(--sb-text); font-family: var(--font-sans, inherit); }
 
 /* Toggle switch */
 .sb-toggle-track {
@@ -380,7 +380,13 @@ export class _Sidebar {
   render(): void {
     const user = getCurrentUser()
     const isDark = document.documentElement.dataset['theme'] === 'dark'
-    const isNonMember = user != null && user.role !== 'member'
+
+    // Compute permitted items upfront to decide whether to show admin tab
+    const allItems = getSidebarItems()
+    const permitted = user ? allItems.filter(item => can(user, item.permission)) : []
+    // Show admin switcher/panel only if the user has a non-member role AND has
+    // at least one permitted item to display in the admin panel.
+    const hasAdminAccess = user != null && user.role !== 'member' && permitted.length > 0
 
     const displayName = user?.fullName ?? 'User'
     const roleLabel = user?.role?.replace(/_/g, ' ') ?? 'Member'
@@ -406,8 +412,8 @@ export class _Sidebar {
           <div class="sb-profile-role">${roleLabel}</div>
         </div>
 
-        <!-- Role switcher (only for admins/ministers) -->
-        ${isNonMember ? /* html */`
+        <!-- Role switcher: only shown when user has actual admin privileges -->
+        ${hasAdminAccess ? /* html */`
           <div class="sb-role-switcher-wrap">
             <div class="sb-role-switcher" id="sb-role-switcher" role="tablist" aria-label="View">
               <div class="sb-role-pill ${this._activeView === 'admin' ? 'admin' : ''}" id="sb-role-pill"></div>
@@ -431,15 +437,15 @@ export class _Sidebar {
         <div class="sb-scroll">
           <div class="sb-scroll-inner" id="sb-scroll-inner">
 
-            <!-- Member panel -->
+            <!-- Member panel (always visible) -->
             <div class="sb-panel ${this._activeView !== 'member' ? 'hidden' : ''}" id="sb-member-panel">
               ${this._renderMemberNav()}
             </div>
 
-            <!-- Admin panel (non-members only) -->
-            ${isNonMember ? /* html */`
+            <!-- Admin panel (only when hasAdminAccess) -->
+            ${hasAdminAccess ? /* html */`
               <div class="sb-panel ${this._activeView !== 'admin' ? 'hidden' : ''}" id="sb-admin-panel">
-                ${this._renderAdminNav(user)}
+                ${this._renderAdminNav(user, permitted)}
               </div>
             ` : ''}
 
@@ -485,6 +491,7 @@ export class _Sidebar {
 
   private _renderMemberNav(): string {
     const myArea = [
+      { path: '/home', icon: 'bi-house-fill', label: 'Home' },
       { path: '/profile', icon: 'bi-person-badge', label: 'Profile & Digital ID', soon: true as const },
       { path: '/my-attendance', icon: 'bi-calendar-check', label: 'My Attendance', soon: true as const },
       { path: '/contributions', icon: 'bi-cash-stack', label: 'Contributions & Tithes', soon: true as const },
@@ -503,12 +510,7 @@ export class _Sidebar {
     `
   }
 
-  private _renderAdminNav(user: any): string {
-    // Get all registered sidebar items this user can see
-    const all = getSidebarItems()
-    const permitted = user
-      ? all.filter(item => can(user, item.permission))
-      : []
+  private _renderAdminNav(user: any, permitted: ReturnType<typeof getSidebarItems>): string {
 
     // Build accordion groups from registered modules
     // membership module items: All Members, Attendance, Groups & Units, Pastoral Care, Reports

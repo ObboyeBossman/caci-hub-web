@@ -5,7 +5,7 @@ import type { RouteDefinition } from '../../types/module.types'
 export const routes: RouteDefinition[] = [
   {
     path: '/',
-    redirect: '/members',
+    redirect: '/home',
   },
   {
     path: '/select-assembly',

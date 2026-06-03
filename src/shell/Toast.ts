@@ -42,14 +42,14 @@ const TOAST_CSS = /* css */`
   width: 34px; height: 34px; border-radius: var(--radius-md, 8px);
   background: var(--caci-blue-bg, #EFF5FF);
   display: flex; align-items: center; justify-content: center;
-  font-size: 17px; color: var(--caci-blue, #004BA0); flex-shrink: 0;
+  font-size: 1.214rem; color: var(--caci-blue, #004BA0); flex-shrink: 0;
 }
 .coming-soon-toast-body { flex: 1; min-width: 0; }
 .coming-soon-toast-title { font-size: var(--text-base); font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
 .coming-soon-toast-msg  { font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; }
 .coming-soon-toast-close {
   background: none; border: none; cursor: pointer;
-  padding: 2px; color: var(--text-secondary); font-size: 13px; flex-shrink: 0;
+  padding: 2px; color: var(--text-secondary); font-size: 0.929rem; flex-shrink: 0;
 }
 `
 
