@@ -1,0 +1,404 @@
+/* =============================================================
+   CACI Hub — Theme
+   Generated from caci_design_system.html
+   ============================================================= */
+
+/* -------------------------------------------------------------
+   1. PRIMITIVE TOKENS — raw brand palette & scales
+   ------------------------------------------------------------- */
+:root {
+
+  /* Brand */
+  --caci-red:         #C60026;
+  --caci-red-light:   #FF1A46;
+  --caci-red-dim:     #8C001A;
+  --caci-blue:        #004BA0;
+  --caci-blue-light:  #4D9FFF;
+  --caci-blue-dim:    #003578;
+  --caci-white:       #FFFFFF;
+  --caci-night:       #010409;
+
+  /* Red scale */
+  --red-50:   #fff0f2;
+  --red-100:  #ffc0cc;
+  --red-200:  #ff7090;
+  --red-300:  #e8003a;
+  --red-500:  #C60026;   /* ★ primary */
+  --red-700:  #8C001A;
+  --red-800:  #5a0010;
+  --red-900:  #2d0008;
+
+  /* Blue scale */
+  --blue-50:  #EFF5FF;
+  --blue-100: #b3d0ff;
+  --blue-200: #6ba3f5;
+  --blue-300: #4D9FFF;
+  --blue-500: #004BA0;   /* ★ primary */
+  --blue-700: #003578;
+  --blue-800: #002050;
+  --blue-900: #000d28;
+
+  /* Neutral scale */
+  --n50:  #f6f8fa;
+  --n100: #e6edf3;
+  --n200: #c9d1d9;
+  --n300: #8b949e;
+  --n400: #6e7681;
+  --n500: #484f58;
+  --n600: #30363d;
+  --n700: #21262d;
+  --n800: #161b22;
+  --n900: #0d1117;
+
+  /* Semantic primitives */
+  --green:        #1a7f37;
+  --green-bg:     #dafbe1;
+  --green-bg-dim: rgba(26, 127, 55, 0.15);
+  --amber:        #9a6700;
+  --amber-bg:     #fff8c5;
+  --amber-bg-dim: rgba(154, 103, 0, 0.15);
+}
+
+/* -------------------------------------------------------------
+   2. SEMANTIC / ALIAS TOKENS — light mode (default)
+   ------------------------------------------------------------- */
+:root,
+[data-theme="light"] {
+
+  /* Backgrounds */
+  --bg-page:    #f6f8fa;
+  --bg-card:    #ffffff;
+  --bg-nav:     #004BA0;
+  --bg-danger:  #fff0f2;
+  --bg-info:    #EFF5FF;
+  --bg-success: #dafbe1;
+  --bg-warning: #fff8c5;
+
+  /* Text */
+  --text-primary:   #0d1117;
+  --text-secondary: #6e7681;
+  --text-muted:     #8b949e;
+  --text-link:      #004BA0;
+  --text-danger:    #C60026;
+  --text-success:   #1a7f37;
+  --text-on-brand:  #ffffff;
+
+  /* Borders */
+  --border-default: #e6edf3;
+  --border-strong:  #c9d1d9;
+  --border-focus:   #004BA0;
+  --border-danger:  #C60026;
+
+  /* Accent (role-based shortcuts) */
+  --accent:   #C60026;   /* CTA, active indicator, urgent */
+  --link:     #004BA0;
+
+  /* Focus ring */
+  --focus-ring: rgba(0, 75, 160, 0.15);
+  --focus-ring-danger: rgba(198, 0, 38, 0.12);
+}
+
+/* -------------------------------------------------------------
+   3. DARK MODE TOKENS
+   ------------------------------------------------------------- */
+[data-theme="dark"] {
+
+  /* Backgrounds */
+  --bg-page:    #0d1117;
+  --bg-card:    #161b22;
+  --bg-nav:     #010409;
+  --bg-danger:  rgba(198, 0, 38, 0.12);
+  --bg-info:    rgba(0, 75, 160, 0.15);
+  --bg-success: rgba(26, 127, 55, 0.15);
+  --bg-warning: rgba(154, 103, 0, 0.15);
+
+  /* Text */
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted:     #6e7681;
+  --text-link:      #4D9FFF;
+  --text-danger:    #FF1A46;
+  --text-success:   #1a7f37;
+  --text-on-brand:  #ffffff;
+
+  /* Borders */
+  --border-default: #30363d;
+  --border-strong:  #484f58;
+  --border-focus:   #4D9FFF;
+  --border-danger:  #FF1A46;
+
+  /* Accent */
+  --accent: #E8003A;
+  --link:   #4D9FFF;
+
+  /* Focus ring */
+  --focus-ring: rgba(77, 159, 255, 0.20);
+  --focus-ring-danger: rgba(255, 26, 70, 0.20);
+}
+
+/* -------------------------------------------------------------
+   4. TYPOGRAPHY TOKENS
+   ------------------------------------------------------------- */
+:root {
+
+  /* Font stacks */
+  --font-sans:  'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-mono:  'SF Mono', Consolas, 'Courier New', monospace;
+
+  /* Type scale */
+  --text-display: 32px;  /* weight 700, lh 1.2  */
+  --text-h1:      24px;  /* weight 600           */
+  --text-h2:      20px;  /* weight 600           */
+  --text-h3:      16px;  /* weight 600           */
+  --text-body-lg: 15px;  /* weight 400           */
+  --text-body:    14px;  /* weight 400           */
+  --text-small:   12px;  /* weight 400           */
+  --text-label:   11px;  /* weight 600, UC, ls .6px */
+  --text-mono:    13px;  /* font-mono            */
+}
+
+/* -------------------------------------------------------------
+   5. SPACING TOKENS (4 px base)
+   ------------------------------------------------------------- */
+:root {
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+}
+
+/* -------------------------------------------------------------
+   6. BORDER-RADIUS TOKENS
+   ------------------------------------------------------------- */
+:root {
+  --radius-none: 2px;
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill: 9999px;
+}
+
+/* -------------------------------------------------------------
+   7. ELEVATION / SHADOW TOKENS
+   ------------------------------------------------------------- */
+:root {
+  --shadow-flat:     none;                              /* 1px border only    */
+  --shadow-raised:   0 1px 3px rgba(0,0,0,.08);        /* hover state        */
+  --shadow-overlay:  0 8px 24px rgba(0,0,0,.12);       /* modals / dropdowns */
+}
+
+/* -------------------------------------------------------------
+   8. BASE RESET & GLOBAL STYLES
+   ------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* -------------------------------------------------------------
+   9. COMPONENT BASE STYLES
+   ------------------------------------------------------------- */
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--caci-red);
+  color: var(--text-on-brand);
+  border-color: var(--caci-red-dim);
+}
+.btn-primary:hover {
+  background: var(--red-300);
+  border-color: var(--caci-red);
+}
+
+.btn-secondary {
+  background: var(--caci-blue);
+  color: var(--text-on-brand);
+  border-color: var(--caci-blue-dim);
+}
+.btn-secondary:hover {
+  background: var(--blue-300);
+  border-color: var(--caci-blue);
+}
+
+.btn-outline {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.btn-outline:hover {
+  border-color: var(--border-focus);
+  color: var(--caci-blue);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--caci-blue);
+  border-color: transparent;
+}
+.btn-ghost:hover {
+  background: var(--bg-info);
+}
+
+.btn-danger {
+  background: var(--bg-card);
+  color: var(--caci-red);
+  border-color: var(--caci-red);
+}
+.btn-danger:hover {
+  background: var(--bg-danger);
+}
+
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-lg { padding: 10px 20px; font-size: 15px; }
+
+.btn:disabled,
+.btn[disabled],
+.btn-dis {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-red   { background: var(--red-50);    color: var(--caci-red-dim); }
+.badge-blue  { background: var(--blue-50);   color: var(--caci-blue-dim); }
+.badge-green { background: var(--green-bg);  color: var(--green); }
+.badge-amber { background: var(--amber-bg);  color: var(--amber); }
+.badge-gray  { background: var(--n100);      color: var(--n500); }
+
+/* --- Form inputs --- */
+.inp {
+  width: 100%;
+  height: 34px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.inp::placeholder { color: var(--text-muted); }
+.inp:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.inp-error {
+  border-color: var(--border-danger);
+}
+.inp-error:focus {
+  box-shadow: 0 0 0 3px var(--focus-ring-danger);
+}
+
+/* --- Alerts --- */
+.alert {
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  border: 1px solid;
+}
+
+.alert-info {
+  background: var(--bg-info);
+  color: var(--caci-blue-dim);
+  border-color: rgba(0, 75, 160, 0.20);
+}
+.alert-success {
+  background: var(--bg-success);
+  color: var(--green);
+  border-color: rgba(26, 127, 55, 0.20);
+}
+.alert-warning {
+  background: var(--bg-warning);
+  color: var(--amber);
+  border-color: rgba(154, 103, 0, 0.20);
+}
+.alert-danger {
+  background: var(--bg-danger);
+  color: var(--caci-red-dim);
+  border-color: rgba(198, 0, 38, 0.20);
+}
+
+/* --- Cards --- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+.card:hover {
+  border-color: var(--border-strong);
+}
+.card-featured {
+  border: 2px solid var(--caci-blue);
+}
+
+/* --- Section label (uppercase eyebrow) --- */
+.sec-label {
+  font-size: var(--text-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+/* --- Avatar --- */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--caci-blue), var(--caci-red));
+  color: var(--text-on-brand);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.avatar-sm  { width: 32px; height: 32px; font-size: 12px; }
+.avatar-md  { width: 40px; height: 40px; font-size: 14px; }
+.avatar-lg  { width: 48px; height: 48px; font-size: 16px; }

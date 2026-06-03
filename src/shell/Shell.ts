@@ -23,116 +23,204 @@ const SHELL_CSS = /* css */`
    CACI Hub Shell — Design tokens + drawer-first layout
 ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── 1. Design tokens ────────────────────────────────────────────────────── */
+/* ── 1. Primitive tokens ─────────────────────────────────────────────────── */
 :root {
   /* Brand */
-  --ds-red:        #C60026;
-  --ds-red-light:  #FF1A46;
-  --ds-red-dim:    #8C001A;
-  --ds-red-bg:     rgba(198,0,38,.10);
-  --ds-blue:       #004BA0;
-  --ds-blue-light: #4D9FFF;
-  --ds-blue-dim:   #003578;
-  --ds-blue-bg:    rgba(0,75,160,.12);
-  --ds-night:      #010409;
+  --caci-red:         #C60026;
+  --caci-red-light:   #FF1A46;
+  --caci-red-dim:     #8C001A;
+  --caci-blue:        #004BA0;
+  --caci-blue-light:  #4D9FFF;
+  --caci-blue-dim:    #003578;
+  --caci-white:       #FFFFFF;
+  --caci-night:       #010409;
+
+  /* Red scale */
+  --red-50:  #fff0f2;
+  --red-100: #ffc0cc;
+  --red-200: #ff7090;
+  --red-300: #e8003a;
+  --red-500: #C60026;
+  --red-700: #8C001A;
+  --red-800: #5a0010;
+  --red-900: #2d0008;
+
+  /* Blue scale */
+  --blue-50:  #EFF5FF;
+  --blue-100: #b3d0ff;
+  --blue-200: #6ba3f5;
+  --blue-300: #4D9FFF;
+  --blue-500: #004BA0;
+  --blue-700: #003578;
+  --blue-800: #002050;
+  --blue-900: #000d28;
 
   /* Neutral scale */
-  --ds-n900: #0d1117;
-  --ds-n800: #161b22;
-  --ds-n700: #21262d;
-  --ds-n600: #30363d;
-  --ds-n500: #484f58;
-  --ds-n400: #6e7681;
-  --ds-n300: #8b949e;
-  --ds-n200: #c9d1d9;
-  --ds-n100: #e6edf3;
-  --ds-n50:  #f6f8fa;
+  --n50:  #f6f8fa;
+  --n100: #e6edf3;
+  --n200: #c9d1d9;
+  --n300: #8b949e;
+  --n400: #6e7681;
+  --n500: #484f58;
+  --n600: #30363d;
+  --n700: #21262d;
+  --n800: #161b22;
+  --n900: #0d1117;
 
-  /* Semantic */
-  --ds-green:     #1a7f37;
-  --ds-green-bg:  rgba(26,127,55,.12);
-  --ds-amber:     #9a6700;
-  --ds-amber-bg:  rgba(154,103,0,.12);
+  /* Semantic primitives */
+  --green:        #1a7f37;
+  --green-bg:     #dafbe1;
+  --green-bg-dim: rgba(26, 127, 55, 0.15);
+  --amber:        #9a6700;
+  --amber-bg:     #fff8c5;
+  --amber-bg-dim: rgba(154, 103, 0, 0.15);
 
-  /* Font */
-  --ds-font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Typography */
+  --font-sans:  'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-mono:  'SF Mono', Consolas, 'Courier New', monospace;
+
+  --text-display: 32px;
+  --text-h1:      24px;
+  --text-h2:      20px;
+  --text-h3:      16px;
+  --text-body-lg: 15px;
+  --text-body:    14px;
+  --text-small:   12px;
+  --text-label:   11px;
+  --text-mono:    13px;
 
   /* Spacing */
-  --sp-xs: 4px;  --sp-sm: 8px;  --sp-md: 12px; --sp-lg: 16px;
-  --sp-xl: 24px; --sp-2xl: 32px;
+  --space-xs:  4px;  --space-sm:  8px;  --space-md:  12px; --space-lg:  16px;
+  --space-xl:  24px; --space-2xl: 32px; --space-3xl: 48px; --space-4xl: 64px;
 
-  /* Radii */
-  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-pill: 9999px;
+  /* Aliases kept for any shell components still using old names */
+  --sp-xs: var(--space-xs); --sp-sm: var(--space-sm);
+  --sp-md: var(--space-md); --sp-lg: var(--space-lg);
+  --sp-xl: var(--space-xl); --sp-2xl: var(--space-2xl);
+
+  /* Border radius */
+  --radius-none: 2px;
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill: 9999px;
+
+  /* Aliases kept for any shell components still using old names */
+  --r-sm: var(--radius-sm); --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg); --r-pill: var(--radius-pill);
+
+  /* ds- aliases (backward compat for Toolbar/Sidebar) */
+  --ds-font-sans:  var(--font-sans);
+  --ds-red:        var(--caci-red);
+  --ds-red-light:  var(--caci-red-light);
+  --ds-red-dim:    var(--caci-red-dim);
+  --ds-blue:       var(--caci-blue);
+  --ds-blue-light: var(--caci-blue-light);
+  --ds-blue-dim:   var(--caci-blue-dim);
+  --ds-night:      var(--caci-night);
+  --ds-amber:      var(--amber);
+  --ds-n400:       var(--n400);
+
+  /* Elevation */
+  --shadow-flat:    none;
+  --shadow-raised:  0 1px 3px rgba(0,0,0,.08);
+  --shadow-overlay: 0 8px 24px rgba(0,0,0,.12);
 
   /* Shell */
   --topnav-height: 56px;
-  --drawer-width:  248px;
+  --drawer-width:  300px;
 }
 
 /* ── 2. Light-mode tokens ─────────────────────────────────────────────────── */
 :root,
 [data-theme="light"] {
-  --bg-page:        #f0f2f5;
-  --bg-card:        #ffffff;
-  --bg-topnav:      #ffffff;
-  --bg-hover:       rgba(0,0,0,0.04);
-  --bg-input:       #ffffff;
+  /* Backgrounds */
+  --bg-page:    #f6f8fa;
+  --bg-card:    #ffffff;
+  --bg-nav:     #004BA0;
+  --bg-topnav:  #ffffff;
+  --bg-hover:   rgba(0,0,0,0.04);
+  --bg-input:   #ffffff;
+  --bg-danger:  #fff0f2;
+  --bg-info:    #EFF5FF;
+  --bg-success: #dafbe1;
+  --bg-warning: #fff8c5;
 
-  --text-primary:   var(--ds-n900);
-  --text-secondary: var(--ds-n400);
-  --text-muted:     var(--ds-n300);
-  --text-on-brand:  #ffffff;
-  --text-link:      var(--ds-blue);
-  --text-danger:    var(--ds-red);
-  --text-success:   var(--ds-green);
-  --text-warning:   var(--ds-amber);
-  --text-placeholder: var(--ds-n300);
+  /* Text */
+  --text-primary:     #0d1117;
+  --text-secondary:   #6e7681;
+  --text-muted:       #8b949e;
+  --text-link:        #004BA0;
+  --text-danger:      #C60026;
+  --text-success:     #1a7f37;
+  --text-on-brand:    #ffffff;
+  --text-placeholder: var(--n300);
 
-  --border-default: var(--ds-n100);
-  --border-strong:  var(--ds-n200);
-  --border-focus:   var(--ds-blue);
+  /* Borders */
+  --border-default: #e6edf3;
+  --border-strong:  #c9d1d9;
+  --border-focus:   #004BA0;
+  --border-danger:  #C60026;
+  --topnav-border:  #e6edf3;
 
-  --topnav-border:  var(--ds-n100);
+  /* Accent */
+  --accent: #C60026;
+  --link:   #004BA0;
+
+  /* Focus rings */
+  --focus-ring:        rgba(0, 75, 160, 0.15);
+  --focus-ring-danger: rgba(198, 0, 38, 0.12);
 }
 
 /* ── 3. Dark-mode tokens ──────────────────────────────────────────────────── */
 [data-theme="dark"] {
-  --bg-page:        var(--ds-n900);
-  --bg-card:        var(--ds-n800);
-  --bg-topnav:      var(--ds-n900);
-  --bg-hover:       var(--ds-n700);
-  --bg-input:       var(--ds-n900);
+  /* Backgrounds */
+  --bg-page:    #0d1117;
+  --bg-card:    #161b22;
+  --bg-nav:     #010409;
+  --bg-topnav:  #0d1117;
+  --bg-hover:   #21262d;
+  --bg-input:   #0d1117;
+  --bg-danger:  rgba(198, 0, 38, 0.12);
+  --bg-info:    rgba(0, 75, 160, 0.15);
+  --bg-success: rgba(26, 127, 55, 0.15);
+  --bg-warning: rgba(154, 103, 0, 0.15);
 
-  --text-primary:   var(--ds-n100);
-  --text-secondary: var(--ds-n300);
-  --text-muted:     var(--ds-n400);
-  --text-on-brand:  #ffffff;
-  --text-link:      var(--ds-blue-light);
-  --text-danger:    var(--ds-red-light);
-  --text-success:   #56d364;
-  --text-warning:   #e3b341;
-  --text-placeholder: var(--ds-n500);
+  /* Text */
+  --text-primary:     #e6edf3;
+  --text-secondary:   #8b949e;
+  --text-muted:       #6e7681;
+  --text-link:        #4D9FFF;
+  --text-danger:      #FF1A46;
+  --text-success:     #1a7f37;
+  --text-on-brand:    #ffffff;
+  --text-placeholder: #484f58;
 
-  --border-default: var(--ds-n700);
-  --border-strong:  var(--ds-n600);
-  --border-focus:   var(--ds-blue-light);
+  /* Borders */
+  --border-default: #30363d;
+  --border-strong:  #484f58;
+  --border-focus:   #4D9FFF;
+  --border-danger:  #FF1A46;
+  --topnav-border:  #21262d;
 
-  --topnav-border:  var(--ds-n700);
+  /* Accent */
+  --accent: #E8003A;
+  --link:   #4D9FFF;
 
-  --ds-blue-bg:   rgba(0,75,160,.18);
-  --ds-red-bg:    rgba(198,0,38,.14);
-  --ds-green:     #56d364;
-  --ds-amber:     #e3b341;
-  --ds-red-dim:   #FF1A46;
-  --ds-blue-dim:  var(--ds-blue-light);
+  /* Focus rings */
+  --focus-ring:        rgba(77, 159, 255, 0.20);
+  --focus-ring-danger: rgba(255, 26, 70, 0.20);
 }
 
 /* ── 4. Reset ────────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
-  height: 100%; margin: 0; padding: 0;
-  font-family: var(--ds-font-sans);
-  font-size: 14px; line-height: 1.5;
+  height: 100%; 
+  font-family: var(--font-sans);
+  font-size: var(--text-body); line-height: 1.5;
   color: var(--text-primary);
   background: var(--bg-page);
   -webkit-font-smoothing: antialiased;
