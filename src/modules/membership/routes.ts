@@ -100,6 +100,12 @@ export const membershipRoutes: RouteDefinition[] = [
     permission: 'groups.create',
   },
   {
+    path: '/groups/:id',
+    page: () => import('./pages/GroupDetail'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'groups.view',
+  },
+  {
     path: '/groups/:id/edit',
     page: () => import('./pages/GroupCreate'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
