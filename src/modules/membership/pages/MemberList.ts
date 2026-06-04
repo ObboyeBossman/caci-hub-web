@@ -179,7 +179,7 @@ const CSS = /* css */`
   background: var(--caci-blue-light); border-color: var(--caci-blue);
   color: #fff; box-shadow: 0 5px 18px rgba(0,75,160,0.4);
 }
-@media (max-width: 860px) {
+@media (min-width: 641px) and (max-width: 860px) {
   .ml-btn-label { display: none; }
   .ml-tbtn { padding: 0 10px; }
   .ml-sort-select { min-width: 42px; width: 42px; padding: 0; color: transparent;
@@ -187,13 +187,15 @@ const CSS = /* css */`
   .ml-sort-wrap i { left: 50%; transform: translateX(-50%); }
 }
 @media (max-width: 640px) {
-  .ml-search-wrap { display: none; }
-  .ml-mob-search-btn { display: flex !important; }
-  .ml-toolbar.search-open { flex-wrap: wrap; }
-  .ml-toolbar.search-open .ml-search-wrap {
-    display: flex; width: 100%; max-width: none; order: -1; flex: none;
-  }
-  .ml-toolbar.search-open .ml-mob-search-btn { display: none !important; }
+  .ml-toolbar { flex-wrap: wrap; gap: 8px; }
+  .ml-search-wrap { order: 0; width: 100%; flex: none; max-width: none; }
+  .ml-mob-search-btn { display: none !important; }
+  #ml-toolbar-actions { order: 1; margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .ml-btn-label { display: none; }
+  .ml-tbtn { padding: 0 !important; width: 42px; height: 42px; border-radius: 10px; }
+  .ml-sort-select { min-width: 42px; width: 42px; padding: 0; color: transparent; background-image: none; }
+  .ml-sort-wrap i { left: 50%; transform: translateX(-50%); }
+  .ml-tbtn-primary { width: 42px; height: 42px; }
 }
 
 /* ── Filter banner ──────────────────────────────────────────────── */
@@ -266,6 +268,7 @@ const CSS = /* css */`
   display: grid; gap: 14px;
   grid-template-columns: repeat(2, 1fr);
 }
+@media (max-width: 639px)  { .ml-grid { grid-template-columns: 1fr; gap: 8px; } }
 @media (min-width: 640px)  { .ml-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1024px) { .ml-grid { grid-template-columns: repeat(4, 1fr); } }
 @media (min-width: 1280px) { .ml-grid { grid-template-columns: repeat(5, 1fr); } }
@@ -341,15 +344,21 @@ const CSS = /* css */`
   box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 3.5px rgba(34,197,94,0.45);
 }
 .ml-mob-btn {
-  padding: 5px 10px; border-radius: 7px; font-size: 11px;
-  font-weight: 500; cursor: pointer; border: 1px solid var(--border-default);
-  background: var(--bg-page); color: var(--text-secondary);
-  transition: all 0.15s; font-family: var(--font-sans); white-space: nowrap;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 9px;
+  cursor: pointer; flex-shrink: 0;
+  transition: all 0.15s cubic-bezier(0.16,1,0.3,1);
+  border: 1px solid var(--border-default); background: var(--bg-page);
+  color: var(--text-secondary);
 }
+.ml-mob-btn i { font-size: 16px; }
+.ml-mob-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); color: var(--text-primary); }
+.ml-mob-btn:active { transform: scale(0.93); }
 .ml-mob-btn-edit {
   background: rgba(0,75,160,0.08); border-color: rgba(0,75,160,0.25);
   color: var(--caci-blue);
 }
+.ml-mob-btn-edit:hover { background: rgba(0,75,160,0.15); border-color: rgba(0,75,160,0.5); }
 
 /* ── Empty / results ────────────────────────────────────────────── */
 .ml-results-bar {
@@ -862,28 +871,33 @@ function _gridCard(m: MemberView, i: number): string {
   <div class="ml-card-mob ml-fade-up" style="animation-delay:${delay}ms;" data-member-id="${m.id}">
     <div style="position:relative;flex-shrink:0;">
       <div class="ml-card-mob-avatar" style="background:${bg};">${ini}</div>
-      <div style="position:absolute;bottom:-1px;right:-1px;width:13px;height:13px;
-                  border-radius:50%;background:${dot};
-                  border:2px solid var(--bg-card);"></div>
+      <div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;
+                  border-radius:50%;background:var(--bg-card);border:2px solid var(--bg-card);
+                  display:flex;align-items:center;justify-content:center;font-size:10px;color:${gc};">${gi}</div>
     </div>
     <div style="flex:1;min-width:0;">
-      <h3 style="font-size:13px;font-weight:600;color:var(--text-primary);
-                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+      <h3 style="font-size:13.5px;font-weight:600;color:var(--text-primary);
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;">
         ${m.first_name ?? ''} ${m.last_name ?? ''}
       </h3>
       <p style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);
-                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">
         ${m.membership_number ?? '—'}
       </p>
-      <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
-        ${m.occupation ?? 'Member'} · ${membershipBadgeHtml(m.membership_status ?? '')}
+      <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">
+        <i class="bi bi-person" style="font-size:11px;"></i>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.occupation ?? 'Member'}</span>
       </div>
     </div>
-    <div style="display:flex;gap:6px;flex-shrink:0;">
+    <div style="display:flex;gap:7px;flex-shrink:0;">
       <button class="ml-mob-btn" data-member-view="${m.id}"
-              onclick="event.stopPropagation()">View</button>
+              onclick="event.stopPropagation()" title="View">
+        <i class="bi bi-eye"></i>
+      </button>
       <button class="ml-mob-btn ml-mob-btn-edit" data-member-edit="${m.id}"
-              onclick="event.stopPropagation()">Edit</button>
+              onclick="event.stopPropagation()" title="Edit">
+        <i class="bi bi-pencil"></i>
+      </button>
     </div>
   </div>`
 }

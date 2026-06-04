@@ -458,6 +458,33 @@ textarea.am-inp { height: auto; padding: 10px 12px; resize: vertical; min-height
   box-shadow: 0 0 0 10px rgba(26,127,55,0.08), 0 0 28px rgba(26,127,55,0.25);
 }
 
+/* ── Page header (breadcrumb + queue pill on same row) ──────────── */
+.caci-addmem-head {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 16px 12px;
+}
+@media (min-width: 480px) {
+  .caci-addmem-head { padding: 0 20px 12px; }
+}
+.caci-addmem-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+/* bc wrapper must flex-grow so Queue pill stays pinned right */
+.caci-addmem-toolbar > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+/* Neutralise any block-level bottom margin renderBreadcrumbs may inject */
+.caci-addmem-toolbar nav,
+.caci-addmem-toolbar .breadcrumbs,
+.caci-addmem-toolbar [class*="breadcrumb"] {
+  margin-bottom: 0 !important;
+}
+
 /* Animations */
 @keyframes am-fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 @keyframes am-shake { 0%,100% { transform:translateX(0); } 20%,60% { transform:translateX(-5px); } 40%,80% { transform:translateX(5px); } }
@@ -525,25 +552,35 @@ async function _render(container: HTMLElement): Promise<void> {
     _photoDataUrl = null
     injectCSS()
 
-    // Breadcrumbs
+    // Breadcrumbs + queue pill — same constrained row as the form
+    container.innerHTML = ''
+
+    const pageHead = document.createElement('div')
+    pageHead.className = 'caci-addmem-head'
+
     const bc = document.createElement('div')
+    bc.style.cssText = 'flex:1;min-width:0;'
     renderBreadcrumbs(bc, [
         { label: 'Members', path: '/members' },
         { label: 'Add Member' },
     ])
-    container.innerHTML = ''
-    container.appendChild(bc)
 
-    // Queue pill header row
-    const topBar = document.createElement('div')
-    topBar.style.cssText = 'display:flex;align-items:center;justify-content:flex-end;padding:0 0 12px;max-width:1060px;margin:0 auto;'
-    topBar.innerHTML = `
-    <button class="am-queue-pill" id="am-queue-pill-btn">
+    const toolbar = document.createElement('div')
+    toolbar.className = 'caci-addmem-toolbar'
+
+    const queueBtn = document.createElement('button')
+    queueBtn.className = 'am-queue-pill'
+    queueBtn.id = 'am-queue-pill-btn'
+    queueBtn.innerHTML = `
       <i class="bi bi-inbox" style="font-size:15px;"></i>
       Queue
       <span class="am-q-badge" id="am-q-badge" style="display:none;">0</span>
-    </button>`
-    container.appendChild(topBar)
+    `
+
+    toolbar.appendChild(bc)
+    toolbar.appendChild(queueBtn)
+    pageHead.appendChild(toolbar)
+    container.appendChild(pageHead)
 
     // Main wrap
     const wrap = document.createElement('div')
