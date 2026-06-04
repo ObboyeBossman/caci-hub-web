@@ -14,6 +14,7 @@ export type MemberView = Database['public']['Views']['members_view']['Row'] & {
   assembly_id: string;
   first_name: string;
   last_name: string;
+  other_names?: string | null;
   gender: Database['public']['Enums']['gender_type'];
   is_active: boolean;
   membership_status: Database['public']['Enums']['membership_status'];
@@ -44,6 +45,7 @@ export interface CreateMemberPayload {
   title?:                         string | null
   first_name:                     string
   last_name:                      string
+  other_names?:                   string | null
   gender:                         Gender
   membership_status:              MemberStatus   // default: 'visitor'
   date_of_birth?:                 string | null  // ISO 8601 date string
@@ -61,6 +63,7 @@ export interface CreateMemberPayload {
   emergency_contact_relationship?: string | null
   join_date?:                     string | null  // ISO 8601 date string
   household_id?:                  string | null
+  pastoral_notes?:                string | null
 }
 
 // ── UpdateMemberPayload — mirrors update_member_request.dart UpdateMemberRequest
@@ -69,7 +72,6 @@ export interface CreateMemberPayload {
 // is handled here by using T | null — pass null to clear, omit to skip.
 export type UpdateMemberPayload = Partial<CreateMemberPayload> & {
   // Admin/pastor only — DB enforces 42501 for other roles
-  pastoral_notes?:    string | null
   is_active?:         boolean
   deleted_at?:        string | null   // soft delete timestamp
   profile_photo_url?: string | null

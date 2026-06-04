@@ -14,7 +14,8 @@
       "@core/*":    ["./src/core/*"],
       "@shared/*":  ["./src/shared/*"],
       "@types/*":   ["./src/types/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@modules/*": ["./src/modules/*"],
+      "@shell/*":   ["./src/shell/*"]
     },
     "useDefineForClassFields": true,
     "isolatedModules": true,

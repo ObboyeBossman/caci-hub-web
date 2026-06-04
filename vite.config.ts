@@ -43,6 +43,7 @@ export default defineConfig({
       '@shared': resolve(__dirname, 'src/shared'),
       '@types': resolve(__dirname, 'src/types'),
       '@modules': resolve(__dirname, 'src/modules'),
+      '@shell': resolve(__dirname, 'src/shell'),
     },
   },
   build: {
