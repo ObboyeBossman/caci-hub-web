@@ -34,7 +34,7 @@ import { formatName } from './utils/member-helpers'
 // ── PostgREST embed — mirrors SupabaseMemberDataSource._memberViewSelect ──────
 // Join household name inline so the view row includes households.family_name.
 const MEMBER_VIEW_SELECT =
-  '*, households!members_household_id_fkey(id, family_name)'
+  '*, households!members_household_id_fkey(id, family_name), assemblies(name)'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

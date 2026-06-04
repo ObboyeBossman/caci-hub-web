@@ -26,9 +26,10 @@ const CSS = /* css */`
 .em-wrap {
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 16px 100px;
+  padding: 14px 16px 100px;
 }
-@media (min-width: 640px) { .em-wrap { padding: 0 24px 100px; } }
+@media (min-width: 480px) { .em-wrap { padding: 18px 20px 100px; } }
+@media (min-width: 640px) { .em-wrap { padding: 18px 24px 100px; } }
 
 /* ── Section card ───────────────────────────────────────────────── */
 .em-card {
@@ -337,20 +338,22 @@ function _mountPage(container: HTMLElement): void {
     const ini = initials(m.first_name ?? '', m.last_name ?? '')
     const bg = avatarColor(fullName)
 
-    // Breadcrumbs
-    const bc = document.createElement('div')
-    renderBreadcrumbs(bc, [
+    container.innerHTML = ''
+
+    // Wrap — breadcrumb toolbar + page content share the same max-width
+    const wrap = document.createElement('div')
+    wrap.className = 'em-wrap'
+
+    renderBreadcrumbs(wrap, [
         { label: 'Members', path: '/members' },
         { label: fullName, path: `/members/${m.id}` },
         { label: 'Edit' },
     ])
 
-    container.innerHTML = ''
-    container.appendChild(bc)
+    const pageDiv = document.createElement('div')
+    pageDiv.innerHTML = _buildPage(m, fullName, ini, bg)
+    while (pageDiv.firstChild) wrap.appendChild(pageDiv.firstChild)
 
-    const wrap = document.createElement('div')
-    wrap.className = 'em-wrap'
-    wrap.innerHTML = _buildPage(m, fullName, ini, bg)
     container.appendChild(wrap)
 
     // Append save bar to body (fixed positioning)

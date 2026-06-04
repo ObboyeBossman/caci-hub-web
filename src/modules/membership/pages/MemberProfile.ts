@@ -27,9 +27,10 @@ const CSS = /* css */`
 .mp-wrap {
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 16px 64px;
+  padding: 14px 16px 64px;
 }
-@media (min-width: 640px) { .mp-wrap { padding: 0 24px 64px; } }
+@media (min-width: 480px) { .mp-wrap { padding: 18px 20px 64px; } }
+@media (min-width: 640px) { .mp-wrap { padding: 18px 24px 64px; } }
 
 /* ── Hero ───────────────────────────────────────────────────── */
 .mp-hero {
@@ -290,19 +291,39 @@ function _mount(container: HTMLElement): void {
   const ini      = initials(m.first_name ?? '', m.last_name ?? '')
   const bg       = avatarColor(fullName)
 
-  // Breadcrumbs
-  const bc = document.createElement('div')
-  renderBreadcrumbs(bc, [
-    { label: 'Members', path: '/members' },
-    { label: fullName },
-  ])
-
   container.innerHTML = ''
-  container.appendChild(bc)
 
+  // Wrap — breadcrumb toolbar + page content share the same max-width
   const wrap = document.createElement('div')
   wrap.className = 'mp-wrap'
-  wrap.innerHTML = _buildPage(m, fullName, ini, bg, canEdit, canNotes)
+
+  // Build trailing action buttons (only when canEdit)
+  let trailing: HTMLElement | undefined
+  if (canEdit) {
+    trailing = document.createElement('div')
+    trailing.style.cssText = 'display:flex;gap:8px;align-items:center;'
+    trailing.innerHTML = `
+      <button class="mp-act-btn mp-act-btn-danger" id="mp-deactivate-btn"
+              style="${m.is_active ? '' : 'display:none;'}">
+        <i class="bi bi-person-dash" style="font-size:14px;"></i>
+        <span class="mp-btn-label">Deactivate</span>
+      </button>
+      <button class="mp-act-btn mp-act-btn-primary" id="mp-edit-btn">
+        <i class="bi bi-pencil-fill" style="font-size:13px;"></i>
+        Edit Member
+      </button>
+    `
+  }
+
+  renderBreadcrumbs(wrap, [
+    { label: 'Members', path: '/members' },
+    { label: fullName },
+  ], { trailing })
+
+  const pageDiv = document.createElement('div')
+  pageDiv.innerHTML = _buildPage(m, fullName, ini, bg, canEdit, canNotes)
+  while (pageDiv.firstChild) wrap.appendChild(pageDiv.firstChild)
+
   container.appendChild(wrap)
 
   _bindEvents(container, m, canEdit)
@@ -368,23 +389,6 @@ function _buildPage(
   const householdId   = m.household_id
 
   return /* html */`
-<!-- Toolbar -->
-<div class="mp-toolbar">
-  <div style="min-width:0;"></div>
-  <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-    ${canEdit ? `
-    <button class="mp-act-btn mp-act-btn-danger" id="mp-deactivate-btn"
-            style="${m.is_active ? '' : 'display:none;'}" title="Deactivate member">
-      <i class="bi bi-person-dash" style="font-size:14px;"></i>
-      <span class="mp-btn-label">Deactivate</span>
-    </button>
-    <button class="mp-act-btn mp-act-btn-primary" id="mp-edit-btn">
-      <i class="bi bi-pencil-fill" style="font-size:13px;"></i>
-      Edit Member
-    </button>` : ''}
-  </div>
-</div>
-
 <!-- Hero -->
 <div class="mp-hero mp-fade-up" style="animation-delay:40ms; margin-bottom:16px;">
   <div class="mp-hero-stripe"></div>
@@ -454,7 +458,7 @@ function _buildPage(
           ${_field('Title',          m.title)}
           ${_field('First Name',     m.first_name)}
           ${_field('Last Name',      m.last_name)}
-          ${_field('Other Names',    (m as any).other_names)}
+          ${_field('Other Names',    m.other_names)}
           ${_field('Date of Birth',  m.date_of_birth ? formatDate(m.date_of_birth) : null)}
           ${_field('Gender',         _cap(m.gender))}
           ${_field('Marital Status', _cap(m.marital_status ?? null))}
@@ -721,7 +725,7 @@ function _buildPage(
         <div class="mp-field">
           <span class="mp-field-label">Assembly</span>
           <span class="mp-field-value" style="font-size:12.5px;">
-            ${(m as any).assembly_id ?? '—'}
+            ${(m as any).assemblies?.name ?? m.assembly_id ?? '—'}
           </span>
         </div>
       </div>

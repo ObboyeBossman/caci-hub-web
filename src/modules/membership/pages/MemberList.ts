@@ -608,6 +608,9 @@ function buildShell(): string {
               style="display:none;width:40px;padding:0;">
         <i class="bi bi-search" style="font-size:15px;"></i>
       </button>
+
+      <div style="flex: 1;"></div>
+      
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;" id="ml-toolbar-actions">
         <div class="ml-sort-wrap">
           <i class="bi bi-arrow-down-up"></i>
