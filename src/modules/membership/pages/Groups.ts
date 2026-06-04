@@ -29,6 +29,7 @@ import {
   createGroup,
   softDeleteGroup,
 } from '../groups.repository'
+import { getMemberCounts } from '../repository'
 import type { Group, GroupType, CreateGroupPayload } from '../../../types/group.types'
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
@@ -37,6 +38,41 @@ const CSS = /* css */`
 /* ══════════════════════════════════════════════════════
    GROUPS PAGE  — scoped under .grp-page
 ══════════════════════════════════════════════════════ */
+
+/* ── Tab bar ────────────────────────────────────────────────────── */
+.ml-tab-bar {
+  display: inline-flex; align-items: center;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 999px; padding: 4px; gap: 2px;
+  overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+  max-width: 100%;
+}
+.ml-tab-bar::-webkit-scrollbar { display: none; }
+.ml-tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 18px; border-radius: 999px; border: none;
+  background: transparent; color: var(--text-secondary);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+  font-family: var(--font-sans); flex-shrink: 0;
+}
+.ml-tab-btn:hover:not(.active) { color: var(--text-primary); background: var(--bg-hover); }
+.ml-tab-btn.active {
+  background: var(--bg-page); color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.ml-tab-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 18px; padding: 0 5px; border-radius: 99px;
+  background: var(--bg-page); border: 1px solid var(--border-default);
+  font-size: 10.5px; font-weight: 600; color: var(--text-secondary);
+}
+.ml-tab-btn.active .ml-tab-count {
+  background: rgba(0,75,160,0.1); border-color: rgba(0,75,160,0.25);
+  color: var(--caci-blue);
+}
 
 /* Page wrapper */
 .grp-page {
@@ -1287,8 +1323,14 @@ const Groups: PageModule = {
     on('group:deleted', _onGroupDeleted)
 
     let groups: Group[] = []
+    let totalMembers = 0
     try {
-      groups = await listGroups({ includeDeleted: false })
+      const [_groupsRes, _counts] = await Promise.all([
+        listGroups({ includeDeleted: false }),
+        getMemberCounts().catch(() => ({ total: 0 }))
+      ])
+      groups = _groupsRes
+      totalMembers = _counts.total
     } catch (err) {
       renderError(container, err, { retry: () => Groups.render(container) })
       return
@@ -1301,6 +1343,33 @@ const Groups: PageModule = {
 
     container.innerHTML = /* html */`
       <div class="grp-page">
+
+        <!-- Tab bar -->
+        <div style="display:flex;justify-content:center;margin-bottom:20px;">
+          <div class="ml-tab-bar">
+            <button class="ml-tab-btn" data-tab="members">
+              <i class="bi bi-people-fill" style="font-size:15px;"></i>
+              All Members
+              <span class="ml-tab-count" id="ml-total-tab-count">—</span>
+            </button>
+            <button class="ml-tab-btn active" data-tab="groups">
+              <i class="bi bi-diagram-3-fill" style="font-size:15px;"></i>
+              Groups &amp; Units
+            </button>
+            <button class="ml-tab-btn" data-tab="pastoral">
+              <i class="bi bi-heart-fill" style="font-size:15px;"></i>
+              Pastoral Care
+            </button>
+            <button class="ml-tab-btn" data-tab="reports">
+              <i class="bi bi-bar-chart-fill" style="font-size:15px;"></i>
+              Reports
+            </button>
+            <button class="ml-tab-btn" data-tab="audit">
+              <i class="bi bi-clock-history" style="font-size:15px;"></i>
+              Audit Logs
+            </button>
+          </div>
+        </div>
 
         <!-- Header -->
         <div class="grp-page-header">
@@ -1383,6 +1452,20 @@ const Groups: PageModule = {
     const openCreate = () => _openCreateModal()
     container.querySelector('#grp-create-btn')?.addEventListener('click', openCreate)
     container.querySelector('#grp-create-btn-toolbar')?.addEventListener('click', openCreate)
+
+    // Tab bar routing
+    container.querySelectorAll<HTMLElement>('.ml-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset['tab']
+        if (tab === 'members')  navigate('/members')
+        if (tab === 'pastoral') navigate('/pastoral-care')
+        if (tab === 'reports')  navigate('/reports')
+        if (tab === 'audit')    navigate('/members')
+      })
+    })
+
+    const tabCount = container.querySelector('#ml-total-tab-count')
+    if (tabCount) tabCount.textContent = String(totalMembers)
   },
 
   destroy(): void {
