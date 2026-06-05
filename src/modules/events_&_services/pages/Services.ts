@@ -2511,6 +2511,14 @@ function _renderTabBar(): void {
       const tab = btn.dataset['tab']!
       if (tab === _activeTab) return
       _activeTab = tab
+      
+      // Update URL silently
+      history.replaceState(null, '', `#/services?tab=${tab}`)
+      // Sync sidebar highlight
+      import('../../../shell/Shell').then(({ updateActiveNav }) => {
+        updateActiveNav(`/services?tab=${tab}`)
+      })
+
       _renderTabBar()
       _renderActiveTab()
     })
@@ -2540,7 +2548,9 @@ const ServicesPage: PageModule = {
   async render(container: HTMLElement): Promise<void> {
     _destroyed   = false
     _container   = container
-    _activeTab   = 'schedule'
+    
+    const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '')
+    _activeTab   = urlParams.get('tab') || 'schedule'
 
     // Reset state
     Object.assign(_state, {

@@ -516,9 +516,9 @@ export class _Sidebar {
     const membershipItems = permitted.filter(i =>
       ['/members', '/groups', '/audit-logs', '/reports'].includes(i.path)
     )
-    const servicesItems = permitted.filter(i =>
-      ['/attendance', '/services', '/service-templates'].includes(i.path)
-    )
+    const servicesParent = permitted.find(i => i.path === '/services')
+    const servicesTabs   = permitted.filter(i => i.parentPath === '/services')
+    const servicesItems  = servicesParent ? [servicesParent] : []
     const financeItems = permitted.filter(i => i.path.startsWith('/finance'))
     const accountsItems = permitted.filter(i =>
       ['/admin/users', '/admin/roles', '/admin/audit'].includes(i.path)
@@ -560,23 +560,25 @@ export class _Sidebar {
         </div>
       ` : this._navItem({ path: '/members', icon: 'bi-people-fill', label: 'All Members' })}
 
-      ${servicesItems.length > 0 ? /* html */`
-        <div class="sb-accord-item ${this._anyActive(servicesItems) ? 'open' : ''}" data-accord="services">
-          <button class="sb-nav-item ${this._anyActive(servicesItems) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="services">
+      ${servicesParent ? /* html */`
+        <div class="sb-accord-item ${this._anyActiveQ([servicesParent, ...servicesTabs]) ? 'open' : ''}" data-accord="services">
+          <button class="sb-nav-item ${this._anyActiveQ([servicesParent, ...servicesTabs]) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="services">
             <i class="bi bi-calendar-event-fill" aria-hidden="true"></i>
             <span class="sb-nav-item-label">Services &amp; Events</span>
             <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
           </button>
           <div class="sb-accord-content">
             <div class="sb-accord-sub">
-              ${servicesItems.map(item => /* html */`
-                <button class="sb-sub-item ${this._isActive(item.path) ? 'active' : ''}"
-                  data-route="${item.path}"
-                  ${COMING_SOON_PATHS.has(item.path) ? 'data-coming-soon="true"' : ''}
+              ${servicesTabs.length > 0 ? servicesTabs.map(item => /* html */`
+                <button class="sb-sub-item ${this._isActiveQ(item.path) ? 'active' : ''}"
+                  data-route-full="${item.path}"
                   type="button">
                   ${item.label}
                 </button>
-              `).join('')}
+              `).join('') : `
+                <button class="sb-sub-item ${this._isActive('/services') ? 'active' : ''}"
+                  data-route="/services" type="button">All Services</button>
+              `}
             </div>
           </div>
         </div>
@@ -672,9 +674,9 @@ export class _Sidebar {
     el.querySelector('#sb-close-btn')?.addEventListener('click', () => closeDrawer())
 
     // Nav items (routes + coming soon)
-    el.querySelectorAll<HTMLElement>('[data-route]').forEach(btn => {
+    el.querySelectorAll<HTMLElement>('[data-route], [data-route-full]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const route = btn.dataset['route']
+        const route = btn.dataset['route'] || btn.dataset['routeFull']
         if (!route) return
         if (btn.dataset['comingSoon'] === 'true') {
           closeDrawer()
@@ -762,6 +764,17 @@ export class _Sidebar {
 
   private _anyActive(items: SidebarItem[]): boolean {
     return items.some(i => this._isActive(i.path))
+  }
+
+  private _isActiveQ(pathWithQuery: string): boolean {
+    const rawHash = location.hash.replace(/^#/, '')
+    // Default to schedule tab if no tab is specified
+    if (rawHash === '/services' && pathWithQuery === '/services?tab=schedule') return true
+    return rawHash === pathWithQuery || rawHash.startsWith(pathWithQuery + '&')
+  }
+
+  private _anyActiveQ(items: SidebarItem[]): boolean {
+    return items.some(i => this._isActive(i.path.split('?')[0]))
   }
 }
 

@@ -61,6 +61,7 @@ export interface SidebarItem {
   permission: string        // e.g. 'membership.view', 'finance.view'
   order:      number        // lower = higher in sidebar; 1 = top, 99 = bottom
   badge?:     string | null // optional badge text e.g. unread count
+  parentPath?: string       // if set, this item is a sub-item of the specified parent
 }
 
 // ── WidgetDefinition — mirrors module_manifest.dart widgets list ──────────────
