@@ -517,7 +517,7 @@ export class _Sidebar {
       ['/members', '/groups', '/audit-logs', '/reports'].includes(i.path)
     )
     const servicesItems = permitted.filter(i =>
-      ['/attendance'].includes(i.path)
+      ['/attendance', '/services', '/service-templates'].includes(i.path)
     )
     const financeItems = permitted.filter(i => i.path.startsWith('/finance'))
     const otherItems = permitted.filter(i =>
