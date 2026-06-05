@@ -10,7 +10,6 @@
 import './styles/theme.css'
 import './modules/auth/styles/auth.css'
 import './modules/settings/styles/settings.css'
-import './modules/events_&_services/styles/events_&_services.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'notyf/notyf.min.css'
