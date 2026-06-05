@@ -668,13 +668,14 @@ export class _Sidebar {
     el.querySelector('#sb-role-member')?.addEventListener('click', () => this._switchView('member'))
     el.querySelector('#sb-role-admin')?.addEventListener('click', () => this._switchView('admin'))
 
-    // Accordion triggers
+    // Accordion triggers — click to toggle, hover to expand
     el.querySelectorAll<HTMLElement>('[data-accord-trigger]').forEach(btn => {
-      btn.addEventListener('click', () => {
+      const getParent = () => {
         const key = btn.dataset['accordTrigger']!
-        const parent = el.querySelector<HTMLElement>(`[data-accord="${key}"]`)
-        parent?.classList.toggle('open')
-      })
+        return el.querySelector<HTMLElement>(`[data-accord="${key}"]`)
+      }
+      btn.addEventListener('click', () => getParent()?.classList.toggle('open'))
+      btn.addEventListener('mouseenter', () => getParent()?.classList.add('open'))
     })
 
     // Settings

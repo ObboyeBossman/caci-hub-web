@@ -309,12 +309,19 @@ export class _Toolbar {
   }
 
   private _bindEvents(): void {
-    // Hamburger — opens drawer
+    // Hamburger — opens drawer (click toggles, hover always opens)
     const hamburger = this._el.querySelector<HTMLElement>('#topnav-hamburger')
     hamburger?.addEventListener('click', () => {
       toggleDrawer()
       const isOpen = document.getElementById('shell-sidebar')?.classList.contains('drawer-open') ?? false
       hamburger.setAttribute('aria-expanded', String(isOpen))
+    })
+    hamburger?.addEventListener('mouseenter', () => {
+      const sidebar = document.getElementById('shell-sidebar')
+      if (!sidebar?.classList.contains('drawer-open')) {
+        import('./Drawer').then(({ openDrawer }) => openDrawer())
+        hamburger.setAttribute('aria-expanded', 'true')
+      }
     })
 
     // Assembly info Popover
