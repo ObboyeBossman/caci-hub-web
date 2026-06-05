@@ -13,6 +13,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { debounce } from '@shared/utils/debounce'
 import { avatarColor, initials, fmtDate } from '../utils/member-helpers'
 import type { MemberView, MemberFilter } from '../../../types/member.types'
+import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 
@@ -28,41 +29,6 @@ const CSS = /* css */`
 }
 @media (max-width: 640px) {
   .ml-wrap { padding: 12px 12px 48px; }
-}
-
-/* ── Tab bar ────────────────────────────────────────────────────── */
-.ml-tab-bar {
-  display: inline-flex; align-items: center;
-  background: var(--bg-card); border: 1px solid var(--border-default);
-  border-radius: 999px; padding: 4px; gap: 2px;
-  overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
-  max-width: 100%;
-}
-.ml-tab-bar::-webkit-scrollbar { display: none; }
-.ml-tab-btn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 18px; border-radius: 999px; border: none;
-  background: transparent; color: var(--text-secondary);
-  font-size: 13px; font-weight: 500; cursor: pointer;
-  transition: all 0.2s; white-space: nowrap;
-  font-family: var(--font-sans); flex-shrink: 0;
-}
-.ml-tab-btn:hover:not(.active) { color: var(--text-primary); background: var(--bg-hover); }
-.ml-tab-btn.active {
-  background: var(--bg-page); color: var(--text-primary);
-  font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
-}
-.ml-tab-count {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 20px; height: 18px; padding: 0 5px; border-radius: 99px;
-  background: var(--bg-page); border: 1px solid var(--border-default);
-  font-size: 10.5px; font-weight: 600; color: var(--text-secondary);
-}
-.ml-tab-btn.active .ml-tab-count {
-  background: rgba(0,75,160,0.1); border-color: rgba(0,75,160,0.25);
-  color: var(--caci-blue);
 }
 
 /* ── Stat cards ─────────────────────────────────────────────────── */
@@ -531,32 +497,7 @@ function buildShell(): string {
   return /* html */`
 <div class="ml-wrap">
 
-  <!-- Tab bar -->
-  <div style="display:flex;justify-content:center;margin-bottom:20px;">
-    <div class="ml-tab-bar">
-      <button class="ml-tab-btn active" data-tab="members">
-        <i class="bi bi-people-fill" style="font-size:15px;"></i>
-        All Members
-        <span class="ml-tab-count" id="ml-total-tab-count">—</span>
-      </button>
-      <button class="ml-tab-btn" data-tab="groups">
-        <i class="bi bi-diagram-3-fill" style="font-size:15px;"></i>
-        Groups &amp; Units
-      </button>
-      <button class="ml-tab-btn" data-tab="pastoral">
-        <i class="bi bi-heart-fill" style="font-size:15px;"></i>
-        Pastoral Care
-      </button>
-      <button class="ml-tab-btn" data-tab="reports">
-        <i class="bi bi-bar-chart-fill" style="font-size:15px;"></i>
-        Reports
-      </button>
-      <button class="ml-tab-btn" data-tab="audit">
-        <i class="bi bi-clock-history" style="font-size:15px;"></i>
-        Audit Logs
-      </button>
-    </div>
-  </div>
+  ${renderMembershipTab('members', { members: _counts.total })}
 
   <!-- Stat cards -->
   <div class="ml-stats-grid" id="ml-stats-grid" style="margin-bottom:20px;">
@@ -1091,17 +1032,9 @@ function _bindEvents(): void {
   _on(document.getElementById('ml-add-btn') as HTMLElement, 'click', () => navigate('/members/add'))
 
   // Tab bar
-  document.querySelectorAll<HTMLElement>('.ml-tab-btn').forEach(btn => {
-    _on(btn, 'click', () => {
-      document.querySelectorAll('.ml-tab-btn').forEach(b => b.classList.remove('active'))
-      btn.classList.add('active')
-      const tab = btn.dataset.tab
-      if (tab === 'groups')   navigate('/groups')
-      if (tab === 'pastoral') navigate('/pastoral-care')
-      if (tab === 'reports')  navigate('/reports')
-      if (tab === 'audit')    navigate('/members')  // placeholder
-    })
-  })
+  if (_container) {
+    bindMembershipTabEvents(_container)
+  }
 
   // Mobile search toggle
   const mobBtn = document.getElementById('ml-mob-search-btn')

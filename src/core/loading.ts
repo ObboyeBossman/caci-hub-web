@@ -15,8 +15,8 @@ import { can } from './authorization/authorization-service'
 // Modules (same list as before — kept here so main.ts stays minimal)
 import AuthModule from '../modules/auth/index'
 import MembershipModule from '../modules/membership/index'
-import AdminModule from '../modules/admin/index'
-import ServicesModule from '../modules/services/index'
+import AdminModule from '../modules/accouts_&_roles/index'
+import ServicesModule from '../modules/events_&_services/index'
 import FinanceModule from '../modules/finance/index'
 import PastoralModule from '../modules/pastoral/index'
 

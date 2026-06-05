@@ -9,7 +9,6 @@
 
 import './styles/theme.css'
 import './modules/auth/styles/auth.css'
-import './modules/membership/styles/membership.css'
 import './modules/settings/styles/settings.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
