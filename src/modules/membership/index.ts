@@ -62,13 +62,7 @@ const MembershipModule: ModuleManifest = {
       permission: 'groups.view',
       order:      30,
     },
-    {
-      label:      'Attendance',
-      path:       '/attendance',
-      icon:       'calendar-check-fill',
-      permission: 'members.view',
-      order:      35,
-    },
+
     {
       label:      'Audit Logs',
       path:       '/audit-logs',
