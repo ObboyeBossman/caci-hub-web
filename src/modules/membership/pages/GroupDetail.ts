@@ -49,12 +49,15 @@ const CSS = /* css */`
    GROUP DETAIL PAGE  — scoped under .gd-*
 ══════════════════════════════════════════════════════ */
 
+/* Page wrapper */
 .gd-page {
   padding: var(--space-xl) var(--space-2xl);
   max-width: 1400px;
   font-family: var(--font-sans);
+  margin: 0 auto;
 }
 @media (max-width: 640px) { .gd-page { padding: var(--space-lg) var(--space-md); } }
+
 
 /* ── Page header ── */
 .gd-page-header {
@@ -670,25 +673,7 @@ function _renderPage(): void {
     <!-- Breadcrumbs injected via renderBreadcrumbs below -->
     <div id="gd-breadcrumbs"></div>
 
-    <!-- Page header -->
-    <div class="gd-page-header">
-      <div class="gd-header-left">
-        <button class="gd-back" id="gd-back-btn"><i class="bi bi-arrow-left"></i> Groups &amp; Units</button>
-        <div class="gd-title-row">
-          <div class="gd-title-icon" style="background:${ti.bg};border:1px solid ${ti.border};">
-            <i class="bi ${ti.icon}" style="color:${ti.color};"></i>
-          </div>
-          <div>
-            <div class="gd-title-name">${_group.name}</div>
-            <div class="gd-title-asm">${ti.label}</div>
-          </div>
-        </div>
-      </div>
-      <div class="gd-header-actions">
-        ${canEdit ? `<button class="gd-btn" id="gd-edit-btn"><i class="bi bi-pencil"></i> Edit</button>` : ''}
-        ${canManage ? `<button class="gd-btn gd-btn-primary" id="gd-add-member-btn"><i class="bi bi-person-plus"></i> Add Member</button>` : ''}
-      </div>
-    </div>
+    <!-- Page header removed (actions moved to breadcrumbs) -->
 
     <!-- Tab bar -->
     <div class="gd-tab-bar">
@@ -1013,10 +998,27 @@ function _renderPage(): void {
 
   // ── Breadcrumbs ──
   const breadcrumbEl = _container.querySelector<HTMLElement>('#gd-breadcrumbs')!
+  const trailingActions = document.createElement('div')
+  trailingActions.className = 'gd-header-actions'
+  if (canEdit) {
+    const btn = document.createElement('button')
+    btn.className = 'gd-btn'
+    btn.id = 'gd-edit-btn'
+    btn.innerHTML = `<i class="bi bi-pencil"></i> Edit`
+    trailingActions.appendChild(btn)
+  }
+  if (canManage) {
+    const btn = document.createElement('button')
+    btn.className = 'gd-btn gd-btn-primary'
+    btn.id = 'gd-add-member-btn'
+    btn.innerHTML = `<i class="bi bi-person-plus"></i> Add Member`
+    trailingActions.appendChild(btn)
+  }
+
   renderBreadcrumbs(breadcrumbEl, [
     { label: 'Groups & Units', path: '/groups' },
     { label: _group.name },
-  ])
+  ], { trailing: trailingActions })
 
   // ── Bind events ──
   _bindEvents()

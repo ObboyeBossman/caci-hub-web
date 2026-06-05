@@ -119,12 +119,6 @@ export const membershipRoutes: RouteDefinition[] = [
     middleware: ['auth', 'mustChangePassword', 'permissions'],
     permission: 'members.view',
   },
-  {
-    path: '/attendance/record',
-    page: () => import('./pages/RecordAttendance'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
-  },
 
   // ── Pastoral Care ─────────────────────────────────────────────────────────
   {

@@ -351,7 +351,7 @@ function _injectSidebarCSS(): void {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMING_SOON_PATHS = new Set([
-  '/attendance', '/groups', '/pastoral-care', '/pastoral', '/reports',
+  '/pastoral-care', '/pastoral', '/reports', '/audit-logs',
   '/contributions', '/calendar', '/announcements', '/profile', '/my-attendance',
 ])
 
@@ -513,13 +513,17 @@ export class _Sidebar {
   private _renderAdminNav(user: any, permitted: ReturnType<typeof getSidebarItems>): string {
 
     // Build accordion groups from registered modules
-    // membership module items: All Members, Attendance, Groups & Units, Pastoral Care, Reports
     const membershipItems = permitted.filter(i =>
-      ['/members', '/attendance', '/groups', '/pastoral-care', '/pastoral', '/reports'].includes(i.path)
+      ['/members', '/groups', '/audit-logs', '/reports'].includes(i.path)
+    )
+    const servicesItems = permitted.filter(i =>
+      ['/attendance'].includes(i.path)
     )
     const financeItems = permitted.filter(i => i.path.startsWith('/finance'))
     const otherItems = permitted.filter(i =>
-      !membershipItems.includes(i) && !financeItems.includes(i)
+      !membershipItems.includes(i) &&
+      !servicesItems.includes(i) &&
+      !financeItems.includes(i)
     )
 
     // Quick actions (always shown)
@@ -551,6 +555,28 @@ export class _Sidebar {
           </div>
         </div>
       ` : this._navItem({ path: '/members', icon: 'bi-people-fill', label: 'All Members' })}
+
+      ${servicesItems.length > 0 ? /* html */`
+        <div class="sb-accord-item ${this._anyActive(servicesItems) ? 'open' : ''}" data-accord="services">
+          <button class="sb-nav-item ${this._anyActive(servicesItems) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="services">
+            <i class="bi bi-calendar-event-fill" aria-hidden="true"></i>
+            <span class="sb-nav-item-label">Services &amp; Events</span>
+            <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="sb-accord-content">
+            <div class="sb-accord-sub">
+              ${servicesItems.map(item => /* html */`
+                <button class="sb-sub-item ${this._isActive(item.path) ? 'active' : ''}"
+                  data-route="${item.path}"
+                  ${COMING_SOON_PATHS.has(item.path) ? 'data-coming-soon="true"' : ''}
+                  type="button">
+                  ${item.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      ` : ''}
 
       ${financeItems.length > 0 ? /* html */`
         <div class="sb-accord-item ${this._anyActive(financeItems) ? 'open' : ''}" data-accord="finance">

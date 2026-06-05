@@ -56,13 +56,6 @@ const MembershipModule: ModuleManifest = {
       order:      10,
     },
     {
-      label:      'Attendance',
-      path:       '/attendance',
-      icon:       'calendar-check-fill',
-      permission: 'members.view',
-      order:      20,
-    },
-    {
       label:      'Groups & Units',
       path:       '/groups',
       icon:       'diagram-3-fill',
@@ -70,11 +63,18 @@ const MembershipModule: ModuleManifest = {
       order:      30,
     },
     {
-      label:      'Pastoral Care',
-      path:       '/pastoral-care',
-      icon:       'heart-fill',
+      label:      'Attendance',
+      path:       '/attendance',
+      icon:       'calendar-check-fill',
       permission: 'members.view',
-      order:      40,
+      order:      35,
+    },
+    {
+      label:      'Audit Logs',
+      path:       '/audit-logs',
+      icon:       'clock-history',
+      permission: 'members.view',
+      order:      45,
     },
     {
       label:      'Reports',
