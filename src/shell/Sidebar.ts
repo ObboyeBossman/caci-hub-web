@@ -520,10 +520,14 @@ export class _Sidebar {
       ['/attendance', '/services', '/service-templates'].includes(i.path)
     )
     const financeItems = permitted.filter(i => i.path.startsWith('/finance'))
+    const accountsItems = permitted.filter(i =>
+      ['/admin/users', '/admin/roles', '/admin/audit'].includes(i.path)
+    )
     const otherItems = permitted.filter(i =>
       !membershipItems.includes(i) &&
       !servicesItems.includes(i) &&
-      !financeItems.includes(i)
+      !financeItems.includes(i) &&
+      !accountsItems.includes(i)
     )
 
     // Quick actions (always shown)
@@ -590,6 +594,28 @@ export class _Sidebar {
               ${financeItems.map(item => /* html */`
                 <button class="sb-sub-item ${this._isActive(item.path) ? 'active' : ''}"
                   data-route="${item.path}" type="button">
+                  ${item.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${accountsItems.length > 0 ? /* html */`
+        <div class="sb-accord-item ${this._anyActive(accountsItems) ? 'open' : ''}" data-accord="accounts">
+          <button class="sb-nav-item ${this._anyActive(accountsItems) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="accounts">
+            <i class="bi bi-person-lock" aria-hidden="true"></i>
+            <span class="sb-nav-item-label">Accounts &amp; Roles</span>
+            <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="sb-accord-content">
+            <div class="sb-accord-sub">
+              ${accountsItems.map(item => /* html */`
+                <button class="sb-sub-item ${this._isActive(item.path) ? 'active' : ''}"
+                  data-route="${item.path}"
+                  ${COMING_SOON_PATHS.has(item.path) ? 'data-coming-soon="true"' : ''}
+                  type="button">
                   ${item.label}
                 </button>
               `).join('')}
