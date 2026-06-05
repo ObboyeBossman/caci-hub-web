@@ -518,7 +518,7 @@ export class _Sidebar {
     )
     const servicesParent = permitted.find(i => i.path === '/services')
     const servicesTabs   = permitted.filter(i => i.parentPath === '/services')
-    const servicesItems  = servicesParent ? [servicesParent] : []
+    const servicesItems  = servicesParent ? [servicesParent, ...servicesTabs] : []
     const financeItems = permitted.filter(i => i.path.startsWith('/finance'))
     const accountsItems = permitted.filter(i =>
       ['/admin/users', '/admin/roles', '/admin/audit'].includes(i.path)
