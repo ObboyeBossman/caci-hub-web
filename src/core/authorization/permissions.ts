@@ -17,6 +17,7 @@ export const PERMISSIONS = {
   MEMBERS_EDIT:       'members.edit',
   MEMBERS_DEACTIVATE: 'members.deactivate',
   MEMBERS_IMPORT:     'members.import',
+  MEMBERS_EXPORT:     'members.export',
 
   // ── Membership: Households ───────────────────────────────────────────────────
   HOUSEHOLDS_VIEW:    'households.view',

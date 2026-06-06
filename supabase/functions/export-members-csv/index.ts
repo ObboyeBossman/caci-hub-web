@@ -64,35 +64,20 @@ function resolveColumns(columnsParam: string | null): string[] | Response {
   return COLUMN_ORDER.filter((k) => requested.includes(k))
 }
 
-/**
- * Column selection from the client.
- * Supabase’s gateway often does NOT forward `?columns=` on the request URL to the
- * worker, so GET query params are unreliable. POST JSON body is the supported path.
- */
-async function readColumnsParam(req: Request): Promise<string | null> {
+async function readRequestBody(req: Request): Promise<{ columns?: unknown, filter?: unknown, assemblyId?: string } | null> {
   if (req.method === 'POST') {
     const ct = req.headers.get('content-type') ?? ''
     if (ct.includes('application/json')) {
       try {
         const raw = await req.text()
         if (!raw.trim()) return null
-        const body = JSON.parse(raw) as { columns?: unknown }
-        if (body.columns != null) {
-          if (typeof body.columns === 'string') return body.columns
-          if (Array.isArray(body.columns)) {
-            return body.columns.map(String).filter(Boolean).join(',')
-          }
-        }
+        return JSON.parse(raw) as { columns?: unknown, filter?: unknown, assemblyId?: string }
       } catch {
         return null
       }
     }
   }
-  try {
-    return new URL(req.url).searchParams.get('columns')
-  } catch {
-    return null
-  }
+  return null
 }
 
 serve(async (req: Request) => {
@@ -105,35 +90,52 @@ serve(async (req: Request) => {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) return new Response('Unauthorized', { status: 401, headers: corsHeaders })
 
+    const jwt = authHeader.replace(/^Bearer\s+/i, '')
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } },
     )
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // With service role key the JWT must be passed explicitly to getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt)
     if (authError || !user) return new Response('Unauthorized', { status: 401, headers: corsHeaders })
 
-    // ── 2. Role check (Admin ONLY) ───────────────────────────────────────────
+    // ── 2. RBAC Permission Check ─────────────────────────────────────────────
+    // Allow if (a) JWT contains members.export permission OR (b) user is a system admin
+    const permissions: string[] = user.app_metadata?.permissions ?? []
+    const hasExportPerm = permissions.includes('members.export')
+
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
-      .select('role, assembly_id')
+      .select('assembly_id, system_role')
       .eq('id', user.id)
       .single()
 
     if (profileError || !profile) return new Response('Unauthorized', { status: 401, headers: corsHeaders })
 
-    if (profile.role !== 'admin') {
-      return new Response('Forbidden', { status: 403, headers: corsHeaders })
+    const isAdmin = profile.system_role === 'admin'
+    if (!hasExportPerm && !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: missing members.export permission', hasExportPerm, isAdmin }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
     }
 
-    const columnsParam = await readColumnsParam(req)
+    const reqBody = await readRequestBody(req)
+    let columnsParam: string | null = null
+    if (reqBody?.columns) {
+      columnsParam = Array.isArray(reqBody.columns) ? reqBody.columns.map(String).join(',') : String(reqBody.columns)
+    } else {
+      try { columnsParam = new URL(req.url).searchParams.get('columns') } catch {}
+    }
+
     const columnsResolved = resolveColumns(columnsParam)
     if (columnsResolved instanceof Response) return columnsResolved
 
-    // ── 3. Fetch active members ──────────────────────────────────────────────
-    // CRITICAL: Do NOT include pastoral_notes in the SELECT (IMR-06)
-    const { data: members, error: fetchError } = await supabase
+    // ── 3. Fetch members ─────────────────────────────────────────────────────
+    // Apply filters if provided from frontend
+    let query = supabase
       .from('members')
       .select(`
         membership_number, first_name, last_name, gender,
@@ -142,9 +144,19 @@ serve(async (req: Request) => {
         created_at, updated_at
       `)
       .eq('assembly_id', profile.assembly_id)
-      .eq('is_active', true)
       .is('deleted_at', null)
-      .order('last_name')
+
+    // Handle filter.statuses
+    const filter = reqBody?.filter as any
+    if (filter?.statuses && Array.isArray(filter.statuses) && filter.statuses.length > 0) {
+       // Using 'in' for multiple statuses
+       query = query.in('membership_status', filter.statuses)
+    } else {
+       // Default behavior if no filter
+       query = query.eq('is_active', true)
+    }
+
+    const { data: members, error: fetchError } = await query.order('last_name')
 
     if (fetchError || !members) {
       return new Response(JSON.stringify({ error: 'Failed to fetch members' }), {

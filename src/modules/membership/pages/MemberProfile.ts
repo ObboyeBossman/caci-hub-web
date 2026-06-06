@@ -217,12 +217,49 @@ const CSS = /* css */`
 .mp-record-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--border-strong); }
 .mp-record-dot.active { background: var(--caci-success); }
 
-/* ── Deactivate modal ───────────────────────────────────────── */
-.mp-modal-backdrop {
-  position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center; padding: 16px;
+/* ── Avatar zoom modal ──────────────────────────────────────────── */
+.mp-avatar-modal {
+  position: fixed; inset: 0; z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0); backdrop-filter: blur(0);
+  transition: background 0.26s, backdrop-filter 0.26s; pointer-events: none;
 }
+.mp-avatar-modal.open {
+  background: rgba(0,0,0,0.82); backdrop-filter: blur(12px); pointer-events: all;
+}
+.mp-avatar-modal-inner {
+  position: relative; transform: scale(0.75); opacity: 0;
+  transition: transform 0.32s cubic-bezier(0.16,1,0.3,1), opacity 0.26s;
+}
+.mp-avatar-modal.open .mp-avatar-modal-inner { transform: scale(1); opacity: 1; }
+.mp-avatar-modal-img {
+  width: 280px; height: 280px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 88px; font-weight: 700; color: #fff;
+  border: 4px solid rgba(255,255,255,0.15);
+  box-shadow: 0 28px 64px rgba(0,0,0,0.6);
+  background-size: cover; background-position: center;
+}
+.mp-avatar-modal-name {
+  margin-top: 18px; text-align: center;
+  font-size: 15px; font-weight: 600; color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+}
+.mp-avatar-modal-sub {
+  margin-top: 4px; text-align: center;
+  font-size: 11.5px; color: rgba(255,255,255,0.55);
+}
+.mp-avatar-modal-close {
+  position: absolute; top: -14px; right: -14px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-secondary); transition: all 0.18s;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+.mp-avatar-modal-close:hover { color: var(--text-primary); transform: scale(1.1); }
+.mp-avatar-inner { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.mp-avatar-inner:hover { transform: scale(1.06); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
 
 /* ── Animations ─────────────────────────────────────────────── */
 @keyframes mp-fade-up { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
@@ -303,11 +340,6 @@ function _mount(container: HTMLElement): void {
     trailing = document.createElement('div')
     trailing.style.cssText = 'display:flex;gap:8px;align-items:center;'
     trailing.innerHTML = `
-      <button class="mp-act-btn mp-act-btn-danger" id="mp-deactivate-btn"
-              style="${m.is_active ? '' : 'display:none;'}">
-        <i class="bi bi-person-dash" style="font-size:14px;"></i>
-        <span class="mp-btn-label">Deactivate</span>
-      </button>
       <button class="mp-act-btn mp-act-btn-primary" id="mp-edit-btn">
         <i class="bi bi-pencil-fill" style="font-size:13px;"></i>
         Edit Member
@@ -326,7 +358,7 @@ function _mount(container: HTMLElement): void {
 
   container.appendChild(wrap)
 
-  _bindEvents(container, m, canEdit)
+  _bindEvents(container, m, canEdit, fullName, ini, bg)
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -733,7 +765,43 @@ function _buildPage(
 
   </div>
 </div>
+
+<!-- Avatar zoom modal -->
+<div class="mp-avatar-modal" id="mp-avatar-modal">
+  <div class="mp-avatar-modal-inner">
+    <div class="mp-avatar-modal-img" id="mp-modal-img"></div>
+    <div class="mp-avatar-modal-name" id="mp-modal-name"></div>
+    <div class="mp-avatar-modal-sub" id="mp-modal-sub"></div>
+    <button class="mp-avatar-modal-close" id="mp-modal-close">
+      <i class="bi bi-x-lg" style="font-size:15px;"></i>
+    </button>
+  </div>
+</div>
 `
+}
+
+function _openAvatarModal(m: MemberView, fullName: string, ini: string, bg: string): void {
+  const modal  = document.getElementById('mp-avatar-modal')
+  const img    = document.getElementById('mp-modal-img') as HTMLElement | null
+  const nameEl = document.getElementById('mp-modal-name')
+  const subEl  = document.getElementById('mp-modal-sub')
+  if (!modal || !img) return
+  if (m.profile_photo_url) {
+    img.style.backgroundColor = 'transparent'
+    img.style.backgroundImage = `url(${m.profile_photo_url})`
+    img.textContent           = ''
+  } else {
+    img.style.backgroundImage = ''
+    img.style.background      = `linear-gradient(135deg, ${bg}, var(--caci-blue))`
+    img.textContent           = ini
+  }
+  if (nameEl) nameEl.textContent = fullName
+  if (subEl)  subEl.textContent  = m.membership_number ?? ''
+  modal.classList.add('open')
+}
+
+function _closeAvatarModal(): void {
+  document.getElementById('mp-avatar-modal')?.classList.remove('open')
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
@@ -746,7 +814,14 @@ function _on<K extends keyof HTMLElementEventMap>(
   _listeners.push([el, ev, fn as EventListener])
 }
 
-function _bindEvents(container: HTMLElement, m: MemberView, canEdit: boolean): void {
+function _bindEvents(container: HTMLElement, m: MemberView, canEdit: boolean, fullName: string, ini: string, bg: string): void {
+  // Avatar click → expand modal
+  _on(document.getElementById('mp-avatar'), 'click', () => _openAvatarModal(m, fullName, ini, bg))
+  _on(document.getElementById('mp-modal-close'), 'click', _closeAvatarModal)
+  _on(document.getElementById('mp-avatar-modal'), 'click', (e) => {
+    if ((e.target as HTMLElement).id === 'mp-avatar-modal') _closeAvatarModal()
+  })
+
   // Edit button
   _on(document.getElementById('mp-edit-btn'), 'click', () => {
     navigate(`/members/${m.id}/edit`)
@@ -762,77 +837,9 @@ function _bindEvents(container: HTMLElement, m: MemberView, canEdit: boolean): v
     _on(btn, 'click', () => navigate(btn.dataset.modPath ?? '/'))
   })
 
-  // Deactivate button
-  if (canEdit) {
-    _on(document.getElementById('mp-deactivate-btn'), 'click', () => {
-      _showDeactivateModal(m)
-    })
-  }
-}
-
-// ── Deactivate modal ──────────────────────────────────────────────────────────
-
-function _showDeactivateModal(m: MemberView): void {
-  const fullName = [m.title, m.first_name, m.last_name].filter(Boolean).join(' ')
-  const backdrop = document.createElement('div')
-  backdrop.className = 'mp-modal-backdrop'
-  backdrop.innerHTML = `
-    <div class="mp-card" style="max-width:400px;width:100%;border-color:rgba(198,0,38,0.4);">
-      <div class="mp-card-head">
-        <div class="mp-card-icon" style="background:var(--bg-danger);">
-          <i class="bi bi-person-dash-fill" style="font-size:15px;color:var(--caci-red);"></i>
-        </div>
-        <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Deactivate Member?</h2>
-      </div>
-      <div class="mp-card-body">
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;line-height:1.55;">
-          This will deactivate <strong style="color:var(--text-primary);">${fullName}</strong> and
-          remove them from active member counts. Their record will be preserved and can be restored.
-        </p>
-        <div style="background:var(--bg-warning);border:1px solid rgba(154,103,0,0.25);
-                    border-radius:8px;padding:10px 12px;margin-bottom:16px;
-                    display:flex;gap:8px;align-items:flex-start;">
-          <i class="bi bi-exclamation-triangle-fill" style="font-size:14px;color:var(--amber);flex-shrink:0;margin-top:1px;"></i>
-          <p style="font-size:11.5px;color:var(--amber);line-height:1.5;">
-            This action can be reversed by an admin at any time.
-          </p>
-        </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button class="mp-act-btn" id="mp-modal-cancel">Cancel</button>
-          <button class="mp-act-btn mp-act-btn-danger" id="mp-modal-confirm"
-                  style="background:var(--caci-red);border-color:var(--caci-red-dim);color:#fff;font-weight:600;">
-            <i class="bi bi-person-dash" style="font-size:13px;"></i> Deactivate
-          </button>
-        </div>
-      </div>
-    </div>`
-
-  document.body.appendChild(backdrop)
-
-  backdrop.querySelector('#mp-modal-cancel')?.addEventListener('click', () => backdrop.remove())
-  backdrop.querySelector('#mp-modal-confirm')?.addEventListener('click', async () => {
-    const confirmBtn = backdrop.querySelector('#mp-modal-confirm') as HTMLButtonElement | null
-    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Deactivating…' }
-    try {
-      const { deactivateMember } = await import('../repository')
-      await deactivateMember(m.id)
-      backdrop.remove()
-      // Refresh the page
-      navigate(`/members/${m.id}`)
-    } catch (err: any) {
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Deactivate' }
-      const errP = document.createElement('p')
-      errP.style.cssText = 'font-size:11.5px;color:var(--text-danger);margin-top:8px;text-align:right;'
-      errP.textContent = err?.message ?? 'Failed to deactivate. Try again.'
-      backdrop.querySelector('.mp-card-body')?.appendChild(errP)
-    }
-  })
-
-  backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove() })
-
-  // Escape key
-  const _onKeydown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') { backdrop.remove(); document.removeEventListener('keydown', _onKeydown) }
-  }
+  // Escape closes avatar modal
+  const _onKeydown = (e: KeyboardEvent) => { if (e.key === 'Escape') _closeAvatarModal() }
   document.addEventListener('keydown', _onKeydown)
+  _listeners.push([document, 'keydown', _onKeydown as EventListener])
+
 }

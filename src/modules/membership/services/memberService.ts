@@ -150,19 +150,35 @@ export async function exportMembersCsv(filter?: {
   if (!assemblyId) throw new RepositoryError('No active assembly selected.', null, 'NO_ASSEMBLY')
 
   try {
-    const { data, error } = await supabase.functions.invoke('export-members-csv', {
-      body: { assemblyId, filter: filter ?? {} },
+    // Use a raw fetch so we can reliably read the CSV text body.
+    // supabase.functions.invoke can mis-parse text/csv responses.
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+    if (!token) throw new Error('Not authenticated')
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+    const url = `${supabaseUrl}/functions/v1/export-members-csv`
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ assemblyId, filter: filter ?? {} }),
     })
 
-    if (error) throw error
+    const text = await res.text()
 
-    // EF returns a CSV string in data
-    if (typeof data === 'string') return data
+    if (!res.ok) {
+      throw new Error(`EF returned ${res.status}: ${text}`)
+    }
 
-    throw new Error('export-members-csv EF returned unexpected shape')
-  } catch (err) {
+    return text
+  } catch (err: any) {
+    const underlying = err?.message ?? String(err)
     throw new RepositoryError(
-      'Export failed. Please try again.',
+      `Export failed: ${underlying}`,
       err,
       'EF_ERROR'
     )

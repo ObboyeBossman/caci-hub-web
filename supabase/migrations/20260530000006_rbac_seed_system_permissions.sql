@@ -19,6 +19,7 @@ INSERT INTO public.system_permissions (id, key, label, description, module_name,
   ('members.edit',       'members.edit',       'Edit Members',       'Allows editing existing member records',                                    'membership', 'Members',    true,  true),
   ('members.deactivate', 'members.deactivate', 'Deactivate Members', 'Allows soft-deactivating member records',                                   'membership', 'Members',    true,  true),
   ('members.import',     'members.import',     'Import Members',     'Allows bulk importing member records via CSV or spreadsheet',               'membership', 'Members',    true,  true),
+  ('members.export',     'members.export',     'Export Members',     'Allows exporting member records to CSV or other formats',                   'membership', 'Members',    true,  true),
 
   -- ── Membership: Households ────────────────────────────────────────────────
   ('households.view',    'households.view',    'View Households',    'Allows viewing household records and member groupings',                     'membership', 'Households', true,  true),

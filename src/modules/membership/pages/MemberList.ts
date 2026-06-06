@@ -11,7 +11,7 @@ import { can } from '@core/authorization/authorization-service'
 import { listMembers, getMemberCounts } from '../repository'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { debounce } from '@shared/utils/debounce'
-import { avatarColor, initials, fmtDate } from '../utils/member-helpers'
+import { avatarColor, initials, fmtDate, formatName } from '../utils/member-helpers'
 import type { MemberView, MemberFilter } from '../../../types/member.types'
 import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
 
@@ -493,6 +493,7 @@ function destroy(): void {
 function buildShell(): string {
   const user = getCurrentUser()
   const canCreate = user ? can(user, 'members.create') : false
+  const canExport = user ? can(user, 'members.export') : false
 
   return /* html */`
 <div class="ml-wrap">
@@ -562,10 +563,11 @@ function buildShell(): string {
             <option value="name_za">Name (Z–A)</option>
           </select>
         </div>
+        ${canExport ? `
         <button class="ml-tbtn" id="ml-export-btn" title="Export">
           <i class="bi bi-download"></i>
           <span class="ml-btn-label">Export</span>
-        </button>
+        </button>` : ''}
         ${canCreate ? `
         <button class="ml-tbtn ml-tbtn-primary" id="ml-add-btn" title="Add Member">
           <i class="bi bi-person-plus-fill"></i>
@@ -766,8 +768,11 @@ function _renderGrid(list: MemberView[]): void {
 }
 
 function _gridCard(m: MemberView, i: number): string {
+  const user = getCurrentUser()
+  const canEdit = user ? can(user, 'members.edit') : false
   const ini  = initials(m.first_name ?? '', m.last_name ?? '')
-  const bg   = avatarColor(`${m.first_name}${m.last_name}`)
+  const fullName = formatName(m.first_name ?? '', m.last_name ?? '', m.title)
+  const bg   = avatarColor(fullName)
   const avatarStyle = m.profile_photo_url
     ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
     : `background:${bg};`
@@ -795,7 +800,7 @@ function _gridCard(m: MemberView, i: number): string {
                margin-bottom:3px;line-height:1.3;
                overflow:hidden;text-overflow:ellipsis;
                display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
-      ${m.first_name ?? ''} ${m.last_name ?? ''}
+      ${fullName}
     </h3>
     <p style="font-size:9.5px;color:var(--text-muted);font-family:var(--font-mono);
               margin-bottom:10px;letter-spacing:0.04em;
@@ -810,8 +815,9 @@ function _gridCard(m: MemberView, i: number): string {
                 padding-top:12px;border-top:1px solid var(--border-default);">
       <button class="ml-card-btn ml-card-btn-view" data-member-view="${m.id}"
               onclick="event.stopPropagation()">View</button>
+      ${canEdit ? `
       <button class="ml-card-btn ml-card-btn-edit" data-member-edit="${m.id}"
-              onclick="event.stopPropagation()">Edit</button>
+              onclick="event.stopPropagation()">Edit</button>` : ''}
     </div>
   </div>
 
@@ -826,7 +832,7 @@ function _gridCard(m: MemberView, i: number): string {
     <div style="flex:1;min-width:0;">
       <h3 style="font-size:13.5px;font-weight:600;color:var(--text-primary);
                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;">
-        ${m.first_name ?? ''} ${m.last_name ?? ''}
+        ${fullName}
       </h3>
       <p style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);
                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">
@@ -842,10 +848,11 @@ function _gridCard(m: MemberView, i: number): string {
               onclick="event.stopPropagation()" title="View">
         <i class="bi bi-eye"></i>
       </button>
+      ${canEdit ? `
       <button class="ml-mob-btn ml-mob-btn-edit" data-member-edit="${m.id}"
               onclick="event.stopPropagation()" title="Edit">
         <i class="bi bi-pencil"></i>
-      </button>
+      </button>` : ''}
     </div>
   </div>`
 }
@@ -883,8 +890,11 @@ function _renderListPanel(list: MemberView[]): void {
 }
 
 function _listRow(m: MemberView, i: number): string {
+  const user = getCurrentUser()
+  const canEdit = user ? can(user, 'members.edit') : false
   const ini    = initials(m.first_name ?? '', m.last_name ?? '')
-  const bg     = avatarColor(`${m.first_name}${m.last_name}`)
+  const fullName = formatName(m.first_name ?? '', m.last_name ?? '', m.title)
+  const bg     = avatarColor(fullName)
   const avatarStyle = m.profile_photo_url
     ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
     : `background:${bg};`
@@ -907,7 +917,7 @@ function _listRow(m: MemberView, i: number): string {
       <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px;flex-wrap:wrap;">
         <h3 style="font-size:13px;font-weight:600;color:var(--text-primary);
                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          ${m.first_name ?? ''} ${m.last_name ?? ''}
+          ${fullName}
         </h3>
         ${membershipBadgeHtml(m.membership_status ?? '')}
       </div>
@@ -924,8 +934,9 @@ function _listRow(m: MemberView, i: number): string {
     <div style="display:flex;gap:6px;flex-shrink:0;">
       <button class="ml-mob-btn" data-member-view="${m.id}"
               onclick="event.stopPropagation()">View</button>
+      ${canEdit ? `
       <button class="ml-mob-btn ml-mob-btn-edit" data-member-edit="${m.id}"
-              onclick="event.stopPropagation()">Edit</button>
+              onclick="event.stopPropagation()">Edit</button>` : ''}
     </div>
   </div>`
 }
@@ -1005,28 +1016,53 @@ function _bindEvents(): void {
     _renderAll()
   })
 
-  // Export
-  _on(document.getElementById('ml-export-btn') as HTMLElement, 'click', async () => {
+  // Export — build CSV client-side from existing in-memory data
+  _on(document.getElementById('ml-export-btn') as HTMLElement, 'click', () => {
     const btn = document.getElementById('ml-export-btn') as HTMLButtonElement | null
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span class="ml-btn-label">Exporting…</span>' }
     try {
-      const { exportMembersCsv, downloadCsv } = await import('../services/memberService')
-      // Pass the active stat filter as a status filter if one is set
-      const filterStatuses = _activeFilter && _activeFilter !== 'all' && _activeFilter !== 'new'
-        ? [_activeFilter]
-        : undefined
-      const csv = await exportMembersCsv({ statuses: filterStatuses })
-      const date = new Date().toISOString().split('T')[0]
-      downloadCsv(csv, `members-export-${date}.csv`)
+      const list = _getFiltered()
+      const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+      const headers = [
+        'Membership Number', 'Title', 'First Name', 'Last Name', 'Gender',
+        'Date of Birth', 'Primary Phone', 'Secondary Phone', 'Email',
+        'Physical Address', 'Occupation', 'Marital Status', 'Membership Status',
+        'Join Date', 'Is Active',
+      ]
+      const rows = list.map(m => [
+        escape(m.membership_number),
+        escape(m.title),
+        escape(m.first_name),
+        escape(m.last_name),
+        escape(m.gender),
+        escape(m.date_of_birth),
+        escape(m.primary_phone),
+        escape(m.secondary_phone),
+        escape(m.email),
+        escape(m.physical_address),
+        escape(m.occupation),
+        escape(m.marital_status),
+        escape(m.membership_status),
+        escape(m.join_date),
+        escape(m.is_active ? 'Yes' : 'No'),
+      ].join(','))
+
+      const csv = [headers.map(escape).join(','), ...rows].join('\n')
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `members-export-${new Date().toISOString().split('T')[0]}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
     } catch (err: any) {
       console.error('[MemberList] Export failed:', err)
-      // Show a brief error in the results bar
       const bar = document.getElementById('ml-results-count')
       if (bar) {
         const orig = bar.textContent
         bar.style.color = 'var(--text-danger)'
-        bar.textContent = 'Export failed'
-        setTimeout(() => { bar.style.color = ''; bar.textContent = orig }, 3000)
+        bar.textContent = `Export failed: ${err?.message ?? err}`.substring(0, 80)
+        setTimeout(() => { bar.style.color = ''; bar.textContent = orig }, 5000)
       }
     } finally {
       if (btn) {

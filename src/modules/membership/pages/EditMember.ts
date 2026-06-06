@@ -264,6 +264,44 @@ const CSS = /* css */`
   display: flex; align-items: center; justify-content: center; padding: 16px;
 }
 
+/* ── Avatar zoom modal ──────────────────────────────────────────── */
+.em-avatar-modal {
+  position: fixed; inset: 0; z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0); backdrop-filter: blur(0);
+  transition: background 0.26s, backdrop-filter 0.26s; pointer-events: none;
+}
+.em-avatar-modal.open {
+  background: rgba(0,0,0,0.82); backdrop-filter: blur(12px); pointer-events: all;
+}
+.em-avatar-modal-inner {
+  position: relative; transform: scale(0.75); opacity: 0;
+  transition: transform 0.32s cubic-bezier(0.16,1,0.3,1), opacity 0.26s;
+}
+.em-avatar-modal.open .em-avatar-modal-inner { transform: scale(1); opacity: 1; }
+.em-avatar-modal-img {
+  width: 280px; height: 280px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 88px; font-weight: 700; color: #fff;
+  border: 4px solid rgba(255,255,255,0.15);
+  box-shadow: 0 28px 64px rgba(0,0,0,0.6);
+  background-size: cover; background-position: center;
+}
+.em-avatar-modal-name {
+  margin-top: 18px; text-align: center;
+  font-size: 15px; font-weight: 600; color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+}
+.em-avatar-modal-close {
+  position: absolute; top: -14px; right: -14px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-secondary); transition: all 0.18s;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+.em-avatar-modal-close:hover { color: var(--text-primary); transform: scale(1.1); }
+
 /* ── Animations ─────────────────────────────────────────────────── */
 @keyframes em-fade-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
 @keyframes em-shake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-4px); } 40% { transform:translateX(4px); } 60% { transform:translateX(-3px); } 80% { transform:translateX(3px); } }
@@ -287,6 +325,7 @@ export default EditMemberPage
 
 let _member: MemberView | null = null
 let _isDirty = false
+let _pendingPhotoFile: File | null = null
 let _container_: HTMLElement | null = null
 let _saveBar: HTMLElement | null = null
 let _toastTimer: ReturnType<typeof setTimeout> | null = null
@@ -301,6 +340,7 @@ async function _render(container: HTMLElement): Promise<void> {
     _listeners__ = []
     _isDirty = false
     _member = null
+    _pendingPhotoFile = null
     injectCSS()
 
     const memberId = container.dataset.id ?? ''
@@ -369,11 +409,11 @@ function _mountPage(container: HTMLElement): void {
         </span>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="em-action-btn" id="em-discard-btn">
+        <button class="em-action-btn" id="em-discard-btn" disabled>
           <i class="bi bi-x-lg" style="font-size:13px;"></i>
           <span class="em-save-bar-label">Discard</span>
         </button>
-        <button class="em-action-btn em-action-btn-primary" id="em-save-btn">
+        <button class="em-action-btn em-action-btn-primary" id="em-save-btn" disabled>
           <i class="bi bi-floppy" style="font-size:13px;"></i>
           <span class="em-save-bar-label">Save Changes</span>
         </button>
@@ -391,7 +431,7 @@ function _mountPage(container: HTMLElement): void {
     document.body.appendChild(toast)
     _listeners__.push([toast, '__cleanup', (() => toast.remove()) as EventListener])
 
-    _bindEvents(container, m)
+    _bindEvents(container, m, fullName, ini, bg)
 }
 
 // ── Page HTML ─────────────────────────────────────────────────────────────────
@@ -408,21 +448,15 @@ function _buildPage(m: MemberView, fullName: string, ini: string, bg: string): s
          margin-bottom:0;">
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
         <!-- Avatar -->
-        <div class="em-avatar-ring" style="display:none;" id="em-avatar-wrap">
-          <div class="em-avatar-inner" id="em-avatar-preview" style="background-color:${bg};">
-            ${ini}
-            <button class="em-avatar-upload-btn bi bi-camera-fill" id="em-avatar-btn"
-                    title="Change photo"></button>
-          </div>
-        </div>
         <div id="em-avatar-wrap" style="position:relative;flex-shrink:0;">
           <div class="em-avatar-ring">
-            <div class="em-avatar-inner" id="em-avatar-preview" style="background-color:${bg};">
-              ${ini}
+            <div class="em-avatar-inner" id="em-avatar-preview"
+                 style="background-color:${bg};${m.profile_photo_url ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;` : ''}">
+              ${m.profile_photo_url ? '' : ini}
             </div>
           </div>
           <div style="position:absolute;bottom:5px;right:5px;width:14px;height:14px;
-                      border-radius:50%;background:var(--caci-success);
+                      border-radius:50%;background:${m.is_active ? 'var(--caci-success)' : 'var(--border-strong)'};
                       border:2.5px solid var(--bg-card);"></div>
           <button class="em-avatar-upload-btn" id="em-avatar-btn" title="Change photo">
             <i class="bi bi-camera-fill"></i>
@@ -750,7 +784,44 @@ function _buildPage(m: MemberView, fullName: string, ini: string, bg: string): s
 
 <!-- Discard modal placeholder -->
 <div id="em-discard-modal" style="display:none;"></div>
+
+<!-- Avatar zoom modal -->
+<div class="em-avatar-modal" id="em-avatar-modal">
+  <div class="em-avatar-modal-inner">
+    <div class="em-avatar-modal-img" id="em-modal-img"></div>
+    <div class="em-avatar-modal-name" id="em-modal-name"></div>
+    <button class="em-avatar-modal-close" id="em-modal-close">
+      <i class="bi bi-x-lg" style="font-size:15px;"></i>
+    </button>
+  </div>
+</div>
 `
+}
+
+// ── Avatar modal ──────────────────────────────────────────────────────────────
+
+function _openAvatarModal_em(fullName: string, ini: string, bg: string): void {
+    const modal  = document.getElementById('em-avatar-modal')
+    const img    = document.getElementById('em-modal-img') as HTMLElement | null
+    const nameEl = document.getElementById('em-modal-name')
+    if (!modal || !img) return
+    const preview = document.getElementById('em-avatar-preview') as HTMLElement | null
+    const bgImg = preview?.style.backgroundImage ?? ''
+    if (bgImg && bgImg !== 'none') {
+        img.style.backgroundColor = 'transparent'
+        img.style.backgroundImage = bgImg
+        img.textContent           = ''
+    } else {
+        img.style.backgroundImage = ''
+        img.style.background      = `linear-gradient(135deg, ${bg}, var(--caci-blue))`
+        img.textContent           = ini
+    }
+    if (nameEl) nameEl.textContent = fullName
+    modal.classList.add('open')
+}
+
+function _closeAvatarModal_em(): void {
+    document.getElementById('em-avatar-modal')?.classList.remove('open')
 }
 
 // ── Event binding ─────────────────────────────────────────────────────────────
@@ -768,8 +839,12 @@ function _markDirty(): void {
         _isDirty = true
         const badge = document.getElementById('em-unsaved-badge')
         const heroBadge = document.getElementById('em-unsaved-hero')
+        const saveBtn = document.getElementById('em-save-btn') as HTMLButtonElement | null
+        const discardBtn = document.getElementById('em-discard-btn') as HTMLButtonElement | null
         if (badge) badge.style.display = 'flex'
         if (heroBadge) heroBadge.style.display = 'flex'
+        if (saveBtn) saveBtn.disabled = false
+        if (discardBtn) discardBtn.disabled = false
     }
 }
 
@@ -868,19 +943,47 @@ async function _handleSave(): Promise<void> {
 
   try {
     const { id, ...updatePayload } = parsed.data
-    await updateMember(_member.id, updatePayload)
+
+    // Upload pending photo first if one was selected
+    let profile_photo_url: string | undefined
+    if (_pendingPhotoFile) {
+      try {
+        const { uploadProfilePhoto } = await import('../repository')
+        const { supabase } = await import('@core/supabase')
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+        profile_photo_url = await uploadProfilePhoto({
+          authUid: user.id,
+          fileName: `profile_${Date.now()}_${_pendingPhotoFile.name}`,
+          blob: _pendingPhotoFile,
+          mimeType: _pendingPhotoFile.type,
+        })
+        _pendingPhotoFile = null
+      } catch (photoErr) {
+        console.warn('[EditMember] Photo upload failed:', photoErr)
+      }
+    }
+
+    await updateMember(_member.id, {
+      ...updatePayload,
+      ...(profile_photo_url ? { profile_photo_url } : {}),
+    })
 
     _isDirty = false
     document.getElementById('em-unsaved-badge')!.style.display  = 'none'
     document.getElementById('em-unsaved-hero')!.style.display   = 'none'
+    const sBtn = document.getElementById('em-save-btn') as HTMLButtonElement | null
+    const dBtn = document.getElementById('em-discard-btn') as HTMLButtonElement | null
+    if (sBtn) sBtn.disabled = true
+    if (dBtn) dBtn.disabled = true
     _showToast('Changes saved successfully', 'success')
 
   } catch (err: any) {
     _showToast(err?.message ?? 'Save failed. Please try again.', 'error')
   } finally {
     if (saveBtn) {
-      saveBtn.disabled = false
-      saveBtn.innerHTML = '<i class="bi bi-floppy" style="font-size:13px;"></i><span class="em-save-bar-label"> Save Changes</span>'
+      saveBtn.disabled = !_isDirty
+      saveBtn.innerHTML = '<i class="bi bi-floppy" style="font-size:13px;"></i> <span class="em-save-bar-label">Save Changes</span>'
     }
   }
 }
@@ -985,7 +1088,7 @@ function _handleDiscard(): void {
     backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove() })
 }
 
-function _bindEvents(container: HTMLElement, m: MemberView): void {
+function _bindEvents(container: HTMLElement, m: MemberView, fullName: string, ini: string, bg: string): void {
     // Tab switching
     container.querySelectorAll<HTMLElement>('.em-tab-btn').forEach(btn => {
         _on__(btn, 'click', () => {
@@ -1013,6 +1116,16 @@ function _bindEvents(container: HTMLElement, m: MemberView): void {
     _on__(document.getElementById('em-save-btn'), 'click', _handleSave)
     _on__(document.getElementById('em-discard-btn'), 'click', _handleDiscard)
 
+    // Avatar preview click → expand modal (not the upload button)
+    _on__(document.getElementById('em-avatar-preview'), 'click', (e) => {
+        if ((e.target as HTMLElement).closest('#em-avatar-btn')) return
+        _openAvatarModal_em(fullName, ini, bg)
+    })
+    _on__(document.getElementById('em-modal-close'), 'click', _closeAvatarModal_em)
+    _on__(document.getElementById('em-avatar-modal'), 'click', (e) => {
+        if ((e.target as HTMLElement).id === 'em-avatar-modal') _closeAvatarModal_em()
+    })
+
     // Avatar upload
     _on__(document.getElementById('em-avatar-btn'), 'click', () => {
         document.getElementById('em-avatar-file')?.click()
@@ -1020,6 +1133,7 @@ function _bindEvents(container: HTMLElement, m: MemberView): void {
     _on__(document.getElementById('em-avatar-file') as HTMLInputElement, 'change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0]
         if (!file) return
+        _pendingPhotoFile = file
         const reader = new FileReader()
         reader.onload = ev => {
             const preview = document.getElementById('em-avatar-preview') as HTMLElement | null
@@ -1056,7 +1170,10 @@ function _bindEvents(container: HTMLElement, m: MemberView): void {
 
     // Escape key closes any modal
     const _onKeydown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') document.querySelector('.em-modal-backdrop')?.remove()
+        if (e.key === 'Escape') {
+            _closeAvatarModal_em()
+            document.querySelector('.em-modal-backdrop')?.remove()
+        }
     }
     document.addEventListener('keydown', _onKeydown)
     _listeners__.push([document, 'keydown', _onKeydown as EventListener])
