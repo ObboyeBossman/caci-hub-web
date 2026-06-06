@@ -470,28 +470,29 @@ export async function restoreMember(memberId: string): Promise<void> {
 // ── Membership number ─────────────────────────────────────────────────────────
 
 /**
- * Call the assign-membership-number Edge Function.
+ * Call the assign_membership_number RPC.
  * Mirrors: SupabaseMemberDataSource.callAssignMembershipNumber()
  * Returns the generated membership number string.
  */
 export async function assignMembershipNumber(memberId: string): Promise<string> {
+  const assemblyId = getActiveAssemblyId()
+  if (!assemblyId) throw new RepositoryError('No active assembly selected.', null, 'NO_ASSEMBLY')
+
   try {
-    const { data, error } = await supabase.functions.invoke(
-      'generate-membership-number',
-      { body: { memberId } }
-    )
+    const { data, error } = await supabase.rpc('assign_membership_number', {
+      p_member_id: memberId,
+      p_assembly_id: assemblyId
+    })
 
     if (error) throw error
+    if (!data) throw new Error('RPC returned null membershipNumber')
 
-    const number = (data as { membershipNumber?: string })?.membershipNumber
-    if (!number) throw new Error('Edge Function returned null membershipNumber')
-
-    return number
+    return data as string
   } catch (err) {
     throw new RepositoryError(
       'Failed to assign membership number.',
       err,
-      'EF_ERROR'
+      'RPC_ERROR'
     )
   }
 }

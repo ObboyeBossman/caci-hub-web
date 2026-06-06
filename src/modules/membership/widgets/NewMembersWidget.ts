@@ -28,14 +28,18 @@ const NewMembersWidget: PageModule = {
   ${members.map(m => {
     const bg  = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
     const ini = initials(m.first_name, m.last_name)
+    const avatarStyle = m.profile_photo_url
+      ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
+      : `background:${bg};`
+    const avatarContent = m.profile_photo_url ? '' : ini
     return `
 <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;
   cursor:pointer;transition:background 0.1s;" data-nm-member="${m.id}"
   onmouseenter="this.style.background='var(--mm-bg-hover)'"
   onmouseleave="this.style.background=''">
-  <div style="width:36px;height:36px;border-radius:50%;background:${bg};
+  <div style="width:36px;height:36px;border-radius:50%;${avatarStyle}
     display:flex;align-items:center;justify-content:center;color:#fff;
-    font-size: var(--text-base);font-weight:700;flex-shrink:0;">${ini}</div>
+    font-size: var(--text-base);font-weight:700;flex-shrink:0;">${avatarContent}</div>
   <div style="flex:1;min-width:0;">
     <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">

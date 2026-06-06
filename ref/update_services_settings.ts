@@ -1,27 +1,5 @@
-import { getCurrentUser, getActiveAssemblyId } from '@core/auth'
-import { can }                from '@core/authorization/authorization-service'
-import { PERMISSIONS }        from '@core/authorization/permissions'
-import { debounce }           from '@shared/utils/debounce'
-import {
-  listServicesDisplay, listServiceTemplates, getServiceDisplay, getServiceStats, listAttendanceDisplay,
-  softDeleteService, createService, updateService, createServiceTemplate, updateServiceTemplate,
-  softDeleteTemplate, bulkUpsertAttendance, createServiceFromTemplate,
-  formatDate, formatDateShort, formatTime, isToday, isFuture, buildRecurrenceLabel
-} from '../../repository'
-import { RECURRENCE_LABELS, SERVICE_TYPES, DAYS_OF_WEEK } from '../../types'
-import type { ServiceDisplay, TemplateDisplay } from '../../types'
-import type { ServiceStatus, AttendanceStatus } from '../../../../types/service.types'
-import { state, shared } from '../state'
-import {
-  avatarColor, initials, statusBadge, attBadge, serviceTypeColor,
-  toast, closeCtx, openCtx, openDrawer, openModal, confirm
-} from '../components'
-
-// TAB: SETTINGS
-// ══════════════════════════════════════════════════════
-
-export function _renderSettingsTab(): void {
-  if (!shared.tabContent) return
+function _renderSettingsTab(): void {
+  if (!_tabContent) return
 
   // ── Persisted settings state (could hook into localStorage / DB) ──────────
   const _prefs = {
@@ -55,7 +33,7 @@ export function _renderSettingsTab(): void {
   let _activeSetting = 'general'
 
   // ── Render shell ─────────────────────────────────────────────────────────
-  shared.tabContent!.innerHTML = /* html */`
+  _tabContent!.innerHTML = /* html */`
     <div class="svc-set-shell" id="svc-settings-shell">
 
       <!-- ── Left rail ── -->
@@ -111,18 +89,18 @@ export function _renderSettingsTab(): void {
     </div>`
 
   // ── Nav switching ─────────────────────────────────────────────────────────
-  const panel = shared.tabContent!.querySelector<HTMLElement>('#svc-set-panel')!
+  const panel = _tabContent!.querySelector<HTMLElement>('#svc-set-panel')!
 
   function switchSection(key: string): void {
     _activeSetting = key
-    shared.tabContent!.querySelectorAll('.svc-set-nav').forEach(btn => {
+    _tabContent!.querySelectorAll('.svc-set-nav').forEach(btn => {
       btn.classList.toggle('active', (btn as HTMLElement).dataset['section'] === key)
     })
     renderSection(key)
     panel.scrollTop = 0
   }
 
-  shared.tabContent!.querySelectorAll<HTMLElement>('[data-section]').forEach(btn => {
+  _tabContent!.querySelectorAll<HTMLElement>('[data-section]').forEach(btn => {
     btn.addEventListener('click', () => switchSection(btn.dataset['section']!))
   })
 
@@ -233,7 +211,7 @@ export function _renderSettingsTab(): void {
           btn.style.color = ''
         }, 2000)
         flashSaved(root)
-        toast('Settings saved.')
+        _toast('Settings saved.')
       }, 320)
     })
   }
@@ -1266,7 +1244,7 @@ export function _renderSettingsTab(): void {
   // ════════════════════════════════════════════════════
   function renderData(): void {
     const assemblyId = getCurrentUser()?.assemblyId ?? '—'
-    const stats = state.services.length
+    const stats = _state.services.length
 
     panel.innerHTML = /* html */`
       <div class="svc-set-panel-head">
@@ -1284,7 +1262,7 @@ export function _renderSettingsTab(): void {
         ${[
           { label:'Service Records', value: String(stats), icon:'bi-calendar-event',   color:'var(--caci-blue-light)', bg:'rgba(0,75,160,0.1)' },
           { label:'Attendance Rows', value:'—',             icon:'bi-person-check',     color:'#22c55e',                bg:'rgba(34,197,94,0.1)' },
-          { label:'Templates',       value: String(state.templates.length), icon:'bi-arrow-repeat', color:'#58a6ff', bg:'rgba(88,166,255,0.1)' },
+          { label:'Templates',       value: String(_state.templates.length), icon:'bi-arrow-repeat', color:'#58a6ff', bg:'rgba(88,166,255,0.1)' },
         ].map(s => `<div style="
           background:var(--bg-card);border:1px solid var(--border-default);
           border-radius:var(--radius-lg);padding:14px;
@@ -1368,8 +1346,8 @@ export function _renderSettingsTab(): void {
       btn.addEventListener('click', () => {
         const label  = btn.dataset['export']!
         const format = btn.dataset['format']!
-        toast(`Exporting "${label}" as ${format.toUpperCase()}…`, 'bi-download', 'var(--caci-blue-light)')
-        // Real implementation: build Blob from state.services / attendance data and trigger download
+        _toast(`Exporting "${label}" as ${format.toUpperCase()}…`, 'bi-download', 'var(--caci-blue-light)')
+        // Real implementation: build Blob from _state.services / attendance data and trigger download
       })
     })
 
@@ -1474,22 +1452,22 @@ export function _renderSettingsTab(): void {
       clearAttBtn.style.opacity = match ? '1' : '0.5'
     })
 
-    // Danger action hooks — all go through confirm
+    // Danger action hooks — all go through _confirm
     panel.querySelector('#svc-danger-del-cancelled')?.addEventListener('click', () => {
-      confirm(
+      _confirm(
         'Delete all cancelled services?',
         'This permanently removes all cancelled services and their attendance records. This action cannot be undone.',
         'Yes, Delete All',
         async () => {
           // Real implementation: batch softDelete or raw delete RPC
-          toast('All cancelled services deleted.', 'bi-check-circle', '#56d364')
+          _toast('All cancelled services deleted.', 'bi-check-circle', '#56d364')
         }
       )
     })
 
     panel.querySelector('#svc-danger-clear-att')?.addEventListener('click', () => {
       if (confirmInput.value !== 'DELETE') return
-      confirm(
+      _confirm(
         'Clear ALL attendance records?',
         'Every attendance record across every service will be permanently deleted. Service records are preserved. This cannot be undone.',
         'Yes, Clear Everything',
@@ -1497,18 +1475,18 @@ export function _renderSettingsTab(): void {
           confirmInput.value = ''
           clearAttBtn.disabled = true
           clearAttBtn.style.opacity = '0.5'
-          toast('Attendance records cleared.', 'bi-check-circle', '#56d364')
+          _toast('Attendance records cleared.', 'bi-check-circle', '#56d364')
         }
       )
     })
 
     panel.querySelector('#svc-danger-reset')?.addEventListener('click', () => {
-      confirm(
+      _confirm(
         'Reset the entire Services module?',
         'All services, templates, and attendance data for this assembly will be permanently deleted. This is a complete wipe and cannot be undone.',
         'Yes, Reset Module',
         async () => {
-          toast('Module data reset.', 'bi-check-circle', '#56d364')
+          _toast('Module data reset.', 'bi-check-circle', '#56d364')
         }
       )
     })

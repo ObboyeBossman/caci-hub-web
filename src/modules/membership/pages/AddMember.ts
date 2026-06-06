@@ -24,7 +24,7 @@ const CSS = /* css */`
 
 .am-wrap {
   max-width: 1060px; margin: 0 auto;
-  padding: 14px 16px 48px; position: relative; z-index: 1;
+  padding: 14px 16px 48px; position: relative;
 }
 @media (min-width: 480px) { .am-wrap { padding: 18px 20px 48px; } }
 
@@ -256,6 +256,16 @@ textarea.am-inp { height: auto; padding: 10px 12px; resize: vertical; min-height
 }
 .am-photo-upload:hover { border-color: var(--caci-blue); background: var(--bg-info); }
 .am-photo-upload.has-photo { border-style: solid; border-color: var(--caci-success); background: var(--bg-success); }
+.am-remove-photo-btn {
+  display: none; align-items: center; gap: 5px;
+  padding: 5px 11px; height: 28px; border-radius: 7px;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border-default); background: var(--bg-card);
+  color: var(--text-danger); transition: all 0.18s; font-family: var(--font-sans);
+  white-space: nowrap;
+}
+.am-remove-photo-btn:hover { background: var(--bg-danger); border-color: var(--text-danger); }
+.am-remove-photo-btn.visible { display: inline-flex; }
 
 /* Section title */
 .am-section-title {
@@ -479,6 +489,7 @@ interface QueueItem {
     id: number
     data: FormData_
     photoDataUrl: string | null
+    photoFile: File | null
     status: 'pending' | 'uploading' | 'done'
 }
 
@@ -499,6 +510,7 @@ let _editingId: number | null = null
 let _uploadedCount = 0
 let _isUploading = false
 let _photoDataUrl: string | null = null
+let _photoFile: File | null = null
 let _householdItems: { id: string; family_name: string }[] = []
 let _destroyed_ = false
 let _listeners_: Array<[EventTarget, string, EventListener]> = []
@@ -524,6 +536,7 @@ async function _render(container: HTMLElement): Promise<void> {
     _uploadedCount = 0
     _isUploading = false
     _photoDataUrl = null
+    _photoFile = null
     injectCSS()
 
     container.innerHTML = ''
@@ -755,6 +768,9 @@ function _buildStep1(): string {
           <p style="font-size:10px;color:var(--text-muted);opacity:0.55;">JPG, PNG up to 5MB</p>
         </div>
         <input type="file" id="am-photo-input" accept="image/*" style="display:none;">
+        <button type="button" class="am-remove-photo-btn" id="am-remove-photo-btn">
+          <i class="bi bi-trash3" style="font-size:11px;"></i> Remove Photo
+        </button>
       </div>
     </div>
     <div class="am-divider"></div>
@@ -1129,6 +1145,7 @@ function _resetForm(): void {
     if (joinDate) joinDate.value = new Date().toISOString().split('T')[0]
 
     _photoDataUrl = null
+    _photoFile = null
     const prev = document.getElementById('am-avatar-preview') as HTMLElement | null
     if (prev) { prev.style.backgroundImage = ''; prev.style.backgroundSize = ''; prev.textContent = '?' }
 
@@ -1142,6 +1159,9 @@ function _resetForm(): void {
     }
     const photoInput = document.getElementById('am-photo-input') as HTMLInputElement | null
     if (photoInput) photoInput.value = ''
+
+    const removeBtn = document.getElementById('am-remove-photo-btn')
+    if (removeBtn) removeBtn.classList.remove('visible')
 
     _editingId = null
     const editBanner = document.getElementById('am-editing-banner')
@@ -1197,11 +1217,11 @@ function _addToQueue(): void {
     const data = _collectFormData()
     if (_editingId !== null) {
         const idx = _queue.findIndex(m => m.id === _editingId)
-        if (idx > -1) { _queue[idx].data = data; _queue[idx].photoDataUrl = _photoDataUrl }
+        if (idx > -1) { _queue[idx].data = data; _queue[idx].photoDataUrl = _photoDataUrl; _queue[idx].photoFile = _photoFile }
         _editingId = null
         document.getElementById('am-editing-banner')?.classList.remove('visible')
     } else {
-        _queue.push({ id: Date.now() + Math.random(), data, photoDataUrl: _photoDataUrl, status: 'pending' })
+        _queue.push({ id: Date.now() + Math.random(), data, photoDataUrl: _photoDataUrl, photoFile: _photoFile, status: 'pending' })
     }
     _renderSidebarQueue()
     _renderDrawer()
@@ -1236,10 +1256,13 @@ function _editFromQueue(id: number): void {
         const el = document.getElementById(id_) as HTMLInputElement | null
         if (el) el.value = val
     })
+    _photoDataUrl = m.photoDataUrl
+    _photoFile = m.photoFile
+    const prev = document.getElementById('am-avatar-preview') as HTMLElement | null
     if (m.photoDataUrl) {
-        _photoDataUrl = m.photoDataUrl
-        const prev = document.getElementById('am-avatar-preview') as HTMLElement | null
         if (prev) { prev.style.backgroundImage = `url(${m.photoDataUrl})`; prev.style.backgroundSize = 'cover'; prev.textContent = '' }
+    } else {
+        if (prev) { prev.style.backgroundImage = ''; prev.style.backgroundSize = ''; prev.textContent = _mInitials(d) }
     }
     const nameEl = document.getElementById('am-editing-name')
     if (nameEl) nameEl.textContent = _mName(d)
@@ -1293,11 +1316,12 @@ async function _saveMember(): Promise<void> {
   try {
     // Step 4 — call registerMember (service handles membership number EF, welcome emails etc.)
     const { first_name, last_name, ...rest } = parsed.data
-    const payload: Omit<import('../../../types/member.types').CreateMemberPayload, 'assembly_id'> = {
+    const payload: Omit<import('../../../types/member.types').CreateMemberPayload, 'assembly_id'> & { profile_photo_file?: File | null } = {
       ...rest,
       first_name,
       last_name,
       pastoral_notes: data.pastoral_notes || null,
+      profile_photo_file: _photoFile,
     }
 
     const result = await registerMember(payload)
@@ -1511,7 +1535,9 @@ async function _startUploadAll(): Promise<void> {
                 join_date:                      m.data.join_date || null,
                 household_id:                   m.data.household_id || null,
                 pastoral_notes:                 m.data.pastoral_notes || null,
-            }
+            } as Omit<import('../../../types/member.types').CreateMemberPayload, 'assembly_id'> & { profile_photo_file?: File | null }
+            payload.profile_photo_file = m.photoFile;
+            
             await registerMember(payload)
             m.status = 'done'
             const fill = document.getElementById(`am-uqp-${m.id}`)
@@ -1548,6 +1574,7 @@ async function _startUploadAll(): Promise<void> {
 // ── Avatar ────────────────────────────────────────────────────────────────────
 
 function _handlePhoto(file: File): void {
+    _photoFile = file
     const reader = new FileReader()
     reader.onload = ev => {
         _photoDataUrl = ev.target?.result as string
@@ -1557,9 +1584,32 @@ function _handlePhoto(file: File): void {
         if (upload) {
             upload.classList.add('has-photo')
             upload.innerHTML = '<i class="bi bi-check-circle-fill" style="font-size:22px;color:var(--caci-success);"></i><p style="font-size:11.5px;color:var(--caci-success);font-weight:500;">Photo uploaded</p>'
+            const removeBtn = document.getElementById('am-remove-photo-btn')
+            if (removeBtn) removeBtn.classList.add('visible')
         }
     }
     reader.readAsDataURL(file)
+}
+
+function _removePhoto(): void {
+    _photoDataUrl = null
+    _photoFile = null
+    const prev = document.getElementById('am-avatar-preview') as HTMLElement | null
+    if (prev) {
+        prev.style.backgroundImage = ''
+        prev.style.backgroundSize = ''
+        prev.style.backgroundPosition = ''
+        _updateAvatarPreview()
+    }
+    const upload = document.getElementById('am-photo-upload')
+    if (upload) {
+        upload.classList.remove('has-photo')
+        upload.innerHTML = '<i class="bi bi-image" style="font-size:22px;color:var(--text-muted);"></i><p style="font-size:11.5px;color:var(--text-muted);font-weight:500;">Click to upload photo</p><p style="font-size:10px;color:var(--text-muted);opacity:0.55;">JPG, PNG up to 5MB</p>'
+    }
+    const input = document.getElementById('am-photo-input') as HTMLInputElement | null
+    if (input) input.value = ''
+    const removeBtn = document.getElementById('am-remove-photo-btn')
+    if (removeBtn) removeBtn.classList.remove('visible')
 }
 
 function _updateAvatarPreview(): void {
@@ -1650,6 +1700,7 @@ function _bindAllEvents(container: HTMLElement): void {
         if (file) _handlePhoto(file)
     })
     _on_(document.getElementById('am-avatar-preview'), 'click', _openAvatarModal)
+    _on_(document.getElementById('am-remove-photo-btn'), 'click', (e) => { e.stopPropagation(); _removePhoto() })
     _on_(document.getElementById('am-modal-close'), 'click', _closeAvatarModal)
     _on_(document.getElementById('am-avatar-modal'), 'click', (e) => {
         if ((e.target as HTMLElement).id === 'am-avatar-modal') _closeAvatarModal()

@@ -41,10 +41,11 @@ export interface RegisterMemberResult {
  * The caller receives a result object describing what succeeded.
  */
 export async function registerMember(
-  payload: Omit<CreateMemberPayload, 'assembly_id'>
+  payload: Omit<CreateMemberPayload, 'assembly_id'> & { profile_photo_file?: File | null }
 ): Promise<RegisterMemberResult> {
+  const { profile_photo_file, ...dbPayload } = payload
   // Step 1: Create member record
-  const member = await createMember(payload)
+  const member = await createMember(dbPayload)
 
   const result: RegisterMemberResult = {
     member,
@@ -54,13 +55,31 @@ export async function registerMember(
     welcomeSmsSent:     false,
   }
 
+  // Step 1.5: Upload photo if provided
+  if (profile_photo_file) {
+    try {
+      // RLS policy requires folder prefix = auth.uid() (not member.id)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No authenticated user')
+
+      const { uploadProfilePhoto } = await import('../repository')
+      const photoUrl = await uploadProfilePhoto({
+        authUid: user.id,               // ← must be auth.uid(), not member.id
+        fileName: `profile_${Date.now()}_${profile_photo_file.name}`,
+        blob: profile_photo_file,
+        mimeType: profile_photo_file.type
+      })
+      result.member = await updateMember(member.id, { profile_photo_url: photoUrl })
+    } catch (err) {
+      console.warn('[memberService] Photo upload failed:', err)
+    }
+  }
+
   // Step 2: Assign membership number (background, non-fatal)
   // Mirrors: MemberCreateNotifier._assignMembershipNumber()
   try {
     const number = await assignMembershipNumber(member.id)
     result.membershipNumber = number
-    // Patch the returned member with the number (updateMember emits member:updated)
-    result.member = await updateMember(member.id, { profile_photo_url: member.profile_photo_url })
     // Re-fetch for the number — the EF updates the DB row directly
     const { getMember } = await import('../repository')
     result.member = await getMember(member.id)

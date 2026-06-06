@@ -768,6 +768,10 @@ function _renderGrid(list: MemberView[]): void {
 function _gridCard(m: MemberView, i: number): string {
   const ini  = initials(m.first_name ?? '', m.last_name ?? '')
   const bg   = avatarColor(`${m.first_name}${m.last_name}`)
+  const avatarStyle = m.profile_photo_url
+    ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
+    : `background:${bg};`
+  const avatarContent = m.profile_photo_url ? '' : ini
   const gi   = genderIcon(m.gender ?? '')
   const gc   = genderColor(m.gender ?? '')
   const dot  = statusDotColor(m.membership_status ?? '')
@@ -783,8 +787,8 @@ function _gridCard(m: MemberView, i: number): string {
                      padding:2px 6px;border-radius:5px;font-size:13px;letter-spacing:2px;"
               onclick="event.stopPropagation()" title="More">•••</button>
     </div>
-    <div class="ml-card-avatar" style="background:${bg};">
-      ${ini}
+    <div class="ml-card-avatar" style="${avatarStyle}">
+      ${avatarContent}
       <div class="ml-gender-badge" style="color:${gc};">${gi}</div>
     </div>
     <h3 style="font-size:13.5px;font-weight:600;color:var(--text-primary);
@@ -814,7 +818,7 @@ function _gridCard(m: MemberView, i: number): string {
   <!-- Mobile row -->
   <div class="ml-card-mob ml-fade-up" style="animation-delay:${delay}ms;" data-member-id="${m.id}">
     <div style="position:relative;flex-shrink:0;">
-      <div class="ml-card-mob-avatar" style="background:${bg};">${ini}</div>
+      <div class="ml-card-mob-avatar" style="${avatarStyle}">${avatarContent}</div>
       <div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;
                   border-radius:50%;background:var(--bg-card);border:2px solid var(--bg-card);
                   display:flex;align-items:center;justify-content:center;font-size:10px;color:${gc};">${gi}</div>
@@ -881,6 +885,10 @@ function _renderListPanel(list: MemberView[]): void {
 function _listRow(m: MemberView, i: number): string {
   const ini    = initials(m.first_name ?? '', m.last_name ?? '')
   const bg     = avatarColor(`${m.first_name}${m.last_name}`)
+  const avatarStyle = m.profile_photo_url
+    ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
+    : `background:${bg};`
+  const avatarContent = m.profile_photo_url ? '' : ini
   const gi     = genderIcon(m.gender ?? '')
   const gc     = genderColor(m.gender ?? '')
   const dot    = statusDotColor(m.membership_status ?? '')
@@ -890,7 +898,7 @@ function _listRow(m: MemberView, i: number): string {
   <div class="ml-list-row ml-slide-right" style="animation-delay:${delay}ms;"
        data-member-id="${m.id}">
     <div style="position:relative;flex-shrink:0;">
-      <div class="ml-list-avatar" style="background:${bg};">${ini}</div>
+      <div class="ml-list-avatar" style="${avatarStyle}">${avatarContent}</div>
       <div style="position:absolute;bottom:-1px;right:-1px;width:13px;height:13px;
                   border-radius:50%;background:${dot};border:2px solid var(--bg-card);"></div>
       <div style="position:absolute;bottom:0;right:15px;font-size:11px;color:${gc};">${gi}</div>

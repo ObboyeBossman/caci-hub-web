@@ -62,6 +62,19 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- -------------------------------------------------------------
+-- 2b. Additional sample members
+-- -------------------------------------------------------------
+INSERT INTO public.members (id, assembly_id, membership_number, first_name, last_name, gender, membership_status, created_by, email)
+VALUES
+  ('c0000000-0000-0000-0000-000000000001', (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'), 'CACI-GH-ASSAK-00002', 'Kwame', 'Mensah', 'male', 'active', 'deed0df7-d6de-404a-853d-0428c4196c9a', 'kwame@example.com'),
+  ('c0000000-0000-0000-0000-000000000002', (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'), 'CACI-GH-ASSAK-00003', 'Abena', 'Osei', 'female', 'active', 'deed0df7-d6de-404a-853d-0428c4196c9a', 'abena@example.com'),
+  ('c0000000-0000-0000-0000-000000000003', (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'), 'CACI-GH-ASSAK-00004', 'Kojo', 'Ansah', 'male', 'active', 'deed0df7-d6de-404a-853d-0428c4196c9a', 'kojo@example.com'),
+  ('c0000000-0000-0000-0000-000000000004', (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'), 'CACI-GH-ASSAK-00005', 'Akua', 'Danso', 'female', 'active', 'deed0df7-d6de-404a-853d-0428c4196c9a', 'akua@example.com'),
+  ('c0000000-0000-0000-0000-000000000005', (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'), 'CACI-GH-ASSAK-00006', 'Yaw', 'Boakye', 'male', 'visitor', 'deed0df7-d6de-404a-853d-0428c4196c9a', 'yaw@example.com')
+ON CONFLICT (id) DO NOTHING;
+
+
+-- -------------------------------------------------------------
 -- 3. Admin user_profiles row
 -- -------------------------------------------------------------
 INSERT INTO public.user_profiles (
