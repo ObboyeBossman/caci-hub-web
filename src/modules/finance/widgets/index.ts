@@ -188,6 +188,21 @@ export function SkeletonRows(count = 5): string {
   </div>`).join('')
 }
 
+export function SkeletonTableRows(colspan: number, count = 5): string {
+  return Array.from({ length: count }, (_, i) => `
+  <tr>
+    <td colspan="${colspan}" style="padding:0;border:none;">
+      <div class="fin-skeleton-row" style="animation-delay:${i * 60}ms;border-bottom:none;">
+        <div class="fin-skeleton fin-sk-sm"></div>
+        <div class="fin-skeleton fin-sk-md"></div>
+        <div class="fin-skeleton fin-sk-lg"></div>
+        <div class="fin-skeleton fin-sk-sm"></div>
+        <div class="fin-skeleton fin-sk-md"></div>
+      </div>
+    </td>
+  </tr>`).join('')
+}
+
 // ── PaginationControls ────────────────────────────────────────────────────────
 
 export function PaginationControls(

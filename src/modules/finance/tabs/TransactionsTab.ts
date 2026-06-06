@@ -9,7 +9,7 @@ import {
   listCategories,
 } from '../repository'
 import {
-  fmtCurrency, fmtDate, EmptyState, SkeletonRows,
+  fmtCurrency, fmtDate, EmptyState, SkeletonRows, SkeletonTableRows,
   PaginationControls, BulkActionBar, renderStatCards,
   PaymentMethodBadge, TransactionTypeBadge, Modal, Drawer,
 } from '../widgets/index'
@@ -139,7 +139,7 @@ export function createTransactionsTab() {
             </tr>
           </thead>
           <tbody id="txBody">
-            ${SkeletonRows()}
+            ${SkeletonTableRows(9)}
           </tbody>
         </table>
       </div>
@@ -373,7 +373,7 @@ export function createTransactionsTab() {
 
     if (!list.length) {
       tbody.innerHTML = ''
-      empty.style.display = 'flex'
+      empty.style.display = 'block'
       return
     }
     empty.style.display = 'none'
