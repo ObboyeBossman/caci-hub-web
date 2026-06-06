@@ -123,9 +123,39 @@ export const membershipRoutes: RouteDefinition[] = [
   // ── Pastoral Care ─────────────────────────────────────────────────────────
   {
     path: '/pastoral-care',
-    page: () => import('./pages/MemberList'),
+    page: () => import('./pastoral/pages/Pastoral'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
+    permission: 'pastoral.view',
+  },
+  {
+    path: '/pastoral-care/cases',
+    page: () => import('./pastoral/pages/Cases'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'pastoral.view',
+  },
+  {
+    path: '/pastoral-care/cases/new',
+    page: () => import('./pastoral/pages/CaseCreate'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'pastoral.manage',
+  },
+  {
+    path: '/pastoral-care/cases/:id',
+    page: () => import('./pastoral/pages/CaseDetail'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'pastoral.view',
+  },
+  {
+    path: '/pastoral-care/prayer-requests',
+    page: () => import('./pastoral/pages/PrayerRequests'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'pastoral.view',
+  },
+  {
+    path: '/pastoral-care/prayer-requests/new',
+    page: () => import('./pastoral/pages/PrayerRequestCreate'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'pastoral.prayer.manage',
   },
   {
     path: '/flag-member',

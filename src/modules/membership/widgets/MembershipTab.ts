@@ -63,7 +63,7 @@ export function renderMembershipTab(activeTab: MembershipTabKey, countMap?: { me
           <i class="bi bi-diagram-3-fill" style="font-size:15px;"></i>
           Groups &amp; Units
         </button>
-        <button class="ml-tab-btn ${activeTab === 'pastoral' ? 'active' : ''}" data-tab="pastoral" style="display: none;">
+        <button class="ml-tab-btn ${activeTab === 'pastoral' ? 'active' : ''}" data-tab="pastoral">
           <i class="bi bi-heart-fill" style="font-size:15px;"></i>
           Pastoral Care
         </button>

@@ -1,8 +1,8 @@
 // src/modules/pastoral/pages/CaseCreate.ts
 // Create a new pastoral case.
-import type { PageModule }      from '../../../types/module.types'
+import type { PageModule }      from '../../../../types/module.types'
 import { createCase }           from '../repository'
-import type { PastoralCaseType, PastoralPriority } from '../../../types/pastoral.types'
+import type { PastoralCaseType, PastoralPriority } from '../../../../types/pastoral.types'
 
 const CaseCreate: PageModule = {
   async render(container) {

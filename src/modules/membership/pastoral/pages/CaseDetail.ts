@@ -1,8 +1,8 @@
 // src/modules/pastoral/pages/CaseDetail.ts
 // View a pastoral case and its visits.
-import type { PageModule }  from '../../../types/module.types'
+import type { PageModule }  from '../../../../types/module.types'
 import { getCase, listVisits, updateCaseStatus } from '../repository'
-import type { PastoralCaseStatus } from '../../../types/pastoral.types'
+import type { PastoralCaseStatus } from '../../../../types/pastoral.types'
 
 const CaseDetail: PageModule = {
   async render(container) {

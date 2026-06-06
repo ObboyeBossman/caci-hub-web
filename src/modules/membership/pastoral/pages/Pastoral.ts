@@ -1,6 +1,6 @@
 // src/modules/pastoral/pages/Pastoral.ts
 // Pastoral Care overview dashboard.
-import type { PageModule }     from '../../../types/module.types'
+import type { PageModule }     from '../../../../types/module.types'
 import { listCases }           from '../repository'
 import { listPrayerRequests }  from '../repository'
 

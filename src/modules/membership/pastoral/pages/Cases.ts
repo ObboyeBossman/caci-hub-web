@@ -1,6 +1,6 @@
 // src/modules/pastoral/pages/Cases.ts
 // Pastoral cases list page.
-import type { PageModule } from '../../../types/module.types'
+import type { PageModule } from '../../../../types/module.types'
 import { listCases }       from '../repository'
 
 const Cases: PageModule = {

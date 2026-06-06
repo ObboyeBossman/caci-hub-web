@@ -1,6 +1,6 @@
 // src/modules/pastoral/pages/PrayerRequestCreate.ts
 // Submit a new prayer request.
-import type { PageModule }     from '../../../types/module.types'
+import type { PageModule }     from '../../../../types/module.types'
 import { createPrayerRequest } from '../repository'
 
 const PrayerRequestCreate: PageModule = {

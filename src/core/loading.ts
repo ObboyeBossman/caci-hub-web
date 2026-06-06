@@ -18,7 +18,6 @@ import MembershipModule from '../modules/membership/index'
 import AdminModule from '../modules/admin/index'
 import ServicesModule from '../modules/events/index'
 import FinanceModule from '../modules/finance/index'
-import PastoralModule from '../modules/pastoral/index'
 
 export async function runLoading(): Promise<void> {
   const app = document.getElementById('app')
@@ -102,7 +101,6 @@ export async function runLoading(): Promise<void> {
     registerModule(AdminModule)
     registerModule(ServicesModule)
     registerModule(FinanceModule)
-    registerModule(PastoralModule)
 
     // Step 3: Mount base container ───────────────────────────────────────────
     setProgress(60, 'Mounting base container…')

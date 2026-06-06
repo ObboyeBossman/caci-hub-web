@@ -8,7 +8,7 @@
 
 import { supabase }            from '@core/supabase'
 import { getActiveAssemblyId } from '@core/auth'
-import { RepositoryError, DB_ERROR_CODES } from '../../types/common.types'
+import { RepositoryError, DB_ERROR_CODES } from '../../../types/common.types'
 import type {
   PastoralCase,
   PastoralVisit,
@@ -23,7 +23,7 @@ import type {
   UpdatePrayerRequestPayload,
   CaseFilter,
   PrayerRequestFilter,
-} from '../../types/pastoral.types'
+} from '../../../types/pastoral.types'
 
 // ── Error helper ──────────────────────────────────────────────────────────────
 

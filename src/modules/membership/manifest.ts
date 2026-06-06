@@ -102,6 +102,28 @@ export const MembershipModule = {
       category:     'Groups',
       isAssignable: true,
     },
+    // ── Pastoral ────────────────────────────────────────────────────────────
+    {
+      key:          PERMISSIONS.PASTORAL_VIEW,
+      label:        'View Pastoral Care',
+      description:  'Allows viewing pastoral cases, visits, and prayer requests',
+      category:     'Pastoral',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.PASTORAL_MANAGE,
+      label:        'Manage Pastoral Care',
+      description:  'Allows creating and updating pastoral cases and visits',
+      category:     'Pastoral',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.PASTORAL_PRAYER_MANAGE,
+      label:        'Manage Prayer Requests',
+      description:  'Allows updating the status of prayer requests',
+      category:     'Pastoral',
+      isAssignable: true,
+    },
   ],
 }
 

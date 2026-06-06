@@ -1,6 +1,6 @@
 // src/modules/pastoral/pages/PrayerRequests.ts
 // Prayer requests list page.
-import type { PageModule }   from '../../../types/module.types'
+import type { PageModule }   from '../../../../types/module.types'
 import { listPrayerRequests, updatePrayerRequestStatus } from '../repository'
 
 const PrayerRequests: PageModule = {
