@@ -230,7 +230,7 @@ export function createBudgetTab() {
     const list    = container.querySelector<HTMLElement>('#bgList')!
 
     if (!filtered.length) {
-      list.innerHTML = EmptyState('wallet2', 'No budget lines', 'Add a line to get started')
+      list.innerHTML = `<div style="display: flex; justify-content: center; width: 100%;">${EmptyState('wallet2', 'No budget lines', 'Add a line to get started')}</div>`
       return
     }
 

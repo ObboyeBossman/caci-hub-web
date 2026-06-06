@@ -297,7 +297,7 @@ export function createPledgesTab() {
   function renderCards(list: FinancePledge[]): void {
     const grid = container.querySelector<HTMLElement>('#plGrid')!
     if (!list.length) {
-      grid.innerHTML = EmptyState('handshake', 'No pledges found', 'Try adjusting your filters')
+      grid.innerHTML = `<div style="grid-column: 1 / -1; display: flex; justify-content: center; width: 100%;">${EmptyState('handshake', 'No pledges found', 'Try adjusting your filters')}</div>`
       return
     }
     grid.innerHTML = list.map((p, i) => buildCard(p, i)).join('')
