@@ -686,33 +686,32 @@ export class _Sidebar {
 
     // Nav items (routes + coming soon)
     el.querySelectorAll<HTMLElement>('[data-route], [data-route-full]').forEach(btn => {
-      const handleNav = (isClick: boolean) => {
+      btn.addEventListener('click', () => {
         const route = btn.dataset['route'] || btn.dataset['routeFull']
         if (!route) return
-        
         if (btn.dataset['comingSoon'] === 'true') {
-          if (isClick) {
-            closeDrawer()
-            _showComingSoonToast(
-              btn.querySelector('.sb-nav-item-label, .sb-sub-item')?.textContent?.trim()
-              ?? btn.textContent?.trim()
-              ?? 'This section'
-            )
-          }
+          closeDrawer()
+          _showComingSoonToast(
+            btn.querySelector('.sb-nav-item-label, .sb-sub-item')?.textContent?.trim()
+            ?? btn.textContent?.trim()
+            ?? 'This section'
+          )
           return
         }
-
-        if (isClick) closeDrawer()
+        closeDrawer()
         navigate(route)
-      }
-
-      btn.addEventListener('click', () => handleNav(true))
-      btn.addEventListener('mouseenter', () => handleNav(false))
+      })
     })
 
     // Role switcher tabs
-    el.querySelector('#sb-role-member')?.addEventListener('click', () => this._switchView('member'))
-    el.querySelector('#sb-role-admin')?.addEventListener('click', () => this._switchView('admin'))
+    const btnMember = el.querySelector('#sb-role-member')
+    const btnAdmin = el.querySelector('#sb-role-admin')
+    
+    btnMember?.addEventListener('click', () => this._switchView('member'))
+    btnMember?.addEventListener('mouseenter', () => this._switchView('member'))
+    
+    btnAdmin?.addEventListener('click', () => this._switchView('admin'))
+    btnAdmin?.addEventListener('mouseenter', () => this._switchView('admin'))
 
     // Accordion triggers — click to toggle, hover to expand
     el.querySelectorAll<HTMLElement>('[data-accord-trigger]').forEach(btn => {
