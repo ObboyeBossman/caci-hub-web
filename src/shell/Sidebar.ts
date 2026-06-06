@@ -686,21 +686,28 @@ export class _Sidebar {
 
     // Nav items (routes + coming soon)
     el.querySelectorAll<HTMLElement>('[data-route], [data-route-full]').forEach(btn => {
-      btn.addEventListener('click', () => {
+      const handleNav = (isClick: boolean) => {
         const route = btn.dataset['route'] || btn.dataset['routeFull']
         if (!route) return
+        
         if (btn.dataset['comingSoon'] === 'true') {
-          closeDrawer()
-          _showComingSoonToast(
-            btn.querySelector('.sb-nav-item-label, .sb-sub-item')?.textContent?.trim()
-            ?? btn.textContent?.trim()
-            ?? 'This section'
-          )
+          if (isClick) {
+            closeDrawer()
+            _showComingSoonToast(
+              btn.querySelector('.sb-nav-item-label, .sb-sub-item')?.textContent?.trim()
+              ?? btn.textContent?.trim()
+              ?? 'This section'
+            )
+          }
           return
         }
-        closeDrawer()
+
+        if (isClick) closeDrawer()
         navigate(route)
-      })
+      }
+
+      btn.addEventListener('click', () => handleNav(true))
+      btn.addEventListener('mouseenter', () => handleNav(false))
     })
 
     // Role switcher tabs
