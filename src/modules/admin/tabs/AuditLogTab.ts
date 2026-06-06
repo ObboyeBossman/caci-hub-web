@@ -11,7 +11,9 @@ import {
   injectWidgetCSS,
   StatsCardGroup,
   showToast,
-} from '@shared/widgets/adminWidgets'
+  avatarColor,
+  initials,
+} from '../widgets/adminWidgets'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -475,7 +477,7 @@ export class AuditLogTab implements WorkspaceTab {
             getValue: () => s.totalService,
           },
         ],
-        (id) => {
+        (id: string | null) => {
           if (id === 'member' || id === 'service') {
             this._source = id as AuditSource
           } else {

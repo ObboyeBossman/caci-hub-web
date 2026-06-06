@@ -15,7 +15,7 @@ import type { WorkspaceTab }          from '../workspace/AdminWorkspaceShell'
 import {
   injectWidgetCSS,
   showToast,
-} from '@shared/widgets/adminWidgets'
+} from '../widgets/adminWidgets'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CSS
@@ -459,7 +459,7 @@ export class PermissionsTab implements WorkspaceTab {
         const set     = this._dirty.get(roleId)!
         const wasOn   = set.has(permKey)
 
-        if (wasOn) set.delete(permKey) else set.add(permKey)
+        if (wasOn) set.delete(permKey); else set.add(permKey)
 
         // Update button
         const btn = cell.querySelector<HTMLButtonElement>('.pmt-toggle-btn')!

@@ -29,7 +29,7 @@ import {
   renderEmptyState,
   avatarColor,
   initials,
-} from '@shared/widgets/adminWidgets'
+} from '../widgets/adminWidgets'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CSS
@@ -872,7 +872,7 @@ export class RolesTab implements WorkspaceTab {
         const modPerms = byModule.get(modName) ?? []
         const allSel   = modPerms.every(p => selected.has(p.key))
         modPerms.forEach(p => {
-          if (allSel) selected.delete(p.key) else selected.add(p.key)
+          if (allSel) selected.delete(p.key); else selected.add(p.key)
           const item = overlay.querySelector<HTMLElement>(`[data-perm-key="${p.key}"]`)
           const chk  = overlay.querySelector<HTMLInputElement>(`[data-perm-chk="${p.key}"]`)
           item?.classList.toggle('selected', !allSel)

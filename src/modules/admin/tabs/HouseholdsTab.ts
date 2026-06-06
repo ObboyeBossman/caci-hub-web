@@ -18,7 +18,7 @@ import {
   renderEmptyState,
   avatarColor,
   initials,
-} from '@shared/widgets/adminWidgets'
+} from '../widgets/adminWidgets'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
@@ -343,7 +343,7 @@ export class HouseholdsTab implements WorkspaceTab {
           getValue: () => this._households.filter(h => h.memberCount === 0).length,
         },
       ],
-      (id) => {
+      (id: string | null) => {
         this._statFilter = id
         this._selectedIds.clear()
         this._applyFilters()
@@ -358,7 +358,7 @@ export class HouseholdsTab implements WorkspaceTab {
       [
         {
           id: 'delete', label: 'Delete Selected', icon: 'trash3-fill', variant: 'danger',
-          onClick: (ids) => this._bulkDelete(ids),
+          onClick: (ids: Set<string>) => this._bulkDelete(ids),
         },
       ],
       () => this._clearSelection()
