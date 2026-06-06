@@ -42,8 +42,8 @@ export function TransactionTypeBadge(type: string, categoryType: 'income' | 'exp
   <span style="
     display:inline-flex; align-items:center; gap:4px;
     padding:3px 9px; border-radius:99px; font-size:11px; font-weight:600;
-    background:${isIncome ? 'rgba(16,185,129,.12)' : 'rgba(244,63,94,.1)'};
-    color:${isIncome ? '#34d399' : '#fb7185'};
+    background:${isIncome ? 'var(--green-bg)' : 'var(--bg-danger)'};
+    color:${isIncome ? 'var(--green)' : 'var(--caci-red-dim)'};
     border:1px solid ${isIncome ? 'rgba(16,185,129,.25)' : 'rgba(244,63,94,.22)'};
   ">
     <span class="bi bi-${isIncome ? 'arrow-down-circle' : 'arrow-up-circle'}" style="font-size:10px;"></span>
@@ -65,7 +65,7 @@ export function PaymentMethodBadge(method: string): string {
   <span style="
     display:inline-flex; align-items:center; gap:4px;
     padding:3px 9px; border-radius:6px; font-size:11px; font-weight:500;
-    background:#21262d; border:1px solid #30363d; color:#8b949e;
+    background:var(--bg-hover); border:1px solid var(--border-default); color:var(--text-secondary);
   ">
     <span class="bi bi-${icon}" style="font-size:11px;"></span>
     ${label}
@@ -80,16 +80,16 @@ export function PledgeProgressBar(
   delayS = 0.3
 ): string {
   const colorMap: Record<string, string> = {
-    active:    'linear-gradient(90deg,#22c55e,#56d364)',
-    completed: 'linear-gradient(90deg,#388bfd,#58a6ff)',
-    defaulted: 'linear-gradient(90deg,#f43f5e,#fb7185)',
-    cancelled: '#484f58',
+    active:    'linear-gradient(90deg,var(--green),#56d364)',
+    completed: 'linear-gradient(90deg,var(--caci-blue-light),var(--caci-blue-light))',
+    defaulted: 'linear-gradient(90deg,var(--caci-red),var(--caci-red-dim))',
+    cancelled: 'var(--text-muted)',
   }
   const fill = colorMap[status] ?? colorMap.active
   const clamped = Math.min(100, Math.max(0, pct))
 
   return `
-  <div style="height:6px; border-radius:99px; background:#21262d; overflow:hidden; position:relative;">
+  <div style="height:6px; border-radius:99px; background:var(--bg-hover); overflow:hidden; position:relative;">
     <div style="
       height:100%; border-radius:99px;
       width:${clamped}%;
@@ -103,14 +103,14 @@ export function PledgeProgressBar(
 
 export function BudgetVarianceBadge(variance: number, budgeted: number): string {
   if (budgeted === 0) {
-    return `<span style="font-size:11px;color:#484f58;">—</span>`
+    return `<span style="font-size:11px;color:var(--text-muted);">—</span>`
   }
   const over  = variance > 0
   const exact = Math.abs(variance) < 0.01
   const label = exact ? '±0'
     : `${over ? '+' : '−'}${fmtCurrency(Math.abs(variance)).replace('GH₵ ', '')}`
-  const bg    = exact ? 'rgba(88,166,255,.1)' : over ? 'rgba(244,63,94,.1)' : 'rgba(16,185,129,.12)'
-  const color = exact ? '#58a6ff'             : over ? '#fb7185'            : '#34d399'
+  const bg    = exact ? 'rgba(88,166,255,.1)' : over ? 'var(--bg-danger)' : 'var(--green-bg)'
+  const color = exact ? 'var(--caci-blue-light)'             : over ? 'var(--caci-red-dim)'            : 'var(--green)'
   const icon  = exact ? 'dash'                : over ? 'arrow-up'          : 'arrow-down'
 
   return `
@@ -152,7 +152,7 @@ export function renderStatCards(cards: StatCard[]): string {
       </div>
       <div class="fin-stat-value" ${c.id ? `id="${c.id}"` : ''}>${c.value}</div>
       ${c.trend ? `
-      <div class="fin-stat-trend" style="color:${c.trendUp ? '#34d399' : '#fb7185'};">
+      <div class="fin-stat-trend" style="color:${c.trendUp ? 'var(--green)' : 'var(--caci-red-dim)'};">
         <span class="bi bi-arrow-${c.trendUp ? 'up' : 'down'}" style="font-size:10px;"></span>
         ${c.trend}
       </div>` : ''}
@@ -169,7 +169,7 @@ export function renderStatCards(cards: StatCard[]): string {
 export function EmptyState(icon: string, title: string, subtitle = ''): string {
   return `
   <div class="fin-empty-state">
-    <span class="bi bi-${icon}" style="font-size:2.5rem;color:#30363d;"></span>
+    <span class="bi bi-${icon}" style="font-size:2.5rem;color:var(--border-default);"></span>
     <p class="fin-empty-title">${title}</p>
     ${subtitle ? `<p class="fin-empty-sub">${subtitle}</p>` : ''}
   </div>`
@@ -245,7 +245,7 @@ export function PaginationControls(
 export function BulkActionBar(selectedCount: number): string {
   return `
   <div class="fin-bulk-bar ${selectedCount > 0 ? 'visible' : ''}" id="finBulkBar">
-    <span class="bi bi-check-square-fill" style="font-size:16px;color:#58a6ff;"></span>
+    <span class="bi bi-check-square-fill" style="font-size:16px;color:var(--caci-blue-light);"></span>
     <span class="fin-bulk-count"><span id="finBulkCount">${selectedCount}</span> selected</span>
     <div class="fin-bulk-divider"></div>
     <button class="fin-tbtn" id="finBulkExport" style="height:34px;font-size:12px;">
@@ -279,7 +279,7 @@ export function DonutChart(
   const cx = 70, cy = 70, r = 52, strokeW = 18
   const circumference = 2 * Math.PI * r
   let offset = 0
-  let svgContent = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#21262d" stroke-width="${strokeW}"/>`
+  let svgContent = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg-hover)" stroke-width="${strokeW}"/>`
 
   segments.forEach((seg, i) => {
     const pct  = seg.value / total
@@ -301,9 +301,9 @@ export function DonutChart(
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0;">
     <div style="display:flex;align-items:center;gap:6px;min-width:0;">
       <div style="width:8px;height:8px;border-radius:2px;background:${seg.color};flex-shrink:0;"></div>
-      <span style="font-size:11px;color:#8b949e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${seg.label}</span>
+      <span style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${seg.label}</span>
     </div>
-    <span style="font-size:11px;font-weight:600;color:#e6edf3;flex-shrink:0;">${Math.round((seg.value/total)*100)}%</span>
+    <span style="font-size:11px;font-weight:600;color:var(--text-primary);flex-shrink:0;">${Math.round((seg.value/total)*100)}%</span>
   </div>`).join('')
 
   return `
@@ -311,8 +311,8 @@ export function DonutChart(
     <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
       <svg viewBox="0 0 140 140" style="width:140px;height:140px;">${svgContent}</svg>
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
-        <span style="font-size:11px;color:#8b949e;">${centerLabel}</span>
-        <span style="font-size:14px;font-weight:700;color:#e6edf3;">${centerValue}</span>
+        <span style="font-size:11px;color:var(--text-secondary);">${centerLabel}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text-primary);">${centerValue}</span>
       </div>
     </div>
     <div style="flex:1;min-width:120px;">${legend}</div>
@@ -342,19 +342,19 @@ export function BarChart(groups: BarGroup[], height = 140): string {
         <div title="${g.label} Income: ${fmtCurrency(g.income)}" style="
           width:16px; min-height:3px; border-radius:3px 3px 0 0;
           height:${incH}px;
-          background:linear-gradient(180deg,#34d399,#22c55e);
+          background:var(--bg-card),var(--green));
           transform-origin:bottom;
           animation:finBarRise .8s ${d1}s cubic-bezier(.16,1,.3,1) both;
         "></div>
         <div title="${g.label} Expense: ${fmtCurrency(g.expense)}" style="
           width:16px; min-height:3px; border-radius:3px 3px 0 0;
           height:${expH}px;
-          background:linear-gradient(180deg,#fb7185,#f43f5e);
+          background:var(--bg-card),var(--caci-red));
           transform-origin:bottom;
           animation:finBarRise .8s ${d2}s cubic-bezier(.16,1,.3,1) both;
         "></div>
       </div>
-      <span style="font-size:10px;color:#484f58;white-space:nowrap;">${g.label}</span>
+      <span style="font-size:10px;color:var(--text-muted);white-space:nowrap;">${g.label}</span>
     </div>`
   }).join('')
 

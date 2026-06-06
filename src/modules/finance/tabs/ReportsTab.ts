@@ -42,9 +42,9 @@ export function createReportsTab() {
     return `
     <!-- Stats -->
     ${renderStatCards([
-      { icon:'graph-up-arrow',   label:'YTD Income',   value:'GH₵ 0', iconBg:'rgba(16,185,129,.12)',  iconColor:'#10b981', id:'rpStatInc' },
-      { icon:'graph-down-arrow', label:'YTD Expense',  value:'GH₵ 0', iconBg:'rgba(244,63,94,.1)',    iconColor:'#f43f5e', id:'rpStatExp' },
-      { icon:'bank',             label:'Net Surplus',  value:'GH₵ 0', iconBg:'rgba(88,166,255,.12)',  iconColor:'#58a6ff', id:'rpStatNet' },
+      { icon:'graph-up-arrow',   label:'YTD Income',   value:'GH₵ 0', iconBg:'var(--green-bg)',  iconColor:'#10b981', id:'rpStatInc' },
+      { icon:'graph-down-arrow', label:'YTD Expense',  value:'GH₵ 0', iconBg:'var(--bg-danger)',    iconColor:'var(--caci-red)', id:'rpStatExp' },
+      { icon:'bank',             label:'Net Surplus',  value:'GH₵ 0', iconBg:'rgba(88,166,255,.12)',  iconColor:'var(--caci-blue-light)', id:'rpStatNet' },
       { icon:'people',           label:'Avg/Member',   value:'GH₵ 0', iconBg:'rgba(139,92,246,.12)',  iconColor:'#a78bfa', id:'rpStatAvg' },
     ])}
 
@@ -82,12 +82,12 @@ export function createReportsTab() {
         <div class="fin-chart-sub" id="rpBarSub">Month-by-month comparison · ${year}</div>
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:5px;">
-            <div style="width:10px;height:10px;border-radius:3px;background:#34d399;"></div>
-            <span style="font-size:11px;color:#8b949e;">Income</span>
+            <div style="width:10px;height:10px;border-radius:3px;background:var(--green);"></div>
+            <span style="font-size:11px;color:var(--text-secondary);">Income</span>
           </div>
           <div style="display:flex;align-items:center;gap:5px;">
-            <div style="width:10px;height:10px;border-radius:3px;background:#fb7185;"></div>
-            <span style="font-size:11px;color:#8b949e;">Expense</span>
+            <div style="width:10px;height:10px;border-radius:3px;background:var(--caci-red-dim);"></div>
+            <span style="font-size:11px;color:var(--text-secondary);">Expense</span>
           </div>
         </div>
         <div id="rpBarChart">
@@ -191,14 +191,14 @@ export function createReportsTab() {
     setEl('rpStatNet', fmtCurrency(net))
 
     const netEl = container.querySelector<HTMLElement>('#rpStatNet')
-    if (netEl) netEl.style.color = net >= 0 ? '#58a6ff' : '#fb7185'
+    if (netEl) netEl.style.color = net >= 0 ? 'var(--caci-blue-light)' : 'var(--caci-red-dim)'
   }
 
   async function loadDonut(): Promise<void> {
     try {
       const cats = await getCategoryBreakdown('income', year)
       const total = cats.reduce((s, c) => s + c.total, 0)
-      const colors = ['#fbbf24','#34d399','#a78bfa','#f9a8d4','#58a6ff','#fb7185','#6ee7b7']
+      const colors = ['var(--amber)','var(--green)','#a78bfa','#f9a8d4','var(--caci-blue-light)','var(--caci-red-dim)','#6ee7b7']
 
       const segments = cats.slice(0, 7).map((c, i) => ({
         label: c.category_name,
@@ -226,32 +226,32 @@ export function createReportsTab() {
         ? givers.map((g, i) => {
           const barW = Math.round((g.total / maxTotal) * 100)
           return `
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #21262d;" class="animate-fade-up" style="animation-delay:${i*50}ms;">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg-hover);" class="animate-fade-up" style="animation-delay:${i*50}ms;">
             <div style="
               width:24px;height:24px;border-radius:6px;flex-shrink:0;
               display:flex;align-items:center;justify-content:center;
-              background:${i < 3 ? 'rgba(251,191,36,.12)' : '#21262d'};
+              background:${i < 3 ? 'var(--bg-warning)' : 'var(--bg-hover)'};
               font-size:${i < 3 ? '14px' : '11px'};font-weight:700;
-              color:${i < 3 ? '#fbbf24' : '#8b949e'};
+              color:${i < 3 ? 'var(--amber)' : 'var(--text-secondary)'};
             ">${i < 3 ? medals[i] : g.rank}</div>
             <div style="
               width:30px;height:30px;border-radius:50%;
               display:flex;align-items:center;justify-content:center;
               font-size:10px;font-weight:700;flex-shrink:0;
-              background:#1e3a5f;color:#93c5fd;border:2px solid #0d1117;
+              background:var(--bg-hover);color:var(--text-primary);border:2px solid var(--bg-page);
             ">${g.member_name.split(' ').map(w => w[0]).slice(0,2).join('')}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:12.5px;font-weight:600;color:#c9d1d9;
+              <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);
                 overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${g.member_name}</div>
-              <div style="height:4px;border-radius:99px;background:#21262d;margin-top:4px;overflow:hidden;">
+              <div style="height:4px;border-radius:99px;background:var(--bg-hover);margin-top:4px;overflow:hidden;">
                 <div style="
                   height:100%;border-radius:99px;width:${barW}%;
-                  background:linear-gradient(90deg,#1f6feb,#58a6ff);
+                  background:linear-gradient(90deg,var(--caci-blue),var(--caci-blue-light));
                   animation:finBarGrow .8s ${.3 + i*.06}s cubic-bezier(.16,1,.3,1) both;
                 "></div>
               </div>
             </div>
-            <div style="font-size:12px;font-weight:700;font-family:monospace;color:#e6edf3;flex-shrink:0;">
+            <div style="font-size:12px;font-weight:700;font-family:monospace;color:var(--text-primary);flex-shrink:0;">
               ${fmtShort(g.total)}
             </div>
           </div>`
@@ -268,43 +268,43 @@ export function createReportsTab() {
       const ps = await getPledgeSummary()
       const fulPct = ps.fulfilment_pct
       const barW   = Math.min(100, fulPct)
-      const barBg  = fulPct >= 80 ? 'linear-gradient(90deg,#22c55e,#56d364)'
-                   : fulPct >= 50 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
-                   : 'linear-gradient(90deg,#f43f5e,#fb7185)'
+      const barBg  = fulPct >= 80 ? 'linear-gradient(90deg,var(--green),#56d364)'
+                   : fulPct >= 50 ? 'linear-gradient(90deg,#f59e0b,var(--amber))'
+                   : 'linear-gradient(90deg,var(--caci-red),var(--caci-red-dim))'
 
       container.querySelector<HTMLElement>('#rpPledge')!.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:13px;color:#c9d1d9;">Total Pledged</span>
+          <span style="font-size:13px;color:var(--text-primary);">Total Pledged</span>
           <span style="font-size:14px;font-weight:700;color:#a78bfa;">${fmtCurrency(ps.total_pledged)}</span>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:13px;color:#c9d1d9;">Total Collected</span>
-          <span style="font-size:14px;font-weight:700;color:#34d399;">${fmtCurrency(ps.total_paid)}</span>
+          <span style="font-size:13px;color:var(--text-primary);">Total Collected</span>
+          <span style="font-size:14px;font-weight:700;color:var(--green);">${fmtCurrency(ps.total_paid)}</span>
         </div>
         <div>
           <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-            <span style="font-size:11px;color:#8b949e;">Fulfilment</span>
-            <span style="font-size:11px;font-weight:700;color:#e6edf3;">${fulPct}%</span>
+            <span style="font-size:11px;color:var(--text-secondary);">Fulfilment</span>
+            <span style="font-size:11px;font-weight:700;color:var(--text-primary);">${fulPct}%</span>
           </div>
-          <div style="height:8px;border-radius:99px;background:#21262d;overflow:hidden;">
+          <div style="height:8px;border-radius:99px;background:var(--bg-hover);overflow:hidden;">
             <div style="height:100%;border-radius:99px;width:${barW}%;background:${barBg};
               animation:finBarGrow 1s .4s cubic-bezier(.16,1,.3,1) both;"></div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:4px;">
           ${[
-            { label:'Active',    val: ps.active,    col:'#34d399' },
-            { label:'Completed', val: ps.completed, col:'#58a6ff' },
-            { label:'Defaulted', val: ps.defaulted, col:'#fb7185' },
-            { label:'Cancelled', val: ps.cancelled, col:'#8b949e' },
+            { label:'Active',    val: ps.active,    col:'var(--green)' },
+            { label:'Completed', val: ps.completed, col:'var(--caci-blue-light)' },
+            { label:'Defaulted', val: ps.defaulted, col:'var(--caci-red-dim)' },
+            { label:'Cancelled', val: ps.cancelled, col:'var(--text-secondary)' },
           ].map(s => `
           <div style="
-            background:#0d1117;border:1px solid #30363d;border-radius:10px;
+            background:var(--bg-page);border:1px solid var(--border-default);border-radius:10px;
             padding:10px;text-align:center;
           ">
             <div style="font-size:18px;font-weight:800;color:${s.col};">${s.val}</div>
-            <div style="font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">${s.label}</div>
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">${s.label}</div>
           </div>`).join('')}
         </div>
       </div>`
@@ -329,9 +329,9 @@ export function createReportsTab() {
         totalBudgeted += s.budgeted
         totalActual   += s.actual
         const isIncome   = s.category_type === 'income'
-        const typeColor  = isIncome ? '#34d399' : '#fb7185'
-        const actColor   = s.variance > 0 ? '#fb7185' : '#e6edf3'
-        const varColor   = s.variance > 0 ? '#fb7185' : s.variance < 0 ? '#34d399' : '#8b949e'
+        const typeColor  = isIncome ? 'var(--green)' : 'var(--caci-red-dim)'
+        const actColor   = s.variance > 0 ? 'var(--caci-red-dim)' : 'var(--text-primary)'
+        const varColor   = s.variance > 0 ? 'var(--caci-red-dim)' : s.variance < 0 ? 'var(--green)' : 'var(--text-secondary)'
         const varSign    = s.variance > 0 ? '+' : ''
         return `
         <tr>
@@ -355,19 +355,19 @@ export function createReportsTab() {
 
       const net = totalActual - totalBudgeted
       tbody.innerHTML = rowsHtml + `
-      <tr style="border-top:1px solid #30363d;background:rgba(88,166,255,.04);">
-        <td colspan="3" style="font-weight:700;color:#58a6ff;">Net Position</td>
-        <td style="text-align:right;font-weight:800;font-variant-numeric:tabular-nums;font-size:14px;color:#e6edf3;">
+      <tr style="border-top:1px solid var(--border-default);background:var(--bg-info);">
+        <td colspan="3" style="font-weight:700;color:var(--caci-blue-light);">Net Position</td>
+        <td style="text-align:right;font-weight:800;font-variant-numeric:tabular-nums;font-size:14px;color:var(--text-primary);">
           ${fmtCurrency(totalActual)}
         </td>
         <td style="text-align:right;font-weight:800;font-variant-numeric:tabular-nums;font-size:14px;
-          color:${net > 0 ? '#fb7185' : net < 0 ? '#34d399' : '#8b949e'};">
+          color:${net > 0 ? 'var(--caci-red-dim)' : net < 0 ? 'var(--green)' : 'var(--text-secondary)'};">
           ${net > 0 ? '+' : ''}${fmtCurrency(Math.abs(net))}
         </td>
       </tr>`
     } catch {
       const tbody = container.querySelector<HTMLElement>('#rpSumBody')!
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:#484f58;">Could not load summary</td></tr>`
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Could not load summary</td></tr>`
     }
   }
 

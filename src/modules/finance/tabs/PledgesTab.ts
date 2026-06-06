@@ -45,10 +45,10 @@ export function createPledgesTab() {
     <div id="plStats">
       ${renderStatCards([
         { icon: 'handshake',    label: 'Total Pledged',    value: 'GH₵ 0', iconBg: 'rgba(139,92,246,.12)',  iconColor: '#a78bfa', id: 'plStatTotal' },
-        { icon: 'cash-stack',   label: 'Amount Paid',      value: 'GH₵ 0', iconBg: 'rgba(34,197,94,.12)',   iconColor: '#22c55e', id: 'plStatPaid',
-          barColor: 'linear-gradient(90deg,#22c55e,#56d364)', barValue: 0 },
-        { icon: 'hourglass-split', label: 'Outstanding',   value: 'GH₵ 0', iconBg: 'rgba(88,166,255,.1)',   iconColor: '#58a6ff', id: 'plStatOut' },
-        { icon: 'exclamation-triangle', label: 'Overdue',  value: '0',     iconBg: 'rgba(244,63,94,.1)',    iconColor: '#f43f5e', id: 'plStatOver' },
+        { icon: 'cash-stack',   label: 'Amount Paid',      value: 'GH₵ 0', iconBg: 'rgba(34,197,94,.12)',   iconColor: 'var(--green)', id: 'plStatPaid',
+          barColor: 'linear-gradient(90deg,var(--green),#56d364)', barValue: 0 },
+        { icon: 'hourglass-split', label: 'Outstanding',   value: 'GH₵ 0', iconBg: 'rgba(88,166,255,.1)',   iconColor: 'var(--caci-blue-light)', id: 'plStatOut' },
+        { icon: 'exclamation-triangle', label: 'Overdue',  value: '0',     iconBg: 'var(--bg-danger)',    iconColor: 'var(--caci-red)', id: 'plStatOver' },
       ])}
     </div>
 
@@ -168,7 +168,7 @@ export function createPledgesTab() {
     <div id="plPayError" style="display:none;"></div>
     <div id="plPaySummary" style="
       background:rgba(139,92,246,.08); border:1px solid rgba(139,92,246,.2);
-      border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px; color:#c9d1d9;
+      border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px; color:var(--text-primary);
     "></div>
     <div class="fin-form-row">
       <div class="fin-form-group">
@@ -219,7 +219,7 @@ export function createPledgesTab() {
     } catch (err: any) {
       container.querySelector<HTMLElement>('#plGrid')!.innerHTML =
         `<div class="fin-empty-state">
-          <span class="bi bi-exclamation-circle" style="font-size:2rem;color:#fb7185;"></span>
+          <span class="bi bi-exclamation-circle" style="font-size:2rem;color:var(--caci-red-dim);"></span>
           <p class="fin-empty-title">${err?.message ?? 'Failed to load pledges.'}</p>
         </div>`
     }
@@ -309,12 +309,12 @@ export function createPledgesTab() {
     const canPay   = p.status === 'active' || p.status === 'defaulted'
     const statusColors: Record<string, { bg: string; color: string }> = {
       active:    { bg: 'rgba(34,197,94,.12)',  color: '#56d364' },
-      completed: { bg: 'rgba(88,166,255,.1)',  color: '#58a6ff' },
-      defaulted: { bg: 'rgba(244,63,94,.1)',   color: '#fb7185' },
-      cancelled: { bg: 'rgba(139,148,158,.1)', color: '#8b949e' },
+      completed: { bg: 'rgba(88,166,255,.1)',  color: 'var(--caci-blue-light)' },
+      defaulted: { bg: 'var(--bg-danger)',   color: 'var(--caci-red-dim)' },
+      cancelled: { bg: 'var(--bg-hover)', color: 'var(--text-secondary)' },
     }
     const sc       = statusColors[p.status] ?? statusColors.active
-    const ringColor = p.status === 'defaulted' ? '#f43f5e' : '#22c55e'
+    const ringColor = p.status === 'defaulted' ? 'var(--caci-red)' : 'var(--green)'
     const ringDark  = p.status === 'defaulted' ? '#7b1d2e' : '#166534'
     const deg       = Math.round(pct * 3.6)
 
@@ -328,8 +328,8 @@ export function createPledgesTab() {
       <!-- Header: name + status -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:14px;">
         <div>
-          <div style="font-size:13.5px;font-weight:700;color:#e6edf3;line-height:1.3;">${p.pledge_name}</div>
-          <div style="font-size:10px;font-family:monospace;color:#484f58;margin-top:2px;">${p.id.slice(0,12)}…</div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--text-primary);line-height:1.3;">${p.pledge_name}</div>
+          <div style="font-size:10px;font-family:monospace;color:var(--text-muted);margin-top:2px;">${p.id.slice(0,12)}…</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           <span style="
@@ -355,15 +355,15 @@ export function createPledgesTab() {
             width:38px;height:38px;border-radius:50%;
             display:flex;align-items:center;justify-content:center;
             font-size:13px;font-weight:700;
-            border:2.5px solid #0d1117;
-            background:#1e3a5f;color:#93c5fd;
+            border:2.5px solid var(--bg-page);
+            background:var(--bg-hover);color:var(--text-primary);
           ">
             ${(p.member_name ?? '?').split(' ').map(w => w[0]).slice(0,2).join('')}
           </div>
         </div>
         <div>
-          <div style="font-size:13px;font-weight:500;color:#e6edf3;">${p.member_name ?? 'Unknown'}</div>
-          <div style="font-size:11px;color:#8b949e;">
+          <div style="font-size:13px;font-weight:500;color:var(--text-primary);">${p.member_name ?? 'Unknown'}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">
             ${fmtDateShort(p.start_date)} → ${p.end_date ? fmtDateShort(p.end_date) : 'Open'}
           </div>
         </div>
@@ -372,14 +372,14 @@ export function createPledgesTab() {
       <!-- Amounts -->
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px;">
         <div>
-          <div style="font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Paid</div>
-          <div style="font-size:20px;font-weight:800;color:${p.status === 'completed' ? '#58a6ff' : '#34d399'};font-variant-numeric:tabular-nums;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Paid</div>
+          <div style="font-size:20px;font-weight:800;color:${p.status === 'completed' ? 'var(--caci-blue-light)' : 'var(--green)'};font-variant-numeric:tabular-nums;">
             ${fmtCurrency(p.amount_paid)}
           </div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Total</div>
-          <div style="font-size:14px;font-weight:600;color:#8b949e;font-variant-numeric:tabular-nums;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Total</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text-secondary);font-variant-numeric:tabular-nums;">
             ${fmtCurrency(p.total_amount)}
           </div>
         </div>
@@ -389,21 +389,21 @@ export function createPledgesTab() {
       ${PledgeProgressBar(pct, p.status, 0.3 + i * 0.04)}
       <div style="display:flex;justify-content:space-between;margin-top:4px;margin-bottom:14px;">
         <span style="font-size:11px;font-weight:600;color:${sc.color};">${pct}% fulfilled</span>
-        <span style="font-size:11px;color:#484f58;">
+        <span style="font-size:11px;color:var(--text-muted);">
           ${p.status !== 'completed' ? `${fmtCurrency(remaining)} remaining` : 'Fully paid'}
         </span>
       </div>
 
       ${p.notes ? `
       <div style="
-        font-size:11px;color:#484f58;font-style:italic;
-        padding:8px 10px;background:#0d1117;border-radius:7px;
+        font-size:11px;color:var(--text-muted);font-style:italic;
+        padding:8px 10px;background:var(--bg-page);border-radius:7px;
         margin-bottom:12px;line-height:1.5;
         overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
       ">${p.notes}</div>` : ''}
 
       <!-- Actions -->
-      <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid #21262d;">
+      <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--bg-hover);">
         <button class="fin-tbtn" style="flex:1;height:38px;font-size:12px;" data-pl-view="${p.id}">
           View
         </button>
@@ -537,7 +537,7 @@ export function createPledgesTab() {
     el.textContent = msg
     el.style.cssText = `
       display:block; padding:10px 14px; border-radius:8px; font-size:13px;
-      background:rgba(244,63,94,.1); border:1px solid rgba(244,63,94,.3); color:#fb7185; margin-bottom:12px;
+      background:var(--bg-danger); border:1px solid rgba(244,63,94,.3); color:var(--caci-red-dim); margin-bottom:12px;
     `
   }
 

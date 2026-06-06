@@ -38,9 +38,9 @@ const FinancePage: PageModule = {
         display:flex;flex-direction:column;align-items:center;justify-content:center;
         min-height:60vh;gap:12px;font-family:inherit;
       ">
-        <span class="bi bi-shield-lock-fill" style="font-size:2.5rem;color:#f43f5e;"></span>
-        <h2 style="margin:0;font-size:1.25rem;font-weight:700;color:#e6edf3;">Access Restricted</h2>
-        <p style="margin:0;font-size:13px;color:#8b949e;">
+        <span class="bi bi-shield-lock-fill" style="font-size:2.5rem;color:var(--caci-red);"></span>
+        <h2 style="margin:0;font-size:1.25rem;font-weight:700;color:var(--text-primary);">Access Restricted</h2>
+        <p style="margin:0;font-size:13px;color:var(--text-secondary);">
           You don't have permission to view the Finance module.
         </p>
       </div>`
@@ -84,9 +84,9 @@ function buildPageShell(): string {
       <div>
         <h1 style="
           margin:0 0 4px;font-size:1.5rem;font-weight:800;
-          color:#e6edf3;letter-spacing:-.025em;
+          color:var(--text-primary);letter-spacing:-.025em;
         ">Finance</h1>
-        <p style="margin:0;font-size:13px;color:#8b949e;">
+        <p style="margin:0;font-size:13px;color:var(--text-secondary);">
           Church stewardship — income, expenses, pledges &amp; budgets
         </p>
       </div>

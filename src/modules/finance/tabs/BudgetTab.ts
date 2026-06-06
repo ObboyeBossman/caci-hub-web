@@ -40,11 +40,11 @@ export function createBudgetTab() {
     return `
     <!-- Stats -->
     ${renderStatCards([
-      { icon:'wallet2',            label:'Total Budget',  value:'GH₵ 0', iconBg:'rgba(88,166,255,.12)',  iconColor:'#58a6ff', id:'bgStatBudget' },
-      { icon:'graph-up',           label:'Actual Spend',  value:'GH₵ 0', iconBg:'rgba(34,197,94,.12)',   iconColor:'#22c55e', id:'bgStatActual',
-        barColor:'linear-gradient(90deg,#22c55e,#56d364)', barValue:0 },
+      { icon:'wallet2',            label:'Total Budget',  value:'GH₵ 0', iconBg:'rgba(88,166,255,.12)',  iconColor:'var(--caci-blue-light)', id:'bgStatBudget' },
+      { icon:'graph-up',           label:'Actual Spend',  value:'GH₵ 0', iconBg:'rgba(34,197,94,.12)',   iconColor:'var(--green)', id:'bgStatActual',
+        barColor:'linear-gradient(90deg,var(--green),#56d364)', barValue:0 },
       { icon:'piggy-bank',         label:'Remaining',     value:'GH₵ 0', iconBg:'rgba(16,185,129,.1)',   iconColor:'#10b981', id:'bgStatRemain' },
-      { icon:'exclamation-octagon',label:'Over Budget',   value:'0',     iconBg:'rgba(244,63,94,.1)',    iconColor:'#f43f5e', id:'bgStatOver' },
+      { icon:'exclamation-octagon',label:'Over Budget',   value:'0',     iconBg:'var(--bg-danger)',    iconColor:'var(--caci-red)', id:'bgStatOver' },
     ])}
 
     <!-- Toolbar -->
@@ -93,16 +93,16 @@ export function createBudgetTab() {
     <!-- Legend -->
     <div style="display:flex;align-items:center;gap:20px;padding:0 4px;">
       <div style="display:flex;align-items:center;gap:6px;">
-        <div style="width:12px;height:4px;border-radius:99px;background:linear-gradient(90deg,#22c55e,#56d364);"></div>
-        <span style="font-size:11px;color:#484f58;">Under budget</span>
+        <div style="width:12px;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--green),#56d364);"></div>
+        <span style="font-size:11px;color:var(--text-muted);">Under budget</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <div style="width:12px;height:4px;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
-        <span style="font-size:11px;color:#484f58;">≥ 80% used</span>
+        <div style="width:12px;height:4px;border-radius:99px;background:linear-gradient(90deg,#f59e0b,var(--amber));"></div>
+        <span style="font-size:11px;color:var(--text-muted);">≥ 80% used</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <div style="width:12px;height:4px;border-radius:99px;background:linear-gradient(90deg,#f43f5e,#fb7185);"></div>
-        <span style="font-size:11px;color:#484f58;">Over budget</span>
+        <div style="width:12px;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--caci-red),var(--caci-red-dim));"></div>
+        <span style="font-size:11px;color:var(--text-muted);">Over budget</span>
       </div>
     </div>
 
@@ -139,7 +139,7 @@ export function createBudgetTab() {
     </div>
     <div class="fin-form-row">
       <div class="fin-form-group">
-        <label class="fin-label" for="bgFMonth">Month <span style="color:#484f58;">(monthly only)</span></label>
+        <label class="fin-label" for="bgFMonth">Month <span style="color:var(--text-muted);">(monthly only)</span></label>
         <select class="fin-select" id="bgFMonth">
           <option value="">—</option>
           ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -147,7 +147,7 @@ export function createBudgetTab() {
         </select>
       </div>
       <div class="fin-form-group">
-        <label class="fin-label" for="bgFQuarter">Quarter <span style="color:#484f58;">(quarterly only)</span></label>
+        <label class="fin-label" for="bgFQuarter">Quarter <span style="color:var(--text-muted);">(quarterly only)</span></label>
         <select class="fin-select" id="bgFQuarter">
           <option value="">—</option>
           <option value="1">Q1</option>
@@ -187,7 +187,7 @@ export function createBudgetTab() {
     } catch (err: any) {
       container.querySelector<HTMLElement>('#bgList')!.innerHTML =
         `<div class="fin-empty-state">
-          <span class="bi bi-exclamation-circle" style="font-size:2rem;color:#fb7185;"></span>
+          <span class="bi bi-exclamation-circle" style="font-size:2rem;color:var(--caci-red-dim);"></span>
           <p class="fin-empty-title">${err?.message ?? 'Failed to load budgets.'}</p>
         </div>`
     }
@@ -253,15 +253,15 @@ export function createBudgetTab() {
     const over    = b.actual_amount > b.budgeted_amount && b.budgeted_amount > 0
     const warn    = !over && pct >= 80
     const clamped = Math.min(100, pct)
-    const fillBg  = over ? 'linear-gradient(90deg,#f43f5e,#fb7185)'
-                  : warn ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
-                  : 'linear-gradient(90deg,#22c55e,#56d364)'
-    const actColor = over ? '#fb7185' : '#e6edf3'
-    const pctColor = over ? '#fb7185' : warn ? '#fbbf24' : '#34d399'
+    const fillBg  = over ? 'linear-gradient(90deg,var(--caci-red),var(--caci-red-dim))'
+                  : warn ? 'linear-gradient(90deg,#f59e0b,var(--amber))'
+                  : 'linear-gradient(90deg,var(--green),#56d364)'
+    const actColor = over ? 'var(--caci-red-dim)' : 'var(--text-primary)'
+    const pctColor = over ? 'var(--caci-red-dim)' : warn ? 'var(--amber)' : 'var(--green)'
     const variance = b.actual_amount - b.budgeted_amount
     const catIcon  = b.category_type === 'income' ? 'arrow-down-circle' : 'arrow-up-circle'
-    const catBg    = b.category_type === 'income' ? 'rgba(16,185,129,.12)' : 'rgba(244,63,94,.08)'
-    const catColor = b.category_type === 'income' ? '#34d399' : '#fb7185'
+    const catBg    = b.category_type === 'income' ? 'var(--green-bg)' : 'rgba(244,63,94,.08)'
+    const catColor = b.category_type === 'income' ? 'var(--green)' : 'var(--caci-red-dim)'
 
     return `
     <div class="fin-budget-card animate-fade-up" style="animation-delay:${i*50}ms;"
@@ -281,7 +281,7 @@ export function createBudgetTab() {
         <!-- Main -->
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px;">
-            <span style="font-size:14px;font-weight:600;color:#e6edf3;">${b.category_name ?? '—'}</span>
+            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">${b.category_name ?? '—'}</span>
             <span style="
               display:inline-flex;align-items:center;gap:3px;
               padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;
@@ -290,7 +290,7 @@ export function createBudgetTab() {
           </div>
 
           <!-- Progress bar -->
-          <div style="height:8px;border-radius:99px;background:#21262d;overflow:hidden;margin:10px 0 8px;">
+          <div style="height:8px;border-radius:99px;background:var(--bg-hover);overflow:hidden;margin:10px 0 8px;">
             <div style="
               height:100%;border-radius:99px;width:${clamped.toFixed(1)}%;
               background:${fillBg};
@@ -302,21 +302,21 @@ export function createBudgetTab() {
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <div style="display:flex;align-items:center;gap:18px;">
               <div>
-                <div style="font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.05em;">Actual</div>
+                <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Actual</div>
                 <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:${actColor};">
                   ${fmtCurrency(b.actual_amount)}
                 </div>
               </div>
-              <div style="width:1px;height:32px;background:#30363d;"></div>
+              <div style="width:1px;height:32px;background:var(--border-default);"></div>
               <div>
-                <div style="font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.05em;">Budgeted</div>
-                <div style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;color:#8b949e;">
+                <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Budgeted</div>
+                <div style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-secondary);">
                   ${fmtCurrency(b.budgeted_amount)}
                 </div>
               </div>
-              <div style="width:1px;height:32px;background:#30363d;"></div>
+              <div style="width:1px;height:32px;background:var(--border-default);"></div>
               <div>
-                <div style="font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.05em;">Used</div>
+                <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Used</div>
                 <div style="font-size:14px;font-weight:700;color:${pctColor};">
                   ${b.budgeted_amount > 0 ? Math.round(pct) + '%' : '—'}
                 </div>
@@ -350,7 +350,7 @@ export function createBudgetTab() {
       const err = container.querySelector<HTMLElement>('#bgFormError')
       if (err) {
         err.textContent = 'Please fill in all required fields.'
-        err.style.cssText = `display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);color:#fb7185;margin-bottom:12px;`
+        err.style.cssText = `display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:var(--bg-danger);border:1px solid rgba(244,63,94,.3);color:var(--caci-red-dim);margin-bottom:12px;`
       }
       return
     }
@@ -370,7 +370,7 @@ export function createBudgetTab() {
       const errEl = container.querySelector<HTMLElement>('#bgFormError')
       if (errEl) {
         errEl.textContent = err?.message ?? 'Failed.'
-        errEl.style.cssText = `display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);color:#fb7185;margin-bottom:12px;`
+        errEl.style.cssText = `display:block;padding:10px 14px;border-radius:8px;font-size:13px;background:var(--bg-danger);border:1px solid rgba(244,63,94,.3);color:var(--caci-red-dim);margin-bottom:12px;`
       }
     } finally {
       btn.disabled = false; btn.textContent = 'Add Line'

@@ -68,9 +68,9 @@ export function createTransactionsTab() {
     <!-- Stat cards -->
     <div id="txStats">
       ${renderStatCards([
-        { icon: 'arrow-down-circle', label: 'Total Income',   value: 'Loading…', iconBg: 'rgba(16,185,129,.12)',  iconColor: '#10b981', id: 'txStatIncome' },
-        { icon: 'arrow-up-circle',   label: 'Total Expense',  value: 'Loading…', iconBg: 'rgba(244,63,94,.1)',    iconColor: '#f43f5e', id: 'txStatExpense' },
-        { icon: 'bank',              label: 'Net Balance',    value: 'Loading…', iconBg: 'rgba(88,166,255,.12)',  iconColor: '#58a6ff', id: 'txStatNet' },
+        { icon: 'arrow-down-circle', label: 'Total Income',   value: 'Loading…', iconBg: 'var(--green-bg)',  iconColor: '#10b981', id: 'txStatIncome' },
+        { icon: 'arrow-up-circle',   label: 'Total Expense',  value: 'Loading…', iconBg: 'var(--bg-danger)',    iconColor: 'var(--caci-red)', id: 'txStatExpense' },
+        { icon: 'bank',              label: 'Net Balance',    value: 'Loading…', iconBg: 'rgba(88,166,255,.12)',  iconColor: 'var(--caci-blue-light)', id: 'txStatNet' },
         { icon: 'clock-history',     label: 'Today\'s Entries', value: '0',     iconBg: 'rgba(245,158,11,.1)',   iconColor: '#f59e0b', id: 'txStatPending' },
       ])}
     </div>
@@ -286,7 +286,7 @@ export function createTransactionsTab() {
 
   function updateStats(): void {
     const s = state.stats
-    const netColor = s.netBalance >= 0 ? '#34d399' : '#fb7185'
+    const netColor = s.netBalance >= 0 ? 'var(--green)' : 'var(--caci-red-dim)'
 
     setEl('txStatIncome',  fmtCurrency(s.totalIncome))
     setEl('txStatExpense', fmtCurrency(s.totalExpense))
@@ -397,7 +397,7 @@ export function createTransactionsTab() {
       html += `<tr class="fin-date-group-header"><td colspan="9">${fmtDate(date)}</td></tr>`
       groups.get(date)!.forEach(t => {
         const isIncome   = t.category_type === 'income'
-        const typeColor  = isIncome ? '#34d399' : '#fb7185'
+        const typeColor  = isIncome ? 'var(--green)' : 'var(--caci-red-dim)'
         const typeBg     = isIncome ? 'rgba(16,185,129,.1)' : 'rgba(244,63,94,.08)'
         const typeIcon   = isIncome ? 'arrow-down' : 'arrow-up'
         const checked    = state.selectedIds.has(t.id) ? 'checked' : ''
@@ -411,8 +411,8 @@ export function createTransactionsTab() {
               aria-label="Select transaction">
           </td>
           <td>
-            <div style="font-size:13px;font-weight:500;color:#e6edf3;">${fmtDate(t.transaction_date)}</div>
-            <div style="font-size:10px;font-family:monospace;color:#484f58;margin-top:2px;">
+            <div style="font-size:13px;font-weight:500;color:var(--text-primary);">${fmtDate(t.transaction_date)}</div>
+            <div style="font-size:10px;font-family:monospace;color:var(--text-muted);margin-top:2px;">
               ${t.id.slice(0, 8)}…
             </div>
           </td>
@@ -422,10 +422,10 @@ export function createTransactionsTab() {
                 <span class="bi bi-${typeIcon}" style="font-size:14px;color:${typeColor};"></span>
               </div>
               <div>
-                <div style="font-size:13px;font-weight:500;color:#e6edf3;line-height:1.3;">
+                <div style="font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.3;">
                   ${t.description ?? '—'}
                 </div>
-                <div style="font-size:10px;color:#484f58;margin-top:1px;">
+                <div style="font-size:10px;color:var(--text-muted);margin-top:1px;">
                   ${t.transaction_type.replace(/_/g, ' ')}
                 </div>
               </div>
@@ -433,26 +433,26 @@ export function createTransactionsTab() {
           </td>
           <td>
             ${t.member_name
-              ? `<span style="font-size:13px;color:#8b949e;">${t.member_name}</span>`
-              : `<span style="font-size:12px;color:#484f58;font-style:italic;">—</span>`
+              ? `<span style="font-size:13px;color:var(--text-secondary);">${t.member_name}</span>`
+              : `<span style="font-size:12px;color:var(--text-muted);font-style:italic;">—</span>`
             }
           </td>
           <td>
             <span style="
               display:inline-flex;align-items:center;gap:4px;
               padding:2px 8px;border-radius:5px;font-size:11px;font-weight:500;
-              background:rgba(88,166,255,.1);color:#58a6ff;
+              background:rgba(88,166,255,.1);color:var(--caci-blue-light);
             ">${t.category_name ?? '—'}</span>
           </td>
           <td>${PaymentMethodBadge(t.payment_method)}</td>
           <td style="text-align:right;">
             <span style="
               font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;
-              color:${isIncome ? '#34d399' : '#fb7185'};
+              color:${isIncome ? 'var(--green)' : 'var(--caci-red-dim)'};
             ">${isIncome ? '+' : '−'}${fmtCurrency(Number(t.amount))}</span>
           </td>
           <td>
-            <span style="font-size:11px;font-family:monospace;color:#484f58;">
+            <span style="font-size:11px;font-family:monospace;color:var(--text-muted);">
               ${t.reference_number ?? '—'}
             </span>
           </td>
@@ -464,7 +464,7 @@ export function createTransactionsTab() {
               <button class="fin-icon-btn fin-tx-edit" data-id="${t.id}" title="Edit" aria-label="Edit transaction">
                 <span class="bi bi-pencil"></span>
               </button>
-              <button class="fin-icon-btn" style="color:#fb7185;" data-id="${t.id}"
+              <button class="fin-icon-btn" style="color:var(--caci-red-dim);" data-id="${t.id}"
                 title="Void" class="fin-tx-void" aria-label="Void transaction">
                 <span class="bi bi-x-circle"></span>
               </button>
@@ -487,7 +487,7 @@ export function createTransactionsTab() {
     }
     el.innerHTML = list.map((t, i) => {
       const isIncome  = t.category_type === 'income'
-      const typeColor = isIncome ? '#34d399' : '#fb7185'
+      const typeColor = isIncome ? 'var(--green)' : 'var(--caci-red-dim)'
       const typeBg    = isIncome ? 'rgba(16,185,129,.1)' : 'rgba(244,63,94,.08)'
       const typeIcon  = isIncome ? 'arrow-down' : 'arrow-up'
       return `
@@ -501,29 +501,29 @@ export function createTransactionsTab() {
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
             <div>
-              <div style="font-size:13.5px;font-weight:600;color:#e6edf3;line-height:1.3;">
+              <div style="font-size:13.5px;font-weight:600;color:var(--text-primary);line-height:1.3;">
                 ${t.description ?? '—'}
               </div>
-              <div style="font-size:10px;font-family:monospace;color:#484f58;margin-top:1px;">
+              <div style="font-size:10px;font-family:monospace;color:var(--text-muted);margin-top:1px;">
                 ${t.id.slice(0,8)}…
               </div>
             </div>
             <span style="
               font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;
-              color:${isIncome ? '#34d399' : '#fb7185'};
+              color:${isIncome ? 'var(--green)' : 'var(--caci-red-dim)'};
             ">${isIncome ? '+' : '−'}${fmtCurrency(Number(t.amount))}</span>
           </div>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;">
             <span style="
               display:inline-flex;align-items:center;gap:3px;
               padding:2px 7px;border-radius:5px;font-size:10px;font-weight:500;
-              background:rgba(88,166,255,.1);color:#58a6ff;
+              background:rgba(88,166,255,.1);color:var(--caci-blue-light);
             ">${t.category_name ?? '—'}</span>
             ${PaymentMethodBadge(t.payment_method)}
-            <span style="font-size:11px;color:#484f58;">${fmtDate(t.transaction_date)}</span>
+            <span style="font-size:11px;color:var(--text-muted);">${fmtDate(t.transaction_date)}</span>
           </div>
           ${t.member_name ? `
-          <div style="margin-top:6px;font-size:11px;color:#8b949e;">
+          <div style="margin-top:6px;font-size:11px;color:var(--text-secondary);">
             <span class="bi bi-person" style="font-size:11px;margin-right:3px;"></span>
             ${t.member_name}
           </div>` : ''}
@@ -602,8 +602,8 @@ export function createTransactionsTab() {
     errEl.textContent = msg
     errEl.style.cssText = `
       display:block; padding:10px 14px; border-radius:8px; font-size:13px;
-      background:rgba(244,63,94,.1); border:1px solid rgba(244,63,94,.3);
-      color:#fb7185; margin-bottom:12px;
+      background:var(--bg-danger); border:1px solid rgba(244,63,94,.3);
+      color:var(--caci-red-dim); margin-bottom:12px;
     `
   }
 
@@ -663,7 +663,7 @@ export function createTransactionsTab() {
   function openDrawer(tx: FinanceTransaction): void {
     const body   = container.querySelector<HTMLElement>('#txDrawerBody')!
     const isInc  = tx.category_type === 'income'
-    const amtCol = isInc ? '#34d399' : '#fb7185'
+    const amtCol = isInc ? 'var(--green)' : 'var(--caci-red-dim)'
     const sign   = isInc ? '+' : '−'
 
     body.innerHTML = `
@@ -673,7 +673,7 @@ export function createTransactionsTab() {
           font-size:2rem;font-weight:800;color:${amtCol};
           font-variant-numeric:tabular-nums;margin-bottom:4px;
         ">${sign}${fmtCurrency(Number(tx.amount))}</div>
-        <div style="font-size:14px;color:#8b949e;">${tx.description ?? '—'}</div>
+        <div style="font-size:14px;color:var(--text-secondary);">${tx.description ?? '—'}</div>
       </div>
       ${buildDetailRow('Date',       fmtDate(tx.transaction_date))}
       ${buildDetailRow('Type',       tx.transaction_type.replace(/_/g,' '))}
@@ -682,9 +682,9 @@ export function createTransactionsTab() {
       ${buildDetailRow('Member',     tx.member_name ?? '—')}
       ${buildDetailRow('Reference',  tx.reference_number ?? '—')}
       ${buildDetailRow('Currency',   tx.currency)}
-      <div style="margin-top:8px;padding-top:16px;border-top:1px solid #21262d;">
-        <div style="font-size:10px;font-family:monospace;color:#484f58;">ID: ${tx.id}</div>
-        <div style="font-size:10px;font-family:monospace;color:#484f58;margin-top:2px;">
+      <div style="margin-top:8px;padding-top:16px;border-top:1px solid var(--bg-hover);">
+        <div style="font-size:10px;font-family:monospace;color:var(--text-muted);">ID: ${tx.id}</div>
+        <div style="font-size:10px;font-family:monospace;color:var(--text-muted);margin-top:2px;">
           Created: ${fmtDate(tx.created_at)}
         </div>
       </div>
@@ -705,9 +705,9 @@ export function createTransactionsTab() {
   function buildDetailRow(label: string, value: string): string {
     return `
     <div style="display:flex;justify-content:space-between;align-items:center;
-      padding:10px 0;border-bottom:1px solid #21262d;">
-      <span style="font-size:12px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;">${label}</span>
-      <span style="font-size:13px;font-weight:500;color:#e6edf3;">${value}</span>
+      padding:10px 0;border-bottom:1px solid var(--bg-hover);">
+      <span style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;">${label}</span>
+      <span style="font-size:13px;font-weight:500;color:var(--text-primary);">${value}</span>
     </div>`
   }
 
@@ -932,7 +932,7 @@ export function createTransactionsTab() {
     if (tbody) {
       tbody.innerHTML = `
       <tr><td colspan="9" style="padding:40px;text-align:center;">
-        <div style="color:#fb7185;font-size:13px;">
+        <div style="color:var(--caci-red-dim);font-size:13px;">
           ${(err as any)?.message ?? 'Failed to load transactions.'}
         </div>
       </td></tr>`
