@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub – Pastoral Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   CACI HUB — PASTORAL CARE (Members-style redesign)
+================================================================ */
+
+/* --- Reset --- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* --- Tokens --- */
+:root{
+  --blue:     #004BA0;
+  --blue-mid: #1A6FC4;
+  --blue-lt:  #4D9FFF;
+  --blue-50:  #EFF5FF;
+  --blue-100: #DBEAFE;
+  --blue-dim: #003578;
+  --red:      #C60026;
+  --red-lt:   #FF1A46;
+  --red-dim:  #8C001A;
+  --red-50:   #FFF0F2;
+  --green:    #1A7F37;
+  --green-bg: #DAFBE1;
+  --amber:    #9A6700;
+  --amber-bg: #FFF8C5;
+  --n50:  #F6F8FA;
+  --n100: #E6EDF3;
+  --n200: #C9D1D9;
+  --n300: #8B949E;
+  --n400: #6E7681;
+  --n500: #484F58;
+  --n600: #30363D;
+  --n700: #21262D;
+  --n800: #161B22;
+  --n900: #0D1117;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'SF Mono', Consolas, monospace;
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+  --focus-ring: rgba(0,75,160,.15);
+}
+
+html,body{
+  font-family:var(--font);
+  font-size:14px;
+  background:#F6F8FA;
+  color:#0D1117;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+.ms{
+  font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;
+  line-height:1;letter-spacing:normal;text-transform:none;
+  display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  font-variation-settings:'wght' 400,'FILL' 0;user-select:none;
+}
+.ms.f1{font-variation-settings:'wght' 400,'FILL' 1}
+
+/* ================================================================
+   PAGE SHELL
+================================================================ */
+.page{
+  max-width:1280px;
+  margin:0 auto;
+  padding:0 24px 48px;
+}
+
+/* ================================================================
+   STAT CARDS  (matches Members style — big number + colored bar)
+================================================================ */
+.stats-row{
+  display:flex;
+  flex-direction:row;
+  gap:14px;
+  padding:20px 0 8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.stats-row::-webkit-scrollbar{display:none}
+.stat-card{
+  flex:1;
+  min-width:160px;
+  background:#fff;
+  border:1px solid #E6EDF3;
+  border-radius:var(--r-lg);
+  padding:18px 20px 16px;
+  cursor:pointer;
+  transition:border-color .18s,box-shadow .18s;
+  position:relative;
+}
+.stat-card:hover{border-color:#C9D1D9;box-shadow:var(--shadow-sm)}
+.stat-card.selected{border-color:var(--stat-color,#004BA0);box-shadow:0 0 0 2px color-mix(in srgb,var(--stat-color,#004BA0) 12%,transparent)}
+.stat-icon-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+.stat-icon{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--stat-icon-bg,#EFF5FF);
+  flex-shrink:0;
+}
+.stat-icon .ms{font-size:15px;color:var(--stat-color,#004BA0)}
+.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6E7681;}
+.stat-num{font-size:26px;font-weight:700;color:var(--stat-color,#0D1117);line-height:1;margin-bottom:4px;}
+.stat-sub{font-size:11.5px;color:#8B949E;margin-bottom:10px;}
+.stat-bar-track{height:3px;background:#E6EDF3;border-radius:2px;overflow:hidden;}
+.stat-bar-fill{height:100%;border-radius:2px;background:var(--stat-color,#004BA0);transition:width .6s ease;}
+
+/* ================================================================
+   FILTER BAR  (matches Members "Filtered by · All Members" bar)
+================================================================ */
+.filter-bar{
+  display:flex;align-items:center;gap:10px;
+  background:#fff;
+  border:1px solid #E6EDF3;
+  border-radius:var(--r-md);
+  padding:10px 16px;
+  margin:12px 0;
+  flex-wrap:wrap;
+}
+.filter-bar-icon{color:#6E7681;font-size:15px;}
+.filter-label{font-size:13px;color:#6E7681;}
+.filter-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#E6EDF3;color:#0D1117;
+  font-size:12px;font-weight:600;
+  padding:3px 10px;border-radius:var(--r-pill);
+}
+.filter-spacer{flex:1}
+.filter-clear{
+  font-size:12px;color:#6E7681;
+  background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;gap:3px;
+  padding:3px 6px;border-radius:var(--r-sm);
+  transition:background .15s;
+}
+.filter-clear:hover{background:#F6F8FA;color:#0D1117}
+
+/* ================================================================
+   TOOLBAR  (search + sort + add)
+================================================================ */
+.toolbar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.search-wrap{
+  flex:1;min-width:220px;
+  position:relative;
+}
+.search-wrap .ms{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  font-size:16px;color:#8B949E;pointer-events:none;
+}
+.search-input{
+  width:100%;height:36px;
+  border:1px solid #C9D1D9;border-radius:var(--r-md);
+  padding:0 10px 0 34px;
+  font-size:13px;color:#0D1117;background:#fff;
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  font-family:var(--font);
+}
+.search-input::placeholder{color:#8B949E}
+.search-input:focus{border-color:#004BA0;box-shadow:0 0 0 3px var(--focus-ring)}
+
+.tb-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.sel-wrap{
+  position:relative;
+  display:flex;align-items:center;
+}
+.sel-wrap select{
+  height:36px;padding:0 32px 0 10px;
+  border:1px solid #C9D1D9;border-radius:var(--r-md);
+  font-size:12.5px;color:#0D1117;background:#fff;
+  outline:none;cursor:pointer;
+  appearance:none;font-family:var(--font);
+  transition:border-color .15s;
+}
+.sel-wrap select:focus{border-color:#004BA0}
+.sel-wrap::after{
+  content:'';position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  width:0;height:0;
+  border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #6E7681;
+  pointer-events:none;
+}
+
+.results-bar{
+  font-size:13px;color:#6E7681;
+  margin-bottom:10px;
+}
+.results-bar b{color:#0D1117;font-weight:600}
+
+/* ================================================================
+   BUTTONS
+================================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:0 16px;height:36px;
+  font-size:13px;font-weight:500;font-family:var(--font);
+  border-radius:var(--r-md);border:1px solid transparent;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn-primary{
+  background:#004BA0;color:#fff;border-color:#003578;
+}
+.btn-primary:hover{background:#003578}
+.btn-outline{
+  background:#fff;color:#0D1117;border-color:#C9D1D9;
+}
+.btn-outline:hover{border-color:#8B949E;}
+.btn-ghost{
+  background:transparent;color:#6E7681;border-color:transparent;
+}
+.btn-ghost:hover{background:#F6F8FA;color:#0D1117}
+.btn-danger-outline{background:#fff;color:#C60026;border-color:#C60026;}
+.btn-danger-outline:hover{background:#FFF0F2}
+.btn .ms{font-size:16px}
+
+/* ================================================================
+   VIEW TOGGLE (list / grid)
+================================================================ */
+.view-toggle{
+  display:flex;border:1px solid #C9D1D9;border-radius:var(--r-md);overflow:hidden;
+}
+.vt-btn{
+  width:36px;height:36px;background:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#8B949E;transition:background .12s,color .12s;
+}
+.vt-btn.active{background:#F6F8FA;color:#0D1117}
+.vt-btn:hover:not(.active){background:#F6F8FA}
+.vt-btn .ms{font-size:17px}
+
+/* ================================================================
+   SUB NAV (Cases / Prayer)
+================================================================ */
+.subnav{
+  display:flex;align-items:center;
+  border-bottom:1px solid #E6EDF3;
+  margin-bottom:16px;
+  gap:0;
+  position:sticky;top:0;z-index:90;
+  background:#F6F8FA;
+}
+.snav-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:10px 18px;
+  font-size:13px;font-weight:500;color:#6E7681;
+  background:none;border:none;border-bottom:2px solid transparent;
+  cursor:pointer;transition:color .15s,border-color .15s;
+  margin-bottom:-1px;
+}
+.snav-btn:hover{color:#0D1117;}
+.snav-btn.active{color:#0D1117;border-bottom-color:#C60026;font-weight:600;}
+.snav-count{
+  background:#E6EDF3;color:#484F58;
+  font-size:11px;font-weight:600;
+  padding:1px 6px;border-radius:var(--r-pill);
+}
+.snav-btn.active .snav-count{background:#C60026;color:#fff}
+.snav-actions{margin-left:auto;display:flex;gap:8px;padding:6px 0;}
+
+/* ================================================================
+   CASES VIEW — split layout
+================================================================ */
+.view-section{display:none}
+.view-section.active{display:block}
+
+.cases-layout{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start;}
+@media(max-width:1000px){.cases-layout{grid-template-columns:1fr}}
+
+/* ---- Case List Item ---- */
+.case-list{
+  background:#fff;border:1px solid #E6EDF3;border-radius:var(--r-lg);
+  overflow:hidden;
+}
+.case-group-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 18px;background:#F6F8FA;border-bottom:1px solid #E6EDF3;
+}
+.case-group-title{font-size:12.5px;font-weight:600;color:#6E7681;}
+.case-group-meta{font-size:12px;color:#8B949E;}
+.case-group-clear{font-size:12px;color:#004BA0;background:none;border:none;cursor:pointer;font-weight:500;}
+
+.case-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;
+  border-bottom:1px solid #F6F8FA;
+  cursor:pointer;
+  transition:background .12s;
+  position:relative;
+}
+.case-row:last-child{border-bottom:none}
+.case-row:hover{background:#FAFBFC}
+.case-row.active-case{background:#EFF5FF;}
+.case-row.active-case::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:#004BA0;border-radius:0 2px 2px 0;
+}
+
+/* priority left accent */
+.case-row.p-urgent::before{background:#C60026!important}
+.case-row.p-high::before{background:#E67700!important}
+.case-row.p-medium::before{background:#004BA0!important}
+.case-row.p-low::before{background:#1A7F37!important}
+.case-row{padding-left:20px}
+
+.mini-av{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;
+}
+.case-row-body{flex:1;min-width:0}
+.case-row-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
+.case-title{font-size:13.5px;font-weight:600;color:#0D1117;line-height:1.35}
+.case-id{font-size:10.5px;color:#8B949E;font-family:var(--mono);flex-shrink:0;margin-top:2px}
+.case-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.case-member-name{font-size:12px;color:#484F58}
+.case-dot{width:3px;height:3px;border-radius:50%;background:#C9D1D9}
+.case-date{font-size:11px;color:#8B949E}
+
+.case-row-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;
+}
+
+/* Type badges */
+.case-type-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:var(--r-pill);
+  font-size:10.5px;font-weight:600;
+}
+.ct-bereavement{background:#F3F4F6;color:#374151;border:1px solid #E5E7EB}
+.ct-hospital{background:#FFF0F2;color:#8C001A;border:1px solid rgba(198,0,38,.18)}
+.ct-counselling{background:#EFF5FF;color:#003578;border:1px solid rgba(0,75,160,.18)}
+.ct-family{background:#FFF8C5;color:#92400E;border:1px solid rgba(154,103,0,.18)}
+.ct-spiritual{background:#EFF5FF;color:#004BA0;border:1px solid rgba(77,159,255,.2)}
+.ct-financial{background:#FFF8C5;color:#9A6700;border:1px solid rgba(154,103,0,.18)}
+.ct-welfare{background:#DAFBE1;color:#1A7F37;border:1px solid rgba(26,127,55,.18)}
+
+.case-priority{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:var(--r-pill);
+  font-size:10.5px;font-weight:600;
+}
+.pri-urgent{background:#FFF0F2;color:#8C001A;border:1px solid rgba(198,0,38,.2)}
+.pri-high{background:#FFF8C5;color:#92400E;border:1px solid rgba(154,103,0,.2)}
+.pri-medium{background:#EFF5FF;color:#003578;border:1px solid rgba(0,75,160,.18)}
+.pri-low{background:#DAFBE1;color:#1A7F37;border:1px solid rgba(26,127,55,.18)}
+
+.case-status{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:var(--r-pill);
+  font-size:10.5px;font-weight:600;
+}
+.cs-open{background:#EFF5FF;color:#003578;border:1px solid rgba(0,75,160,.18)}
+.cs-in-progress{background:#FFF8C5;color:#9A6700;border:1px solid rgba(154,103,0,.2)}
+.cs-resolved{background:#DAFBE1;color:#1A7F37;border:1px solid rgba(26,127,55,.18)}
+.cs-closed{background:#F3F4F6;color:#6E7681;border:1px solid #E5E7EB}
+
+.case-private-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:var(--r-pill);
+  font-size:10.5px;font-weight:600;
+  background:#F3F4F6;color:#6E7681;border:1px solid #E5E7EB;
+}
+
+.case-row-actions{display:flex;gap:6px;margin-left:auto}
+.case-row-btn{
+  padding:5px 12px;height:30px;
+  border-radius:var(--r-sm);border:1px solid #E6EDF3;
+  background:#fff;color:#6E7681;
+  font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);
+  display:inline-flex;align-items:center;gap:4px;
+  transition:all .12s;
+}
+.case-row-btn:hover{border-color:#8B949E;color:#0D1117}
+.case-row-btn.primary{background:#004BA0;border-color:#003578;color:#fff}
+.case-row-btn.primary:hover{background:#003578}
+
+/* ================================================================
+   CASE ROW CONTEXT MENU
+================================================================ */
+.case-row-menu{
+  display:none; /* hidden on desktop */
+  position:relative;
+}
+.case-menu-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#6E7681;transition:background .12s;
+}
+.case-menu-btn:hover{background:#F6F8FA}
+.case-menu-popup{
+  display:none;
+  position:absolute;right:0;top:calc(100% + 4px);z-index:200;
+  background:#fff;border:1px solid #E6EDF3;border-radius:var(--r-md);
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+  min-width:160px;overflow:hidden;
+}
+.case-menu-popup.open{display:block}
+.case-menu-item{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:10px 14px;
+  background:none;border:none;cursor:pointer;
+  font-size:13px;font-weight:500;color:#0D1117;
+  font-family:var(--font);text-align:left;
+  transition:background .12s;
+}
+.case-menu-item:hover{background:#F6F8FA}
+.case-menu-item .ms{color:#6E7681}
+.tabs-row{
+  display:none; /* removed — handled externally */
+}
+.detail-panel{
+  background:#fff;border:1px solid #E6EDF3;border-radius:var(--r-lg);
+  position:sticky;top:16px;box-shadow:var(--shadow-sm);
+  overflow:hidden;
+}
+.dp-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:64px 24px;gap:10px;color:#6E7681;text-align:center;
+}
+.dp-empty .ms{font-size:40px;color:#C9D1D9}
+.dp-empty p{font-size:13px;font-weight:600;color:#0D1117}
+.dp-empty span{font-size:12px;max-width:220px;line-height:1.55}
+
+.dp-header{
+  padding:16px 18px;
+  border-bottom:1px solid #E6EDF3;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.dp-header-body{flex:1;min-width:0}
+.dp-header-title{font-size:14px;font-weight:700;color:#0D1117;line-height:1.4;margin-bottom:6px}
+.dp-header-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+.dp-body{padding:16px 18px;display:flex;flex-direction:column;gap:16px;}
+.dp-section{display:flex;flex-direction:column;gap:6px}
+.dp-sect-lbl{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:#8B949E;padding-bottom:6px;border-bottom:1px solid #F6F8FA;margin-bottom:2px;
+}
+.dp-field{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 0}
+.dp-field-lbl{font-size:12px;color:#6E7681;flex-shrink:0}
+.dp-field-val{font-size:12px;font-weight:500;color:#0D1117;text-align:right;max-width:190px}
+.dp-field-val.mono{font-family:var(--mono);font-size:11px}
+
+.dp-footer{
+  padding:12px 18px;border-top:1px solid #E6EDF3;
+  display:flex;gap:8px;
+}
+.dp-btn{
+  flex:1;padding:9px;border-radius:var(--r-md);
+  font-size:12.5px;font-weight:600;cursor:pointer;
+  border:1px solid #C9D1D9;background:#F6F8FA;color:#484F58;
+  transition:all .15s;font-family:var(--font);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.dp-btn:hover{background:#E6EDF3;color:#0D1117}
+.dp-btn-primary{background:#C60026;border-color:#8C001A;color:#fff;box-shadow:0 2px 8px rgba(198,0,38,.2)}
+.dp-btn-primary:hover{background:#8C001A}
+
+/* Visit timeline */
+.visit-item{display:flex;gap:10px;position:relative;padding-bottom:14px}
+.visit-item:last-child{padding-bottom:0}
+.visit-item::before{content:'';position:absolute;left:14px;top:28px;bottom:0;width:1px;background:#E6EDF3}
+.visit-item:last-child::before{display:none}
+.visit-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:#F6F8FA;border:1.5px solid #E6EDF3;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-top:2px;z-index:1;
+}
+.visit-dot .ms{font-size:13px;color:#6E7681}
+.visit-content{flex:1;min-width:0}
+.visit-type{font-size:12px;font-weight:600;color:#0D1117}
+.visit-meta{font-size:11px;color:#6E7681;margin-top:1px}
+.visit-notes{
+  font-size:11.5px;color:#6E7681;margin-top:5px;padding:7px 10px;
+  background:#F6F8FA;border-radius:var(--r-sm);line-height:1.5;font-style:italic;
+  border:1px solid #E6EDF3;
+}
+.visit-outcome{
+  display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:var(--r-pill);margin-top:4px;
+}
+.vo-positive{background:#DAFBE1;color:#1A7F37;border:1px solid rgba(26,127,55,.2)}
+.vo-ongoing{background:#FFF8C5;color:#9A6700;border:1px solid rgba(154,103,0,.2)}
+.vo-neutral{background:#F3F4F6;color:#6E7681;border:1px solid #E5E7EB}
+
+/* ================================================================
+   PRAYER GRID
+================================================================ */
+.prayer-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+}
+@media(max-width:1000px){.prayer-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.prayer-grid{grid-template-columns:1fr}}
+
+.prayer-card{
+  background:#fff;border:1px solid #E6EDF3;border-radius:var(--r-lg);
+  padding:14px;transition:box-shadow .2s,border-color .2s;cursor:pointer;
+}
+.prayer-card:hover{box-shadow:var(--shadow-md);border-color:#C9D1D9}
+.prayer-card.answered{border-color:rgba(26,127,55,.25);background:#F0FDF4}
+
+.prayer-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.prayer-title{font-size:13.5px;font-weight:600;color:#0D1117;flex:1;line-height:1.4}
+.prayer-desc{font-size:12px;color:#6E7681;line-height:1.55;margin-bottom:10px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.prayer-footer{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border-top:1px solid #F6F8FA;padding-top:10px;
+}
+.prayer-card.answered .prayer-footer{border-top-color:rgba(26,127,55,.15)}
+.prayer-member{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#6E7681}
+.prayer-date{font-size:10.5px;color:#8B949E;font-family:var(--mono)}
+.prayer-anon{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;color:#8B949E;background:#F6F8FA;
+  padding:2px 7px;border-radius:var(--r-pill);
+}
+.prayer-status{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);flex-shrink:0;
+}
+.ps-active{background:#EFF5FF;color:#003578;border:1px solid rgba(0,75,160,.18)}
+.ps-urgent{background:#FFF0F2;color:#8C001A;border:1px solid rgba(198,0,38,.18)}
+.ps-answered{background:#DAFBE1;color:#1A7F37;border:1px solid rgba(26,127,55,.18)}
+
+.prayer-answered-btn{
+  display:flex;align-items:center;gap:4px;padding:5px 10px;
+  border-radius:var(--r-sm);border:1px solid rgba(26,127,55,.22);
+  background:rgba(26,127,55,.06);color:#1A7F37;
+  font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font);
+}
+.prayer-answered-btn:hover{background:#DAFBE1;box-shadow:0 2px 8px rgba(26,127,55,.12)}
+.prayer-answered-btn .ms{font-size:13px}
+.prayer-answered-tag{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#1A7F37}
+
+/* mini av in prayer cards */
+.mini-av-sm{
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;flex-shrink:0;
+}
+
+/* ================================================================
+   MODALS
+================================================================ */
+.modal-wrap{
+  position:fixed;inset:0;z-index:300;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .22s;
+}
+.modal-wrap.open{opacity:1;pointer-events:all}
+.modal{
+  background:#fff;border:1px solid #E6EDF3;border-radius:var(--r-xl);
+  width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+  transform:scale(.96) translateY(8px);transition:transform .28s cubic-bezier(.16,1,.3,1);
+}
+.modal-wrap.open .modal{transform:scale(1) translateY(0)}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 22px;border-bottom:1px solid #E6EDF3;
+  position:sticky;top:0;background:#fff;z-index:1;
+}
+.modal-title{font-size:15px;font-weight:700;color:#0D1117}
+.modal-body{padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.modal-foot{
+  padding:14px 22px;border-top:1px solid #E6EDF3;
+  display:flex;gap:8px;justify-content:flex-end;
+  position:sticky;bottom:0;background:#fff;
+}
+.close-btn{
+  width:28px;height:28px;border:none;background:transparent;
+  color:#8B949E;cursor:pointer;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;transition:background .12s;
+}
+.close-btn:hover{background:#F6F8FA;color:#0D1117}
+.close-btn .ms{font-size:20px}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;font-weight:600;color:#6E7681;letter-spacing:.2px;text-transform:uppercase}
+.form-input{
+  background:#F6F8FA;border:1px solid #C9D1D9;border-radius:var(--r-md);
+  padding:0 12px;height:38px;color:#0D1117;font-size:13px;
+  font-family:var(--font);outline:none;
+  transition:border-color .15s,box-shadow .15s;width:100%;
+}
+.form-input:focus{border-color:#004BA0;box-shadow:0 0 0 3px var(--focus-ring);background:#fff}
+.form-input::placeholder{color:#8B949E}
+textarea.form-input{height:auto;padding:10px 12px;resize:vertical;line-height:1.5}
+select.form-input{
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+}
+.form-check{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  font-size:13px;color:#484F58;
+  padding:8px 10px;border-radius:var(--r-sm);
+  border:1px solid #E6EDF3;transition:border-color .15s,background .15s;
+}
+.form-check:hover{border-color:#C9D1D9;background:#F6F8FA}
+.form-check input{width:15px;height:15px;accent-color:#004BA0;cursor:pointer}
+
+.modal-btn{
+  padding:9px 18px;border-radius:var(--r-md);
+  font-size:13px;font-weight:600;cursor:pointer;
+  border:1px solid #C9D1D9;background:#F6F8FA;color:#484F58;
+  transition:all .15s;font-family:var(--font);
+  display:inline-flex;align-items:center;gap:5px;
+}
+.modal-btn:hover{background:#E6EDF3;color:#0D1117}
+.modal-btn-primary{background:#004BA0;border-color:#003578;color:#fff;box-shadow:0 2px 8px rgba(0,75,160,.2)}
+.modal-btn-primary:hover{background:#003578}
+
+/* ================================================================
+   EMPTY STATE
+================================================================ */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  padding:64px 20px;gap:10px;color:#6E7681;text-align:center;
+}
+.empty-state .ms{font-size:48px;color:#C9D1D9}
+.empty-state h3{font-size:14px;font-weight:600;color:#0D1117}
+.empty-state p{font-size:12px;max-width:280px;line-height:1.55}
+
+/* ================================================================
+   TOAST
+================================================================ */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:400;
+  display:flex;align-items:center;gap:10px;
+  padding:12px 18px;border-radius:var(--r-md);
+  background:#0D1117;border:1px solid #21262D;
+  box-shadow:var(--shadow-lg);font-size:13px;font-weight:500;color:#E6EDF3;
+  transform:translateY(80px);opacity:0;
+  transition:all .32s cubic-bezier(.16,1,.3,1);pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast .ms{font-size:18px}
+
+/* ================================================================
+   ANIMATIONS
+================================================================ */
+@keyframes afu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.afu{animation:afu .4s ease both}
+.d1{animation-delay:.04s}.d2{animation-delay:.08s}.d3{animation-delay:.12s}
+.d4{animation-delay:.16s}.d5{animation-delay:.20s}.d6{animation-delay:.24s}
+.d7{animation-delay:.28s}.d8{animation-delay:.32s}
+
+/* Hover row actions — desktop only */
+@media(hover:hover){
+  .case-row .case-row-actions .case-row-btn{opacity:0;transition:opacity .12s}
+  .case-row:hover .case-row-actions .case-row-btn{opacity:1}
+}
+
+/* ================================================================
+   MEDIUM BREAKPOINT  (≤ 900 px) — start trimming verbose elements
+================================================================ */
+@media(max-width:900px){
+  /* Hide sort dropdowns — type + status is sufficient */
+  .sel-sort{display:none}
+  /* Shrink Export button — icon only */
+  .snav-actions .btn-outline .btn-lbl{display:none}
+  .snav-actions .btn-outline{padding:0 10px}
+
+  /* Case rows: hide the case ID code */
+  .case-id{display:none}
+}
+
+/* ================================================================
+   TABLET BREAKPOINT  (≤ 768 px) — icon-only buttons, trim fields
+================================================================ */
+@media(max-width:768px){
+  /* Filter bar is redundant at this size — hide it */
+  .filter-bar{display:none}
+
+  /* All subnav action buttons → icon-only circles */
+  .snav-actions .btn .btn-lbl{display:none}
+  .snav-actions .btn{padding:0;width:36px;height:36px;border-radius:50%;justify-content:center}
+  .snav-actions .btn .ms{font-size:18px}
+
+  /* Subnav tabs: drop the text label, keep icon + count */
+  .snav-tab-lbl{display:none}
+
+  /* Toolbar: hide type filter, keep search + status only */
+  .sel-type{display:none}
+
+  /* Case rows: hide type + priority badges — status alone is enough */
+  .case-type-badge{display:none}
+  .case-priority{display:none}
+
+  /* Case row: hide date — member name + status badge tells the story */
+  .case-date,.case-dot{display:none}
+}
+
+/* ================================================================
+   LIGHT MOBILE THEME  (≤ 640 px — matches Members light mobile UI)
+================================================================ */
+@media(max-width:640px){
+
+  /* ── tokens: stay light, match Members ── */
+  :root{
+    --mob-bg:      #F2F4F7;
+    --mob-card:    #FFFFFF;
+    --mob-border:  #E4E7EC;
+    --mob-text:    #101828;
+    --mob-muted:   #667085;
+    --mob-accent:  #004BA0;
+  }
+
+  html,body{background:var(--mob-bg);color:var(--mob-text);}
+
+  /* ── page shell ── */
+  .page{padding:0 12px 80px;}
+
+  /* ── stat cards: scrollable single row ── */
+  .stats-row{
+    gap:10px;
+    padding:14px 0 6px;
+  }
+  .stat-card{
+    min-width:140px;
+    flex-shrink:0;
+    background:#fff;
+    border:1px solid var(--mob-border);
+    border-radius:var(--r-lg);
+    padding:14px 14px 12px;
+    box-shadow:0 1px 3px rgba(16,24,40,.06);
+  }
+  .stat-card:hover{border-color:#C9D1D9;box-shadow:0 2px 8px rgba(16,24,40,.08)}
+  .stat-bar-track{display:none}
+  .stat-card::after{
+    content:'';display:block;
+    height:3px;border-radius:2px;
+    background:var(--stat-color,#004BA0);
+    margin-top:10px;
+    width:40%;
+  }
+  .stat-num{font-size:24px;font-weight:700;color:#101828;line-height:1;margin-bottom:3px;}
+  .stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#667085;}
+  .stat-sub{font-size:11px;color:#667085;margin-bottom:0;}
+  .stat-icon{
+    width:28px;height:28px;border-radius:6px;
+    background:var(--stat-icon-bg,#EFF5FF)!important;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .stat-icon .ms{font-size:14px;color:var(--stat-color,#004BA0)}
+
+  /* ── subnav: light scrollable ── */
+  .subnav{
+    background:#fff;
+    border-bottom:1px solid var(--mob-border);
+    overflow-x:auto;scrollbar-width:none;
+    gap:0;margin-bottom:12px;
+  }
+  .subnav::-webkit-scrollbar{display:none}
+  .snav-btn{
+    color:#667085;padding:10px 14px;flex-shrink:0;font-size:13px;font-weight:500;
+  }
+  .snav-btn.active{color:#101828;border-bottom-color:#C60026;font-weight:600;}
+  .snav-count{background:#F2F4F7;color:#667085}
+  .snav-btn.active .snav-count{background:#C60026;color:#fff}
+  .snav-actions{padding:4px 0;gap:6px}
+  .snav-actions .btn-outline .btn-lbl{display:none}
+  .btn-outline{
+    background:#fff;border-color:var(--mob-border);color:#344054;
+    padding:0 10px;
+  }
+  .btn-outline:hover{border-color:#8B949E;background:#F9FAFB}
+  .btn-primary{font-size:12.5px;padding:0 14px;background:#004BA0;border-color:#003578}
+  .btn-primary .btn-lbl{font-size:12.5px}
+
+  /* ── toolbar: full-width search, hide selects ── */
+  .toolbar{gap:8px;margin-bottom:8px}
+  .search-input{
+    background:#fff;border-color:var(--mob-border);color:#101828;
+    height:40px;border-radius:var(--r-pill);
+  }
+  .search-input::placeholder{color:#98A2B3}
+  .search-wrap .ms{color:#98A2B3}
+  .tb-right{display:none}
+
+  /* ── filter bar ── */
+  .filter-bar{
+    background:#fff;border-color:var(--mob-border);
+    padding:8px 12px;gap:8px;margin:8px 0;
+    border-radius:var(--r-md);
+  }
+  .filter-label{color:#667085}
+  .filter-chip{background:#F2F4F7;color:#344054}
+  .filter-clear{color:#004BA0}
+  .results-bar{color:#667085;font-size:12.5px;margin-bottom:8px}
+  .results-bar b{color:#101828}
+
+  /* ── cases layout: single column ── */
+  .cases-layout{grid-template-columns:1fr;gap:0}
+  .detail-panel{display:none}
+
+  /* ── case list: light Members-style cards ── */
+  .case-list{
+    background:transparent;
+    border:none;border-radius:0;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .case-group-header{
+    background:transparent;border:none;padding:0 0 6px;
+  }
+  .case-group-title{color:#667085;font-size:12px;font-weight:600;}
+  .case-group-meta{color:#98A2B3}
+  .case-group-clear{color:#004BA0}
+
+  /* each row becomes a white card, left border = priority colour */
+  .case-row{
+    background:#fff;
+    border:1px solid var(--mob-border);
+    border-radius:var(--r-lg);
+    padding:14px 14px 14px 16px;
+    gap:12px;
+    align-items:flex-start;
+    box-shadow:0 1px 3px rgba(16,24,40,.05);
+  }
+  .case-row:hover{box-shadow:0 2px 8px rgba(16,24,40,.10);border-color:#C9D1D9}
+  .case-row.active-case{border-color:#004BA0;background:#EFF5FF;}
+  /* remove the desktop ::before accent bar */
+  .case-row.active-case::before,
+  .case-row.p-urgent::before,
+  .case-row.p-high::before,
+  .case-row.p-medium::before,
+  .case-row.p-low::before{display:none}
+  /* left border = priority colour, Members-style */
+  .case-row{border-left:3px solid #E4E7EC}
+  .case-row.p-urgent{border-left-color:#C60026}
+  .case-row.p-high  {border-left-color:#E67700}
+  .case-row.p-medium{border-left-color:#004BA0}
+  .case-row.p-low   {border-left-color:#1A7F37}
+
+  .case-title{font-size:14px;color:#101828;font-weight:600;line-height:1.4}
+  .case-id{font-size:11px;color:#98A2B3}
+  .case-member-name{font-size:12px;color:#667085}
+  .case-date{font-size:11px;color:#98A2B3}
+  .case-dot{background:#D0D5DD}
+
+  /* avatar: outlined ring by priority, like Members gender ring */
+  .mini-av{
+    outline:2.5px solid transparent;
+    outline-offset:2px;
+  }
+  .case-row.p-urgent .mini-av{outline-color:#C60026}
+  .case-row.p-high   .mini-av{outline-color:#E67700}
+  .case-row.p-medium .mini-av{outline-color:#004BA0}
+  .case-row.p-low    .mini-av{outline-color:#1A7F37}
+
+  /* action buttons: hide on mobile, show more_vert menu instead */
+  .case-row-actions{display:none}
+  .case-row-menu{display:block}
+  .case-menu-btn{
+    width:36px;height:36px;
+    background:#fff;border:1px solid var(--mob-border);
+    border-radius:var(--r-md);
+    color:#667085;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);
+  }
+  .case-menu-btn:hover{background:#F9FAFB;border-color:#C9D1D9}
+  .case-menu-popup{
+    border-color:var(--mob-border);
+    box-shadow:0 8px 24px rgba(16,24,40,.14);
+  }
+  .case-menu-item{color:#101828}
+  .case-menu-item:hover{background:#F9FAFB}
+  .case-menu-item .ms{color:#667085}
+  /* prayer 'Mark Answered' → icon only */
+  .pab-lbl{display:none}
+  .prayer-answered-btn{padding:6px;border-radius:var(--r-sm);min-width:32px;justify-content:center}
+
+  /* badges: keep light theme colours (already defined above, just reset any dark overrides) */
+  .ct-bereavement{background:#F3F4F6;color:#374151;border-color:#E5E7EB}
+  .ct-hospital{background:#FFF0F2;color:#8C001A;border-color:rgba(198,0,38,.18)}
+  .ct-counselling{background:#EFF5FF;color:#003578;border-color:rgba(0,75,160,.18)}
+  .ct-family{background:#FFF8C5;color:#92400E;border-color:rgba(154,103,0,.18)}
+  .ct-spiritual{background:#EFF5FF;color:#004BA0;border-color:rgba(77,159,255,.2)}
+  .ct-financial{background:#FFF8C5;color:#9A6700;border-color:rgba(154,103,0,.18)}
+  .ct-welfare{background:#DAFBE1;color:#1A7F37;border-color:rgba(26,127,55,.18)}
+  .pri-urgent{background:#FFF0F2;color:#8C001A;border-color:rgba(198,0,38,.2)}
+  .pri-high{background:#FFF8C5;color:#92400E;border-color:rgba(154,103,0,.2)}
+  .pri-medium{background:#EFF5FF;color:#003578;border-color:rgba(0,75,160,.18)}
+  .pri-low{background:#DAFBE1;color:#1A7F37;border-color:rgba(26,127,55,.18)}
+  .cs-open{background:#EFF5FF;color:#003578;border-color:rgba(0,75,160,.18)}
+  .cs-in-progress{background:#FFF8C5;color:#9A6700;border-color:rgba(154,103,0,.2)}
+  .cs-resolved{background:#DAFBE1;color:#1A7F37;border-color:rgba(26,127,55,.18)}
+  .cs-closed{background:#F3F4F6;color:#6E7681;border-color:#E5E7EB}
+  .case-private-badge{background:#F3F4F6;color:#6E7681;border-color:#E5E7EB}
+
+  /* ── prayer grid: 1 col ── */
+  .prayer-grid{grid-template-columns:1fr;gap:10px}
+  .prayer-card{
+    background:#fff;border-color:var(--mob-border);
+    box-shadow:0 1px 3px rgba(16,24,40,.05);
+  }
+  .prayer-card:hover{box-shadow:var(--shadow-md);border-color:#C9D1D9}
+  .prayer-card.answered{background:#F0FDF4;border-color:rgba(26,127,55,.25)}
+  .prayer-title{color:#101828}
+  .prayer-desc{color:#667085}
+  .prayer-member{color:#667085}
+  .prayer-date{color:#98A2B3}
+  .prayer-footer{border-top-color:#F2F4F7}
+
+  /* ── empty state ── */
+  .empty-state{background:transparent}
+  .empty-state h3{color:#101828}
+  .empty-state p{color:#667085}
+  .empty-state .ms{color:#D0D5DD}
+
+  /* ── modals: bottom sheet, light ── */
+  .modal-wrap{padding:0;align-items:flex-end}
+  .modal{
+    border-radius:var(--r-xl) var(--r-xl) 0 0;
+    max-width:100%;max-height:92vh;
+    background:#fff;border-color:var(--mob-border);
+  }
+  .modal-head{background:#fff;border-bottom-color:var(--mob-border)}
+  .modal-title{color:#101828}
+  .modal-foot{background:#fff;border-top-color:var(--mob-border)}
+  .form-label{color:#344054}
+  .form-input{background:#F9FAFB;border-color:var(--mob-border);color:#101828}
+  .form-input:focus{border-color:#004BA0;box-shadow:0 0 0 3px rgba(0,75,160,.12);background:#fff}
+  .form-input::placeholder{color:#98A2B3}
+  .form-check{background:#F9FAFB;border-color:var(--mob-border);color:#344054}
+  .modal-btn{background:#F9FAFB;border-color:var(--mob-border);color:#344054}
+  .modal-btn:hover{background:#F2F4F7}
+  .modal-btn-primary{background:#004BA0;border-color:#003578;color:#fff}
+  .close-btn{color:#667085}
+  .close-btn:hover{background:#F2F4F7;color:#344054}
+
+  /* ── toast ── */
+  .toast{bottom:16px;right:12px;left:12px;text-align:center;justify-content:center}
+
+  /* ── very small screens (≤ 380px): hide avatar, left with title + name ── */
+  @media(max-width:380px){
+    .mini-av{display:none}
+    .case-row{padding-left:14px}
+    /* Also hide status badge — just title + member name remain */
+    .case-status{display:none}
+    /* Action buttons hidden on mobile via menu already */
+  }
+}
+</style>
+</head>
+<body>
+
+
+
+<!-- PAGE CONTENT -->
+<div class="page">
+
+  <!-- STAT CARDS -->
+  <div class="stats-row">
+    <div class="stat-card afu d1" style="--stat-color:#004BA0;--stat-icon-bg:#EFF5FF" onclick="filterByActive('cases')" id="sc-cases">
+      <div class="stat-icon-row">
+        <div class="stat-icon"><span class="ms">folder_open</span></div>
+        <span class="stat-label">Total Cases</span>
+      </div>
+      <div class="stat-num" id="st-cases">6</div>
+      <div class="stat-sub" id="st-open-txt">3 open</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="sb-cases" style="width:100%"></div></div>
+    </div>
+    <div class="stat-card afu d2" style="--stat-color:#C60026;--stat-icon-bg:#FFF0F2" id="sc-urgent">
+      <div class="stat-icon-row">
+        <div class="stat-icon"><span class="ms">priority_high</span></div>
+        <span class="stat-label">Urgent / High</span>
+      </div>
+      <div class="stat-num" id="st-urgent">2</div>
+      <div class="stat-sub">Needs attention</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="sb-urgent" style="width:33%"></div></div>
+    </div>
+    <div class="stat-card afu d3" style="--stat-color:#1A7F37;--stat-icon-bg:#DAFBE1" id="sc-resolved">
+      <div class="stat-icon-row">
+        <div class="stat-icon"><span class="ms">task_alt</span></div>
+        <span class="stat-label">Resolved</span>
+      </div>
+      <div class="stat-num" id="st-resolved">2</div>
+      <div class="stat-sub" id="st-resolved-pct">33% rate</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="sb-resolved" style="width:33%"></div></div>
+    </div>
+    <div class="stat-card afu d4" style="--stat-color:#E67700;--stat-icon-bg:#FFF8C5" id="sc-visits">
+      <div class="stat-icon-row">
+        <div class="stat-icon"><span class="ms">directions_walk</span></div>
+        <span class="stat-label">Visits Logged</span>
+      </div>
+      <div class="stat-num" id="st-visits">8</div>
+      <div class="stat-sub">Across all cases</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" style="width:72%"></div></div>
+    </div>
+    <div class="stat-card afu d5" style="--stat-color:#1A6FC4;--stat-icon-bg:#EFF5FF" onclick="filterByActive('prayers')" id="sc-prayers">
+      <div class="stat-icon-row">
+        <div class="stat-icon"><span class="ms">volunteer_activism</span></div>
+        <span class="stat-label">Prayer Requests</span>
+      </div>
+      <div class="stat-num" id="st-prayers">7</div>
+      <div class="stat-sub" id="st-answered-txt">3 answered</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="sb-prayers" style="width:43%"></div></div>
+    </div>
+  </div>
+
+  <!-- SUB NAV -->
+  <div class="subnav afu d5">
+    <button class="snav-btn active" onclick="switchView('cases',this)">
+      <span class="ms f1" style="font-size:14px">folder_open</span>
+      <span class="snav-tab-lbl">Pastoral Cases</span> <span class="snav-count" id="sn-cases">6</span>
+    </button>
+    <button class="snav-btn" onclick="switchView('prayers',this)">
+      <span class="ms" style="font-size:14px">volunteer_activism</span>
+      <span class="snav-tab-lbl">Prayer Requests</span> <span class="snav-count" id="sn-prayers">7</span>
+    </button>
+    <div class="snav-actions" id="subnav-actions">
+      <button class="btn btn-outline" onclick="showToast('Export ready – coming soon')">
+        <span class="ms" style="font-size:15px">download</span><span class="btn-lbl">Export</span>
+      </button>
+      <button class="btn btn-primary" id="addBtn" onclick="openCaseModal()">
+        <span class="ms" style="font-size:15px">add</span><span class="btn-lbl">New Case</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ CASES VIEW ═══ -->
+  <div id="view-cases" class="view-section active">
+
+    <!-- Toolbar -->
+    <div class="toolbar afu d6">
+      <div class="search-wrap">
+        <span class="ms">search</span>
+        <input type="text" class="search-input" id="caseSearch" placeholder="Search cases or members…" oninput="renderCases()">
+      </div>
+      <div class="tb-right">
+        <div class="sel-wrap sel-type">
+          <select id="typeFilter" onchange="renderCases()" style="min-width:140px">
+            <option value="all">All Types</option>
+            <option value="bereavement">Bereavement</option>
+            <option value="hospital">Hospital</option>
+            <option value="counselling">Counselling</option>
+            <option value="family">Family</option>
+            <option value="spiritual">Spiritual</option>
+            <option value="financial">Financial</option>
+            <option value="welfare">Welfare</option>
+          </select>
+        </div>
+        <div class="sel-wrap sel-status">
+          <select id="statusFilter" onchange="renderCases()" style="min-width:130px">
+            <option value="all">All Statuses</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        <div class="sel-wrap sel-sort">
+          <select id="caseSort" onchange="renderCases()" style="min-width:148px">
+            <option value="newest">Joined (Newest)</option>
+            <option value="oldest">Joined (Oldest)</option>
+            <option value="priority">By Priority</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filter bar -->
+    <div class="filter-bar afu d6" id="filterBar">
+      <span class="ms filter-bar-icon">filter_list</span>
+      <span class="filter-label">Filtered by</span>
+      <span class="filter-chip"><span class="ms f1" style="font-size:11px">folder_open</span> All Cases</span>
+      <span class="filter-spacer"></span>
+      <span id="caseCountInfo" style="font-size:12px;color:#6E7681"></span>
+    </div>
+
+    <div class="results-bar">
+      Showing <b id="caseCount">0</b> cases
+    </div>
+
+    <!-- Split layout -->
+    <div class="cases-layout">
+
+      <!-- Case list -->
+      <div class="case-list" id="casesList-wrap">
+        <div class="case-group-header">
+          <span class="case-group-title" id="caseGroupTitle">All Cases</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="case-group-meta" id="caseGroupMeta">6 cases</span>
+            <button class="case-group-clear" onclick="clearFilters()">× Clear</button>
+          </div>
+        </div>
+        <div id="casesList"></div>
+      </div>
+
+      <!-- Detail panel -->
+      <div class="detail-panel" id="detailPanel">
+        <div class="dp-empty" id="dpEmpty">
+          <span class="ms">manage_search</span>
+          <p>Select a case</p>
+          <span>Click any case to view full details, visit history, and take action.</span>
+        </div>
+        <div id="dpContent" style="display:none">
+          <div class="dp-header" id="dpHeader"></div>
+          <div class="dp-body" id="dpBody"></div>
+          <div class="dp-footer">
+            <button class="dp-btn" onclick="logVisit()">
+              <span class="ms" style="font-size:14px">add_location_alt</span>Log Visit
+            </button>
+            <button class="dp-btn dp-btn-primary" id="dpResolveBtn" onclick="resolveActiveCase()">
+              <span class="ms" style="font-size:14px">task_alt</span>Resolve
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /view-cases -->
+
+  <!-- ═══ PRAYERS VIEW ═══ -->
+  <div id="view-prayers" class="view-section">
+
+    <div class="toolbar afu">
+      <div class="search-wrap">
+        <span class="ms">search</span>
+        <input type="text" class="search-input" id="prayerSearch" placeholder="Search prayer requests…" oninput="renderPrayers()">
+      </div>
+      <div class="tb-right">
+        <div class="sel-wrap sel-status">
+          <select id="prayerStatusFilter" onchange="renderPrayers()" style="min-width:140px">
+            <option value="all">All Requests</option>
+            <option value="active">Active</option>
+            <option value="urgent">Urgent</option>
+            <option value="answered">Answered</option>
+          </select>
+        </div>
+        <div class="sel-wrap sel-sort">
+          <select id="prayerSort" onchange="renderPrayers()" style="min-width:148px">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="answered">Answered Last</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-bar">
+      Showing <b id="prayerCount">0</b> prayer requests · <span style="color:#1A7F37" id="answeredSummary">0 answered</span>
+    </div>
+
+    <div class="prayer-grid" id="prayerGrid"></div>
+  </div><!-- /view-prayers -->
+
+</div><!-- /page -->
+
+<!-- ══ CASE MODAL ══ -->
+<div class="modal-wrap" id="caseModal" onclick="if(event.target===this)closeCaseModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Log New Case</span>
+      <button class="close-btn" onclick="closeCaseModal()"><span class="ms">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Member</label>
+          <select class="form-input" id="cm-member">
+            <option value="">Select member…</option>
+            <option value="Moses Diidonoba">Moses Diidonoba</option>
+            <option value="Esther Eshun">Esther Eshun</option>
+            <option value="Rev. Stephen Ankomah">Rev. Stephen Ankomah</option>
+            <option value="John Bekoe">John Bekoe</option>
+            <option value="Abraham Bossman">Abraham Bossman</option>
+            <option value="Ama Queen">Ama Queen</option>
+            <option value="Richmond Quayson">Richmond Quayson</option>
+            <option value="Frank Bimpong">Frank Bimpong</option>
+            <option value="Mr. Ankomah Enoch Sekyi">Mr. Ankomah Enoch Sekyi</option>
+            <option value="Mary Quaicoe">Mary Quaicoe</option>
+            <option value="Benjamin Mensah">Benjamin Mensah</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned To</label>
+          <select class="form-input" id="cm-assigned">
+            <option value="Rev. Stephen Ankomah">Rev. Stephen Ankomah</option>
+            <option value="Benjamin Mensah">Benjamin Mensah</option>
+            <option value="Esther Eshun">Esther Eshun</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Case Title</label>
+        <input class="form-input" id="cm-title" placeholder="Brief description of the case…">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Case Type</label>
+          <select class="form-input" id="cm-type">
+            <option value="bereavement">Bereavement</option>
+            <option value="hospital">Hospital Visit</option>
+            <option value="counselling">Counselling</option>
+            <option value="family">Family Matter</option>
+            <option value="spiritual">Spiritual Support</option>
+            <option value="financial">Financial Aid</option>
+            <option value="welfare">Welfare</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-input" id="cm-priority">
+            <option value="urgent">🔴 Urgent</option>
+            <option value="high">🟠 High</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="low">🔵 Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="cm-desc" rows="3" placeholder="Provide case details…"></textarea>
+      </div>
+      <label class="form-check">
+        <input type="checkbox" id="cm-private"> Mark as private (only visible to assigned pastor)
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" onclick="closeCaseModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitCase()">
+        <span class="ms" style="font-size:15px;vertical-align:middle">add_task</span> Create Case
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VISIT MODAL ══ -->
+<div class="modal-wrap" id="visitModal" onclick="if(event.target===this)closeVisitModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Log a Visit</span>
+      <button class="close-btn" onclick="closeVisitModal()"><span class="ms">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Visit Type</label>
+          <select class="form-input" id="vm-type">
+            <option value="home_visit">Home Visit</option>
+            <option value="hospital_visit">Hospital Visit</option>
+            <option value="phone_call">Phone Call</option>
+            <option value="church_meeting">Church Meeting</option>
+            <option value="group_session">Group Session</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Visit Date</label>
+          <input type="date" class="form-input" id="vm-date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Visited By</label>
+          <select class="form-input" id="vm-by">
+            <option value="Rev. Stephen Ankomah">Rev. Stephen Ankomah</option>
+            <option value="Benjamin Mensah">Benjamin Mensah</option>
+            <option value="Esther Eshun">Esther Eshun</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Outcome</label>
+          <select class="form-input" id="vm-outcome">
+            <option value="positive">Improving</option>
+            <option value="ongoing">Follow-up needed</option>
+            <option value="neutral">No change</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Notes</label>
+        <textarea class="form-input" id="vm-notes" rows="3" placeholder="Visit notes…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" onclick="closeVisitModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitVisit()">
+        <span class="ms" style="font-size:15px;vertical-align:middle">add_location_alt</span> Log Visit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRAYER MODAL ══ -->
+<div class="modal-wrap" id="prayerModal" onclick="if(event.target===this)closePrayerModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">New Prayer Request</span>
+      <button class="close-btn" onclick="closePrayerModal()"><span class="ms">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Member</label>
+          <select class="form-input" id="pm-member">
+            <option value="">Select member…</option>
+            <option value="Moses Diidonoba">Moses Diidonoba</option>
+            <option value="Esther Eshun">Esther Eshun</option>
+            <option value="John Bekoe">John Bekoe</option>
+            <option value="Abraham Bossman">Abraham Bossman</option>
+            <option value="Ama Queen">Ama Queen</option>
+            <option value="Richmond Quayson">Richmond Quayson</option>
+            <option value="Frank Bimpong">Frank Bimpong</option>
+            <option value="Mary Quaicoe">Mary Quaicoe</option>
+            <option value="Benjamin Mensah">Benjamin Mensah</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="pm-status">
+            <option value="active">Active</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Title</label>
+        <input class="form-input" id="pm-title" placeholder="Brief title for the request…">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="pm-desc" rows="3" placeholder="Describe the prayer need…"></textarea>
+      </div>
+      <label class="form-check">
+        <input type="checkbox" id="pm-anon"> Submit anonymously
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" onclick="closePrayerModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="submitPrayer()">
+        <span class="ms" style="font-size:15px;vertical-align:middle">volunteer_activism</span> Submit Request
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="ms f1" id="toastIcon">check_circle</span>
+  <span id="toastMsg">Saved successfully</span>
+</div>
+
+<script>
+// ═══ DATA ═══
+const memberColors = {
+  'Moses Diidonoba':          {bg:'#2d1f6b',fg:'#c4b5f7',initials:'MD'},
+  'Esther Eshun':             {bg:'#0f2d4a',fg:'#93c5fd',initials:'EE'},
+  'Rev. Stephen Ankomah':     {bg:'#133828',fg:'#95d5b2',initials:'SA'},
+  'John Bekoe':               {bg:'#501a1a',fg:'#fca5a5',initials:'JB'},
+  'Abraham Bossman':          {bg:'#0c2a4a',fg:'#93c5fd',initials:'AB'},
+  'Ama Queen':                {bg:'#3d1244',fg:'#e9b8e9',initials:'AQ'},
+  'Richmond Quayson':         {bg:'#0a3222',fg:'#6ee7b7',initials:'RQ'},
+  'Frank Bimpong':            {bg:'#2e1c00',fg:'#fcd34d',initials:'FB'},
+  'Mr. Ankomah Enoch Sekyi':  {bg:'#2d1f6b',fg:'#c4b5f7',initials:'AS'},
+  'Mary Quaicoe':             {bg:'#32126c',fg:'#d8b4fe',initials:'MQ'},
+  'Benjamin Mensah':          {bg:'#0a2820',fg:'#6ee7b7',initials:'BM'},
+};
+
+let cases = [
+  {id:'PC-001',member:'John Bekoe',assignedTo:'Rev. Stephen Ankomah',type:'counselling',title:'Unemployment & Financial Stress Counselling',description:'Member has been unemployed for 6 months and is experiencing significant financial stress and mild depression. Multiple counselling sessions scheduled.',priority:'high',status:'in_progress',isPrivate:false,created:'2024-11-10',updated:'2024-12-02',visits:[{type:'Church Meeting',date:'2024-11-14',by:'Rev. Stephen Ankomah',notes:'Initial assessment. Member opened up about job loss and stress at home. Scheduled follow-up.',outcome:'ongoing'},{type:'Home Visit',date:'2024-11-28',by:'Rev. Stephen Ankomah',notes:'Member in better spirits. Provided scriptures and encouraged job search support.',outcome:'positive'},{type:'Phone Call',date:'2024-12-02',by:'Benjamin Mensah',notes:'Check-in call. Member reports slight improvement. Still needs support.',outcome:'ongoing'}]},
+  {id:'PC-002',member:'Mary Quaicoe',assignedTo:'Rev. Stephen Ankomah',type:'bereavement',title:'Loss of Spouse – Grief Support',description:'Member lost her husband suddenly in October. Receiving ongoing grief counselling and practical support from the assembly.',priority:'urgent',status:'open',isPrivate:false,created:'2024-10-18',updated:'2024-11-30',visits:[{type:'Home Visit',date:'2024-10-20',by:'Rev. Stephen Ankomah',notes:'Condolence visit. Family present. Prayer session held. Arranged meals from the assembly.',outcome:'neutral'},{type:'Church Meeting',date:'2024-11-05',by:'Esther Eshun',notes:'Member attended Sunday service. Spoke briefly. Encouraged to join women\'s fellowship.',outcome:'positive'}]},
+  {id:'PC-003',member:'Frank Bimpong',assignedTo:'Esther Eshun',type:'spiritual',title:'Spiritual Backsliding – Mentorship',description:'Young member has been absent from services for 3 months. Reached out through a mutual friend. Assigned to discipleship mentoring programme.',priority:'medium',status:'in_progress',isPrivate:false,created:'2024-11-20',updated:'2024-12-01',visits:[{type:'Phone Call',date:'2024-11-22',by:'Esther Eshun',notes:'First contact. Member was surprised and grateful for the outreach. Agreed to meet.',outcome:'positive'},{type:'Church Meeting',date:'2024-11-30',by:'Esther Eshun',notes:'Met at church premises. Prayed together. Member committed to returning.',outcome:'positive'}]},
+  {id:'PC-004',member:'Ama Queen',assignedTo:'Benjamin Mensah',type:'family',title:'Marital Reconciliation Support',description:'Member has been experiencing marital difficulties. Case is strictly confidential. Both parties have consented to pastoral mediation.',priority:'high',status:'open',isPrivate:true,created:'2024-12-01',updated:'2024-12-01',visits:[]},
+  {id:'PC-005',member:'Richmond Quayson',assignedTo:'Rev. Stephen Ankomah',type:'hospital',title:'Post-Surgery Recovery & Pastoral Support',description:'Member underwent emergency surgery. Recovering at home. Assembly providing meals and regular pastoral visits.',priority:'medium',status:'resolved',isPrivate:false,created:'2024-09-15',updated:'2024-10-30',visits:[{type:'Hospital Visit',date:'2024-09-16',by:'Rev. Stephen Ankomah',notes:'Visited at KATH. Prayed with family. Patient stable and in good spirits.',outcome:'positive'},{type:'Home Visit',date:'2024-09-28',by:'Esther Eshun',notes:'Post-discharge check. Member recovering well. Arranged meal rota.',outcome:'positive'},{type:'Church Meeting',date:'2024-10-27',by:'Rev. Stephen Ankomah',notes:'Member back at service. Gave testimony. Case successfully closed.',outcome:'positive'}]},
+  {id:'PC-006',member:'Moses Diidonoba',assignedTo:'Esther Eshun',type:'welfare',title:'Student Welfare – Academic Pressure',description:'Student member struggling with academic pressure and isolation at university. Assigned to youth mentoring and regular check-ins.',priority:'low',status:'open',isPrivate:false,created:'2024-12-05',updated:'2024-12-05',visits:[{type:'Phone Call',date:'2024-12-06',by:'Esther Eshun',notes:'Initial call. Student shared concerns about exams and loneliness. Encouraged to reach out anytime.',outcome:'ongoing'}]},
+];
+
+let prayers = [
+  {id:'PR-001',member:'Abraham Bossman',title:'Job Promotion',description:'Trusting God for a promotion at the engineering firm. Been working extra hard and believes the time is right. Please pray for favour and wisdom in upcoming appraisal.',status:'answered',isAnon:false,isAnswered:true,created:'2024-09-10'},
+  {id:'PR-002',member:'Esther Eshun',title:'Healing from Chronic Back Pain',description:'Dealing with chronic back pain for over a year. Doctors have done numerous tests with no clear diagnosis. Requesting prayers for divine healing and strength to continue teaching.',status:'active',isAnon:false,isAnswered:false,created:'2024-11-05'},
+  {id:'PR-003',member:'',title:'Restoration of Marriage',description:'Anonymous request for prayers over a struggling marriage. Asking for God\'s grace, forgiveness and reconciliation between the parties involved.',status:'urgent',isAnon:true,isAnswered:false,created:'2024-11-18'},
+  {id:'PR-004',member:'Frank Bimpong',title:'Passing Final Exams',description:'Final semester exams approaching. Asking for wisdom, clarity of mind, and God\'s grace to pass and graduate. Very anxious about the results.',status:'active',isAnon:false,isAnswered:false,created:'2024-11-28'},
+  {id:'PR-005',member:'Mary Quaicoe',title:'Comfort & Strength in Grief',description:'Following the loss of her husband, requesting continued prayers for comfort, strength to raise the children alone, and God\'s provision for the family.',status:'active',isAnon:false,isAnswered:false,created:'2024-10-20'},
+  {id:'PR-006',member:'Moses Diidonoba',title:'University Scholarship',description:'Applying for a government scholarship to continue education. Praying for favour with the selection committee and financial breakthrough for school fees.',status:'answered',isAnon:false,isAnswered:true,created:'2024-08-14'},
+  {id:'PR-007',member:'Benjamin Mensah',title:'Safe Delivery for Wife',description:'Wife is expecting their first child. Requesting prayers for a safe, complication-free delivery and good health for mother and baby.',status:'answered',isAnon:false,isAnswered:true,created:'2024-10-01'},
+];
+
+let activeCase = null;
+
+// ═══ HELPERS ═══
+function fmtDate(d){
+  if(!d) return '—';
+  const [y,m,day]=d.split('-');
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(day)} ${M[parseInt(m)-1]} ${y}`;
+}
+function daysAgo(d){
+  const diff=Date.now()-new Date(d).getTime();
+  const days=Math.floor(diff/86400000);
+  if(days===0)return 'Today';if(days===1)return 'Yesterday';
+  if(days<7)return days+'d ago';if(days<30)return Math.floor(days/7)+'w ago';
+  return Math.floor(days/30)+'mo ago';
+}
+function typeBadge(t){
+  const m={bereavement:['ct-bereavement','sentiment_sad','Bereavement'],hospital:['ct-hospital','local_hospital','Hospital'],counselling:['ct-counselling','psychology','Counselling'],family:['ct-family','family_restroom','Family'],spiritual:['ct-spiritual','auto_awesome','Spiritual'],financial:['ct-financial','payments','Financial'],welfare:['ct-welfare','diversity_3','Welfare']};
+  const [cls,icon,lbl]=m[t]||['ct-welfare','help','Other'];
+  return `<span class="case-type-badge ${cls}"><span class="ms" style="font-size:10px">${icon}</span>${lbl}</span>`;
+}
+function priorityBadge(p){
+  const m={urgent:['pri-urgent','Urgent'],high:['pri-high','High'],medium:['pri-medium','Medium'],low:['pri-low','Low']};
+  const [cls,lbl]=m[p]||['pri-low','Low'];
+  return `<span class="case-priority ${cls}">${lbl}</span>`;
+}
+function statusBadge(s){
+  const m={open:['cs-open','Open'],in_progress:['cs-in-progress','In Progress'],resolved:['cs-resolved','Resolved'],closed:['cs-closed','Closed']};
+  const [cls,lbl]=m[s]||['cs-open','Open'];
+  return `<span class="case-status ${cls}">${lbl}</span>`;
+}
+function miniAvHtml(name,size=38){
+  const mc=memberColors[name]||{bg:'#2d1f6b',fg:'#c4b5f7',initials:(name||'?').slice(0,2).toUpperCase()};
+  return `<div class="mini-av" style="width:${size}px;height:${size}px;background:${mc.bg};color:${mc.fg};font-size:${size*.34}px">${mc.initials}</div>`;
+}
+function visitIcon(type){
+  const m={'Home Visit':'home','Hospital Visit':'local_hospital','Phone Call':'call','Church Meeting':'church','Group Session':'groups'};
+  return m[type]||'place';
+}
+function visitOutcomeClass(o){return {positive:'vo-positive',ongoing:'vo-ongoing',neutral:'vo-neutral'}[o]||'vo-neutral'}
+function visitOutcomeLabel(o){return {positive:'Improving',ongoing:'Follow-up needed',neutral:'No change'}[o]||o}
+
+// ═══ STATS ═══
+function updateStats(){
+  const total=cases.length;
+  const open=cases.filter(c=>c.status==='open'||c.status==='in_progress').length;
+  const urgent=cases.filter(c=>c.priority==='urgent'||c.priority==='high').filter(c=>c.status!=='resolved'&&c.status!=='closed').length;
+  const resolved=cases.filter(c=>c.status==='resolved').length;
+  const visits=cases.reduce((a,c)=>a+c.visits.length,0);
+  const pTotal=prayers.length;
+  const answered=prayers.filter(p=>p.isAnswered).length;
+  document.getElementById('st-cases').textContent=total;
+  document.getElementById('st-open-txt').textContent=open+' open';
+  document.getElementById('st-urgent').textContent=urgent;
+  document.getElementById('st-resolved').textContent=resolved;
+  document.getElementById('st-resolved-pct').textContent=total?Math.round(resolved/total*100)+'% rate':'0%';
+  document.getElementById('st-visits').textContent=visits;
+  document.getElementById('st-prayers').textContent=pTotal;
+  document.getElementById('st-answered-txt').textContent=answered+' answered';
+  document.getElementById('sb-cases').style.width=total?'100%':'0%';
+  document.getElementById('sb-urgent').style.width=total?Math.max(urgent/total*100,8)+'%':'0%';
+  document.getElementById('sb-resolved').style.width=total?(resolved/total*100)+'%':'0%';
+  document.getElementById('sb-prayers').style.width=pTotal?(answered/pTotal*100)+'%':'0%';
+  document.getElementById('tc-total').textContent=total+pTotal;
+  document.getElementById('sn-cases').textContent=total;
+  document.getElementById('sn-prayers').textContent=pTotal;
+}
+
+// ═══ RENDER CASES ═══
+function getFilteredCases(){
+  const q=document.getElementById('caseSearch').value.toLowerCase();
+  const type=document.getElementById('typeFilter').value;
+  const status=document.getElementById('statusFilter').value;
+  const sort=document.getElementById('caseSort').value;
+  let list=cases.filter(c=>{
+    const mq=!q||(c.title.toLowerCase().includes(q)||c.member.toLowerCase().includes(q)||c.id.toLowerCase().includes(q));
+    const mt=type==='all'||c.type===type;
+    const ms=status==='all'||c.status===status;
+    return mq&&mt&&ms;
+  });
+  const priOrder={urgent:0,high:1,medium:2,low:3};
+  if(sort==='priority') list.sort((a,b)=>priOrder[a.priority]-priOrder[b.priority]);
+  else if(sort==='newest') list.sort((a,b)=>new Date(b.created)-new Date(a.created));
+  else list.sort((a,b)=>new Date(a.created)-new Date(b.created));
+  return list;
+}
+
+function renderCases(){
+  const list=getFilteredCases();
+  document.getElementById('caseCount').textContent=list.length;
+  document.getElementById('caseGroupMeta').textContent=list.length+' case'+(list.length!==1?'s':'');
+  const el=document.getElementById('casesList');
+  if(!list.length){
+    el.innerHTML=`<div class="empty-state"><span class="ms">search_off</span><h3>No cases found</h3><p>Try adjusting your filters or search query</p></div>`;
+    return;
+  }
+  el.innerHTML=list.map((c,i)=>{
+    const isActive=activeCase&&activeCase.id===c.id;
+    const d=Math.min(i+1,8);
+    return `
+    <div class="case-row p-${c.priority} afu d${d}${isActive?' active-case':''}" onclick="selectCase('${c.id}')">
+      ${miniAvHtml(c.member,38)}
+      <div class="case-row-body">
+        <div class="case-row-top">
+          <div class="case-title">${c.title}${c.isPrivate?`<span class="case-private-badge" style="margin-left:6px"><span class="ms" style="font-size:10px">lock</span>Private</span>`:''}</div>
+          <span class="case-id">${c.id}</span>
+        </div>
+        <div class="case-meta-row">
+          <span class="case-member-name">${c.member}</span>
+          <span class="case-dot"></span>
+          ${typeBadge(c.type)}
+          <span class="case-dot"></span>
+          ${priorityBadge(c.priority)}
+          ${statusBadge(c.status)}
+          <span class="case-dot"></span>
+          <span class="case-date">${daysAgo(c.updated)}</span>
+        </div>
+      </div>
+      <div class="case-row-right">
+        <div class="case-row-actions">
+          <button class="case-row-btn" onclick="event.stopPropagation();selectCase('${c.id}')"><span class="ms" style="font-size:15px">visibility</span><span class="crb-lbl">View</span></button>
+          <button class="case-row-btn primary" onclick="event.stopPropagation();selectCase('${c.id}');logVisit()"><span class="ms" style="font-size:15px">add_location_alt</span><span class="crb-lbl">Log Visit</span></button>
+        </div>
+        <div class="case-row-menu">
+          <button class="case-menu-btn" onclick="event.stopPropagation();toggleCaseMenu('${c.id}',this)">
+            <span class="ms" style="font-size:20px">more_vert</span>
+          </button>
+          <div class="case-menu-popup" id="menu-${c.id}">
+            <button class="case-menu-item" onclick="event.stopPropagation();selectCase('${c.id}');closeCaseMenus()">
+              <span class="ms" style="font-size:16px">visibility</span>View Case
+            </button>
+            <button class="case-menu-item" onclick="event.stopPropagation();selectCase('${c.id}');logVisit();closeCaseMenus()">
+              <span class="ms" style="font-size:16px">add_location_alt</span>Log Visit
+            </button>
+            <button class="case-menu-item" onclick="event.stopPropagation();selectCase('${c.id}');resolveActiveCase();closeCaseMenus()">
+              <span class="ms" style="font-size:16px">task_alt</span>Resolve
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ SELECT CASE ═══
+function selectCase(id){
+  activeCase=cases.find(x=>x.id===id);
+  if(!activeCase) return;
+  const c=activeCase;
+  const mc=memberColors[c.member]||{bg:'#2d1f6b',fg:'#c4b5f7',initials:'??'};
+
+  document.getElementById('dpEmpty').style.display='none';
+  document.getElementById('dpContent').style.display='block';
+
+  // Header
+  document.getElementById('dpHeader').innerHTML=`
+    ${miniAvHtml(c.member,40)}
+    <div class="dp-header-body">
+      <div class="dp-header-title">${c.title}</div>
+      <div class="dp-header-meta">
+        ${typeBadge(c.type)}${priorityBadge(c.priority)}${statusBadge(c.status)}
+        ${c.isPrivate?`<span class="case-private-badge"><span class="ms" style="font-size:10px">lock</span>Private</span>`:''}
+      </div>
+    </div>`;
+
+  // Body
+  const isResolved=c.status==='resolved'||c.status==='closed';
+  document.getElementById('dpBody').innerHTML=`
+    <div class="dp-section">
+      <div class="dp-sect-lbl">Case Details</div>
+      <div class="dp-field"><span class="dp-field-lbl">Case ID</span><span class="dp-field-val mono">${c.id}</span></div>
+      <div class="dp-field"><span class="dp-field-lbl">Member</span><span class="dp-field-val">${c.member}</span></div>
+      <div class="dp-field"><span class="dp-field-lbl">Assigned To</span><span class="dp-field-val">${c.assignedTo}</span></div>
+      <div class="dp-field"><span class="dp-field-lbl">Opened</span><span class="dp-field-val">${fmtDate(c.created)}</span></div>
+      <div class="dp-field"><span class="dp-field-lbl">Last Updated</span><span class="dp-field-val">${fmtDate(c.updated)}</span></div>
+    </div>
+    ${c.description?`<div class="dp-section"><div class="dp-sect-lbl">Description</div><p style="font-size:12px;color:#484F58;line-height:1.6">${c.description}</p></div>`:''}
+    <div class="dp-section">
+      <div class="dp-sect-lbl">Visit History (${c.visits.length})</div>
+      ${c.visits.length?c.visits.map(v=>`
+        <div class="visit-item">
+          <div class="visit-dot"><span class="ms" style="font-size:12px">${visitIcon(v.type)}</span></div>
+          <div class="visit-content">
+            <div class="visit-type">${v.type}</div>
+            <div class="visit-meta">By ${v.by} · ${fmtDate(v.date)}</div>
+            ${v.notes?`<div class="visit-notes">${v.notes}</div>`:''}
+            <span class="visit-outcome ${visitOutcomeClass(v.outcome)}">${visitOutcomeLabel(v.outcome)}</span>
+          </div>
+        </div>`).join('')
+      :`<p style="font-size:12px;color:#8B949E;padding:8px 0">No visits logged yet.</p>`}
+    </div>`;
+
+  const resolveBtn=document.getElementById('dpResolveBtn');
+  resolveBtn.innerHTML=isResolved
+    ?`<span class="ms" style="font-size:14px">undo</span>Reopen`
+    :`<span class="ms" style="font-size:14px">task_alt</span>Resolve`;
+
+  renderCases();
+  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function resolveActiveCase(){
+  if(!activeCase) return;
+  const c=cases.find(x=>x.id===activeCase.id);
+  if(!c) return;
+  if(c.status==='resolved'||c.status==='closed'){c.status='open';showToast('Case reopened')}
+  else{c.status='resolved';showToast('Case marked as resolved')}
+  c.updated=new Date().toISOString().slice(0,10);
+  updateStats();selectCase(c.id);renderCases();
+}
+
+// ═══ RENDER PRAYERS ═══
+function getFilteredPrayers(){
+  const q=document.getElementById('prayerSearch').value.toLowerCase();
+  const sf=document.getElementById('prayerStatusFilter').value;
+  const sort=document.getElementById('prayerSort').value;
+  let list=prayers.filter(p=>{
+    const mq=!q||(p.title.toLowerCase().includes(q)||p.member.toLowerCase().includes(q)||p.description.toLowerCase().includes(q));
+    const ms=sf==='all'||(sf==='answered'?p.isAnswered:(p.status===sf&&!p.isAnswered));
+    return mq&&ms;
+  });
+  if(sort==='newest') list.sort((a,b)=>new Date(b.created)-new Date(a.created));
+  else if(sort==='oldest') list.sort((a,b)=>new Date(a.created)-new Date(b.created));
+  else list.sort((a,b)=>a.isAnswered-b.isAnswered||new Date(b.created)-new Date(a.created));
+  return list;
+}
+
+function renderPrayers(){
+  const list=getFilteredPrayers();
+  document.getElementById('prayerCount').textContent=list.length;
+  const answered=prayers.filter(p=>p.isAnswered).length;
+  document.getElementById('answeredSummary').textContent=answered+' answered';
+  const el=document.getElementById('prayerGrid');
+  if(!list.length){
+    el.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="ms">volunteer_activism</span><h3>No prayer requests found</h3><p>Try adjusting your filters or add a new request.</p></div>`;
+    return;
+  }
+  el.innerHTML=list.map((p,i)=>{
+    const mc=(!p.isAnon&&p.member)?memberColors[p.member]:null;
+    const d=Math.min(i+1,8);
+    const statusMap={active:['ps-active','Active'],urgent:['ps-urgent','🔴 Urgent'],answered:['ps-answered','Answered']};
+    const [sCls,sLbl]=statusMap[p.isAnswered?'answered':p.status]||['ps-active','Active'];
+    return `
+    <div class="prayer-card${p.isAnswered?' answered':''} afu d${d}">
+      <div class="prayer-header">
+        <div class="prayer-title">${p.title}</div>
+        <span class="prayer-status ${sCls}">${sLbl}</span>
+      </div>
+      <div class="prayer-desc">${p.description}</div>
+      <div class="prayer-footer">
+        <div>
+          ${p.isAnon||!p.member
+            ?`<span class="prayer-anon"><span class="ms" style="font-size:11px">person_off</span>Anonymous</span>`
+            :`<div class="prayer-member">${mc?`<div class="mini-av-sm" style="background:${mc.bg};color:${mc.fg}">${mc.initials}</div>`:''}<span>${p.member}</span></div>`
+          }
+          <div class="prayer-date" style="margin-top:3px">${fmtDate(p.created)}</div>
+        </div>
+        ${p.isAnswered
+          ?`<div class="prayer-answered-tag"><span class="ms f1" style="font-size:15px">check_circle</span>Answered</div>`
+          :`<button class="prayer-answered-btn" onclick="markAnswered('${p.id}')"><span class="ms">check_circle</span><span class="pab-lbl">Mark Answered</span></button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markAnswered(id){
+  const p=prayers.find(x=>x.id===id);
+  if(p){p.isAnswered=true;p.status='answered';showToast('Praise God! Marked as answered','success');updateStats();renderPrayers();}
+}
+
+// ═══ VIEW SWITCHER ═══
+function switchView(view,btn){
+  document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.snav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  btn.classList.add('active');
+  const addBtn=document.getElementById('addBtn');
+  if(view==='prayers'){addBtn.innerHTML='<span class="ms" style="font-size:15px">add</span><span class="btn-lbl">New Request</span>';addBtn.onclick=openPrayerModal;}
+  else{addBtn.innerHTML='<span class="ms" style="font-size:15px">add</span><span class="btn-lbl">New Case</span>';addBtn.onclick=openCaseModal;}
+}
+
+function filterByActive(view){
+  const btns=document.querySelectorAll('.snav-btn');
+  const idx=view==='prayers'?1:0;
+  btns.forEach((b,i)=>b.classList.toggle('active',i===idx));
+  document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+}
+
+function clearFilters(){
+  document.getElementById('caseSearch').value='';
+  document.getElementById('typeFilter').value='all';
+  document.getElementById('statusFilter').value='all';
+  renderCases();
+}
+
+// ═══ CASE ROW CONTEXT MENU ═══
+function toggleCaseMenu(id, btn){
+  const popup = document.getElementById('menu-'+id);
+  const isOpen = popup.classList.contains('open');
+  closeCaseMenus();
+  if(!isOpen) popup.classList.add('open');
+}
+function closeCaseMenus(){
+  document.querySelectorAll('.case-menu-popup.open').forEach(p=>p.classList.remove('open'));
+}
+document.addEventListener('click', closeCaseMenus);
+
+// ═══ MODALS ═══
+function openCaseModal(){document.getElementById('caseModal').classList.add('open')}
+function closeCaseModal(){document.getElementById('caseModal').classList.remove('open')}
+function logVisit(){document.getElementById('vm-date').value=new Date().toISOString().slice(0,10);document.getElementById('visitModal').classList.add('open')}
+function closeVisitModal(){document.getElementById('visitModal').classList.remove('open')}
+function openPrayerModal(){document.getElementById('prayerModal').classList.add('open')}
+function closePrayerModal(){document.getElementById('prayerModal').classList.remove('open')}
+
+function submitCase(){
+  const member=document.getElementById('cm-member').value;
+  const title=document.getElementById('cm-title').value.trim();
+  if(!member||!title){showToast('Please fill in Member and Title','error');return;}
+  const newId='PC-'+String(cases.length+1).padStart(3,'0');
+  const today=new Date().toISOString().slice(0,10);
+  cases.unshift({id:newId,member,assignedTo:document.getElementById('cm-assigned').value,type:document.getElementById('cm-type').value,title,description:document.getElementById('cm-desc').value,priority:document.getElementById('cm-priority').value,status:'open',isPrivate:document.getElementById('cm-private').checked,created:today,updated:today,visits:[]});
+  closeCaseModal();
+  ['cm-title','cm-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cm-member').value='';
+  document.getElementById('cm-private').checked=false;
+  updateStats();renderCases();
+  showToast('Case '+newId+' created successfully');
+}
+
+function submitVisit(){
+  if(!activeCase){showToast('Please select a case first','error');return;}
+  const type=document.getElementById('vm-type').value;
+  const date=document.getElementById('vm-date').value||new Date().toISOString().slice(0,10);
+  const typeLabels={home_visit:'Home Visit',hospital_visit:'Hospital Visit',phone_call:'Phone Call',church_meeting:'Church Meeting',group_session:'Group Session'};
+  const c=cases.find(x=>x.id===activeCase.id);
+  if(!c) return;
+  c.visits.push({type:typeLabels[type]||type,date,by:document.getElementById('vm-by').value,notes:document.getElementById('vm-notes').value,outcome:document.getElementById('vm-outcome').value});
+  c.updated=date;
+  if(c.status==='open') c.status='in_progress';
+  closeVisitModal();
+  document.getElementById('vm-notes').value='';
+  updateStats();selectCase(c.id);renderCases();
+  showToast('Visit logged successfully');
+}
+
+function submitPrayer(){
+  const title=document.getElementById('pm-title').value.trim();
+  if(!title){showToast('Please provide a title','error');return;}
+  const isAnon=document.getElementById('pm-anon').checked;
+  const newId='PR-'+String(prayers.length+1).padStart(3,'0');
+  prayers.unshift({id:newId,member:isAnon?'':document.getElementById('pm-member').value,title,description:document.getElementById('pm-desc').value,status:document.getElementById('pm-status').value,isAnon,isAnswered:false,created:new Date().toISOString().slice(0,10)});
+  closePrayerModal();
+  ['pm-title','pm-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pm-member').value='';
+  document.getElementById('pm-anon').checked=false;
+  updateStats();renderPrayers();
+  showToast('Prayer request submitted');
+}
+
+// ═══ TOAST ═══
+let toastTimer;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIcon').textContent=type==='error'?'error':'check_circle';
+  document.getElementById('toastIcon').style.color=type==='error'?'#FF1A46':'#2EA043';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ═══ KEYBOARD ═══
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeCaseModal();closeVisitModal();closePrayerModal();}
+});
+
+// ═══ INIT ═══
+updateStats();
+renderCases();
+renderPrayers();
+</script>
+</body>
+</html>
