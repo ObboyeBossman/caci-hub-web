@@ -143,14 +143,14 @@ export function renderStatCards(cards: StatCard[]): string {
   return `
   <div class="fin-stat-grid">
     ${cards.map((c, i) => `
-    <div class="fin-stat-card animate-fade-up" style="animation-delay:${50 + i * 50}ms;" ${c.id ? `id="${c.id}"` : ''}>
+    <div class="fin-stat-card animate-fade-up" style="animation-delay:${50 + i * 50}ms;">
       <div class="fin-stat-header">
         <div class="fin-stat-icon" style="background:${c.iconBg};">
           <span class="bi bi-${c.icon}" style="font-size:16px;color:${c.iconColor};"></span>
         </div>
         <span class="fin-stat-label">${c.label}</span>
       </div>
-      <div class="fin-stat-value">${c.value}</div>
+      <div class="fin-stat-value" ${c.id ? `id="${c.id}"` : ''}>${c.value}</div>
       ${c.trend ? `
       <div class="fin-stat-trend" style="color:${c.trendUp ? '#34d399' : '#fb7185'};">
         <span class="bi bi-arrow-${c.trendUp ? 'up' : 'down'}" style="font-size:10px;"></span>
