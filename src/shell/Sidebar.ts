@@ -514,7 +514,7 @@ export class _Sidebar {
 
     // Build accordion groups from registered modules
     const membershipItems = permitted.filter(i =>
-      ['/members', '/groups', '/reports'].includes(i.path)
+      ['/members', '/groups', '/reports', '/audit-logs'].includes(i.path)
     )
     const servicesParent = permitted.find(i => i.path === '/services')
     const servicesTabs = permitted.filter(i => i.parentPath === '/services')
