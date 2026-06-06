@@ -26,6 +26,10 @@ const FinanceModule: ModuleManifest = {
       permission: 'finance.view',
       order:      60,
     },
+    { label: 'Transactions', path: '/finance?tab=transactions', parentPath: '/finance', permission: 'finance.view', order: 1, icon: '' },
+    { label: 'Pledges',      path: '/finance?tab=pledges',      parentPath: '/finance', permission: 'finance.view', order: 2, icon: '' },
+    { label: 'Budget',       path: '/finance?tab=budget',       parentPath: '/finance', permission: 'finance.view', order: 3, icon: '' },
+    { label: 'Reports',      path: '/finance?tab=reports',      parentPath: '/finance', permission: 'finance.view', order: 4, icon: '' },
   ],
 
   capabilities: ['dashboard-widgets', 'search', 'reports'],

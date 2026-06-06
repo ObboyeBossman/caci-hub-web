@@ -31,6 +31,12 @@ const AdminModule: ModuleManifest = {
       permission: 'admin.view',
       order:      88,
     },
+    { label: 'Accounts',      path: '/admin?tab=accounts',    parentPath: '/admin', permission: 'admin.accounts.view',   order: 1, icon: '' },
+    { label: 'Roles',         path: '/admin?tab=roles',       parentPath: '/admin', permission: 'admin.roles.view',      order: 2, icon: '' },
+    { label: 'Permissions',   path: '/admin?tab=permissions', parentPath: '/admin', permission: 'admin.permissions.view',order: 3, icon: '' },
+    { label: 'Households',    path: '/admin?tab=households',  parentPath: '/admin', permission: 'admin.households.view', order: 4, icon: '' },
+    { label: 'Audit Log',     path: '/admin?tab=audit',       parentPath: '/admin', permission: 'admin.audit.view',      order: 5, icon: '' },
+    { label: 'Settings',      path: '/admin?tab=settings',    parentPath: '/admin', permission: 'admin.settings.view',   order: 6, icon: '' },
   ],
 
   async init(_ctx) {

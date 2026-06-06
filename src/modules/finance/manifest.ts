@@ -22,7 +22,7 @@ export function registerFinancePermissions(): void {
         isAssignable: true,
       },
       {
-        key:          PERMISSIONS.PASTORAL_PRAYER_MANAGE,  // reuse pattern
+        key:          PERMISSIONS.FINANCE_EXPORT,
         label:        'Export Finance Reports',
         description:  'Allows exporting finance data as CSV/PDF',
         category:     'Finance',

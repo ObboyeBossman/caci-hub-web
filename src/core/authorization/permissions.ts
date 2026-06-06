@@ -27,9 +27,6 @@ export const PERMISSIONS = {
   REPORTS_VIEW:       'reports.view',
   REPORTS_EXPORT:     'reports.export',
 
-  // ── Finance ───────────────────────────────────────────────────────────────────
-  FINANCE_OFFERINGS_VIEW: 'finance.offerings.view',
-  FINANCE_OFFERINGS_EDIT: 'finance.offerings.edit',
 
   // ── Admin ─────────────────────────────────────────────────────────────────────
   ADMIN_VIEW:           'admin.view',
@@ -53,6 +50,7 @@ export const PERMISSIONS = {
   // ── Finance ────────────────────────────────────────────────────────────────
   FINANCE_VIEW:    'finance.view',
   FINANCE_MANAGE:  'finance.manage',
+  FINANCE_EXPORT:  'finance.export',
 
   // ── Pastoral Care ──────────────────────────────────────────────────────────
   PASTORAL_VIEW:          'pastoral.view',

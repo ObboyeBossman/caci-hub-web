@@ -519,11 +519,20 @@ export class _Sidebar {
     const servicesParent = permitted.find(i => i.path === '/services')
     const servicesTabs = permitted.filter(i => i.parentPath === '/services')
     const servicesItems = servicesParent ? [servicesParent, ...servicesTabs] : []
-    const financeItems = permitted.filter(i => i.path.startsWith('/finance'))
+
+    const financeParent = permitted.find(i => i.path === '/finance')
+    const financeTabs = permitted.filter(i => i.parentPath === '/finance')
+    const financeItems = financeParent ? [financeParent, ...financeTabs] : []
+
+    const adminParent = permitted.find(i => i.path === '/admin')
+    const adminTabs = permitted.filter(i => i.parentPath === '/admin')
+    const adminItems = adminParent ? [adminParent, ...adminTabs] : []
+
     const otherItems = permitted.filter(i =>
       !membershipItems.includes(i) &&
       !servicesItems.includes(i) &&
-      !financeItems.includes(i)
+      !financeItems.includes(i) &&
+      !adminItems.includes(i)
     )
 
     // Quick actions (always shown)
@@ -580,21 +589,49 @@ export class _Sidebar {
         </div>
       ` : ''}
 
-      ${financeItems.length > 0 ? /* html */`
-        <div class="sb-accord-item ${this._anyActive(financeItems) ? 'open' : ''}" data-accord="finance">
-          <button class="sb-nav-item ${this._anyActive(financeItems) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="finance">
+      ${financeParent ? /* html */`
+        <div class="sb-accord-item ${this._anyActiveQ([financeParent, ...financeTabs]) ? 'open' : ''}" data-accord="finance">
+          <button class="sb-nav-item ${this._anyActiveQ([financeParent, ...financeTabs]) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="finance">
             <i class="bi bi-cash-coin" aria-hidden="true"></i>
             <span class="sb-nav-item-label">Finance</span>
             <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
           </button>
           <div class="sb-accord-content">
             <div class="sb-accord-sub">
-              ${financeItems.map(item => /* html */`
-                <button class="sb-sub-item ${this._isActive(item.path) ? 'active' : ''}"
-                  data-route="${item.path}" type="button">
+              ${financeTabs.length > 0 ? financeTabs.map(item => /* html */`
+                <button class="sb-sub-item ${this._isActiveQ(item.path) ? 'active' : ''}"
+                  data-route-full="${item.path}"
+                  type="button">
                   ${item.label}
                 </button>
-              `).join('')}
+              `).join('') : `
+                <button class="sb-sub-item ${this._isActive('/finance') ? 'active' : ''}"
+                  data-route="/finance" type="button">All Finance</button>
+              `}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${adminParent ? /* html */`
+        <div class="sb-accord-item ${this._anyActiveQ([adminParent, ...adminTabs]) ? 'open' : ''}" data-accord="admin">
+          <button class="sb-nav-item ${this._anyActiveQ([adminParent, ...adminTabs]) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="admin">
+            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+            <span class="sb-nav-item-label">Administration</span>
+            <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="sb-accord-content">
+            <div class="sb-accord-sub">
+              ${adminTabs.length > 0 ? adminTabs.map(item => /* html */`
+                <button class="sb-sub-item ${this._isActiveQ(item.path) ? 'active' : ''}"
+                  data-route-full="${item.path}"
+                  type="button">
+                  ${item.label}
+                </button>
+              `).join('') : `
+                <button class="sb-sub-item ${this._isActive('/admin') ? 'active' : ''}"
+                  data-route="/admin" type="button">Go to Admin</button>
+              `}
             </div>
           </div>
         </div>
