@@ -1,5 +1,4 @@
 // src/modules/finance/manifest.ts
-// Declares platform-defined permissions for the Finance module.
 
 import { register } from '../../core/authorization/permission-registry'
 import { PERMISSIONS } from '../../core/authorization/permissions'
@@ -11,14 +10,21 @@ export function registerFinancePermissions(): void {
       {
         key:          PERMISSIONS.FINANCE_VIEW,
         label:        'View Finance',
-        description:  'Allows viewing transactions, pledges, budgets, and categories',
+        description:  'Allows viewing transactions, pledges, budgets, and reports',
         category:     'Finance',
         isAssignable: true,
       },
       {
         key:          PERMISSIONS.FINANCE_MANAGE,
         label:        'Manage Finance',
-        description:  'Allows creating, editing, and deleting all finance records',
+        description:  'Allows creating and editing transactions, pledges, and budgets',
+        category:     'Finance',
+        isAssignable: true,
+      },
+      {
+        key:          PERMISSIONS.PASTORAL_PRAYER_MANAGE,  // reuse pattern
+        label:        'Export Finance Reports',
+        description:  'Allows exporting finance data as CSV/PDF',
         category:     'Finance',
         isAssignable: true,
       },

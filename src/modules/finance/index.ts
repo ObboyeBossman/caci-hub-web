@@ -1,19 +1,18 @@
 // src/modules/finance/index.ts
-// The public contract of the Finance module.
 
-import type { ModuleManifest }          from '../../types/module.types'
-import { getActiveAssemblyId }          from '@core/auth'
-import { financeRoutes }                from './routes'
-import { registerFinancePermissions }   from './manifest'
-import { subscribeToTransactions }      from './repository'
-import type { RealtimeChannel }         from '@supabase/supabase-js'
+import type { ModuleManifest }  from '../../types/module.types'
+import { getActiveAssemblyId }  from '@core/auth'
+import { financeRoutes }        from './routes'
+import { registerFinancePermissions } from './manifest'
+import { subscribeToFinance }   from './repository'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
-let _txChannel: RealtimeChannel | null = null
+let _channels: ReturnType<typeof subscribeToFinance> | null = null
 
 const FinanceModule: ModuleManifest = {
   name:        'finance',
   version:     '1.0.0',
-  description: 'Tithes, offerings, pledges, budgets & expense tracking',
+  description: 'Church stewardship — transactions, pledges, budgets, and reports',
   icon:        'cash-coin',
   enabled:     true,
 
@@ -29,7 +28,7 @@ const FinanceModule: ModuleManifest = {
     },
   ],
 
-  capabilities: ['dashboard-widgets', 'reports'],
+  capabilities: ['dashboard-widgets', 'search', 'reports'],
 
   widgets: [],
 
@@ -42,16 +41,18 @@ const FinanceModule: ModuleManifest = {
       return
     }
 
-    _txChannel = subscribeToTransactions(assemblyId, (_eventType, _id) => {
-      // Future: emit('finance:transaction:updated', { id }) for dashboard widget refresh
+    _channels = subscribeToFinance(assemblyId, (table, eventType, id) => {
+      // Future: invalidate caches via emit()
     })
 
     console.info(`[finance] Realtime subscribed for assembly ${assemblyId}`)
   },
 
   async dispose() {
-    await _txChannel?.unsubscribe()
-    _txChannel = null
+    if (_channels) {
+      await Promise.all(_channels.map(ch => ch.unsubscribe()))
+      _channels = null
+    }
     console.info('[finance] Realtime unsubscribed')
   },
 }

@@ -20,7 +20,7 @@ Before making changes, understand the architecture and follow it strictly.
 * Authorization is enforced through `authorization-service.ts`.
 * Styling is module-scoped using `injectCSS()`.
 * Design tokens already exist (`--bg-card`, `--bg-surface`, `--caci-blue`, etc.).
-* Do not introduce React, Vue, Tailwind, Bootstrap, or any external UI framework.
+* Do not introduce React, Vue, or any external UI framework.
 * Follow the coding style used by `Groups.ts`.
 
 ---

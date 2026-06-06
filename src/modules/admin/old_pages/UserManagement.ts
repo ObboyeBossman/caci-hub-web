@@ -1,17 +1,17 @@
 // src/modules/accounts/pages/AccountList.ts
 // Lists all provisioned user accounts for the active assembly.
 
-import type { PageModule }             from '../../../types/module.types'
+import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
-import { Toast }                       from '@shared/components/Toast'
-import { navigate }                    from '@core/router'
-import { listAccounts }                from '../repository'
-import type { UserProfileSummary }     from '../utils/userProfileCache'
-import type { UserRoleEnum }           from '../../../types/database.types'
+import { Toast } from '@shared/components/Toast'
+import { navigate } from '@core/router'
+import { listAccounts } from '../repository'
+import type { UserProfileSummary } from '../utils/userProfileCache'
+import type { UserRoleEnum } from '../../../types/database.types'
 
 const ROLE_BADGE: Record<string, { cls: string; label: string }> = {
-  admin:  { cls: 'danger',  label: 'Admin' },
-  member: { cls: '',        label: 'Member' },
+  admin: { cls: 'danger', label: 'Admin' },
+  member: { cls: '', label: 'Member' },
 }
 
 function roleBadge(role: UserRoleEnum) {

@@ -1,15 +1,15 @@
 // src/modules/accounts/pages/AccountDetail.ts
 // Single user account — role management, suspend/reactivate, link back to member profile.
 
-import type { PageModule }             from '../../../types/module.types'
+import type { PageModule } from '../../../types/module.types'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
-import { Toast }                       from '@shared/components/Toast'
-import { ConfirmDialog }               from '@shared/components/ConfirmDialog'
-import { navigate }                    from '@core/router'
+import { Toast } from '@shared/components/Toast'
+import { ConfirmDialog } from '@shared/components/ConfirmDialog'
+import { navigate } from '@core/router'
 import { getAccountById, updateUserRole, setUserActive, listAssemblyRoles, assignRoleToUser } from '../repository'
-import type { AssemblyRole }           from '../repository'
-import type { UserProfileSummary }     from '../utils/userProfileCache'
-import type { SystemRole }           from '../../../types/auth.types'
+import type { AssemblyRole } from '../repository'
+import type { UserProfileSummary } from '../utils/userProfileCache'
+import type { SystemRole } from '../../../types/auth.types'
 
 // Extended type for this page to include role_id
 interface AccountDetailSummary extends UserProfileSummary {
@@ -18,7 +18,7 @@ interface AccountDetailSummary extends UserProfileSummary {
 
 const ASSIGNABLE_ROLES: { value: SystemRole; label: string }[] = [
   { value: 'member', label: 'Member' },
-  { value: 'admin',  label: 'Admin' },
+  { value: 'admin', label: 'Admin' },
 ]
 
 let _container: HTMLElement | null = null
@@ -56,7 +56,7 @@ async function getAccountByIdWithRoleId(userId: string): Promise<AccountDetailSu
     .select('id, assembly_id, role, assembly_role_id, full_name, is_active')
     .eq('id', userId)
     .single()
-  
+
   if (error) throw error
   const p = profile as any
 
@@ -123,12 +123,12 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
       <!-- Actions -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${account.memberId
-          ? `<button class="mm-btn-outline" id="ad-viewMember"
+      ? `<button class="mm-btn-outline" id="ad-viewMember"
                style="font-size: var(--text-sm);">View Member Profile</button>`
-          : ''}
+      : ''}
         ${account.isActive
-          ? `<button class="mm-btn-danger" id="ad-suspend">Suspend</button>`
-          : `<button class="mm-btn-primary" id="ad-reactivate">Reactivate</button>`}
+      ? `<button class="mm-btn-danger" id="ad-suspend">Suspend</button>`
+      : `<button class="mm-btn-primary" id="ad-reactivate">Reactivate</button>`}
       </div>
     </div>
   </div>
@@ -271,7 +271,7 @@ function renderDetail(container: HTMLElement, account: AccountDetailSummary, rol
       message: `Assign custom role "${roleName}" to ${account.fullName}?`
     })
     if (!confirmed) return
-    
+
     try {
       btn.disabled = true; btn.textContent = 'Saving…'
       await assignRoleToUser(account.id, newRoleId)

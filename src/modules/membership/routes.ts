@@ -148,6 +148,14 @@ export const membershipRoutes: RouteDefinition[] = [
     permission: 'reports.view',
   },
 
+  // ── Audit Logs ───────────────────────────────────────────────────────────────
+  {
+    path: '/audit-logs',
+    page: () => import('./pages/AuditLogs'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'members.view',
+  },
+
   // ── My Profile & Admin ────────────────────────────────────────────────────
   {
     path: '/my-profile',
