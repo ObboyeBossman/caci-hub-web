@@ -13,6 +13,7 @@ import { closeDrawer } from './Drawer'
 import { showToast, _showComingSoonToast } from './Toast'
 import { _showSignOutConfirm } from './SignOutModal'
 import type { SidebarItem } from '../types/module.types'
+import { formatRole } from '../shared/utils/format'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CSS
@@ -397,7 +398,13 @@ export class _Sidebar {
     const hasAdminAccess = user != null && user.role !== 'member' && permitted.length > 0
 
     const displayName = user?.fullName ?? 'User'
-    const roleLabel = user?.role?.replace(/_/g, ' ') ?? 'Member'
+    const roleLabel = (() => {
+      if (!user) return ''
+      if (user.role === 'admin') return 'Admin'
+      // For non-admins prefer the assigned assembly role name. If none assigned,
+      // suppress the generic system role label (don't show 'Member').
+      return (user.assemblyRoleName ? formatRole(user.assemblyRoleName) : '')
+    })()
     const membershipNo = (user as any)?.membershipNumber ?? ''
     const photoUrl = (user as any)?.avatarUrl ?? (user as any)?.photoUrl ?? ''
     const initials = _initials(displayName)

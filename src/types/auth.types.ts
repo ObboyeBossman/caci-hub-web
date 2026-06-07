@@ -30,6 +30,7 @@ export interface AppUser {
 
   // Assembly role (optional custom role within the assembly)
   assemblyRoleId: string | null  // user_profiles.assembly_role_id → assembly_roles
+  assemblyRoleName?: string | null // hydrated name for the assembly role (if assigned)
 
   // Resolved permission keys for this user (from their assembly role → role_permissions)
   // Empty array for members with no assembly role (or no permissions assigned).
