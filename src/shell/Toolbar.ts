@@ -315,14 +315,21 @@ export class _Toolbar {
   }
 
   private _bindEvents(): void {
-    // Hamburger — opens drawer (click toggles, hover always opens)
+    // Hamburger — single click/tap toggles drawer; mouse hover also opens it.
+    // NOTE: we use pointerenter + pointerType guard instead of mouseenter so
+    // that the hover-open path never fires on touch devices.  On mobile the
+    // browser synthesises mouseenter BEFORE click, which caused openDrawer()
+    // (resolved from the module cache as a microtask) to run first and then
+    // toggleDrawer() to immediately close it — net result: nothing happened.
     const hamburger = this._el.querySelector<HTMLElement>('#topnav-hamburger')
     hamburger?.addEventListener('click', () => {
       toggleDrawer()
       const isOpen = document.getElementById('shell-sidebar')?.classList.contains('drawer-open') ?? false
       hamburger.setAttribute('aria-expanded', String(isOpen))
     })
-    hamburger?.addEventListener('mouseenter', () => {
+    hamburger?.addEventListener('pointerenter', (e: PointerEvent) => {
+      // Only trigger hover-open for real mouse pointers, never for touch/pen.
+      if (e.pointerType !== 'mouse') return
       const sidebar = document.getElementById('shell-sidebar')
       if (!sidebar?.classList.contains('drawer-open')) {
         import('./Drawer').then(({ openDrawer }) => openDrawer())
