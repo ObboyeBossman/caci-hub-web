@@ -214,6 +214,8 @@ const SIDEBAR_CSS = /* css */`
   color: var(--sb-text-dim); font-size: 1rem; font-weight: 500;
   font-family: var(--font-sans, inherit);
   transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .sb-nav-item:hover {
   background: var(--sb-hover-bg); color: var(--sb-text);
@@ -282,6 +284,8 @@ const SIDEBAR_CSS = /* css */`
   width: 100%; border-radius: 6px; position: relative;
   font-family: var(--font-sans, inherit);
   transition: color 0.18s ease, background 0.18s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .sb-sub-item::before {
   content: ''; position: absolute;
@@ -304,6 +308,8 @@ const SIDEBAR_CSS = /* css */`
   color: var(--sb-text-dim); font-size: 1rem; font-weight: 500;
   font-family: var(--font-sans, inherit);
   transition: background 0.18s ease, color 0.18s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .sb-footer-link:hover { background: var(--sb-hover-bg); color: var(--sb-text); }
 .sb-footer-link i { font-size: 1.143rem; flex-shrink: 0; }
@@ -315,6 +321,8 @@ const SIDEBAR_CSS = /* css */`
   background: var(--sb-hover-bg); border: 1px solid var(--sb-divider);
   cursor: pointer; margin-top: 4px;
   transition: background 0.18s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .sb-theme-row:hover { background: var(--sb-role-bg); }
 .sb-theme-left { display: flex; align-items: center; gap: 10px; }
