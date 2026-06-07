@@ -67,6 +67,63 @@ export const MembershipModule = {
       category:     'Households',
       isAssignable: true,
     },
+    {
+      key:          PERMISSIONS.GROUPS_VIEW,
+      label:        'View Groups',
+      description:  'Allows viewing groups and age groups',
+      category:     'Groups',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.GROUPS_CREATE,
+      label:        'Create Groups',
+      description:  'Allows creating new group records',
+      category:     'Groups',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.GROUPS_EDIT,
+      label:        'Edit Groups',
+      description:  'Allows editing existing group records',
+      category:     'Groups',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.GROUPS_DELETE,
+      label:        'Delete Groups',
+      description:  'Allows soft-deleting group records',
+      category:     'Groups',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.GROUPS_MEMBERS_MANAGE,
+      label:        'Manage Group Members',
+      description:  'Allows adding and removing members from groups',
+      category:     'Groups',
+      isAssignable: true,
+    },
+    // ── Pastoral ────────────────────────────────────────────────────────────
+    {
+      key:          PERMISSIONS.PASTORAL_VIEW,
+      label:        'View Pastoral Care',
+      description:  'Allows viewing pastoral cases, visits, and prayer requests',
+      category:     'Pastoral',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.PASTORAL_MANAGE,
+      label:        'Manage Pastoral Care',
+      description:  'Allows creating and updating pastoral cases and visits',
+      category:     'Pastoral',
+      isAssignable: true,
+    },
+    {
+      key:          PERMISSIONS.PASTORAL_PRAYER_MANAGE,
+      label:        'Manage Prayer Requests',
+      description:  'Allows updating the status of prayer requests',
+      category:     'Pastoral',
+      isAssignable: true,
+    },
   ],
 }
 

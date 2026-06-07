@@ -5,7 +5,7 @@ import type { RouteDefinition } from '../../types/module.types'
 export const routes: RouteDefinition[] = [
   {
     path: '/',
-    redirect: '/members',
+    redirect: '/home',
   },
   {
     path: '/select-assembly',
@@ -35,6 +35,11 @@ export const routes: RouteDefinition[] = [
   {
     path: '/totp-verify',
     page: () => import('./pages/Totp'),
+    presentation: 'fullscreen',
+  },
+  {
+    path: '/unauthorized',
+    page: () => import('./pages/Unauthorized'),
     presentation: 'fullscreen',
   },
 ]

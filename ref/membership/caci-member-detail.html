@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub — Member Detail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+/* ── CACI Design Tokens ─────────────────────────────────────── */
+:root {
+  --caci-red:        #C60026;
+  --caci-red-light:  #FF1A46;
+  --caci-red-dim:    #8C001A;
+  --caci-blue:       #004BA0;
+  --caci-blue-light: #4D9FFF;
+  --caci-blue-dim:   #003578;
+  --green:           #1a7f37;
+  --green-bg-dim:    rgba(26,127,55,0.15);
+  --amber:           #9a6700;
+  --amber-bg-dim:    rgba(154,103,0,0.15);
+}
+:root, [data-theme="light"] {
+  --bg-page:       #f6f8fa;
+  --bg-card:       #ffffff;
+  --bg-card2:      #f6f8fa;
+  --bg-card3:      #f0f3f6;
+  --bg-danger:     rgba(198,0,38,0.06);
+  --bg-info:       rgba(0,75,160,0.06);
+  --bg-success:    rgba(26,127,55,0.08);
+  --bg-warning:    rgba(154,103,0,0.08);
+  --text-primary:   #0d1117;
+  --text-secondary: #6e7681;
+  --text-muted:     #8b949e;
+  --text-link:      #004BA0;
+  --text-danger:    #C60026;
+  --text-success:   #1a7f37;
+  --text-amber:     #9a6700;
+  --border-default: #e6edf3;
+  --border-strong:  #c9d1d9;
+  --border-focus:   #004BA0;
+  --focus-ring:     rgba(0,75,160,0.15);
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-hover:   0 4px 16px rgba(0,0,0,0.1);
+  --shadow-hero:    0 8px 32px rgba(0,0,0,0.08);
+  --card-gradient:  linear-gradient(145deg,#ffffff,#fafbfc);
+  --hero-gradient:  linear-gradient(160deg,#ffffff 0%,#eff5ff 60%,#e6edf3 100%);
+  --glow-color:     rgba(0,75,160,0.05);
+  --avatar-border:  #ffffff;
+  --scrollbar:      #c9d1d9;
+  --divider:        #e6edf3;
+  --header-bg:      rgba(246,248,250,0.95);
+}
+[data-theme="dark"] {
+  --bg-page:       #0d1117;
+  --bg-card:       #161b22;
+  --bg-card2:      #1c2128;
+  --bg-card3:      #21262d;
+  --bg-danger:     rgba(198,0,38,0.12);
+  --bg-info:       rgba(0,75,160,0.15);
+  --bg-success:    rgba(26,127,55,0.15);
+  --bg-warning:    rgba(154,103,0,0.15);
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted:     #6e7681;
+  --text-link:      #4D9FFF;
+  --text-danger:    #FF1A46;
+  --text-success:   #3fb950;
+  --text-amber:     #d29922;
+  --border-default: #30363d;
+  --border-strong:  #484f58;
+  --border-focus:   #4D9FFF;
+  --focus-ring:     rgba(77,159,255,0.20);
+  --shadow-card:    0 2px 8px rgba(0,0,0,0.3);
+  --shadow-hover:   0 8px 28px rgba(0,0,0,0.5);
+  --shadow-hero:    0 12px 40px rgba(0,0,0,0.5);
+  --card-gradient:  linear-gradient(145deg,#1c2128,#161b22);
+  --hero-gradient:  linear-gradient(135deg,#0d1117 0%,#161b22 100%);
+  --glow-color:     rgba(198,0,38,0.05);
+  --avatar-border:  #0d1117;
+  --scrollbar:      #30363d;
+  --divider:        #21262d;
+  --header-bg:      rgba(13,17,23,0.95);
+}
+
+/* ── Base ──────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg-page);color:var(--text-primary);min-height:100dvh;-webkit-font-smoothing:antialiased;transition:background 0.3s,color 0.3s;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:99px;}
+.ms{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-style:normal;line-height:1;display:inline-flex;align-items:center;}
+.ms.fill{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+
+/* stagger */
+.d-1{animation-delay:40ms}.d-2{animation-delay:80ms}.d-3{animation-delay:120ms}
+.d-4{animation-delay:160ms}.d-5{animation-delay:200ms}.d-6{animation-delay:240ms}
+.d-7{animation-delay:280ms}.d-8{animation-delay:320ms}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 0 rgba(26,127,55,0.35)}50%{box-shadow:0 0 0 8px rgba(26,127,55,0)}}
+@keyframes shimmer{from{background-position:-400px 0}to{background-position:400px 0}}
+.anim-fade-up{animation:fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;}
+.anim-fade-in{animation:fadeIn 0.35s ease both;}
+.anim-slide-down{animation:slideDown 0.4s cubic-bezier(0.16,1,0.3,1) both;}
+
+/* ── Sticky top bar ────────────────────────────────────────── */
+.top-bar{
+  position:relative;
+  background:transparent;
+  padding:0;
+}
+.toolbar-content{
+  max-width:64rem;
+  margin:0 auto;
+  padding:20px 24px 10px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+@media(max-width:480px){
+  .toolbar-content{ padding:16px 16px 8px; }
+}
+.toolbar-left{display:flex;align-items:center;gap:0;min-width:0;}
+.toolbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.back-btn{
+  display:inline-flex;align-items:center;gap:0;
+  padding:0;border:none;border-radius:0;
+  background:transparent;color:var(--text-secondary);
+  font-size:14px;font-weight:400;cursor:pointer;
+  transition:color 0.15s;font-family:'Inter',sans-serif;
+  box-shadow:none;
+}
+.back-btn:hover{color:var(--text-primary);}
+.breadcrumb{
+  display:flex;align-items:center;gap:0;
+  font-size:14px;color:var(--text-secondary);
+  min-width:0;
+}
+.breadcrumb .sep{
+  font-family:'Material Symbols Outlined';
+  font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;
+  font-size:16px;color:var(--text-muted);
+  margin:0 2px;line-height:1;display:inline-flex;align-items:center;
+}
+.breadcrumb .current{
+  color:var(--text-primary);font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+
+/* ── Hero section ──────────────────────────────────────────── */
+.hero{
+  background:var(--hero-gradient);
+  border:1px solid var(--border-default);
+  border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow-hero);
+  position:relative;
+}
+[data-theme="light"] .hero{
+  border-color:#c9d1d9;
+  box-shadow:0 4px 24px rgba(0,75,160,0.08), 0 1px 4px rgba(0,0,0,0.06);
+}
+.hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 80% at 85% 50%,rgba(198,0,38,0.07),transparent);
+}
+[data-theme="light"] .hero::before{
+  background:radial-gradient(ellipse 70% 100% at 90% 50%,rgba(0,75,160,0.06),transparent),
+             radial-gradient(ellipse 40% 60% at 10% 0%,rgba(198,0,38,0.04),transparent);
+}
+[data-theme="dark"] .hero::before{
+  background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(198,0,38,0.08),transparent);
+}
+.hero-body{position:relative;z-index:1;padding:28px 32px;}
+.hero-stripe{height:3px;background:linear-gradient(90deg,var(--caci-red),var(--caci-red-light),var(--caci-blue),var(--caci-blue-light));}
+
+/* avatar */
+.avatar-ring{
+  padding:3px;border-radius:50%;
+  background:conic-gradient(var(--green) 0deg 285deg,rgba(26,127,55,0.25) 285deg 360deg);
+  box-shadow:0 0 20px rgba(26,127,55,0.3);
+  animation:ringPulse 2.5s infinite;
+  flex-shrink:0;
+}
+.avatar-inner{
+  width:96px;height:96px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:700;letter-spacing:.5px;
+  border:3px solid var(--avatar-border);
+  background:linear-gradient(135deg,#3d2b8e,#2d6a4f);
+  color:#c4b5f7;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+[data-theme="light"] .avatar-inner{
+  border-color:#ffffff;
+  box-shadow:0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* ── Badges ────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.03em;}
+.badge-green{background:var(--bg-success);border:1px solid rgba(26,127,55,0.25);color:var(--text-success);}
+.badge-blue{background:var(--bg-info);border:1px solid rgba(0,75,160,0.25);color:var(--text-link);}
+.badge-red{background:var(--bg-danger);border:1px solid rgba(198,0,38,0.25);color:var(--text-danger);}
+.badge-amber{background:var(--bg-warning);border:1px solid rgba(154,103,0,0.25);color:var(--text-amber);}
+.badge-gray{background:var(--bg-card2);border:1px solid var(--border-default);color:var(--text-secondary);}
+
+/* ── Meta pills (hero) ─────────────────────────────────────── */
+.meta-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:99px;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);
+  font-size:12px;color:rgba(255,255,255,0.9);
+  transition:background 0.2s,border-color 0.2s;
+}
+[data-theme="light"] .meta-pill{
+  background:#ffffff;
+  border:1px solid #e6edf3;
+  color:#6e7681;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .meta-pill .ms{ color:#004BA0; }
+
+/* ── Action buttons ────────────────────────────────────────── */
+.act-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:0 16px;height:38px;border-radius:10px;
+  font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border-default);
+  background:var(--bg-card);color:var(--text-secondary);
+  transition:all 0.18s cubic-bezier(0.16,1,0.3,1);
+  font-family:'Inter',sans-serif;white-space:nowrap;
+  box-shadow:var(--shadow-card);
+}
+.act-btn:hover{border-color:var(--border-strong);color:var(--text-primary);transform:translateY(-1px);box-shadow:var(--shadow-hover);}
+.act-btn:active{transform:translateY(0);}
+.act-btn-primary{background:var(--caci-red);border-color:var(--caci-red-dim);color:#fff;font-weight:600;box-shadow:0 2px 10px rgba(198,0,38,0.3);}
+.act-btn-primary:hover{background:var(--caci-red-light);border-color:var(--caci-red);color:#fff;box-shadow:0 6px 20px rgba(198,0,38,0.4);}
+.act-btn-secondary{background:var(--caci-blue);border-color:var(--caci-blue-dim);color:#fff;font-weight:600;box-shadow:0 2px 10px rgba(0,75,160,0.3);}
+.act-btn-secondary:hover{background:var(--caci-blue-light);border-color:var(--caci-blue);color:#fff;box-shadow:0 6px 20px rgba(0,75,160,0.4);}
+.act-btn-danger{border-color:rgba(198,0,38,0.3);color:var(--text-danger);}
+.act-btn-danger:hover{background:var(--bg-danger);border-color:rgba(198,0,38,0.5);}
+
+/* ── Section cards ─────────────────────────────────────────── */
+.sec-card{
+  background:var(--card-gradient);
+  border:1px solid var(--border-default);border-radius:16px;
+  overflow:hidden;box-shadow:var(--shadow-card);
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.sec-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow-hover);}
+.sec-head{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 20px;border-bottom:1px solid var(--divider);
+  background:rgba(0,0,0,0.015);
+}
+[data-theme="dark"] .sec-head{background:rgba(255,255,255,0.015);}
+.sec-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-body{padding:22px;}
+
+/* ── Field ─────────────────────────────────────────────────── */
+.field{display:flex;flex-direction:column;gap:4px;}
+.field-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);}
+.field-value{font-size:13.5px;color:var(--text-primary);font-weight:500;line-height:1.4;}
+.field-mono{font-family:monospace;font-size:12px;color:var(--text-secondary);letter-spacing:.03em;}
+.field-empty{font-size:13px;color:var(--border-strong);font-style:italic;}
+.field-link{color:var(--text-link);display:inline-flex;align-items:center;gap:4px;text-decoration:none;transition:opacity 0.15s;}
+.field-link:hover{opacity:0.8;text-decoration:underline;}
+
+/* ── Divider ───────────────────────────────────────────────── */
+.divider{height:1px;background:var(--divider);margin:18px 0;}
+
+/* ── Module link rows ──────────────────────────────────────── */
+.mod-link{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:12px;
+  border:1px solid var(--border-default);background:var(--bg-page);
+  text-decoration:none;color:inherit;
+  transition:all 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+.mod-link:hover{border-color:rgba(198,0,38,0.3);background:var(--bg-card2);transform:translateX(3px);box-shadow:var(--shadow-hover);}
+.mod-link:hover .mod-arrow{color:var(--caci-red);transform:translateX(3px);}
+.mod-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mod-arrow{color:var(--text-muted);transition:all 0.2s;}
+
+/* ── Timeline / audit ──────────────────────────────────────── */
+.record-row{display:flex;align-items:center;gap:10px;padding:6px 0;}
+.record-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--border-strong);}
+.record-dot.active{background:var(--green);}
+
+/* ── Background glow ───────────────────────────────────────── */
+.bg-glow{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 420px 420px at -100px -140px, rgba(198,0,38,0.035) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 400px at 100% -80px, rgba(0,75,160,0.07) 0%, transparent 65%);
+}
+[data-theme="light"] .bg-glow{ display:none; }
+</style>
+</head>
+<body class="min-h-screen pb-16 antialiased">
+<div class="bg-glow"></div>
+
+<!-- Sticky top bar -->
+<div class="top-bar anim-slide-down">
+  <div class="toolbar-content">
+    <div class="toolbar-left">
+      <button class="back-btn">Members</button>
+      <div class="breadcrumb">
+        <span class="sep">chevron_right</span>
+        <span>Rev. Stephen Ankomah</span>
+        <span class="sep">chevron_right</span>
+        <span class="current">Detail</span>
+      </div>
+    </div>
+    <div class="toolbar-right">
+      <a href="caci-edit-member.html" class="act-btn act-btn-secondary" style="height:36px;padding:0 16px;font-size:13px;text-decoration:none;">
+        <span class="ms" style="font-size:16px;">edit</span><span class="hidden sm:inline">Edit Member</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<main class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-5 pb-16 space-y-5">
+
+  <!-- ── Hero card ─────────────────────────────────────────── -->
+  <div class="hero anim-fade-up d-1">
+    <div class="hero-stripe"></div>
+    <div class="hero-body">
+      <div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+
+        <!-- Avatar + online dot -->
+        <div class="relative flex-shrink-0">
+          <div class="avatar-ring">
+            <div class="avatar-inner">SA</div>
+          </div>
+          <div style="position:absolute;bottom:4px;right:4px;width:18px;height:18px;border-radius:50%;background:var(--green);border:3px solid #ffffff;animation:ringPulse 2s infinite;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></div>
+        </div>
+
+        <!-- Name block -->
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <h1 style="font-size:22px;font-weight:700;color:var(--text-primary);line-height:1.2;text-shadow:none;">Rev. Stephen Ankomah</h1>
+            <span class="badge badge-green"><span style="width:6px;height:6px;border-radius:50%;background:var(--text-success);display:inline-block;"></span>Active</span>
+          </div>
+          <p style="font-family:monospace;font-size:11px;color:var(--text-secondary);margin-bottom:14px;letter-spacing:.04em;">CACI-GH-ASSAK-00002</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span class="meta-pill"><span class="ms" style="font-size:14px;">work</span>Rev. Minister</span>
+            <span class="meta-pill"><span class="ms" style="font-size:14px;">calendar_today</span>Joined Jan 2019</span>
+            <span class="meta-pill"><span class="ms" style="font-size:14px;">person</span>Male</span>
+            <span class="meta-pill"><span class="ms" style="font-size:14px;">favorite</span>Married</span>
+            <span class="meta-pill"><span class="ms" style="font-size:14px;">home</span>Ankomah Household</span>
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Two-column layout ──────────────────────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- LEFT (2/3) -->
+    <div class="lg:col-span-2 space-y-5">
+
+      <!-- Personal Information -->
+      <div class="sec-card anim-fade-up d-2">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-info);">
+            <span class="ms" style="font-size:17px;color:var(--caci-blue);">person</span>
+          </div>
+          <div class="flex-1">
+            <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Personal Information</h2>
+          </div>
+        </div>
+        <div class="sec-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;">
+            <div class="field">
+              <span class="field-label">Title</span>
+              <span class="field-value">Rev.</span>
+            </div>
+            <div class="field">
+              <span class="field-label">First Name</span>
+              <span class="field-value">Stephen</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Last Name</span>
+              <span class="field-value">Ankomah</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Other Names</span>
+              <span class="field-empty">—</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Date of Birth</span>
+              <span class="field-value">12 Mar 1978</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Gender</span>
+              <span class="field-value">Male</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Marital Status</span>
+              <span class="field-value">Married</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Occupation</span>
+              <span class="field-value">Rev. Minister</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Membership Type</span>
+              <span class="badge badge-blue" style="width:fit-content;margin-top:2px;">Full Member</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="sec-card anim-fade-up d-3">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-success);">
+            <span class="ms" style="font-size:17px;color:var(--green);">contact_phone</span>
+          </div>
+          <div class="flex-1">
+            <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Contact Information</h2>
+          </div>
+        </div>
+        <div class="sec-body">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px 24px;">
+            <div class="field">
+              <span class="field-label">Primary Phone</span>
+              <a href="tel:+233244000000" class="field-value field-link">
+                <span class="ms" style="font-size:14px;">call</span>+233 244 000 000
+              </a>
+            </div>
+            <div class="field">
+              <span class="field-label">Secondary Phone</span>
+              <span class="field-empty">—</span>
+            </div>
+            <div class="field">
+              <span class="field-label">WhatsApp</span>
+              <a href="https://wa.me/233244000000" class="field-value field-link">
+                <span class="ms" style="font-size:14px;">chat</span>+233 244 000 000
+              </a>
+            </div>
+            <div class="field">
+              <span class="field-label">Email Address</span>
+              <a href="mailto:stephen@example.com" class="field-value field-link">
+                <span class="ms" style="font-size:14px;">mail</span>stephen@example.com
+              </a>
+            </div>
+            <div class="field" style="grid-column:1/-1;">
+              <span class="field-label">Physical Address</span>
+              <span class="field-value">House 12, Assakae, Central Region, Ghana</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <p style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:16px;">Social Media</p>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px 24px;">
+            <div class="field">
+              <span class="field-label">Facebook</span>
+              <span class="field-empty">—</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Instagram</span>
+              <span class="field-empty">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Contact -->
+      <div class="sec-card anim-fade-up d-4">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-warning);">
+            <span class="ms" style="font-size:17px;color:var(--text-amber);">emergency</span>
+          </div>
+          <div class="flex-1">
+            <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Emergency Contact</h2>
+          </div>
+        </div>
+        <div class="sec-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;">
+            <div class="field">
+              <span class="field-label">Full Name</span>
+              <span class="field-value">Mrs. Ankomah</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Phone</span>
+              <a href="tel:+233244000001" class="field-value field-link">
+                <span class="ms" style="font-size:14px;">call</span>+233 244 000 001
+              </a>
+            </div>
+            <div class="field">
+              <span class="field-label">Relationship</span>
+              <span class="field-value">Spouse</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pastoral Notes -->
+      <div class="sec-card anim-fade-up d-5">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-danger);">
+            <span class="ms" style="font-size:17px;color:var(--caci-red);">lock</span>
+          </div>
+          <div class="flex-1">
+            <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Pastoral Notes</h2>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:1px;">Visible to pastoral staff only</p>
+          </div>
+        </div>
+        <div class="sec-body">
+          <div style="background:var(--bg-card2);border:1px dashed var(--border-default);border-radius:10px;padding:20px;text-align:center;">
+            <span class="ms" style="font-size:28px;color:var(--border-strong);display:block;margin-bottom:8px;">notes</span>
+            <p style="font-size:13px;color:var(--text-muted);font-style:italic;">No pastoral notes recorded yet.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT (1/3) -->
+    <div class="space-y-5">
+
+      <!-- Membership card -->
+      <div class="sec-card anim-fade-up d-2">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-info);">
+            <span class="ms" style="font-size:17px;color:var(--caci-blue);">badge</span>
+          </div>
+          <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Membership</h2>
+        </div>
+        <div class="sec-body" style="display:flex;flex-direction:column;gap:16px;">
+          <div class="field">
+            <span class="field-label">Membership No.</span>
+            <span class="field-value field-mono">CACI-GH-ASSAK-00002</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Join Date</span>
+            <span class="field-value">15 January 2019</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Household</span>
+            <a href="#" class="field-value field-link">
+              Ankomah Household<span class="ms" style="font-size:13px;">open_in_new</span>
+            </a>
+          </div>
+          <div class="field">
+            <span class="field-label">Membership Type</span>
+            <span class="badge badge-blue" style="width:fit-content;margin-top:2px;">Full Member</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Status</span>
+            <span class="badge badge-green" style="width:fit-content;margin-top:2px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--text-success);display:inline-block;"></span>Active
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linked Modules -->
+      <div class="sec-card anim-fade-up d-3">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-card2);">
+            <span class="ms" style="font-size:17px;color:var(--text-muted);">hub</span>
+          </div>
+          <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);">Linked Modules</h2>
+        </div>
+        <div class="sec-body" style="display:flex;flex-direction:column;gap:8px;">
+
+          <a href="#" class="mod-link">
+            <div class="mod-icon" style="background:var(--bg-info);">
+              <span class="ms" style="font-size:18px;color:var(--caci-blue);">groups</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:13px;font-weight:500;color:var(--text-primary);">Groups &amp; Units</p>
+              <p style="font-size:11px;color:var(--text-muted);">2 active groups</p>
+            </div>
+            <span class="ms mod-arrow" style="font-size:18px;">arrow_forward</span>
+          </a>
+
+          <a href="#" class="mod-link">
+            <div class="mod-icon" style="background:var(--bg-warning);">
+              <span class="ms" style="font-size:18px;color:var(--text-amber);">payments</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:13px;font-weight:500;color:var(--text-primary);">Finance</p>
+              <p style="font-size:11px;color:var(--text-muted);">Pledges &amp; transactions</p>
+            </div>
+            <span class="ms mod-arrow" style="font-size:18px;">arrow_forward</span>
+          </a>
+
+          <a href="#" class="mod-link">
+            <div class="mod-icon" style="background:var(--bg-success);">
+              <span class="ms" style="font-size:18px;color:var(--green);">how_to_reg</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:13px;font-weight:500;color:var(--text-primary);">Attendance</p>
+              <p style="font-size:11px;color:var(--text-muted);">Service history</p>
+            </div>
+            <span class="ms mod-arrow" style="font-size:18px;">arrow_forward</span>
+          </a>
+
+          <a href="#" class="mod-link">
+            <div class="mod-icon" style="background:var(--bg-danger);">
+              <span class="ms" style="font-size:18px;color:var(--caci-red);">favorite</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:13px;font-weight:500;color:var(--text-primary);">Pastoral Care</p>
+              <p style="font-size:11px;color:var(--text-muted);">Cases &amp; visits</p>
+            </div>
+            <span class="ms mod-arrow" style="font-size:18px;">arrow_forward</span>
+          </a>
+
+          <a href="#" class="mod-link">
+            <div class="mod-icon" style="background:var(--bg-info);">
+              <span class="ms" style="font-size:18px;color:var(--caci-blue-light);">church</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:13px;font-weight:500;color:var(--text-primary);">Services</p>
+              <p style="font-size:11px;color:var(--text-muted);">Roles &amp; participation</p>
+            </div>
+            <span class="ms mod-arrow" style="font-size:18px;">arrow_forward</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Record Info -->
+      <div class="sec-card anim-fade-up d-6">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--bg-card2);">
+            <span class="ms" style="font-size:17px;color:var(--text-muted);">info</span>
+          </div>
+          <h2 style="font-size:13px;font-weight:600;color:var(--text-secondary);">Record Info</h2>
+        </div>
+        <div class="sec-body" style="display:flex;flex-direction:column;gap:0;">
+          <div class="record-row">
+            <div class="record-dot active"></div>
+            <div style="flex:1;">
+              <p style="font-size:11px;font-weight:600;color:var(--text-secondary);">Last Updated</p>
+              <p style="font-size:12px;color:var(--text-primary);">02 Jun 2026 · 03:15 PM</p>
+            </div>
+          </div>
+          <div style="width:1px;height:16px;background:var(--border-default);margin-left:3.5px;"></div>
+          <div class="record-row">
+            <div class="record-dot"></div>
+            <div style="flex:1;">
+              <p style="font-size:11px;font-weight:600;color:var(--text-secondary);">Created</p>
+              <p style="font-size:12px;color:var(--text-primary);">15 Jan 2019 · 09:42 AM</p>
+            </div>
+          </div>
+          <div class="divider" style="margin:14px 0 10px;"></div>
+          <div class="field">
+            <span class="field-label">Created By</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--caci-blue),var(--caci-red));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;">BM</div>
+              <span style="font-size:13px;font-weight:500;color:var(--text-primary);">Benjamin Mensah</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+
+</script>
+</body>
+</html>

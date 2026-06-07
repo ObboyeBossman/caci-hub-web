@@ -69,6 +69,8 @@ async function _resolve(): Promise<void> {
     navigate(result.redirect ?? '/login')
     return
   }
+  // Guard handled the render itself (e.g. access-denied panel) — stop here.
+  if (result.handled) return
 
   // Redirect-only routes (no page) — e.g. '/' → '/members'
   if (matched.redirect) {
@@ -95,14 +97,12 @@ async function _resolve(): Promise<void> {
 
   // Layout handling (Presentation switch)
   const targetPresentation = matched.presentation || 'shell'
-  if (targetPresentation !== _currentPresentation) {
-    if (targetPresentation === 'fullscreen') {
-      mountFullscreen()
-    } else {
-      mountShell()
-    }
-    _currentPresentation = targetPresentation
+  if (targetPresentation === 'fullscreen') {
+    mountFullscreen()
+  } else {
+    mountShell()
   }
+  _currentPresentation = targetPresentation
 
   // Pass route params via dataset — pages read them inside render().
   const params    = _extractParams(matched.path, path)

@@ -1,2552 +1,1107 @@
 // src/modules/membership/pages/MemberList.ts
-// The primary member directory page.
-// Presentation layer only — all data flows through repository.ts + memberService.ts.
-//
-// Renders:
-//   - Sub-nav tabs (Members, Attendance, Groups, Pastoral Care, Reports)
-//   - Left sidebar: quick access nav + filters + quick stats
-//   - Stats row (4 cards)
-//   - Toolbar: search, sort, grid/list toggle, export, add member
-//   - Bulk action bar
-//   - Grid view (cards) | List view (table)
-//   - Empty state
-//   - Pagination
-//   - Right-side detail panel (slides in)
-//   - Add / Edit member modal (right drawer)
-//
-// Sub-pages (Attendance, Groups, Pastoral Care, Reports) are rendered inline
-// inside the same page container via tab switching — they do NOT have
-// their own route. This matches the reference HTML's single-page design.
+// Member directory — stat cards, tab bar, toolbar, grid/list view, stat-filter panel.
+// Mirrors: caci-hub-members.html reference design.
+// Data: listMembers() + getMemberCounts() from repository.ts
+// Bootstrap Icons replace Material Symbols from the reference HTML.
 
-import { formatName } from '@modules/membership/utils/member-helpers'
 import type { PageModule } from '../../../types/module.types'
-import type { MemberView, MemberFilter } from '../../../types/member.types'
-import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
-import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { getCurrentUser } from '@core/auth'
 import { can } from '@core/authorization/authorization-service'
-import {
-  listMembers,
-  getMemberCounts,
-  deactivateMember,
-  updateMember,
-} from '../repository'
-import { registerMember, exportMembersCsv, downloadCsv } from '../services/memberService'
-import { CreateMemberSchema, UpdateMemberSchema } from '../schemas/member.schema'
-import { avatarColor, initials, statusBadge, fmtDate, injectMembershipCSS } from '../utils/member-helpers'
+import { listMembers, getMemberCounts } from '../repository'
+import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
+import { debounce } from '@shared/utils/debounce'
+import { avatarColor, initials, fmtDate, formatName } from '../utils/member-helpers'
+import type { MemberView, MemberFilter } from '../../../types/member.types'
+import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
 
-// ── Page constants ────────────────────────────────────────────────────────────
-const PAGE_SIZE = 20
+// ── CSS ───────────────────────────────────────────────────────────────────────
 
-/** Tabs that are under development — block switching to them */
-const COMING_SOON_TABS = new Set(['attendance', 'groups', 'pastoral', 'reports'])
+const CSS = /* css */`
+/* ═══════════════════════════════════════════════════════════════════
+   MEMBER LIST PAGE
+═══════════════════════════════════════════════════════════════════ */
 
-// ── State ─────────────────────────────────────────────────────────────────────
-
-interface State {
-  members: MemberView[]
-  filtered: MemberView[]
-  loading: boolean
-  view: 'grid' | 'list'
-  search: string
-  sortMode: string
-  activeTab: string
-  sidebarFilter: string
-  selectedIds: Set<string>
-  page: number
-  // filter state
-  statusFilters: Set<string>
-  genderFilters: Set<string>
-  // attendance
-  attSessions: AttSession[]
-  currentAttId: string | null
-  memberAtt: Record<string, 'present' | 'absent' | 'excused'>
-  // groups
-  groups: Group[]
-  // pastoral
-  pcFlags: PcFlag[]
-  pcFirstTimers: PcFirstTimer[]
-  pcLifeEvents: PcLifeEvent[]
-  // detail panel
-  detailMember: MemberView | null
-  // modal
-  editingId: string | null
+.ml-wrap {
+  padding: 20px 24px 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+@media (max-width: 640px) {
+  .ml-wrap { padding: 12px 12px 48px; }
 }
 
-interface AttSession {
-  id: string; name: string; type: string; date: string; time: string
-  present: number; absent: number; excused: number
+/* ── Stat cards ─────────────────────────────────────────────────── */
+.ml-stats-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+}
+@media (min-width: 640px) {
+  .ml-stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+}
+.ml-stat-card {
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 16px; padding: 16px;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  user-select: none;
+}
+.ml-stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-overlay); }
+.ml-stat-card:active { transform: translateY(0) scale(0.98); }
+.ml-stat-card.active-filter {
+  border-width: 1.5px;
+  transform: translateY(-2px);
+}
+.ml-stat-icon {
+  width: 32px; height: 32px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.ml-stat-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--text-secondary);
+}
+.ml-stat-value {
+  font-size: 24px; font-weight: 700; color: var(--text-primary);
+  line-height: 1.1;
+}
+.ml-stat-bar {
+  height: 2px; border-radius: 99px;
+  background: var(--border-default); overflow: hidden; margin-top: 8px;
+}
+.ml-stat-bar-fill { height: 100%; border-radius: 99px; }
+.ml-click-hint {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 9.5px; color: var(--text-muted);
+  opacity: 0; transition: opacity 0.2s;
+  display: flex; align-items: center; gap: 3px;
+}
+.ml-stat-card:hover .ml-click-hint { opacity: 1; }
+.ml-stat-card.active-filter .ml-click-hint { opacity: 0; }
+
+/* ── Toolbar ────────────────────────────────────────────────────── */
+.ml-toolbar {
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 16px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-raised);
+  flex-wrap: wrap;
+}
+.ml-search-wrap {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--bg-page); border: 1px solid var(--border-default);
+  border-radius: 10px; padding: 0 12px; height: 40px;
+  flex: 1; max-width: 420px; min-width: 0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ml-search-wrap:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.ml-search-wrap i { font-size: 15px; color: var(--text-muted); flex-shrink: 0; }
+.ml-search-wrap:focus-within i { color: var(--caci-blue); }
+.ml-search-inp {
+  background: transparent; border: none; outline: none;
+  font-size: 13px; color: var(--text-primary);
+  font-family: var(--font-sans); width: 100%;
+  caret-color: var(--caci-blue);
+}
+.ml-search-inp::placeholder { color: var(--text-muted); }
+.ml-sort-wrap { position: relative; display: flex; align-items: center; }
+.ml-sort-wrap i {
+  position: absolute; left: 10px; font-size: 14px;
+  color: var(--text-secondary); pointer-events: none; z-index: 1;
+}
+.ml-sort-select {
+  appearance: none; -webkit-appearance: none;
+  padding: 0 32px 0 30px; height: 40px;
+  border-radius: 10px; border: 1px solid var(--border-default);
+  background: var(--bg-page);
+  color: var(--text-primary); font-size: 12.5px;
+  font-family: var(--font-sans); font-weight: 500;
+  cursor: pointer; outline: none; min-width: 168px;
+  transition: border-color 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.ml-sort-select:focus { border-color: var(--border-focus); }
+.ml-sort-select option { background: var(--bg-card); color: var(--text-primary); }
+.ml-tbtn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0 14px; height: 40px; border-radius: 10px;
+  font-size: 12.5px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border-default); background: var(--bg-page);
+  color: var(--text-secondary); transition: all 0.18s;
+  white-space: nowrap; font-family: var(--font-sans);
+}
+.ml-tbtn i { font-size: 15px; }
+.ml-tbtn:hover { border-color: var(--border-strong); color: var(--text-primary); transform: translateY(-1px); }
+.ml-tbtn:active { transform: translateY(0); }
+.ml-tbtn-primary {
+  background: var(--caci-blue); border-color: var(--caci-blue-dim);
+  color: #fff; font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0,75,160,0.3);
+}
+.ml-tbtn-primary:hover {
+  background: var(--caci-blue-light); border-color: var(--caci-blue);
+  color: #fff; box-shadow: 0 5px 18px rgba(0,75,160,0.4);
+}
+@media (min-width: 641px) and (max-width: 860px) {
+  .ml-btn-label { display: none; }
+  .ml-tbtn { padding: 0 10px; }
+  .ml-sort-select { min-width: 42px; width: 42px; padding: 0; color: transparent;
+    background-image: none; text-align: center; }
+  .ml-sort-wrap i { left: 50%; transform: translateX(-50%); }
+}
+@media (max-width: 640px) {
+  .ml-toolbar { flex-wrap: wrap; gap: 8px; }
+  .ml-search-wrap { order: 0; width: 100%; flex: none; max-width: none; }
+  .ml-mob-search-btn { display: none !important; }
+  #ml-toolbar-actions { order: 1; margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .ml-btn-label { display: none; }
+  .ml-tbtn { padding: 0 !important; width: 42px; height: 42px; border-radius: 10px; }
+  .ml-sort-select { min-width: 42px; width: 42px; padding: 0; color: transparent; background-image: none; }
+  .ml-sort-wrap i { left: 50%; transform: translateX(-50%); }
+  .ml-tbtn-primary { width: 42px; height: 42px; }
 }
 
-interface Group {
-  id: string; name: string; type: string; leader: string
-  members: number; day: string; desc: string
+/* ── Filter banner ──────────────────────────────────────────────── */
+.ml-filter-banner {
+  display: none; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px;
+  background: rgba(0,75,160,0.06); border: 1px solid rgba(0,75,160,0.2);
+}
+.ml-filter-banner.show { display: flex; }
+.ml-filter-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 99px;
+  background: rgba(0,75,160,0.12); border: 1px solid rgba(0,75,160,0.3);
+  font-size: 11.5px; font-weight: 600; color: var(--caci-blue);
+}
+[data-theme="dark"] .ml-filter-pill { color: var(--caci-blue-light); }
+.ml-clear-filter {
+  margin-left: auto; display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 7px; border: 1px solid var(--border-default);
+  background: transparent; color: var(--text-secondary); font-size: 11.5px;
+  font-family: var(--font-sans); cursor: pointer; transition: all 0.18s;
+}
+.ml-clear-filter:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+/* ── List panel (stat-filter view) ─────────────────────────────── */
+.ml-list-panel {
+  display: none; flex-direction: column;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 16px; overflow: hidden;
+}
+.ml-list-panel.show { display: flex; }
+.ml-list-panel-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border-default);
+  background: rgba(0,0,0,0.01);
+}
+.ml-list-panel-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ml-list-panel-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+/* ── List row ───────────────────────────────────────────────────── */
+.ml-list-row {
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 12px; padding: 11px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+}
+.ml-list-row:hover {
+  border-color: rgba(0,75,160,0.35); transform: translateX(3px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+.ml-list-avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.5);
+}
+.ml-status-dot {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid var(--bg-card);
 }
 
-interface PcFlag {
-  id: string; member: string; type: string; reason: string
-  date: string; assignTo: string; priority: string; resolved: boolean
+/* ── Grid cards ─────────────────────────────────────────────────── */
+.ml-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 639px)  { .ml-grid { grid-template-columns: 1fr; gap: 8px; } }
+@media (min-width: 640px)  { .ml-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .ml-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1280px) { .ml-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.ml-card {
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 18px; padding: 18px 16px 16px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; position: relative; overflow: hidden;
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+  cursor: pointer;
+}
+.ml-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0,75,160,0.3);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,75,160,0.1);
+}
+.ml-card-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: #fff;
+  margin-bottom: 14px; position: relative;
+  box-shadow: 0 0 0 3px var(--bg-card), 0 0 0 5px rgba(34,197,94,0.4);
+}
+.ml-gender-badge {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg-card); border: 2px solid var(--bg-page);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+.ml-role-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 99px;
+  background: var(--bg-page); border: 1px solid var(--border-default);
+  font-size: 10.5px; color: var(--text-secondary); font-weight: 500;
+  margin-bottom: 14px;
+}
+.ml-card-btn {
+  flex: 1; padding: 7px 0; border-radius: 8px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; font-family: var(--font-sans);
+  border: 1px solid var(--border-default);
+}
+.ml-card-btn:active { transform: scale(0.97); }
+.ml-card-btn-view {
+  background: var(--bg-page); color: var(--text-primary);
+}
+.ml-card-btn-view:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.ml-card-btn-edit {
+  background: rgba(0,75,160,0.08); border-color: rgba(0,75,160,0.25);
+  color: var(--caci-blue);
+}
+.ml-card-btn-edit:hover { background: rgba(0,75,160,0.14); border-color: rgba(0,75,160,0.5); }
+
+/* Mobile card row (≤639px swap) */
+@media (max-width: 639px) {
+  .ml-card { display: none !important; }
+  .ml-card-mob { display: flex !important; }
+}
+.ml-card-mob {
+  display: none;
+  background: var(--bg-card); border: 1px solid var(--border-default);
+  border-radius: 12px; padding: 11px 13px;
+  align-items: center; gap: 11px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.ml-card-mob:hover { border-color: rgba(0,75,160,0.3); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.ml-card-mob-avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+  box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 3.5px rgba(34,197,94,0.45);
+}
+.ml-mob-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 9px;
+  cursor: pointer; flex-shrink: 0;
+  transition: all 0.15s cubic-bezier(0.16,1,0.3,1);
+  border: 1px solid var(--border-default); background: var(--bg-page);
+  color: var(--text-secondary);
+}
+.ml-mob-btn i { font-size: 16px; }
+.ml-mob-btn:hover { background: var(--bg-hover); border-color: var(--border-strong); color: var(--text-primary); }
+.ml-mob-btn:active { transform: scale(0.93); }
+.ml-mob-btn-edit {
+  background: rgba(0,75,160,0.08); border-color: rgba(0,75,160,0.25);
+  color: var(--caci-blue);
+}
+.ml-mob-btn-edit:hover { background: rgba(0,75,160,0.15); border-color: rgba(0,75,160,0.5); }
+
+/* ── Empty / results ────────────────────────────────────────────── */
+.ml-results-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2px; font-size: 12px; color: var(--text-secondary);
+}
+.ml-results-bar strong { color: var(--text-primary); }
+
+/* ── Animations ─────────────────────────────────────────────────── */
+@keyframes ml-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ml-slide-right {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.ml-fade-up   { animation: ml-fade-up 0.42s cubic-bezier(0.16,1,0.3,1) both; }
+.ml-slide-right { animation: ml-slide-right 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+`
+
+function injectCSS(): void {
+  if (document.getElementById('ml-css')) return
+  const s = document.createElement('style')
+  s.id = 'ml-css'
+  s.textContent = CSS
+  document.head.appendChild(s)
 }
 
-interface PcFirstTimer {
-  name: string; date: string; phone: string; followedUp: boolean
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+type SortKey = 'name_az' | 'name_za' | 'newest' | 'oldest'
+type FilterKey = 'all' | 'active' | 'visitor' | 'new' | null
+
+interface StatConfig {
+  key: string
+  label: string
+  sub: string
+  icon: string          // Bootstrap icon class
+  iconColor: string
+  iconBg: string
+  accentBorder: string
+  accentGlow: string
+  pill: string
 }
 
-interface PcLifeEvent {
-  name: string; event: string; date: string; type: string
+const STAT_CONFIGS: StatConfig[] = [
+  {
+    key: 'all',    label: 'Total Members',     sub: 'Showing every member',
+    icon: 'bi-people-fill',     iconColor: 'var(--caci-blue)',
+    iconBg: 'rgba(0,75,160,0.1)',
+    accentBorder: 'var(--caci-blue)', accentGlow: 'rgba(0,75,160,0.18)', pill: 'All Members',
+  },
+  {
+    key: 'active', label: 'Active',            sub: 'Members with active status',
+    icon: 'bi-check-circle-fill', iconColor: 'var(--caci-success)',
+    iconBg: 'rgba(26,127,55,0.1)',
+    accentBorder: '#22c55e', accentGlow: 'rgba(34,197,94,0.18)', pill: 'Active',
+  },
+  {
+    key: 'visitor', label: 'Visitors',         sub: 'First-time and returning visitors',
+    icon: 'bi-person-plus-fill', iconColor: '#f0883e',
+    iconBg: 'rgba(240,136,62,0.1)',
+    accentBorder: '#f0883e', accentGlow: 'rgba(240,136,62,0.18)', pill: 'Visitors',
+  },
+  {
+    key: 'new',    label: 'New (30d)',          sub: 'Joined within the last 30 days',
+    icon: 'bi-graph-up-arrow',  iconColor: 'var(--caci-blue-light)',
+    iconBg: 'rgba(0,75,160,0.1)',
+    accentBorder: 'var(--caci-blue-light)', accentGlow: 'rgba(77,159,255,0.2)', pill: 'New (30 days)',
+  },
+]
+
+const STATUS_DOT: Record<string, string> = {
+  active:   '#22c55e',
+  inactive: '#6e7681',
+  visitor:  '#f0883e',
+  prospect: '#004BA0',
+  transfer: '#9a6700',
+  deceased: '#484f58',
 }
 
-// ── Page module ───────────────────────────────────────────────────────────────
+function statusDotColor(s: string): string { return STATUS_DOT[s] ?? '#6e7681' }
 
-const MemberList: PageModule = {
+function membershipBadgeHtml(status: string): string {
+  const map: Record<string, [string, string]> = {
+    active:   ['var(--caci-success-bg)', 'var(--caci-success)'],
+    inactive: ['var(--n100)',             'var(--n600)'],
+    visitor:  ['var(--caci-blue-bg)',     'var(--caci-blue-dim)'],
+    prospect: ['var(--caci-warning-bg)', 'var(--caci-warning)'],
+    transfer: ['var(--caci-blue-bg)',     'var(--caci-blue-mid)'],
+    deceased: ['var(--n100)',             'var(--n700)'],
+  }
+  const [bg, fg] = map[status] ?? ['var(--n100)', 'var(--n600)']
+  const label = status.charAt(0).toUpperCase() + status.slice(1)
+  return `<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;background:${bg};color:${fg};">${label}</span>`
+}
+
+function genderIcon(g: string): string {
+  return g === 'male' ? '♂' : g === 'female' ? '♀' : '·'
+}
+function genderColor(g: string): string {
+  return g === 'male' ? 'var(--caci-blue)' : g === 'female' ? '#f778ba' : 'var(--text-muted)'
+}
+
+// ── Page Module ───────────────────────────────────────────────────────────────
+
+const MemberListPage: PageModule = {
   render,
   destroy,
 }
-export default MemberList
+export default MemberListPage
+
+// ── State ─────────────────────────────────────────────────────────────────────
 
 let _container: HTMLElement | null = null
-let _state: State | null = null
-let _searchDebounce: ReturnType<typeof setTimeout> | null = null
+let _members: MemberView[] = []
+let _counts = { total: 0, active: 0, visitor: 0, new: 0 }
+let _activeFilter: FilterKey = null
+let _searchQuery = ''
+let _sortKey: SortKey = 'newest'
+let _destroyed = false
+let _listeners: Array<[HTMLElement, string, EventListener]> = []
+
+// ── Lifecycle ─────────────────────────────────────────────────────────────────
 
 async function render(container: HTMLElement): Promise<void> {
   _container = container
+  _destroyed  = false
+  _listeners  = []
+  injectCSS()
+
+  // Skeleton immediately
   renderSkeleton(container, 'table')
 
-  // Inject CSS
-  _injectCSS()
+  // Inject shell HTML
+  container.innerHTML = buildShell()
 
-  // Build initial state (reads current hash to determine tab)
-  _state = _buildInitialState()
-
-  // Build full shell HTML
-  container.innerHTML = _buildHTML()
-  container.querySelector('.mm-root')!.classList.add('mm-root') // ensure token root
-
-  // Load real data
   try {
-    await _loadMembers()
-    _populateHouseholdsDropdown()
+    // Parallel fetch
+    const [members, counts] = await Promise.all([
+      listMembers({}, { limit: 200, sortBy: 'last_name', ascending: true }),
+      getMemberCounts(),
+    ])
+    if (_destroyed) return
+    _members = members
+    _counts  = counts
+    _updateStatCounts()
+    _renderAll()
+    _bindEvents()
   } catch (err) {
+    if (_destroyed) return
     renderError(container, err, { retry: () => render(container) })
-    return
   }
-
-  _bindAll()
-  _setTab(_state.activeTab)
-  _renderMembers()
-  await _renderStats()
-  
-  // Bind global click listener for dropdowns
-  document.addEventListener('click', _handleClickOutside)
 }
 
 function destroy(): void {
-  if (_searchDebounce) clearTimeout(_searchDebounce)
-  document.removeEventListener('click', _handleClickOutside)
+  _destroyed = true
+  _listeners.forEach(([el, ev, fn]) => el.removeEventListener(ev, fn))
+  _listeners = []
   _container = null
-  _state = null
 }
 
-function _handleClickOutside(e: MouseEvent): void {
-  document.querySelectorAll<HTMLDetailsElement>('details.mm-action-menu[open]').forEach(details => {
-    if (!details.contains(e.target as Node)) {
-      details.removeAttribute('open')
-    }
-  })
-}
+// ── Shell HTML ────────────────────────────────────────────────────────────────
 
-// ── Data loading ──────────────────────────────────────────────────────────────
+function buildShell(): string {
+  const user = getCurrentUser()
+  const canCreate = user ? can(user, 'members.create') : false
+  const canExport = user ? can(user, 'members.export') : false
 
-async function _loadMembers(): Promise<void> {
-  if (!_state) return
-  _state.loading = true
+  return /* html */`
+<div class="ml-wrap">
 
-  const filter: MemberFilter = {
-    statuses: _state.statusFilters.size
-      ? [..._state.statusFilters] as MemberView['membership_status'][]
-      : undefined,
-    gender: _state.genderFilters.size === 1
-      ? [..._state.genderFilters][0] as 'male' | 'female'
-      : undefined,
-    searchQuery: _state.search || undefined,
-    includeDeleted: false,
-  }
+  ${renderMembershipTab('members', { members: _counts.total })}
 
-  _state.members = await listMembers(filter, { limit: 500, sortBy: 'last_name', ascending: true })
-  _state.filtered = _state.members
-  _state.loading = false
-}
-
-async function _populateHouseholdsDropdown(): Promise<void> {
-  // lazy import to avoid top-level circular deps
-  const { getHouseholdDropdownItems } = await import('../repository')
-  const items = await getHouseholdDropdownItems()
-  const sel = _container?.querySelector<HTMLSelectElement>('#mm-fHousehold')
-  if (!sel) return
-  sel.innerHTML = '<option value="">None</option>'
-  items.forEach(h => {
-    const o = document.createElement('option')
-    o.value = h.id
-    o.textContent = h.family_name
-    sel.appendChild(o)
-  })
-}
-
-// ── Filtering / sorting ───────────────────────────────────────────────────────
-
-function _applyFilters(): void {
-  if (!_state) return
-  const q = _state.search.toLowerCase()
-
-  _state.filtered = _state.members.filter(m => {
-    // sidebar quick filter
-    if (_state!.sidebarFilter === 'active' && m.membership_status !== 'active') return false
-    if (_state!.sidebarFilter === 'visitor' && m.membership_status !== 'visitor') return false
-    if (_state!.sidebarFilter === 'recent') {
-      const joined = m.join_date ?? m.created_at
-      const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30)
-      if (new Date(joined) < cutoff) return false
-    }
-    // status checkbox filters
-    if (_state!.statusFilters.size > 0 && !_state!.statusFilters.has(m.membership_status))
-      return false
-    // gender checkbox filters
-    if (_state!.genderFilters.size > 0 && !_state!.genderFilters.has(m.gender))
-      return false
-    // search
-    if (q) {
-      const full = `${formatName(m.first_name, m.last_name, m.title)}`.toLowerCase()
-      const num = (m.membership_number ?? '').toLowerCase()
-      const ph = (m.primary_phone ?? '').toLowerCase()
-      const occ = (m.occupation ?? '').toLowerCase()
-      if (!full.includes(q) && !num.includes(q) && !ph.includes(q) && !occ.includes(q))
-        return false
-    }
-    return true
-  })
-
-  // sort
-  _state.filtered.sort((a, b) => {
-    switch (_state!.sortMode) {
-      case 'name-asc': return `${formatName(a.first_name, a.last_name, a.title)}`.localeCompare(`${formatName(b.first_name, b.last_name, b.title)}`)
-      case 'name-desc': return `${formatName(b.first_name, b.last_name, b.title)}`.localeCompare(`${formatName(a.first_name, a.last_name, a.title)}`)
-      case 'joined-asc': return (a.join_date ?? a.created_at).localeCompare(b.join_date ?? b.created_at)
-      case 'joined-desc': return (b.join_date ?? b.created_at).localeCompare(a.join_date ?? a.created_at)
-      case 'status': return a.membership_status.localeCompare(b.membership_status)
-      default: return 0
-    }
-  })
-}
-
-// ── Render helpers ────────────────────────────────────────────────────────────
-
-function _renderMembers(): void {
-  if (!_state || !_container) return
-  _applyFilters()
-
-  const { filtered, page, view, selectedIds } = _state
-  const isMobile = window.innerWidth <= 768
-  const start = isMobile ? 0 : (page - 1) * PAGE_SIZE
-  const pageItems = isMobile ? filtered : filtered.slice(start, start + PAGE_SIZE)
-
-  // Results count
-  const vc = _container.querySelector('#mm-visibleCount')
-  if (vc) vc.textContent = String(filtered.length)
-
-  // Grid view
-  const gridEl = _container.querySelector<HTMLElement>('#mm-gridView')
-  if (gridEl) {
-    gridEl.innerHTML = pageItems.map(m => _gridCard(m, selectedIds.has(m.id))).join('')
-    gridEl.style.display = view === 'grid' ? 'grid' : 'none'
-  }
-
-  // List view
-  const tbody = _container.querySelector<HTMLElement>('#mm-tableBody')
-  if (tbody) tbody.innerHTML = pageItems.map(m => _tableRow(m, selectedIds.has(m.id))).join('')
-
-  const listWrap = _container.querySelector<HTMLElement>('#mm-listView')
-  if (listWrap) listWrap.style.display = view === 'list' ? 'block' : 'none'
-
-  // Empty state
-  const empty = _container.querySelector<HTMLElement>('#mm-emptyState')
-  if (empty) {
-    const show = filtered.length === 0
-    empty.classList.toggle('show', show)
-    if (gridEl && show) gridEl.style.display = 'none'
-  }
-
-  // Pagination
-  _renderPagination()
-
-  // Re-bind row-level events
-  _bindRowEvents()
-}
-
-async function _renderStats(): Promise<void> {
-  if (!_state || !_container) return
-
-  // 1. Fetch server-side accurate totals for main tab nav
-  const counts = await getMemberCounts()
-
-  // 2. Local filtering for small sidebar quick stats (stays based on loaded subset)
-  const m = _state.members
-
-  const update = (id: string, val: string) => {
-    const el = _container!.querySelector(`#${id}`)
-    if (el) el.textContent = val
-  }
-
-  const updateBar = (id: string, val: number, total: number) => {
-    const el = _container!.querySelector<HTMLElement>(`#${id}`)
-    if (el) {
-      const pct = total > 0 ? Math.round((val / total) * 100) : 0
-      el.style.width = `${pct}%`
-    }
-  }
-
-  // Accurate Tab Badges
-  update('mm-subnav-count', String(counts.total)) // Top sub-nav tab
-  update('mm-nav-count-all', String(counts.total)) // Sidebar
-  update('mm-nav-count-active', String(counts.active))
-  update('mm-nav-count-visitor', String(counts.visitor))
-  update('mm-nav-count-new', String(counts.new))
-
-  // Main Stat Cards
-  update('mm-stat-total', String(counts.total))
-  update('mm-stat-active', String(counts.active))
-  update('mm-stat-visitors', String(counts.visitor))
-  update('mm-stat-new', String(counts.new))
-  update('mm-stat-total-pct', `${counts.active} active (${counts.total ? Math.round(counts.active / counts.total * 100) : 0}%)`)
-  
-  updateBar('mm-stat-total-bar', counts.active, counts.total)
-  updateBar('mm-stat-active-bar', counts.active, counts.total)
-  updateBar('mm-stat-visitors-bar', counts.visitor, counts.total)
-  updateBar('mm-stat-new-bar', counts.new, counts.total)
-
-  // Sidebar quick stats (typically reflects the "Current Assembly" active view)
-  const inc = m.filter(x => x.membership_status === 'inactive').length
-  const pro = m.filter(x => x.membership_status === 'prospect').length
-  
-  update('mm-qs-active', String(counts.active))
-  update('mm-qs-visitor', String(counts.visitor))
-  update('mm-qs-inactive', String(inc))
-  update('mm-qs-prospect', String(pro))
-
-  updateBar('mm-qs-active-bar', counts.active, counts.total)
-  updateBar('mm-qs-visitor-bar', counts.visitor, counts.total)
-  updateBar('mm-qs-inactive-bar', inc, counts.total)
-  updateBar('mm-qs-prospect-bar', pro, counts.total)
-}
-
-function _renderPagination(): void {
-  if (!_state || !_container) return
-  const isMobile = window.innerWidth <= 768
-  const { filtered, page } = _state
-
-  const paginationWrap = _container.querySelector<HTMLElement>('.mm-pagination')
-  if (paginationWrap) paginationWrap.style.display = isMobile ? 'none' : ''
-
-  if (isMobile) return
-
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const start = (page - 1) * PAGE_SIZE + 1
-  const end = Math.min(page * PAGE_SIZE, filtered.length)
-
-  const info = _container.querySelector('#mm-paginationInfo')
-  if (info) info.textContent = `Showing ${start}–${end} of ${filtered.length} results`
-
-  const pageInfo = _container.querySelector('#mm-pageInfo')
-  if (pageInfo) pageInfo.textContent = `Page ${page} of ${totalPages || 1}`
-
-  const btns = _container.querySelector('#mm-pageBtns')
-  if (!btns) return
-
-  const pages: number[] = []
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) pages.push(i)
-  } else {
-    pages.push(1)
-    if (page > 3) pages.push(-1) // ellipsis
-    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i)
-    if (page < totalPages - 2) pages.push(-1)
-    pages.push(totalPages)
-  }
-
-  btns.innerHTML = `
-    <button class="mm-page-btn ${page === 1 ? 'disabled' : ''}" id="mm-prevPage">← Prev</button>
-    ${pages.map(p => p === -1
-    ? `<span style="padding:0 2px;color:var(--mm-text-muted);font-size: var(--text-base);align-self:center;">…</span>`
-    : `<button class="mm-page-btn ${p === page ? 'active' : ''}" data-page="${p}">${p}</button>`
-  ).join('')}
-    <button class="mm-page-btn ${page >= totalPages ? 'disabled' : ''}" id="mm-nextPage">Next →</button>
-  `
-
-  btns.querySelectorAll<HTMLButtonElement>('[data-page]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _state!.page = parseInt(btn.dataset['page']!)
-      _renderMembers()
-    })
-  })
-  btns.querySelector('#mm-prevPage')?.addEventListener('click', () => {
-    if (_state!.page > 1) { _state!.page--; _renderMembers() }
-  })
-  btns.querySelector('#mm-nextPage')?.addEventListener('click', () => {
-    const total = Math.ceil(_state!.filtered.length / PAGE_SIZE)
-    if (_state!.page < total) { _state!.page++; _renderMembers() }
-  })
-}
-
-// ── Card / row templates ──────────────────────────────────────────────────────
-
-function _gridCard(m: MemberView, selected: boolean): string {
-  const s   = statusBadge(m.membership_status)
-  const bg  = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
-  const ini = initials(m.first_name, m.last_name)
-
-  const statusBorder: Record<string, string> = {
-    active:   '#22c55e',
-    visitor:  '#0969da',
-    inactive: 'var(--mm-border)',
-    prospect: '#f59e0b',
-  }
-  const ringColor = statusBorder[m.membership_status] ?? 'var(--mm-border)'
-
-  const genderIcon = m.gender === 'female'
-    ? `<svg viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="2.5" width="10" height="10">
-         <circle cx="12" cy="8" r="4"/><line x1="12" y1="12" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/>
-       </svg>`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="var(--mm-blue)" stroke-width="2.5" width="10" height="10">
-         <circle cx="10" cy="14" r="5"/><line x1="21" y1="3" x2="15" y2="9"/>
-         <line x1="15" y1="3" x2="21" y2="3"/><line x1="21" y1="3" x2="21" y2="9"/>
-       </svg>`
-
-  return `
-<div class="mm-member-card ${selected ? 'selected' : ''}" data-member-id="${m.id}">
-
-  <div class="mm-card-menu-btn">
-    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-      <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
-    </svg>
+  <!-- Stat cards -->
+  <div class="ml-stats-grid" id="ml-stats-grid" style="margin-bottom:20px;">
+    ${STAT_CONFIGS.map((cfg, i) => `
+    <div class="ml-stat-card ml-fade-up" style="animation-delay:${i * 50}ms"
+         data-stat-key="${cfg.key}"
+         data-accent-border="${cfg.accentBorder}"
+         data-accent-glow="${cfg.accentGlow}">
+      <div class="ml-click-hint"><i class="bi bi-funnel" style="font-size:10px;"></i> Filter</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="ml-stat-icon" style="background:${cfg.iconBg};">
+          <i class="bi ${cfg.icon}" style="color:${cfg.iconColor};"></i>
+        </div>
+        <span class="ml-stat-label">${cfg.label}</span>
+      </div>
+      <div class="ml-stat-value" id="ml-stat-${cfg.key}">—</div>
+      <div class="ml-stat-bar">
+        <div class="ml-stat-bar-fill" style="background:${cfg.accentBorder};width:0%;"
+             id="ml-stat-bar-${cfg.key}"></div>
+      </div>
+    </div>`).join('')}
   </div>
 
-  <div class="mm-card-check ${selected ? 'checked' : ''}" data-card-check="${m.id}"></div>
+  <div style="display:flex;flex-direction:column;gap:12px;">
 
-  <div class="mm-card-avatar-ring" style="border-color:${ringColor}">
-    <div class="mm-card-avatar" style="background:${bg}">${ini}</div>
-    <div class="mm-card-gender-dot">${genderIcon}</div>
-  </div>
+    <!-- Filter banner -->
+    <div class="ml-filter-banner" id="ml-filter-banner">
+      <i class="bi bi-funnel-fill" style="font-size:15px;color:var(--caci-blue);flex-shrink:0;"></i>
+      <span style="font-size:12px;color:var(--text-secondary);">Filtered by</span>
+      <span class="ml-filter-pill" id="ml-filter-pill-text">Active</span>
+      <span style="font-size:11px;color:var(--text-muted);" id="ml-filter-count-text"></span>
+      <button class="ml-clear-filter" id="ml-clear-filter-btn">
+        <i class="bi bi-x" style="font-size:13px;"></i> Clear filter
+      </button>
+    </div>
 
-  <h3 class="mm-card-name">${formatName(m.first_name, m.last_name, m.title)}</h3>
-  <div class="mm-card-id">${m.membership_number ?? '—'}</div>
+    <!-- Toolbar -->
+    <div class="ml-toolbar ml-fade-up" style="animation-delay:220ms;">
+      <div class="ml-search-wrap">
+        <i class="bi bi-search"></i>
+        <input class="ml-search-inp" id="ml-search-inp" type="text"
+               placeholder="Search members…" autocomplete="off">
+        <button id="ml-search-clear" style="display:none;background:none;border:none;
+          cursor:pointer;color:var(--text-muted);padding:0;font-size:13px;">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </div>
+      <button id="ml-mob-search-btn" class="ml-tbtn ml-mob-search-btn"
+              style="display:none;width:40px;padding:0;">
+        <i class="bi bi-search" style="font-size:15px;"></i>
+      </button>
 
-  <div class="mm-card-role">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13">
-      <rect x="2" y="7" width="20" height="14" rx="2"/>
-      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-    </svg>
-    <span>${m.occupation ?? 'Member'}</span>
-  </div>
-
-  <div class="mm-card-footer">
-    <div class="mm-card-status-pill mm-card-status-${m.membership_status}">${s.label}</div>
-    <button class="mm-card-view-btn" data-view-id="${m.id}">View</button>
-  </div>
-
-</div>`
-}
-
-function _tableRow(m: MemberView, selected: boolean): string {
-  const s = statusBadge(m.membership_status)
-  const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
-  const ini = initials(m.first_name, m.last_name)
-  return `
-<tr data-row-id="${m.id}">
-  <td class="mm-col-check">
-    <div class="mm-table-cb ${selected ? 'checked' : ''}" data-row-check="${m.id}"></div>
-  </td>
-  <td>
-    <div class="mm-table-name-cell">
-      <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
-      <div>
-        <div class="mm-table-name">${formatName(m.first_name, m.last_name, m.title)}</div>
-        <div class="mm-table-email">${m.email ?? '—'}</div>
+      <div style="flex: 1;"></div>
+      
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;" id="ml-toolbar-actions">
+        <div class="ml-sort-wrap">
+          <i class="bi bi-arrow-down-up"></i>
+          <select class="ml-sort-select" id="ml-sort-select">
+            <option value="newest">Joined (Newest)</option>
+            <option value="oldest">Joined (Oldest)</option>
+            <option value="name_az">Name (A–Z)</option>
+            <option value="name_za">Name (Z–A)</option>
+          </select>
+        </div>
+        ${canExport ? `
+        <button class="ml-tbtn" id="ml-export-btn" title="Export">
+          <i class="bi bi-download"></i>
+          <span class="ml-btn-label">Export</span>
+        </button>` : ''}
+        ${canCreate ? `
+        <button class="ml-tbtn ml-tbtn-primary" id="ml-add-btn" title="Add Member">
+          <i class="bi bi-person-plus-fill"></i>
+          <span class="ml-btn-label">Add Member</span>
+        </button>` : ''}
       </div>
     </div>
-  </td>
-  <td class="mm-col-id" style="font-size: var(--text-sm);font-family:monospace;color:var(--mm-text-muted);">${m.membership_number ?? '—'}</td>
-  <td class="mm-col-status"><span class="mm-badge ${s.cls}">${s.label}</span></td>
-  <td class="mm-col-occupation" style="font-size: var(--text-sm);">${m.occupation ?? '—'}</td>
-  <td class="mm-col-joined" style="font-size: var(--text-sm);">${fmtDate(m.join_date)}</td>
-  <td class="mm-col-actions">
-    <!-- Desktop: inline icons -->
-    <div class="mm-table-actions mm-actions-desktop">
-      <button class="mm-btn-icon" data-view-id="${m.id}" title="View profile">
-        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-      <button class="mm-btn-icon" data-edit-id="${m.id}" title="Edit">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      </button>
-      <button class="mm-btn-icon" data-deactivate-id="${m.id}" title="Deactivate">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-      </button>
+
+    <!-- Results bar -->
+    <div class="ml-results-bar ml-fade-up" style="animation-delay:260ms;">
+      <p>Showing <strong id="ml-results-count">—</strong> members</p>
+      <p id="ml-page-info" style="color:var(--text-muted);font-size:11.5px;"></p>
     </div>
-    
-    <!-- Mobile: detail dropdown -->
-    <details class="mm-action-menu mm-actions-mobile">
-      <summary class="mm-btn-icon" title="Options">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-      </summary>
-      <div class="mm-action-dropdown">
-        <button class="mm-dropdown-item" data-view-id="${m.id}">View Profile</button>
-        <button class="mm-dropdown-item" data-edit-id="${m.id}">Edit Member</button>
-        <button class="mm-dropdown-item danger" data-deactivate-id="${m.id}">Deactivate</button>
+
+    <!-- List panel (stat-filter view) -->
+    <div class="ml-list-panel" id="ml-list-panel">
+      <div class="ml-list-panel-header">
+        <div class="ml-list-panel-icon" id="ml-panel-icon-wrap">
+          <i class="bi" id="ml-panel-icon" style="font-size:17px;"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <h2 style="font-size:13px;font-weight:600;color:var(--text-primary);"
+              id="ml-panel-title">Active Members</h2>
+          <p style="font-size:11px;color:var(--text-secondary);margin-top:2px;"
+             id="ml-panel-sub">Members with active status</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11.5px;color:var(--text-secondary);"
+                id="ml-panel-count"></span>
+          <button class="ml-tbtn" id="ml-panel-clear-btn"
+                  style="height:32px;padding:0 10px;font-size:11.5px;">
+            <i class="bi bi-x" style="font-size:13px;"></i> Clear
+          </button>
+        </div>
       </div>
-    </details>
-  </td>
-</tr>`
-}
-
-// ── Detail panel ──────────────────────────────────────────────────────────────
-
-function _openDetail(m: MemberView): void {
-  if (!_state || !_container) return
-  _state.detailMember = m
-  const panel = _container.querySelector('#mm-detailPanel')!
-  const overlay = _container.querySelector('#mm-detailOverlay')!
-  const body = _container.querySelector<HTMLElement>('#mm-detailBody')!
-  const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
-  const ini = initials(m.first_name, m.last_name)
-  const s = statusBadge(m.membership_status)
-  
-  const currentUser = getCurrentUser()
-  const isAdmin = currentUser?.role === 'admin'
-
-  body.innerHTML = `
-<div class="mm-detail-tabs">
-  <button class="mm-detail-tab active" data-dp-tab="profile">Profile</button>
-  <button class="mm-detail-tab" data-dp-tab="attendance">Attendance</button>
-  <button class="mm-detail-tab" data-dp-tab="notes">Notes</button>
-</div>
-
-<div class="mm-detail-tab-panel active" id="mm-dp-profile">
-  <div class="mm-detail-avatar-wrap">
-    <div class="mm-detail-avatar" style="background:${bg}">${ini}</div>
-    <div class="mm-detail-name">${m.title ? m.title + ' ' : ''}${formatName(m.first_name, m.last_name, m.title)}</div>
-    <div class="mm-detail-id">${m.membership_number ?? 'No number yet'}</div>
-    <div class="mm-detail-badges">
-      <span class="mm-badge ${s.cls}">${s.label}</span>
-      <span class="mm-badge ${m.gender === 'female' ? 'purple' : ''}">${m.gender}</span>
-      ${m.marital_status ? `<span class="mm-badge">${m.marital_status}</span>` : ''}
-      ${m.auth_user_id ? `<span class="mm-badge" style="background:#e0f2fe;color:#0369a1;border-color:#b9e6fe;"><i class="bi bi-shield-check"></i> Login active</span>` : ''}
+      <div class="ml-list-panel-body" id="ml-list-panel-body"></div>
     </div>
-  </div>
 
-  <div class="mm-detail-section">
-    <div class="mm-detail-section-title">Contact</div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Primary Phone</span><span class="mm-detail-field-val">${m.primary_phone ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Secondary Phone</span><span class="mm-detail-field-val">${m.secondary_phone ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Email</span><span class="mm-detail-field-val" style="font-size: var(--text-sm);word-break:break-all;">${m.email ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Address</span><span class="mm-detail-field-val" style="font-size: var(--text-sm);">${m.physical_address ?? '—'}</span></div>
-  </div>
+    <!-- Grid / card list -->
+    <div class="ml-grid" id="ml-grid"></div>
 
-  <div class="mm-detail-section">
-    <div class="mm-detail-section-title">Church Info</div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Status</span><span class="mm-detail-field-val"><span class="mm-badge ${s.cls}">${s.label}</span></span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Joined</span><span class="mm-detail-field-val">${fmtDate(m.join_date)}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Membership #</span><span class="mm-detail-field-val" style="font-family:monospace;font-size: var(--text-sm);">${m.membership_number ?? '—'}</span></div>
-  </div>
-
-  <div class="mm-detail-section">
-    <div class="mm-detail-section-title">Personal</div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Date of Birth</span><span class="mm-detail-field-val">${fmtDate(m.date_of_birth)}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Marital Status</span><span class="mm-detail-field-val">${m.marital_status ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Occupation</span><span class="mm-detail-field-val">${m.occupation ?? '—'}</span></div>
-  </div>
-
-  ${m.emergency_contact_name ? `
-  <div class="mm-detail-section">
-    <div class="mm-detail-section-title">Emergency Contact</div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Name</span><span class="mm-detail-field-val">${m.emergency_contact_name}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Phone</span><span class="mm-detail-field-val">${m.emergency_contact_phone ?? '—'}</span></div>
-    <div class="mm-detail-field"><span class="mm-detail-field-label">Relationship</span><span class="mm-detail-field-val">${m.emergency_contact_relationship ?? '—'}</span></div>
-  </div>` : ''}
-
-  ${m.pastoral_notes ? `
-  <div class="mm-detail-section">
-    <div class="mm-detail-section-title">Pastoral Notes</div>
-    <div style="font-size: var(--text-base);color:var(--mm-text-primary);line-height:1.6;">${m.pastoral_notes}</div>
-  </div>` : ''}
-
-  <div class="mm-detail-actions">
-    <button class="mm-btn-primary" data-edit-id="${m.id}">Edit Profile</button>
-    <button class="mm-btn-outline" id="mm-detail-sms">Send SMS</button>
-    <button class="mm-btn-danger" id="mm-detail-deactivate">Deactivate</button>
   </div>
 </div>
-
-<div class="mm-detail-tab-panel" id="mm-dp-attendance">
-  <div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:20px 0;text-align:center;">
-    Attendance history will be shown here once the attendance module is linked.
-  </div>
-</div>
-
-<div class="mm-detail-tab-panel" id="mm-dp-notes">
-  ${m.pastoral_notes
-      ? `<div class="mm-note-item"><div class="mm-note-text">${m.pastoral_notes}</div><div class="mm-note-meta">Pastoral notes</div></div>`
-      : `<div class="mm-note-item"><div class="mm-note-text" style="color:var(--mm-text-secondary)">No notes for this member yet.</div></div>`}
-  <div style="margin-top:12px;">
-    <label class="mm-form-label">Add a note</label>
-    <textarea class="mm-form-textarea" id="mm-newNoteText" placeholder="Add an internal admin note…" style="margin-top:5px;"></textarea>
-    <button class="mm-btn-primary" style="margin-top:8px;" id="mm-saveNote">Save Note</button>
-  </div>
-</div>
-
-
 `
+}
 
-  panel.classList.add('open')
-  overlay.classList.add('open')
-  document.body.style.overflow = 'hidden'
+// ── Stat counts & bars ────────────────────────────────────────────────────────
 
-  // Tab switching
-  body.querySelectorAll<HTMLButtonElement>('[data-dp-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      body.querySelectorAll('.mm-detail-tab').forEach(t => t.classList.remove('active'))
-      body.querySelectorAll('.mm-detail-tab-panel').forEach(p => p.classList.remove('active'))
-      btn.classList.add('active')
-      body.querySelector(`#mm-dp-${btn.dataset['dpTab']}`)?.classList.add('active')
-    })
+function _updateStatCounts(): void {
+  const { total, active, visitor, new: newCount } = _counts
+  const values: Record<string, number> = { all: total, active, visitor, new: newCount }
+
+  STAT_CONFIGS.forEach(cfg => {
+    const val = values[cfg.key] ?? 0
+    const el  = document.getElementById(`ml-stat-${cfg.key}`)
+    const bar = document.getElementById(`ml-stat-bar-${cfg.key}`)
+    if (el)  el.textContent = String(val)
+    if (bar) bar.style.width = total > 0 ? `${Math.round((val / total) * 100)}%` : '0%'
   })
 
-  // Edit from detail
-  body.querySelector<HTMLButtonElement>(`[data-edit-id="${m.id}"]`)?.addEventListener('click', () => {
-    _closeDetail()
-    _openMemberModal(m.id)
-  })
+  const tabCount = document.getElementById('ml-total-tab-count')
+  if (tabCount) tabCount.textContent = String(total)
+}
 
-  // SMS
-  body.querySelector('#mm-detail-sms')?.addEventListener('click', () => {
-    if (m.primary_phone) {
-      Toast.info(`SMS compose for ${formatName(m.first_name, m.last_name, m.title)} — ${m.primary_phone}`)
+// ── Filter + Sort ─────────────────────────────────────────────────────────────
+
+function _getFiltered(): MemberView[] {
+  let list = [..._members]
+
+  // Stat filter
+  if (_activeFilter && _activeFilter !== 'all') {
+    if (_activeFilter === 'new') {
+      const cutoff = new Date()
+      cutoff.setDate(cutoff.getDate() - 30)
+      list = list.filter(m => {
+        const date = m.join_date ?? m.created_at
+        return date ? new Date(date) >= cutoff : false
+      })
     } else {
-      Toast.warning('No phone number on record for this member.')
+      list = list.filter(m => m.membership_status === _activeFilter)
     }
-  })
-
-  // Deactivate
-  body.querySelector('#mm-detail-deactivate')?.addEventListener('click', async () => {
-    if (!confirm(`Deactivate ${formatName(m.first_name, m.last_name, m.title)}? They will be marked inactive.`)) return
-    try {
-      await deactivateMember(m.id)
-      Toast.success(`${formatName(m.first_name, m.last_name, m.title)} has been deactivated.`)
-      _closeDetail()
-      await _loadMembers()
-      _renderMembers()
-      await _renderStats()
-    } catch (err) {
-      Toast.fromError(err)
-    }
-  })
-
-  // Save note (updates pastoral_notes via updateMember)
-  body.querySelector('#mm-saveNote')?.addEventListener('click', async () => {
-    const ta = body.querySelector<HTMLTextAreaElement>('#mm-newNoteText')
-    const txt = ta?.value.trim()
-    if (!txt) { Toast.warning('Note is empty.'); return }
-    try {
-      const existing = m.pastoral_notes ?? ''
-      const combined = existing ? `${existing}\n\n${txt}` : txt
-      await updateMember(m.id, { pastoral_notes: combined })
-      Toast.success('Note saved.')
-      if (ta) ta.value = ''
-      // Refresh detail body
-      const updated = _state!.members.find(x => x.id === m.id)
-      if (updated) {
-        (updated as any).pastoral_notes = combined
-        _openDetail({ ...m, pastoral_notes: combined })
-      }
-    } catch (err) {
-      Toast.fromError(err)
-    }
-  })
-}
-
-function _closeDetail(): void {
-  if (!_container) return
-  _container.querySelector('#mm-detailPanel')?.classList.remove('open')
-  _container.querySelector('#mm-detailOverlay')?.classList.remove('open')
-  document.body.style.overflow = ''
-  if (_state) _state.detailMember = null
-}
-
-// ── Add / Edit modal ──────────────────────────────────────────────────────────
-
-function _openMemberModal(editId: string | null = null): void {
-  if (editId) {
-    navigate(`/members/${editId}/edit`)
-  } else {
-    navigate('/members/add')
   }
-}
-
-// ── Bulk actions ──────────────────────────────────────────────────────────────
-
-function _updateBulkBar(): void {
-  if (!_state || !_container) return
-  const bar = _container.querySelector('#mm-bulkBar')
-  const cnt = _container.querySelector('#mm-bulkCount')
-  bar?.classList.toggle('show', _state.selectedIds.size > 0)
-  if (cnt) cnt.textContent = String(_state.selectedIds.size)
-}
-
-function _clearSelection(): void {
-  if (!_state) return
-  _state.selectedIds.clear()
-  _container?.querySelectorAll('.mm-member-card.selected').forEach(c => c.classList.remove('selected'))
-  _container?.querySelectorAll('.mm-table-cb.checked').forEach(c => c.classList.remove('checked'))
-  _updateBulkBar()
-}
-
-async function _bulkChangeStatus(): Promise<void> {
-  if (!_state || _state.selectedIds.size === 0) return
-  const newStatus = prompt('New status (active / inactive / visitor / prospect):')?.toLowerCase()
-  if (!newStatus) return
-  const valid = ['active', 'inactive', 'visitor', 'prospect', 'transfer', 'deceased']
-  if (!valid.includes(newStatus)) { Toast.error('Invalid status.'); return }
-  let done = 0
-  for (const id of _state.selectedIds) {
-    try {
-      await updateMember(id, { membership_status: newStatus as MemberView['membership_status'] })
-      done++
-    } catch { /* continue */ }
-  }
-  Toast.success(`Status updated for ${done} member(s).`)
-  _clearSelection()
-  await _loadMembers()
-  _renderMembers()
-  await _renderStats()
-}
-
-async function _bulkExport(): Promise<void> {
-  if (!_state || _state.selectedIds.size === 0) return
-  Toast.info(`Exporting ${_state.selectedIds.size} members to CSV…`)
-  const selected = _state.filtered.filter(m => _state!.selectedIds.has(m.id))
-  const headers = ['Membership #', 'First Name', 'Last Name', 'Status', 'Gender', 'Phone', 'Email', 'Occupation', 'Joined']
-  const rows = selected.map(m => [
-    m.membership_number ?? '', m.first_name, m.last_name,
-    m.membership_status, m.gender, m.primary_phone ?? '', m.email ?? '',
-    m.occupation ?? '', fmtDate(m.join_date),
-  ])
-  const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = 'caci_members_selected.csv'
-  a.click()
-  URL.revokeObjectURL(a.href)
-  _clearSelection()
-}
-
-async function _bulkRemove(): Promise<void> {
-  if (!_state || _state.selectedIds.size === 0) return
-  if (!confirm(`Deactivate ${_state.selectedIds.size} member(s)? They will be marked inactive.`)) return
-  let done = 0
-  for (const id of _state.selectedIds) {
-    try { await deactivateMember(id); done++ } catch { /* continue */ }
-  }
-  Toast.success(`${done} member(s) deactivated.`)
-  _clearSelection()
-  await _loadMembers()
-  _renderMembers()
-  await _renderStats()
-}
-
-// ── Attendance sub-page ───────────────────────────────────────────────────────
-
-function _renderAttSessions(): void {
-  if (!_state || !_container) return
-  const grid = _container.querySelector('#mm-attSessionsGrid')
-  if (!grid) return
-  grid.innerHTML = _state.attSessions.map(s => `
-<div class="mm-att-session-card" data-att-session="${s.id}">
-  <div class="mm-att-session-date">${s.date} · ${s.type}</div>
-  <div class="mm-att-session-name">${s.name}</div>
-  <div class="mm-att-session-stats">
-    <div class="mm-att-session-stat">
-      <div class="mm-att-session-stat-val" style="color:var(--mm-green)">${s.present}</div>
-      <div class="mm-att-session-stat-lbl">Present</div>
-    </div>
-    <div class="mm-att-session-stat">
-      <div class="mm-att-session-stat-val" style="color:var(--mm-red)">${s.absent}</div>
-      <div class="mm-att-session-stat-lbl">Absent</div>
-    </div>
-    <div class="mm-att-session-stat">
-      <div class="mm-att-session-stat-val" style="color:var(--mm-gold)">${s.excused}</div>
-      <div class="mm-att-session-stat-lbl">Excused</div>
-    </div>
-  </div>
-</div>`).join('')
-
-  grid.querySelectorAll<HTMLElement>('[data-att-session]').forEach(card => {
-    card.addEventListener('click', () => _openAttTable(card.dataset['attSession']!))
-  })
-}
-
-function _openAttTable(sessionId: string): void {
-  if (!_state || !_container) return
-  const s = _state.attSessions.find(x => x.id === sessionId)
-  if (!s) return
-  _state.currentAttId = sessionId
-
-  const label = _container.querySelector('#mm-attSessionLabel')
-  const meta = _container.querySelector('#mm-attSessionMeta')
-  if (label) label.textContent = `${s.name} — ${s.date}`
-  if (meta) meta.textContent = `${s.type} · ${s.time} · ${s.present + s.absent + s.excused} active members`
-
-  const sessGrid = _container.querySelector<HTMLElement>('#mm-attSessionsGrid')
-  const tableWrap = _container.querySelector<HTMLElement>('#mm-attTableWrap')
-  if (sessGrid) sessGrid.style.display = 'none'
-  if (tableWrap) tableWrap.style.display = 'block'
-
-  // Pre-fill attendance state
-  _state.memberAtt = {}
-  _state.members
-    .filter(m => m.membership_status !== 'inactive')
-    .forEach(m => { _state!.memberAtt[m.id] = 'present' })
-
-  _renderAttTable()
-}
-
-function _renderAttTable(): void {
-  if (!_state || !_container) return
-  const tbody = _container.querySelector('#mm-attTableBody')
-  if (!tbody) return
-  const relevant = _state.members.filter(m => m.membership_status !== 'inactive')
-  tbody.innerHTML = relevant.map(m => {
-    const status = _state!.memberAtt[m.id] ?? 'present'
-    const s = statusBadge(m.membership_status)
-    const bg = avatarColor(`${formatName(m.first_name, m.last_name, m.title)}`)
-    const ini = initials(m.first_name, m.last_name)
-    return `
-<tr>
-  <td>
-    <div class="mm-table-name-cell">
-      <div class="mm-table-avatar" style="background:${bg}">${ini}</div>
-      <div>
-        <div class="mm-table-name">${formatName(m.first_name, m.last_name, m.title)}</div>
-        <div class="mm-table-email">${m.primary_phone ?? '—'}</div>
-      </div>
-    </div>
-  </td>
-  <td style="font-size: var(--text-sm);">${m.occupation ?? '—'}</td>
-  <td><span class="mm-badge ${s.cls}">${s.label}</span></td>
-  <td>
-    <div class="mm-att-toggle-wrap">
-      <button class="mm-att-toggle ${status === 'present' ? 'present' : ''}" data-att-member="${m.id}" data-att-status="present">Present</button>
-      <button class="mm-att-toggle ${status === 'absent' ? 'absent' : ''}" data-att-member="${m.id}" data-att-status="absent">Absent</button>
-      <button class="mm-att-toggle ${status === 'excused' ? 'excused' : ''}" data-att-member="${m.id}" data-att-status="excused">Excused</button>
-    </div>
-  </td>
-</tr>`
-  }).join('')
-
-  // Bind toggle buttons
-  tbody.querySelectorAll<HTMLButtonElement>('[data-att-status]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const memberId = btn.dataset['attMember']!
-      const newStatus = btn.dataset['attStatus'] as 'present' | 'absent' | 'excused'
-      _state!.memberAtt[memberId] = newStatus
-      // Update buttons in the same row
-      const row = btn.closest('tr')!
-      row.querySelectorAll<HTMLButtonElement>('.mm-att-toggle').forEach(b => {
-        b.className = 'mm-att-toggle'
-        if (b.dataset['attStatus'] === newStatus) b.classList.add(newStatus)
-      })
-    })
-  })
-}
-
-function _saveAttendance(): void {
-  if (!_state) return
-  const att = _state.memberAtt
-  const present = Object.values(att).filter(v => v === 'present').length
-  const absent = Object.values(att).filter(v => v === 'absent').length
-  const excused = Object.values(att).filter(v => v === 'excused').length
-  const s = _state.attSessions.find(x => x.id === _state!.currentAttId)
-  if (s) { s.present = present; s.absent = absent; s.excused = excused }
-  _closeAttTable()
-  _renderAttSessions()
-  Toast.success('Attendance saved successfully.')
-}
-
-function _closeAttTable(): void {
-  if (!_container) return
-  const sessGrid = _container.querySelector<HTMLElement>('#mm-attSessionsGrid')
-  const tableWrap = _container.querySelector<HTMLElement>('#mm-attTableWrap')
-  if (sessGrid) sessGrid.style.display = ''
-  if (tableWrap) tableWrap.style.display = 'none'
-}
-
-// ── Attendance session modal ──────────────────────────────────────────────────
-
-function _openAttSessionModal(): void {
-  if (!_container) return
-  const dateEl = _container.querySelector<HTMLInputElement>('#mm-attSessionDate')
-  if (dateEl) dateEl.value = new Date().toISOString().split('T')[0]
-  _container.querySelector('#mm-attSessionModal')?.classList.add('open')
-  _container.querySelector('#mm-attSessionModalOverlay')?.classList.add('open')
-  document.body.style.overflow = 'hidden'
-}
-
-function _closeAttSessionModal(): void {
-  if (!_container) return
-  _container.querySelector('#mm-attSessionModal')?.classList.remove('open')
-  _container.querySelector('#mm-attSessionModalOverlay')?.classList.remove('open')
-  document.body.style.overflow = ''
-}
-
-function _saveAttSession(): void {
-  if (!_state || !_container) return
-  const name = (_container.querySelector<HTMLInputElement>('#mm-attSessionName')?.value ?? '').trim()
-  const date = _container.querySelector<HTMLInputElement>('#mm-attSessionDate')?.value ?? ''
-  if (!name || !date) { Toast.warning('Session name and date are required.'); return }
-  _state.attSessions.unshift({
-    id: 's' + Date.now(),
-    name,
-    type: _container.querySelector<HTMLSelectElement>('#mm-attSessionType')?.value ?? 'Sunday Service',
-    date: fmtDate(date),
-    time: _container.querySelector<HTMLInputElement>('#mm-attSessionTime')?.value ?? '09:00',
-    present: 0, absent: 0, excused: 0,
-  })
-  _closeAttSessionModal()
-  _renderAttSessions()
-  Toast.success('Session created.')
-}
-
-// ── Groups sub-page ───────────────────────────────────────────────────────────
-
-function _renderGroups(): void {
-  if (!_state || !_container) return
-  const grid = _container.querySelector('#mm-groupsGrid')
-  if (!grid) return
-  grid.innerHTML = _state.groups.map(g => `
-<div class="mm-group-card">
-  <div class="mm-group-icon">
-    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-  </div>
-  <div class="mm-group-name">${g.name}</div>
-  <div class="mm-group-type"><span class="mm-badge">${g.type}</span></div>
-  <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin:6px 0;">${g.desc}</div>
-  <div class="mm-group-meta">
-    <span>${g.members} members</span>
-    ${g.day ? `<span>${g.day}s</span>` : ''}
-    <span>Leader: ${g.leader}</span>
-  </div>
-  <div class="mm-group-actions">
-    <button class="mm-btn-outline" style="flex:1;justify-content:center;font-size: var(--text-sm);"
-      data-view-group="${g.id}">View Members</button>
-    <button class="mm-btn-icon" data-edit-group="${g.id}" title="Edit group">
-      <svg viewBox="0 0 24 24" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </button>
-  </div>
-</div>`).join('')
-
-  grid.querySelectorAll<HTMLElement>('[data-edit-group]').forEach(btn => {
-    btn.addEventListener('click', () => _openGroupModal(btn.dataset['editGroup']!))
-  })
-  grid.querySelectorAll<HTMLElement>('[data-view-group]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const groupId = btn.dataset['viewGroup']!
-      const g = _state?.groups.find(x => x.id === groupId)
-      Toast.info(`${g?.name ?? 'Group'} — member list view coming soon.`)
-    })
-  })
-}
-
-function _openGroupModal(id: string | null): void {
-  if (!_state || !_container) return
-  const g = id ? _state.groups.find(x => x.id === id) : null
-  const titleEl = _container.querySelector('#mm-groupModalTitle')
-  if (titleEl) titleEl.textContent = g ? `Edit: ${g.name}` : 'New Group'
-
-  if (g) {
-    const set = (sel: string, val: string) => {
-      const el = _container!.querySelector<HTMLInputElement | HTMLSelectElement>(sel)
-      if (el) el.value = val
-    }
-    set('#mm-gName', g.name)
-    set('#mm-gType', g.type)
-    set('#mm-gDesc', g.desc)
-    set('#mm-gLeader', g.leader)
-    set('#mm-gDay', g.day)
-  } else {
-    const clear = (sel: string) => {
-      const el = _container!.querySelector<HTMLInputElement | HTMLTextAreaElement>(sel)
-      if (el) el.value = ''
-    }
-    clear('#mm-gName'); clear('#mm-gDesc')
-    const typeEl = _container.querySelector<HTMLSelectElement>('#mm-gType')
-    const leaderEl = _container.querySelector<HTMLSelectElement>('#mm-gLeader')
-    const dayEl = _container.querySelector<HTMLSelectElement>('#mm-gDay')
-    if (typeEl) typeEl.selectedIndex = 0
-    if (leaderEl) leaderEl.selectedIndex = 0
-    if (dayEl) dayEl.selectedIndex = 0
-  }
-
-  _container.querySelector('#mm-groupModal')?.classList.add('open')
-  _container.querySelector('#mm-groupModalOverlay')?.classList.add('open')
-  document.body.style.overflow = 'hidden'
-}
-
-function _closeGroupModal(): void {
-  if (!_container) return
-  _container.querySelector('#mm-groupModal')?.classList.remove('open')
-  _container.querySelector('#mm-groupModalOverlay')?.classList.remove('open')
-  document.body.style.overflow = ''
-}
-
-function _saveGroup(): void {
-  if (!_state || !_container) return
-  const name = (_container.querySelector<HTMLInputElement>('#mm-gName')?.value ?? '').trim()
-  if (!name) { Toast.warning('Group name is required.'); return }
-  _state.groups.push({
-    id: 'g' + Date.now(),
-    name,
-    type: _container.querySelector<HTMLSelectElement>('#mm-gType')?.value ?? 'Department',
-    leader: _container.querySelector<HTMLSelectElement>('#mm-gLeader')?.value || 'Unassigned',
-    members: 0,
-    day: _container.querySelector<HTMLSelectElement>('#mm-gDay')?.value ?? '',
-    desc: (_container.querySelector<HTMLTextAreaElement>('#mm-gDesc')?.value ?? '').trim(),
-  })
-  _closeGroupModal()
-  _renderGroups()
-  Toast.success('Group created.')
-}
-
-// ── Pastoral care sub-page ────────────────────────────────────────────────────
-
-function _renderPastoral(): void {
-  if (!_state || !_container) return
-
-  const flagTypeColors: Record<string, string> = {
-    followup: 'followup', absent: 'absent', 'life-event': 'life-event', 'first-timer': 'first-timer',
-  }
-  const priorityBadge = (p: string) => p === 'high' || p === 'urgent'
-    ? `<span class="mm-badge red" style="font-size: var(--text-xs);">${p.charAt(0).toUpperCase() + p.slice(1)}</span>`
-    : ''
-
-  const flagsEl = _container.querySelector('#mm-pcFlagsContainer')
-  if (flagsEl) {
-    const open = _state.pcFlags.filter(f => !f.resolved)
-    flagsEl.innerHTML = open.length ? open.map(f => `
-<div class="mm-flag-item">
-  <div class="mm-flag-dot ${flagTypeColors[f.type] ?? 'followup'}"></div>
-  <div class="mm-flag-content">
-    <div class="mm-flag-name">${f.member} ${priorityBadge(f.priority)}</div>
-    <div class="mm-flag-reason">${f.reason}</div>
-    <div class="mm-flag-date">${f.date} · Assigned to ${f.assignTo}</div>
-  </div>
-  <div class="mm-flag-actions">
-    <button class="mm-pc-action-btn" data-resolve-flag="${f.id}">Resolve</button>
-  </div>
-</div>`).join('')
-      : '<div style="font-size: var(--text-base);color:var(--mm-text-secondary);padding:12px 0;">All clear — no open flags.</div>'
-
-    flagsEl.querySelectorAll<HTMLButtonElement>('[data-resolve-flag]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const flag = _state!.pcFlags.find(x => x.id === btn.dataset['resolveFlag'])
-        if (flag) { flag.resolved = true; _renderPastoral(); Toast.success('Flag resolved.') }
-      })
-    })
-  }
-
-  const ftEl = _container.querySelector('#mm-pcFirstTimers')
-  if (ftEl) {
-    ftEl.innerHTML = _state.pcFirstTimers.map(ft => `
-<div class="mm-flag-item">
-  <div class="mm-flag-dot first-timer"></div>
-  <div class="mm-flag-content">
-    <div class="mm-flag-name">${ft.name}</div>
-    <div class="mm-flag-reason">${ft.phone}</div>
-    <div class="mm-flag-date">${ft.date}</div>
-  </div>
-  <div class="mm-flag-actions">
-    ${ft.followedUp
-        ? '<span class="mm-badge green" style="font-size: var(--text-xs);">Followed up</span>'
-        : `<button class="mm-pc-action-btn" data-followup="${ft.name}">Mark done</button>`}
-  </div>
-</div>`).join('')
-    ftEl.querySelectorAll<HTMLButtonElement>('[data-followup]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const ft = _state!.pcFirstTimers.find(x => x.name === btn.dataset['followup'])
-        if (ft) { ft.followedUp = true; _renderPastoral(); Toast.success('Marked as followed up.') }
-      })
-    })
-  }
-
-  const leEl = _container.querySelector('#mm-pcLifeEvents')
-  if (leEl) {
-    leEl.innerHTML = _state.pcLifeEvents.map(le => `
-<div class="mm-flag-item">
-  <div class="mm-flag-dot life-event"></div>
-  <div class="mm-flag-content">
-    <div class="mm-flag-name">${le.name}</div>
-    <div class="mm-flag-reason">${le.event}</div>
-    <div class="mm-flag-date">${le.date}</div>
-  </div>
-  <div class="mm-flag-actions">
-    <button class="mm-pc-action-btn" data-contact-le="${le.name}">Contact</button>
-  </div>
-</div>`).join('')
-    leEl.querySelectorAll<HTMLButtonElement>('[data-contact-le]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        Toast.info(`Sending pastoral message to ${btn.dataset['contactLe']}…`)
-      })
-    })
-  }
-}
-
-function _openFlagModal(): void {
-  if (!_container) return
-  // Populate member select
-  const sel = _container.querySelector<HTMLSelectElement>('#mm-flagMember')
-  if (sel && _state) {
-    sel.innerHTML = '<option value="">Select member…</option>'
-    _state.members.forEach(m => {
-      const o = document.createElement('option')
-      o.value = m.id
-      o.textContent = `${formatName(m.first_name, m.last_name, m.title)}`
-      sel.appendChild(o)
-    })
-  }
-  _container.querySelector('#mm-flagModal')?.classList.add('open')
-  _container.querySelector('#mm-flagModalOverlay')?.classList.add('open')
-  document.body.style.overflow = 'hidden'
-}
-
-function _closeFlagModal(): void {
-  if (!_container) return
-  _container.querySelector('#mm-flagModal')?.classList.remove('open')
-  _container.querySelector('#mm-flagModalOverlay')?.classList.remove('open')
-  document.body.style.overflow = ''
-}
-
-function _saveFlag(): void {
-  if (!_state || !_container) return
-  const memberId = _container.querySelector<HTMLSelectElement>('#mm-flagMember')?.value ?? ''
-  const notes = (_container.querySelector<HTMLTextAreaElement>('#mm-flagNotes')?.value ?? '').trim()
-  if (!memberId) { Toast.warning('Please select a member.'); return }
-  const member = _state.members.find(m => m.id === memberId)
-  _state.pcFlags.unshift({
-    id: 'f' + Date.now(),
-    member: member ? `${formatName(member.first_name, member.last_name, member.title)}` : memberId,
-    type: _container.querySelector<HTMLSelectElement>('#mm-flagType')?.value ?? 'followup',
-    reason: notes || 'Follow-up required',
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    assignTo: _container.querySelector<HTMLSelectElement>('#mm-flagAssign')?.value ?? 'Unassigned',
-    priority: _container.querySelector<HTMLSelectElement>('#mm-flagPriority')?.value ?? 'normal',
-    resolved: false,
-  })
-  _closeFlagModal()
-  _renderPastoral()
-  Toast.success('Flag added.')
-}
-
-// ── Reports sub-page ──────────────────────────────────────────────────────────
-
-function _renderReports(): void {
-  if (!_container || !_state) return
-
-  const renderBarChart = (id: string, data: { label: string; value: number; color: string }[]) => {
-    const el = _container!.querySelector(`#${id}`)
-    if (!el) return
-    const max = Math.max(...data.map(d => d.value), 1)
-    el.innerHTML = data.map(d => `
-<div class="mm-chart-bar-row">
-  <div class="mm-chart-bar-label">${d.label}</div>
-  <div class="mm-chart-bar-track"><div class="mm-chart-bar-fill" style="width:${Math.round(d.value / max * 100)}%;background:${d.color}"></div></div>
-  <div class="mm-chart-bar-val">${d.value}</div>
-</div>`).join('')
-  }
-
-  // Use real member data for gender / status charts
-  const m = _state.members
-  const male = m.filter(x => x.gender === 'male').length
-  const female = m.filter(x => x.gender === 'female').length
-  const active = m.filter(x => x.membership_status === 'active').length
-  const inactive = m.filter(x => x.membership_status === 'inactive').length
-  const visitor = m.filter(x => x.membership_status === 'visitor').length
-  const prospect = m.filter(x => x.membership_status === 'prospect').length
-
-  renderBarChart('mm-growthChart', [
-    { label: 'Jan', value: 298, color: 'var(--mm-blue)' },
-    { label: 'Feb', value: 311, color: 'var(--mm-blue)' },
-    { label: 'Mar', value: 327, color: 'var(--mm-blue)' },
-    { label: 'Apr', value: 341, color: 'var(--mm-blue)' },
-    { label: 'May', value: m.length || 347, color: 'var(--mm-blue)' },
-  ])
-  renderBarChart('mm-genderChart', [
-    { label: 'Male', value: male || 184, color: '#004BA0' },
-    { label: 'Female', value: female || 163, color: '#C60026' },
-  ])
-  renderBarChart('mm-statusChart', [
-    { label: 'Active', value: active || 312, color: 'var(--mm-green)' },
-    { label: 'Visitor', value: visitor || 23, color: '#0969da' },
-    { label: 'Inactive', value: inactive || 8, color: 'var(--mm-text-muted)' },
-    { label: 'Prospect', value: prospect || 4, color: 'var(--mm-gold)' },
-  ])
-
-  const gtable = _container.querySelector('#mm-growthTable')
-  if (gtable) gtable.innerHTML = `
-<thead><tr><th>Month</th><th>Total</th><th>New</th><th>Change</th></tr></thead>
-<tbody>
-  <tr><td>January</td><td>298</td><td>9</td><td class="mm-trend-up">+9</td></tr>
-  <tr><td>February</td><td>311</td><td>15</td><td class="mm-trend-up">+13</td></tr>
-  <tr><td>March</td><td>327</td><td>16</td><td class="mm-trend-up">+16</td></tr>
-  <tr><td>April</td><td>341</td><td>14</td><td class="mm-trend-up">+14</td></tr>
-  <tr><td>May (to date)</td><td>${m.length || 347}</td><td>6</td><td class="mm-trend-up">+6</td></tr>
-</tbody>`
-}
-
-// ── Tab switching ─────────────────────────────────────────────────────────────
-
-function _setTab(tabName: string): void {
-  if (!_state || !_container) return
-
-  // Block coming-soon tabs — redirect to members-list + notify
-  if (COMING_SOON_TABS.has(tabName)) {
-    _showComingSoonTab(tabName)
-    // Ensure URL stays on /members
-    if (location.hash !== '#/members') navigate('/members')
-    return
-  }
-
-  // If clicking a tab that matches a known route, navigate to it
-  // to keep the URL and sidebar in sync.
-  const routeMap: Record<string, string> = {
-    'members-list': '/members',
-    'attendance': '/attendance',
-    'groups': '/groups',
-    'pastoral': '/pastoral-care',
-    'reports': '/reports'
-  }
-
-  const targetPath = routeMap[tabName]
-  if (targetPath && location.hash !== '#' + targetPath) {
-    navigate(targetPath)
-    return
-  }
-
-  _state.activeTab = tabName
-
-  _container.querySelectorAll('.mm-tab').forEach(t => t.classList.remove('active'))
-  _container.querySelectorAll('.mm-section').forEach(s => s.classList.remove('active'))
-
-  _container.querySelector(`.mm-tab[data-tab="${tabName}"]`)?.classList.add('active')
-  _container.querySelector(`#mm-section-${tabName}`)?.classList.add('active')
-
-  // Sidebar filter panel — only visible on members-list
-  const filterPanel = _container.querySelector<HTMLElement>('#mm-filterPanel')
-  if (filterPanel) filterPanel.style.display = tabName === 'members-list' ? '' : 'none'
-
-  // Sync sidebar active item
-  _container.querySelectorAll<HTMLElement>('[data-sidebar-tab]').forEach(item => {
-    item.classList.toggle('active', item.dataset['sidebarTab'] === tabName)
-  })
-
-  // Render sub-page
-  if (tabName === 'attendance') _renderAttSessions()
-  if (tabName === 'groups') _renderGroups()
-  if (tabName === 'pastoral') _renderPastoral()
-  if (tabName === 'reports') _renderReports()
-}
-
-function _setSidebarItem(tabName: string, quickFilter?: string): void {
-  if (!_state) return
-  if (quickFilter) {
-    _state.sidebarFilter = quickFilter
-    _state.page = 1
-  }
-  _setTab(tabName)
-  if (quickFilter) _renderMembers()
-}
-
-// ── Mobile filter dropdown ────────────────────────────────────────────────────
-
-function _bindMobileFilterDropdown(): void {
-  if (!_container) return
-  const trigger = _container.querySelector<HTMLElement>('#mm-fddTrigger')
-  const panel   = _container.querySelector<HTMLElement>('#mm-fddPanel')
-  const wrap    = _container.querySelector<HTMLElement>('#mm-fddWrap')
-  if (!trigger || !panel || !wrap) return
-
-  const open  = () => { panel.classList.add('mm-fdd-open'); trigger.setAttribute('aria-expanded', 'true');  _syncFddHint() }
-  const close = () => { panel.classList.remove('mm-fdd-open'); trigger.setAttribute('aria-expanded', 'false') }
-  const isOpen = () => panel.classList.contains('mm-fdd-open')
-
-  trigger.addEventListener('click', e => { e.stopPropagation(); isOpen() ? close() : open() })
-  document.addEventListener('click', e => { if (!wrap.contains(e.target as Node)) close() })
-
-  // Accordion headers
-  _container.querySelectorAll<HTMLElement>('[data-fdd-sec]').forEach(hdr => {
-    const toggle = () => {
-      const sec   = hdr.dataset['fddSec']!
-      const items = _container!.querySelector<HTMLElement>(`#mm-fddI-${sec}`)
-      const chev  = hdr.querySelector<SVGElement>('.mm-fdd-chev')
-      if (!items) return
-      const nowOpen = !items.classList.contains('mm-fdd-items-open')
-      items.classList.toggle('mm-fdd-items-open', nowOpen)
-      chev?.classList.toggle('mm-fdd-chev-open', nowOpen)
-      hdr.setAttribute('aria-expanded', String(nowOpen))
-    }
-    hdr.addEventListener('click', toggle)
-    hdr.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() } })
-  })
-
-  // Checkbox rows
-  _container.querySelectorAll<HTMLElement>('[data-fdd-g]').forEach(row => {
-    row.addEventListener('click', () => {
-      if (!_state) return
-      const cb  = row.querySelector<HTMLElement>('.mm-fdd-cb')!
-      const g   = row.dataset['fddG']!
-      const v   = row.dataset['fddV']!
-      const on  = !cb.classList.contains('mm-fdd-on')
-      cb.classList.toggle('mm-fdd-on', on)
-      if (g === 'status')      { on ? _state.statusFilters.add(v) : _state.statusFilters.delete(v) }
-      else if (g === 'gender') { on ? _state.genderFilters.add(v) : _state.genderFilters.delete(v) }
-      _syncFddUI()
-    })
-  })
-
-  // Clear all
-  _container.querySelector('#mm-fddClearAll')?.addEventListener('click', () => {
-    if (!_state) return
-    _state.statusFilters.clear()
-    _state.genderFilters.clear()
-    _container!.querySelectorAll<HTMLElement>('.mm-fdd-cb.mm-fdd-on').forEach(cb => cb.classList.remove('mm-fdd-on'))
-    _syncFddUI()
-    _updateFilterCount()
-    _state.page = 1
-    _renderMembers()
-  })
-
-  // Apply
-  _container.querySelector('#mm-fddApply')?.addEventListener('click', () => {
-    _updateFilterCount()
-    _state!.page = 1
-    _renderMembers()
-    close()
-  })
-}
-
-function _syncFddUI(): void {
-  if (!_state || !_container) return
-  // Pill count on trigger button
-  const total = _state.statusFilters.size + _state.genderFilters.size
-  const pill  = _container.querySelector<HTMLElement>('#mm-fddPill')
-  if (pill) { pill.textContent = String(total); pill.style.display = total > 0 ? '' : 'none' }
-  // Per-section badges
-  ;[['status', _state.statusFilters.size], ['gender', _state.genderFilters.size]].forEach(([g, n]) => {
-    const b = _container!.querySelector<HTMLElement>(`#mm-fddB-${g}`)
-    if (b) { b.textContent = String(n); b.style.display = (n as number) > 0 ? '' : 'none' }
-  })
-  _syncFddHint()
-}
-
-function _syncFddHint(): void {
-  if (!_state || !_container) return
-  const hint = _container.querySelector<HTMLElement>('#mm-fddHint')
-  if (hint) hint.textContent = `${_state.filtered.length} member${_state.filtered.length !== 1 ? 's' : ''}`
-}
-
-// ── Event binding ─────────────────────────────────────────────────────────────
-
-function _bindAll(): void {
-  if (!_container) return
-
-  // Sub-nav tabs
-  _container.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => _setTab(btn.dataset['tab']!))
-  })
-
-  // Sidebar items
-  _container.querySelectorAll<HTMLButtonElement>('[data-sidebar-tab]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset['sidebarTab']!
-      const filter = btn.dataset['sidebarFilter']
-      _setSidebarItem(tab, filter)
-    })
-  })
-
-  // Export CSV (sidebar)
-  _container.querySelector('#mm-exportCsvSidebar')?.addEventListener('click', _doExportCsv)
 
   // Search
-  _container.querySelector<HTMLInputElement>('#mm-memberSearch')?.addEventListener('input', e => {
-    if (_searchDebounce) clearTimeout(_searchDebounce)
-    _searchDebounce = setTimeout(() => {
-      _state!.search = (e.target as HTMLInputElement).value.trim().toLowerCase()
-      _state!.page = 1
-      _renderMembers()
-    }, 200)
-  })
+  if (_searchQuery) {
+    const q = _searchQuery.toLowerCase()
+    list = list.filter(m =>
+      (m.first_name ?? '').toLowerCase().includes(q) ||
+      (m.last_name  ?? '').toLowerCase().includes(q) ||
+      (m.membership_number ?? '').toLowerCase().includes(q) ||
+      (m.occupation ?? '').toLowerCase().includes(q)
+    )
+  }
 
   // Sort
-  _container.querySelector<HTMLSelectElement>('#mm-sortSelect')?.addEventListener('change', e => {
-    _state!.sortMode = (e.target as HTMLSelectElement).value
-    _state!.page = 1
-    _renderMembers()
+  switch (_sortKey) {
+    case 'name_az': list.sort((a, b) => (a.last_name ?? '').localeCompare(b.last_name ?? '')); break
+    case 'name_za': list.sort((a, b) => (b.last_name ?? '').localeCompare(a.last_name ?? '')); break
+    case 'newest':  list.sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()); break
+    case 'oldest':  list.sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()); break
+  }
+
+  return list
+}
+
+// ── Render all ────────────────────────────────────────────────────────────────
+
+function _renderAll(): void {
+  const list       = _getFiltered()
+  const isFiltered = _activeFilter !== null
+  const cfg        = STAT_CONFIGS.find(c => c.key === _activeFilter)
+
+  // Results count
+  const countEl = document.getElementById('ml-results-count')
+  if (countEl) countEl.textContent = String(list.length)
+
+  // Filter banner
+  const banner = document.getElementById('ml-filter-banner')
+  const pillEl = document.getElementById('ml-filter-pill-text')
+  const cntEl  = document.getElementById('ml-filter-count-text')
+  if (banner && cfg && _activeFilter !== null) {
+    banner.classList.add('show')
+    if (pillEl) pillEl.textContent = cfg.pill
+    if (cntEl)  cntEl.textContent  = `${list.length} result${list.length !== 1 ? 's' : ''}`
+  } else {
+    banner?.classList.remove('show')
+  }
+
+  // List panel vs grid
+  const listPanel = document.getElementById('ml-list-panel')
+  const grid      = document.getElementById('ml-grid')
+  if (isFiltered && cfg) {
+    // Update panel header
+    const iconWrap = document.getElementById('ml-panel-icon-wrap')
+    const iconEl   = document.getElementById('ml-panel-icon')
+    const titleEl  = document.getElementById('ml-panel-title')
+    const subEl    = document.getElementById('ml-panel-sub')
+    const panelCnt = document.getElementById('ml-panel-count')
+    if (iconWrap) iconWrap.style.background = cfg.iconBg
+    if (iconEl)   { iconEl.className = `bi ${cfg.icon}`; iconEl.style.color = cfg.iconColor }
+    if (titleEl)  titleEl.textContent = cfg.label
+    if (subEl)    subEl.textContent   = cfg.sub
+    if (panelCnt) panelCnt.textContent = `${list.length} member${list.length !== 1 ? 's' : ''}`
+
+    listPanel?.classList.add('show')
+    if (grid) grid.style.display = 'none'
+    _renderListPanel(list)
+  } else {
+    listPanel?.classList.remove('show')
+    if (grid) grid.style.display = ''
+    _renderGrid(list)
+  }
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+
+function _renderGrid(list: MemberView[]): void {
+  const grid = document.getElementById('ml-grid')
+  if (!grid) return
+
+  if (!list.length) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;" class="empty-state">
+        <i class="bi bi-search empty-state-icon"></i>
+        <div class="empty-state-title">No members found</div>
+        <div class="empty-state-message">${_searchQuery ? 'Try a different search term.' : 'No members have been added yet.'}</div>
+        ${_searchQuery ? `<button class="btn btn-outline" id="ml-clear-search-empty">Clear search</button>` : ''}
+      </div>`
+    if (_searchQuery) {
+      document.getElementById('ml-clear-search-empty')
+        ?.addEventListener('click', _clearSearch)
+    }
+    return
+  }
+
+  grid.innerHTML = list.map((m, i) => _gridCard(m, i)).join('')
+
+  // Bind card buttons
+  grid.querySelectorAll<HTMLElement>('[data-member-view]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      navigate(`/members/${btn.dataset.memberView}`)
+    })
+  })
+  grid.querySelectorAll<HTMLElement>('[data-member-edit]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      navigate(`/members/${btn.dataset.memberEdit}/edit`)
+    })
+  })
+  // Card click → view
+  grid.querySelectorAll<HTMLElement>('.ml-card, .ml-card-mob').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = (card as HTMLElement).dataset.memberId
+      if (id) navigate(`/members/${id}`)
+    })
+  })
+}
+
+function _gridCard(m: MemberView, i: number): string {
+  const user = getCurrentUser()
+  const canEdit = user ? can(user, 'members.edit') : false
+  const ini  = initials(m.first_name ?? '', m.last_name ?? '')
+  const fullName = formatName(m.first_name ?? '', m.last_name ?? '', m.title)
+  const bg   = avatarColor(fullName)
+  const avatarStyle = m.profile_photo_url
+    ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
+    : `background:${bg};`
+  const avatarContent = m.profile_photo_url ? '' : ini
+  const gi   = genderIcon(m.gender ?? '')
+  const gc   = genderColor(m.gender ?? '')
+  const dot  = statusDotColor(m.membership_status ?? '')
+  const delay = Math.min(i * 40, 440)
+
+  return /* html */`
+  <!-- Desktop card -->
+  <div class="ml-card ml-fade-up" style="animation-delay:${delay}ms;" data-member-id="${m.id}">
+    <div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <input type="checkbox" style="width:15px;height:15px;accent-color:var(--caci-blue);cursor:pointer;"
+             onclick="event.stopPropagation()">
+      <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;
+                     padding:2px 6px;border-radius:5px;font-size:13px;letter-spacing:2px;"
+              onclick="event.stopPropagation()" title="More">•••</button>
+    </div>
+    <div class="ml-card-avatar" style="${avatarStyle}">
+      ${avatarContent}
+      <div class="ml-gender-badge" style="color:${gc};">${gi}</div>
+    </div>
+    <h3 style="font-size:13.5px;font-weight:600;color:var(--text-primary);
+               margin-bottom:3px;line-height:1.3;
+               overflow:hidden;text-overflow:ellipsis;
+               display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+      ${fullName}
+    </h3>
+    <p style="font-size:9.5px;color:var(--text-muted);font-family:var(--font-mono);
+              margin-bottom:10px;letter-spacing:0.04em;
+              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">
+      ${m.membership_number ?? '—'}
+    </p>
+    <div class="ml-role-pill">
+      <i class="bi bi-person" style="font-size:10px;color:var(--caci-blue);"></i>
+      <span>${m.occupation ?? 'Member'}</span>
+    </div>
+    <div style="display:flex;gap:8px;width:100%;
+                padding-top:12px;border-top:1px solid var(--border-default);">
+      <button class="ml-card-btn ml-card-btn-view" data-member-view="${m.id}"
+              onclick="event.stopPropagation()">View</button>
+      ${canEdit ? `
+      <button class="ml-card-btn ml-card-btn-edit" data-member-edit="${m.id}"
+              onclick="event.stopPropagation()">Edit</button>` : ''}
+    </div>
+  </div>
+
+  <!-- Mobile row -->
+  <div class="ml-card-mob ml-fade-up" style="animation-delay:${delay}ms;" data-member-id="${m.id}">
+    <div style="position:relative;flex-shrink:0;">
+      <div class="ml-card-mob-avatar" style="${avatarStyle}">${avatarContent}</div>
+      <div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;
+                  border-radius:50%;background:var(--bg-card);border:2px solid var(--bg-card);
+                  display:flex;align-items:center;justify-content:center;font-size:10px;color:${gc};">${gi}</div>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <h3 style="font-size:13.5px;font-weight:600;color:var(--text-primary);
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;">
+        ${fullName}
+      </h3>
+      <p style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">
+        ${m.membership_number ?? '—'}
+      </p>
+      <div style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;">
+        <i class="bi bi-person" style="font-size:11px;"></i>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.occupation ?? 'Member'}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-shrink:0;">
+      <button class="ml-mob-btn" data-member-view="${m.id}"
+              onclick="event.stopPropagation()" title="View">
+        <i class="bi bi-eye"></i>
+      </button>
+      ${canEdit ? `
+      <button class="ml-mob-btn ml-mob-btn-edit" data-member-edit="${m.id}"
+              onclick="event.stopPropagation()" title="Edit">
+        <i class="bi bi-pencil"></i>
+      </button>` : ''}
+    </div>
+  </div>`
+}
+
+// ── List panel ────────────────────────────────────────────────────────────────
+
+function _renderListPanel(list: MemberView[]): void {
+  const body = document.getElementById('ml-list-panel-body')
+  if (!body) return
+
+  if (!list.length) {
+    body.innerHTML = `
+      <div class="empty-state" style="padding:40px 20px;">
+        <i class="bi bi-people empty-state-icon"></i>
+        <div class="empty-state-title">No members in this category</div>
+        <div class="empty-state-message">Try a different filter or add new members.</div>
+      </div>`
+    return
+  }
+
+  body.innerHTML = list.map((m, i) => _listRow(m, i)).join('')
+
+  body.querySelectorAll<HTMLElement>('[data-member-view]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); navigate(`/members/${btn.dataset.memberView}`) })
+  })
+  body.querySelectorAll<HTMLElement>('[data-member-edit]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); navigate(`/members/${btn.dataset.memberEdit}/edit`) })
+  })
+  body.querySelectorAll<HTMLElement>('.ml-list-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const id = (row as HTMLElement).dataset.memberId
+      if (id) navigate(`/members/${id}`)
+    })
+  })
+}
+
+function _listRow(m: MemberView, i: number): string {
+  const user = getCurrentUser()
+  const canEdit = user ? can(user, 'members.edit') : false
+  const ini    = initials(m.first_name ?? '', m.last_name ?? '')
+  const fullName = formatName(m.first_name ?? '', m.last_name ?? '', m.title)
+  const bg     = avatarColor(fullName)
+  const avatarStyle = m.profile_photo_url
+    ? `background-image:url(${m.profile_photo_url});background-size:cover;background-position:center;color:transparent;`
+    : `background:${bg};`
+  const avatarContent = m.profile_photo_url ? '' : ini
+  const gi     = genderIcon(m.gender ?? '')
+  const gc     = genderColor(m.gender ?? '')
+  const dot    = statusDotColor(m.membership_status ?? '')
+  const delay  = Math.min(i * 35, 350)
+
+  return /* html */`
+  <div class="ml-list-row ml-slide-right" style="animation-delay:${delay}ms;"
+       data-member-id="${m.id}">
+    <div style="position:relative;flex-shrink:0;">
+      <div class="ml-list-avatar" style="${avatarStyle}">${avatarContent}</div>
+      <div style="position:absolute;bottom:-1px;right:-1px;width:13px;height:13px;
+                  border-radius:50%;background:${dot};border:2px solid var(--bg-card);"></div>
+      <div style="position:absolute;bottom:0;right:15px;font-size:11px;color:${gc};">${gi}</div>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px;flex-wrap:wrap;">
+        <h3 style="font-size:13px;font-weight:600;color:var(--text-primary);
+                   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          ${fullName}
+        </h3>
+        ${membershipBadgeHtml(m.membership_status ?? '')}
+      </div>
+      <p style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+        ${m.membership_number ?? '—'}
+      </p>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
+        ${m.occupation ?? 'Member'}
+        ${m.join_date ? `<span style="color:var(--border-strong);margin:0 4px;">·</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">Joined ${fmtDate(m.join_date)}</span>` : ''}
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0;">
+      <button class="ml-mob-btn" data-member-view="${m.id}"
+              onclick="event.stopPropagation()">View</button>
+      ${canEdit ? `
+      <button class="ml-mob-btn ml-mob-btn-edit" data-member-edit="${m.id}"
+              onclick="event.stopPropagation()">Edit</button>` : ''}
+    </div>
+  </div>`
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+
+function _on<K extends keyof HTMLElementEventMap>(
+  el: HTMLElement | null, ev: K, fn: (e: HTMLElementEventMap[K]) => void
+): void {
+  if (!el) return
+  el.addEventListener(ev, fn as EventListener)
+  _listeners.push([el, ev, fn as EventListener])
+}
+
+function _clearSearch(): void {
+  const inp = document.getElementById('ml-search-inp') as HTMLInputElement | null
+  if (inp) inp.value = ''
+  _searchQuery = ''
+  const clr = document.getElementById('ml-search-clear')
+  if (clr) clr.style.display = 'none'
+  _renderAll()
+}
+
+function _clearFilter(): void {
+  _activeFilter = null
+  document.querySelectorAll<HTMLElement>('.ml-stat-card').forEach(c => {
+    c.classList.remove('active-filter')
+    c.style.borderColor = ''
+    c.style.boxShadow   = ''
+  })
+  _renderAll()
+}
+
+function _applyStatFilter(cardEl: HTMLElement, key: FilterKey): void {
+  if (_activeFilter === key) { _clearFilter(); return }
+  _activeFilter = key
+
+  document.querySelectorAll<HTMLElement>('.ml-stat-card').forEach(c => {
+    c.classList.remove('active-filter')
+    c.style.borderColor = ''
+    c.style.boxShadow   = ''
+  })
+  cardEl.classList.add('active-filter')
+  cardEl.style.borderColor = cardEl.dataset.accentBorder ?? ''
+  cardEl.style.boxShadow   = `0 0 0 3px ${cardEl.dataset.accentGlow ?? 'transparent'}, 0 8px 24px rgba(0,0,0,0.15)`
+  _renderAll()
+}
+
+const _debouncedSearch = debounce((q: string) => {
+  _searchQuery = q
+  const clr = document.getElementById('ml-search-clear')
+  if (clr) clr.style.display = q ? '' : 'none'
+  _renderAll()
+}, 280)
+
+function _bindEvents(): void {
+  // Stat card clicks
+  document.querySelectorAll<HTMLElement>('.ml-stat-card').forEach(card => {
+    _on(card, 'click', () => _applyStatFilter(card, card.dataset.statKey as FilterKey))
   })
 
-  // View toggle
-  _container.querySelector('#mm-gridViewBtn')?.addEventListener('click', () => _setView('grid'))
-  _container.querySelector('#mm-listViewBtn')?.addEventListener('click', () => _setView('list'))
+  // Clear filter buttons
+  _on(document.getElementById('ml-clear-filter-btn')  as HTMLElement, 'click', _clearFilter)
+  _on(document.getElementById('ml-panel-clear-btn')   as HTMLElement, 'click', _clearFilter)
 
-  // Export (toolbar)
-  _container.querySelector('#mm-exportBtn')?.addEventListener('click', _doExportCsv)
+  // Search input
+  const searchInp = document.getElementById('ml-search-inp') as HTMLInputElement | null
+  _on(searchInp, 'input', (e) => _debouncedSearch((e.target as HTMLInputElement).value))
+
+  // Clear search button
+  _on(document.getElementById('ml-search-clear') as HTMLElement, 'click', _clearSearch)
+
+  // Sort select
+  const sortSel = document.getElementById('ml-sort-select') as HTMLSelectElement | null
+  _on(sortSel, 'change', (e) => {
+    _sortKey = (e.target as HTMLSelectElement).value as SortKey
+    _renderAll()
+  })
+
+  // Export — build CSV client-side from existing in-memory data
+  _on(document.getElementById('ml-export-btn') as HTMLElement, 'click', () => {
+    const btn = document.getElementById('ml-export-btn') as HTMLButtonElement | null
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span class="ml-btn-label">Exporting…</span>' }
+    try {
+      const list = _getFiltered()
+      const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+      const headers = [
+        'Membership Number', 'Title', 'First Name', 'Last Name', 'Gender',
+        'Date of Birth', 'Primary Phone', 'Secondary Phone', 'Email',
+        'Physical Address', 'Occupation', 'Marital Status', 'Membership Status',
+        'Join Date', 'Is Active',
+      ]
+      const rows = list.map(m => [
+        escape(m.membership_number),
+        escape(m.title),
+        escape(m.first_name),
+        escape(m.last_name),
+        escape(m.gender),
+        escape(m.date_of_birth),
+        escape(m.primary_phone),
+        escape(m.secondary_phone),
+        escape(m.email),
+        escape(m.physical_address),
+        escape(m.occupation),
+        escape(m.marital_status),
+        escape(m.membership_status),
+        escape(m.join_date),
+        escape(m.is_active ? 'Yes' : 'No'),
+      ].join(','))
+
+      const csv = [headers.map(escape).join(','), ...rows].join('\n')
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `members-export-${new Date().toISOString().split('T')[0]}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err: any) {
+      console.error('[MemberList] Export failed:', err)
+      const bar = document.getElementById('ml-results-count')
+      if (bar) {
+        const orig = bar.textContent
+        bar.style.color = 'var(--text-danger)'
+        bar.textContent = `Export failed: ${err?.message ?? err}`.substring(0, 80)
+        setTimeout(() => { bar.style.color = ''; bar.textContent = orig }, 5000)
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false
+        btn.innerHTML = '<i class="bi bi-download"></i> <span class="ml-btn-label">Export</span>'
+      }
+    }
+  })
 
   // Add member
-  _container.querySelector('#mm-bulkImportBtn')?.addEventListener('click', () => navigate('/members/bulk-import'))
-  _container.querySelector('#mm-addMemberBtn')?.addEventListener('click', () => _openMemberModal())
+  _on(document.getElementById('ml-add-btn') as HTMLElement, 'click', () => navigate('/members/add'))
 
-  // Detail overlay close
-  _container.querySelector('#mm-detailOverlay')?.addEventListener('click', _closeDetail)
-  _container.querySelector('#mm-detailClose')?.addEventListener('click', _closeDetail)
-
-  // Member modal overlay / cancel
-
-
-  // Filters (sidebar checkboxes)
-  _container.querySelectorAll<HTMLButtonElement>('[data-filter-group]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const group = btn.dataset['filterGroup']!
-      const val = btn.dataset['filterVal']!
-      const cb = btn.querySelector('.mm-filter-cb')!
-      const isOn = cb.classList.toggle('checked')
-      if (group === 'status') {
-        isOn ? _state!.statusFilters.add(val) : _state!.statusFilters.delete(val)
-      } else if (group === 'gender') {
-        isOn ? _state!.genderFilters.add(val) : _state!.genderFilters.delete(val)
-      }
-      _updateFilterCount()
-      _state!.page = 1
-      _renderMembers()
-    })
-  })
-
-  // Filter clear buttons
-  _container.querySelectorAll<HTMLButtonElement>('[data-filter-clear]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const group = btn.dataset['filterClear']!
-      if (group === 'status') {
-        _state!.statusFilters.clear()
-        _container!.querySelectorAll('[data-filter-group="status"] .mm-filter-cb').forEach(cb => cb.classList.remove('checked'))
-      } else if (group === 'gender') {
-        _state!.genderFilters.clear()
-        _container!.querySelectorAll('[data-filter-group="gender"] .mm-filter-cb').forEach(cb => cb.classList.remove('checked'))
-      }
-      _updateFilterCount()
-      _state!.page = 1
-      _renderMembers()
-    })
-  })
-
-  // Clear search
-  _container.querySelector('#mm-clearSearch')?.addEventListener('click', () => {
-    _state!.search = ''
-    const inp = _container!.querySelector<HTMLInputElement>('#mm-memberSearch')
-    if (inp) inp.value = ''
-    _state!.page = 1
-    _renderMembers()
-  })
-
-  // Bulk bar actions
-  _container.querySelector('#mm-bulkChangeStatus')?.addEventListener('click', _bulkChangeStatus)
-  _container.querySelector('#mm-bulkExport')?.addEventListener('click', _bulkExport)
-  _container.querySelector('#mm-bulkRemove')?.addEventListener('click', _bulkRemove)
-  _container.querySelector('#mm-bulkClose')?.addEventListener('click', _clearSelection)
-  _container.querySelector('#mm-bulkSendSMS')?.addEventListener('click', () => {
-    Toast.info(`SMS queued for ${_state!.selectedIds.size} member(s).`)
-    _clearSelection()
-  })
-
-  // Select-all (table)
-  _container.querySelector('#mm-selectAllCheck')?.addEventListener('click', () => {
-    const el = _container!.querySelector<HTMLElement>('#mm-selectAllCheck')!
-    const isAll = el.classList.toggle('checked')
-    const cur = _state!.filtered.slice((_state!.page - 1) * PAGE_SIZE, _state!.page * PAGE_SIZE)
-    cur.forEach(m => { isAll ? _state!.selectedIds.add(m.id) : _state!.selectedIds.delete(m.id) })
-    _updateBulkBar()
-    _renderMembers()
-  })
-
-  // Attendance page buttons
-  _container.querySelector('#mm-newSessionBtn')?.addEventListener('click', _openAttSessionModal)
-  _container.querySelector('#mm-markAttBtn')?.addEventListener('click', () => Toast.info('Select a session below to begin marking attendance.'))
-  _container.querySelector('#mm-attSessionModalOverlay')?.addEventListener('click', _closeAttSessionModal)
-  _container.querySelector('#mm-closeAttSessionModal')?.addEventListener('click', _closeAttSessionModal)
-  _container.querySelector('#mm-saveAttSessionBtn')?.addEventListener('click', _saveAttSession)
-  _container.querySelector('#mm-saveAttendanceBtn')?.addEventListener('click', _saveAttendance)
-  _container.querySelector('#mm-closeAttTableBtn')?.addEventListener('click', _closeAttTable)
-
-  // Groups page
-  _container.querySelector('#mm-newGroupBtn')?.addEventListener('click', () => _openGroupModal(null))
-  _container.querySelector('#mm-groupModalOverlay')?.addEventListener('click', _closeGroupModal)
-  _container.querySelector('#mm-closeGroupModal')?.addEventListener('click', _closeGroupModal)
-  _container.querySelector('#mm-groupModalCancel')?.addEventListener('click', _closeGroupModal)
-  _container.querySelector('#mm-saveGroupBtn')?.addEventListener('click', _saveGroup)
-
-  // Pastoral care
-  _container.querySelector('#mm-addFlagBtn')?.addEventListener('click', _openFlagModal)
-  _container.querySelector('#mm-flagModalOverlay')?.addEventListener('click', _closeFlagModal)
-  _container.querySelector('#mm-closeFlagModal')?.addEventListener('click', _closeFlagModal)
-  _container.querySelector('#mm-flagModalCancel')?.addEventListener('click', _closeFlagModal)
-  _container.querySelector('#mm-saveFlagBtn')?.addEventListener('click', _saveFlag)
-
-  // Reports
-  _container.querySelector('#mm-exportReportBtn')?.addEventListener('click', () => {
-    Toast.info('Generating PDF report…')
-  })
-  _container.querySelector<HTMLSelectElement>('#mm-reportPeriodSelect')?.addEventListener('change', e => {
-    Toast.info(`Loading report for ${(e.target as HTMLSelectElement).value}…`)
-  })
-  _container.querySelectorAll<HTMLElement>('.mm-report-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const name = card.querySelector('.mm-report-name')?.textContent ?? 'Report'
-      Toast.info(`Generating ${name}…`)
-    })
-  })
-
-  // Navigate to member profile full page
-  _container.querySelector('#mm-viewFullProfile')?.addEventListener('click', () => {
-    if (_state?.detailMember) navigate(`/members/${_state.detailMember.id}`)
-  })
-
-  // Mobile filter dropdown
-  _bindMobileFilterDropdown()
-}
-
-/** Rebind events that are part of dynamically rendered rows/cards */
-function _bindRowEvents(): void {
-  if (!_container) return
-
-  // Card clicks — toggle select or open detail
-  _container.querySelectorAll<HTMLElement>('.mm-member-card').forEach(card => {
-    card.addEventListener('click', e => {
-      const viewBtn = (e.target as Element).closest('[data-view-id]')
-      if (viewBtn) {
-        const id = (viewBtn as HTMLElement).dataset['viewId']!
-        const m = _state!.members.find(x => x.id === id)
-        if (m) _openDetail(m)
-        return
-      }
-      // Clicking anywhere else on card toggles selection
-      const id = card.dataset['memberId']!
-      const sel = _state!.selectedIds
-      const checkEl = card.querySelector('.mm-card-check')
-      if (sel.has(id)) { 
-        sel.delete(id)
-        card.classList.remove('selected')
-        if (checkEl) checkEl.classList.remove('checked')
-      } else { 
-        sel.add(id)
-        card.classList.add('selected')
-        if (checkEl) checkEl.classList.add('checked')
-      }
-      _updateBulkBar()
-    })
-  })
-
-  // Table: view, edit, deactivate buttons
-  _container.querySelectorAll<HTMLElement>('[data-view-id]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation()
-      btn.closest('details')?.removeAttribute('open')
-      const id = btn.dataset['viewId']!
-      const m = _state!.members.find(x => x.id === id)
-      if (m) _openDetail(m)
-    })
-  })
-
-  _container.querySelectorAll<HTMLElement>('[data-edit-id]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation()
-      btn.closest('details')?.removeAttribute('open')
-      _openMemberModal(btn.dataset['editId']!)
-    })
-  })
-
-  _container.querySelectorAll<HTMLElement>('[data-deactivate-id]').forEach(btn => {
-    btn.addEventListener('click', async e => {
-      e.stopPropagation()
-      btn.closest('details')?.removeAttribute('open')
-      const id = btn.dataset['deactivateId']!
-      const m = _state!.members.find(x => x.id === id)
-      if (!m) return
-      if (!confirm(`Deactivate ${formatName(m.first_name, m.last_name, m.title)}?`)) return
-      try {
-        await deactivateMember(id)
-        Toast.success(`${formatName(m.first_name, m.last_name, m.title)} deactivated.`)
-        await _loadMembers()
-        _renderMembers()
-        await _renderStats()
-      } catch (err) {
-        Toast.fromError(err)
-      }
-    })
-  })
-
-  // Row checkbox (table)
-  _container.querySelectorAll<HTMLElement>('[data-row-check]').forEach(cb => {
-    cb.addEventListener('click', e => {
-      e.stopPropagation()
-      const id = cb.dataset['rowCheck']!
-      cb.classList.toggle('checked')
-      if (_state!.selectedIds.has(id)) _state!.selectedIds.delete(id)
-      else _state!.selectedIds.add(id)
-      _updateBulkBar()
-    })
-  })
-}
-
-// ── View toggle ───────────────────────────────────────────────────────────────
-
-function _setView(v: 'grid' | 'list'): void {
-  if (!_state || !_container) return
-  _state.view = v
-  _container.querySelector('#mm-gridViewBtn')?.classList.toggle('active', v === 'grid')
-  _container.querySelector('#mm-listViewBtn')?.classList.toggle('active', v === 'list')
-  _renderMembers()
-}
-
-// ── Filter count badge ────────────────────────────────────────────────────────
-
-function _updateFilterCount(): void {
-  if (!_state || !_container) return
-  const count = _state.statusFilters.size + _state.genderFilters.size
-  const pill = _container.querySelector('#mm-filterCount')
-  if (pill) {
-    pill.textContent = String(count)
-    pill.classList.toggle('show', count > 0)
+  // Tab bar
+  if (_container) {
+    bindMembershipTabEvents(_container)
   }
-}
 
-// ── Export ────────────────────────────────────────────────────────────────────
+  // Mobile search toggle
+  const mobBtn = document.getElementById('ml-mob-search-btn')
+  const toolbar = _container?.querySelector<HTMLElement>('.ml-toolbar')
+  _on(mobBtn as HTMLElement, 'click', () => {
+    if (!toolbar) return
+    const isOpen = toolbar.classList.toggle('search-open')
+    if (isOpen) {
+      const inp = toolbar.querySelector<HTMLElement>('.ml-search-wrap')
+      if (inp) inp.style.display = 'flex'
+      ;(toolbar.querySelector('#ml-search-inp') as HTMLInputElement | null)?.focus()
+    } else {
+      _clearSearch()
+    }
+  })
 
-async function _doExportCsv(): Promise<void> {
-  Toast.info('Generating CSV export…')
-  try {
-    const csv = await exportMembersCsv()
-    downloadCsv(csv, 'caci_members.csv')
-    Toast.success('CSV exported successfully.')
-  } catch {
-    // Fall back to client-side CSV from current data
-    const headers = ['Membership #', 'First Name', 'Last Name', 'Status', 'Gender', 'Phone', 'Email', 'Occupation', 'Joined']
-    const rows = (_state?.filtered ?? []).map(m => [
-      m.membership_number ?? '', m.first_name, m.last_name,
-      m.membership_status, m.gender, m.primary_phone ?? '', m.email ?? '',
-      m.occupation ?? '', fmtDate(m.join_date),
-    ])
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = 'caci_members.csv'
-    a.click()
-    URL.revokeObjectURL(a.href)
-    Toast.success('CSV exported successfully.')
+  // Escape key closes mobile search
+  const _onKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && toolbar?.classList.contains('search-open')) {
+      toolbar.classList.remove('search-open')
+      _clearSearch()
+    }
   }
-}
-
-// ── Initial state ─────────────────────────────────────────────────────────────
-
-function _buildInitialState(): State {
-  return {
-    members: [], filtered: [], loading: false,
-    view: 'grid', search: '', sortMode: 'joined-desc',
-    activeTab: _getInitialTabFromHash(), sidebarFilter: 'all',
-    selectedIds: new Set(),
-    page: 1,
-    statusFilters: new Set(),
-    genderFilters: new Set(),
-    // Attendance
-    attSessions: [
-      { id: 's1', name: 'Sunday Service', type: 'Sunday Service', date: 'May 4, 2025', time: '09:00', present: 284, absent: 28, excused: 12 },
-      { id: 's2', name: 'Mid-week Prayer', type: 'Prayer Meeting', date: 'Apr 30, 2025', time: '18:30', present: 142, absent: 170, excused: 6 },
-      { id: 's3', name: 'Sunday Service', type: 'Sunday Service', date: 'Apr 27, 2025', time: '09:00', present: 271, absent: 41, excused: 8 },
-      { id: 's4', name: 'Youth Service', type: 'Youth Service', date: 'Apr 26, 2025', time: '15:00', present: 68, absent: 12, excused: 4 },
-      { id: 's5', name: 'Sunday Service', type: 'Sunday Service', date: 'Apr 20, 2025', time: '09:00', present: 268, absent: 44, excused: 10 },
-    ],
-    currentAttId: null,
-    memberAtt: {},
-    // Groups
-    groups: [
-      { id: 'g1', name: 'Worship Team', type: 'Department', leader: 'Ama Osei', members: 24, day: 'Sunday', desc: 'Leads congregational worship.' },
-      { id: 'g2', name: 'Ushers', type: 'Department', leader: 'Nana Adjei', members: 18, day: 'Sunday', desc: 'Manages seating and reception.' },
-      { id: 'g3', name: "Men's Fellowship", type: 'Fellowship', leader: 'Kwame Mensah', members: 98, day: 'Saturday', desc: "Monthly fellowship for men." },
-      { id: 'g4', name: "Women's Fellowship", type: 'Fellowship', leader: 'Ama Osei', members: 112, day: 'Saturday', desc: "Monthly fellowship for women." },
-      { id: 'g5', name: 'Youth Ministry', type: 'Ministry', leader: 'Efua Mensah', members: 72, day: 'Saturday', desc: "Weekly youth meetings." },
-      { id: 'g6', name: "Children's Ministry", type: 'Ministry', leader: 'Grace Amponsah', members: 55, day: 'Sunday', desc: "Sunday school and holiday programs." },
-      { id: 'g7', name: 'Admin Committee', type: 'Committee', leader: 'Grace Amponsah', members: 8, day: 'Wednesday', desc: "Records and administrative coordination." },
-      { id: 'g8', name: 'Couples Fellowship', type: 'Fellowship', leader: 'Kwame Mensah', members: 34, day: '', desc: "Monthly meetings for married couples." },
-      { id: 'g9', name: 'Assakae Cell', type: 'Cell Group', leader: 'Kwabena Boateng', members: 22, day: 'Tuesday', desc: "Midweek cell group." },
-      { id: 'g10', name: 'Finance Committee', type: 'Committee', leader: 'Nana Adjei', members: 6, day: 'Monday', desc: "Oversees budgets and reporting." },
-      { id: 'g11', name: 'Evangelism Team', type: 'Ministry', leader: 'Emmanuel Asante', members: 15, day: '', desc: "Outreach and community engagement." },
-    ],
-    // Pastoral
-    pcFlags: [
-      { id: 'f1', member: 'Kofi Acheampong', type: 'absent', reason: 'Absent 5+ weeks', date: 'May 3, 2025', assignTo: 'Elder Mensah', priority: 'high', resolved: false },
-      { id: 'f2', member: 'Akosua Frimpong', type: 'followup', reason: 'Prospect — needs follow-up to convert to active', date: 'Apr 29, 2025', assignTo: 'Deaconess Ama Osei', priority: 'normal', resolved: false },
-      { id: 'f3', member: 'Samuel Adusei', type: 'first-timer', reason: 'Visited twice, no commitment yet', date: 'Apr 28, 2025', assignTo: 'Unassigned', priority: 'normal', resolved: false },
-      { id: 'f4', member: 'Yaa Asantewaa', type: 'life-event', reason: 'Bereavement — lost mother last week', date: 'May 1, 2025', assignTo: 'Pastor', priority: 'urgent', resolved: false },
-      { id: 'f5', member: 'Emmanuel Asante', type: 'followup', reason: 'Moved job, may relocate assembly', date: 'Apr 15, 2025', assignTo: 'Deacon Nana', priority: 'normal', resolved: false },
-    ],
-    pcFirstTimers: [
-      { name: 'Kweku Ankamah', date: 'May 4, 2025', phone: '+233 24 555 6666', followedUp: true },
-      { name: 'Adwoa Boakye', date: 'May 4, 2025', phone: '+233 20 777 8888', followedUp: false },
-      { name: 'Fiifi Mensah', date: 'Apr 27, 2025', phone: '+233 27 999 0000', followedUp: true },
-      { name: 'Nana Brew', date: 'Apr 27, 2025', phone: '+233 24 111 2222', followedUp: false },
-    ],
-    pcLifeEvents: [
-      { name: 'Yaa Asantewaa', event: 'Bereavement (Mother)', date: 'Apr 30, 2025', type: 'Bereavement' },
-      { name: 'Kwabena Boateng', event: 'New Baby (Boy)', date: 'Apr 22, 2025', type: 'Birth' },
-      { name: 'Grace Amponsah', event: 'Promotion at work', date: 'May 2, 2025', type: 'Milestone' },
-    ],
-    detailMember: null,
-    editingId: null,
-  }
-}
-
-function _getInitialTabFromHash(): string {
-  const hash = location.hash.slice(1)
-  // Disabled tabs — always fall back to members-list
-  if (hash.startsWith('/attendance') || hash.startsWith('/groups') || hash.startsWith('/pastoral-care') || hash.startsWith('/reports'))
-    return 'members-list'
-  return 'members-list'
-}
-
-// Shows a coming-soon inline toast for disabled membership tabs
-function _showComingSoonTab(tabName: string): void {
-  const labels: Record<string, string> = {
-    attendance: 'Attendance',
-    groups: 'Groups & Units',
-    pastoral: 'Pastoral Care',
-    reports: 'Reports',
-  }
-  const section = labels[tabName] ?? tabName
-
-  const existing = document.getElementById('mm-coming-soon-toast')
-  if (existing) existing.remove()
-
-  const toast = document.createElement('div')
-  toast.id = 'mm-coming-soon-toast'
-  toast.style.cssText = `
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    z-index: 10000; display: flex; align-items: flex-start; gap: 12px;
-    background: var(--bg-card); border: 1px solid var(--border-default);
-    border-radius: 12px; padding: 14px 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-    max-width: 340px; width: calc(100% - 32px);
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: var(--font-sans);
-  `
-  toast.innerHTML = `
-    <div style="
-      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
-      background: var(--caci-blue-bg); display: flex; align-items: center;
-      justify-content: center; font-size: var(--text-xl); color: var(--caci-blue);
-    "><i class="bi bi-hammer"></i></div>
-    <div style="flex: 1; min-width: 0;">
-      <div style="font-size: var(--text-base); font-weight: 600; color: var(--text-primary); margin-bottom: 3px;">
-        Coming Soon
-      </div>
-      <div style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5;">
-        <strong style="color:var(--text-primary)">${section}</strong> is currently being built and will be released soon. Stay tuned!
-      </div>
-    </div>
-    <button id="mm-cs-close" style="
-      background: none; border: none; cursor: pointer; padding: 2px;
-      color: var(--text-secondary); font-size: var(--text-base); flex-shrink: 0;
-    "><i class="bi bi-x-lg"></i></button>
-  `
-
-  document.body.appendChild(toast)
-  toast.querySelector('#mm-cs-close')?.addEventListener('click', () => toast.remove())
-  setTimeout(() => toast?.remove(), 5000)
-}
-
-// ── CSS injection ─────────────────────────────────────────────────────────────
-
-function _injectCSS(): void {
-  injectMembershipCSS()
-}
-
-// ── HTML template ─────────────────────────────────────────────────────────────
-
-function _buildHTML(): string {
-  return `
-<div class="mm-root">
-
-<!-- ═══ SUB-NAV TABS ═══ -->
-<div class="mm-subnav">
-  <button class="mm-tab ${_state!.activeTab === 'members-list' ? 'active' : ''}" data-tab="members-list">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    All Members <span class="mm-badge" id="mm-subnav-count">0</span>
-  </button>
-  <button class="mm-tab" data-tab="attendance" style="opacity:0.55;" title="Coming soon">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
-    Attendance <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
-  </button>
-  <button class="mm-tab" data-tab="groups" style="opacity:0.55;" title="Coming soon">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    Groups &amp; Units <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
-  </button>
-  <button class="mm-tab" data-tab="pastoral" style="opacity:0.55;" title="Coming soon">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    Pastoral Care <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
-  </button>
-  <button class="mm-tab" data-tab="reports" style="opacity:0.55;" title="Coming soon">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Reports <span style="font-size:9px;background:var(--caci-blue-bg);color:var(--caci-blue);border-radius:6px;padding:1px 5px;font-weight:700;vertical-align:middle;">SOON</span>
-  </button>
-</div>
-
-<!-- ═══ WEB LAYOUT ═══ -->
-<div class="mm-layout">
-
-<!-- ─── SIDEBAR ─── -->
-<aside>
-
-  <!-- Quick Access -->
-  <div class="mm-sidebar-card mm-mobile-hide">
-    <div class="mm-sidebar-title">Quick Access</div>
-    <button class="mm-sidebar-item ${_state!.activeTab === 'members-list' ? 'active' : ''}" data-sidebar-tab="members-list">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><path d="M10.5 14v-1.5a2.5 2.5 0 0 0-2.5-2.5H4A2.5 2.5 0 0 0 1.5 12.5V14"/><circle cx="6" cy="5" r="2.5"/><path d="M13.5 14v-1a2 2 0 0 0-2-2"/><path d="M10.5 3a2 2 0 0 1 0 4"/></svg>
-        All Members
-      </div>
-      <span class="mm-count" id="mm-nav-count-all">0</span>
-    </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="members-list" data-sidebar-filter="active">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><polyline points="8,5 8,8 10,10"/></svg>
-        Active Members
-      </div>
-      <span class="mm-count" id="mm-nav-count-active">0</span>
-    </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="members-list" data-sidebar-filter="visitor">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><path d="M8 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2 14c0-2.2 2.7-4 6-4s6 1.8 6 4"/></svg>
-        Visitors
-      </div>
-      <span class="mm-count" id="mm-nav-count-visitor">0</span>
-    </button>
-    <button class="mm-sidebar-item" data-sidebar-tab="members-list" data-sidebar-filter="recent">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-        New This Month
-      </div>
-      <span class="mm-count" id="mm-nav-count-new">0</span>
-    </button>
-    <button class="mm-sidebar-item ${_state!.activeTab === 'attendance' ? 'active' : ''}" data-sidebar-tab="attendance">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1"/><line x1="5" y1="1" x2="5" y2="4"/><line x1="11" y1="1" x2="11" y2="4"/><line x1="2" y1="7" x2="14" y2="7"/><polyline points="5,10 7,12 11,9"/></svg>
-        Attendance
-      </div>
-    </button>
-    <button class="mm-sidebar-item ${_state!.activeTab === 'groups' ? 'active' : ''}" data-sidebar-tab="groups">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><circle cx="12" cy="3.5" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="12.5" r="2"/><line x1="5.5" y1="8.8" x2="10.5" y2="11.2"/><line x1="10.5" y1="4.8" x2="5.5" y2="7.2"/></svg>
-        Groups &amp; Units
-      </div>
-    </button>
-    <button class="mm-sidebar-item ${_state!.activeTab === 'pastoral' ? 'active' : ''}" data-sidebar-tab="pastoral">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><path d="M13.9 3a3.7 3.7 0 0 0-5.2 0L8 3.7l-.7-.7a3.7 3.7 0 0 0-5.2 5.2l.7.7L8 14.2l5.2-5.3.7-.7a3.7 3.7 0 0 0 0-5.2z"/></svg>
-        Pastoral Care
-      </div>
-      <span class="mm-count alert">7</span>
-    </button>
-    <button class="mm-sidebar-item ${_state!.activeTab === 'reports' ? 'active' : ''}" data-sidebar-tab="reports">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><path d="M2 14h12M4 14v-3M8 14V8M12 14V4"/></svg>
-        Reports
-      </div>
-    </button>
-    <button class="mm-sidebar-item" id="mm-exportCsvSidebar">
-      <div class="mm-sidebar-item-left">
-        <svg viewBox="0 0 16 16"><path d="M13 10v3H3v-3"/><path d="M8 2v8"/><path d="M5 7l3 3 3-3"/></svg>
-        Export CSV
-      </div>
-    </button>
-  </div>
-
-  <!-- Filters (desktop sidebar — hidden on mobile, replaced by toolbar dropdown) -->
-  <div class="mm-sidebar-card" id="mm-filterPanel">
-    <div class="mm-sidebar-title" style="display:flex;align-items:center;justify-content:space-between;">
-      Filters
-      <span class="mm-filter-pill" id="mm-filterCount">0</span>
-    </div>
-
-    <div class="mm-filter-group">
-      <div class="mm-filter-group-label">Status
-        <button class="mm-filter-clear" data-filter-clear="status">Clear</button>
-      </div>
-      <button class="mm-filter-option" data-filter-group="status" data-filter-val="active">
-        <div class="mm-filter-cb ${_state!.statusFilters.has('active') ? 'checked' : ''}"></div> Active <span class="mm-filter-option-count">—</span>
-      </button>
-      <button class="mm-filter-option" data-filter-group="status" data-filter-val="inactive">
-        <div class="mm-filter-cb ${_state!.statusFilters.has('inactive') ? 'checked' : ''}"></div> Inactive <span class="mm-filter-option-count">—</span>
-      </button>
-      <button class="mm-filter-option" data-filter-group="status" data-filter-val="visitor">
-        <div class="mm-filter-cb ${_state!.statusFilters.has('visitor') ? 'checked' : ''}"></div> Visitor <span class="mm-filter-option-count">—</span>
-      </button>
-      <button class="mm-filter-option" data-filter-group="status" data-filter-val="prospect">
-        <div class="mm-filter-cb ${_state!.statusFilters.has('prospect') ? 'checked' : ''}"></div> Prospect <span class="mm-filter-option-count">—</span>
-      </button>
-    </div>
-
-    <div class="mm-filter-divider"></div>
-
-    <div class="mm-filter-group">
-      <div class="mm-filter-group-label">Gender
-        <button class="mm-filter-clear" data-filter-clear="gender">Clear</button>
-      </div>
-      <button class="mm-filter-option" data-filter-group="gender" data-filter-val="male">
-        <div class="mm-filter-cb ${_state!.genderFilters.has('male') ? 'checked' : ''}"></div> Male <span class="mm-filter-option-count">—</span>
-      </button>
-      <button class="mm-filter-option" data-filter-group="gender" data-filter-val="female">
-        <div class="mm-filter-cb ${_state!.genderFilters.has('female') ? 'checked' : ''}"></div> Female <span class="mm-filter-option-count">—</span>
-      </button>
-    </div>
-
-    <div class="mm-filter-divider"></div>
-
-    <div class="mm-filter-group">
-      <div class="mm-filter-group-label">Joined</div>
-      <select class="mm-filter-select" id="mm-joinedFilter">
-        <option value="all" ${_state!.sidebarFilter === 'all' ? 'selected' : ''}>All Time</option>
-        <option value="month">This Month</option>
-        <option value="quarter">Last 3 Months</option>
-        <option value="year">This Year</option>
-        <option value="last-year">Last Year</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Quick Stats -->
-  <div class="mm-sidebar-card mm-mobile-hide">
-    <div class="mm-sidebar-title">Quick Stats</div>
-    <div class="mm-qs-item"><span class="mm-qs-label">Active</span><span class="mm-qs-val" id="mm-qs-active">—</span></div>
-    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" id="mm-qs-active-bar" style="width:0;background:var(--mm-blue);"></div></div>
-    <div class="mm-qs-item"><span class="mm-qs-label">Visitor</span><span class="mm-qs-val" id="mm-qs-visitor">—</span></div>
-    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" id="mm-qs-visitor-bar" style="width:0;background:#0969da;"></div></div>
-    <div class="mm-qs-item"><span class="mm-qs-label">Inactive</span><span class="mm-qs-val" id="mm-qs-inactive">—</span></div>
-    <div class="mm-stat-bar" style="margin-bottom:8px;"><div class="mm-stat-fill" id="mm-qs-inactive-bar" style="width:0;background:var(--mm-text-muted);"></div></div>
-    <div class="mm-qs-item"><span class="mm-qs-label">Prospect</span><span class="mm-qs-val" id="mm-qs-prospect">—</span></div>
-    <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-qs-prospect-bar" style="width:0;background:var(--mm-gold);"></div></div>
-  </div>
-
-</aside>
-
-<!-- ─── MAIN ─── -->
-<main class="mm-main">
-
-<!-- ░░░ MEMBERS LIST PAGE ░░░ -->
-<div class="mm-section ${_state!.activeTab === 'members-list' ? 'active' : ''}" id="mm-section-members-list">
-
-  <!-- Stats Row -->
-  <div class="mm-stats-row">
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Total Members</div>
-      <div class="mm-stat-value" id="mm-stat-total">—</div>
-      <div class="mm-stat-sub" id="mm-stat-total-pct">Loading…</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-total-bar" style="width:0;background:var(--mm-blue);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Active</div>
-      <div class="mm-stat-value" id="mm-stat-active">—</div>
-      <div class="mm-stat-sub">Active members</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-active-bar" style="width:0;background:var(--mm-blue);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Visitors</div>
-      <div class="mm-stat-value" id="mm-stat-visitors">—</div>
-      <div class="mm-stat-sub">Total visitors</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-visitors-bar" style="width:0;background:var(--mm-red);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">New This Month</div>
-      <div class="mm-stat-value" id="mm-stat-new">—</div>
-      <div class="mm-stat-sub">Last 30 days</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" id="mm-stat-new-bar" style="width:0;background:var(--mm-gold);"></div></div>
-    </div>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="mm-toolbar">
-    <div class="mm-search-wrap">
-      <svg class="mm-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input class="mm-search-input" type="search" id="mm-memberSearch" name="caci-no-fill-search" autocomplete="new-password" spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" placeholder="Search by name, ID, phone, or occupation…">
-    </div>
-    <div class="mm-toolbar-sep"></div>
-    <select class="mm-sort-select" id="mm-sortSelect">
-      <option value="joined-desc">Joined (Newest)</option>
-      <option value="name-asc">Name A–Z</option>
-      <option value="name-desc">Name Z–A</option>
-      <option value="joined-asc">Joined (Oldest)</option>
-      <option value="status">Status</option>
-    </select>
-
-    <!-- Mobile-only filter dropdown -->
-    <div class="mm-fdd-wrap" id="mm-fddWrap">
-      <button class="mm-fdd-trigger" id="mm-fddTrigger" aria-haspopup="true" aria-expanded="false">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        Filters
-        <span class="mm-fdd-pill" id="mm-fddPill" style="display:none">0</span>
-      </button>
-
-      <div class="mm-fdd-panel" id="mm-fddPanel" role="dialog" aria-label="Filter options">
-        <div class="mm-fdd-hdr">
-          <span class="mm-fdd-hdr-title">Filter members</span>
-          <button class="mm-fdd-clear-all" id="mm-fddClearAll">Clear all</button>
-        </div>
-        <div class="mm-fdd-body">
-
-          <!-- Status accordion -->
-          <div class="mm-fdd-section">
-            <div class="mm-fdd-acc-hdr mm-fdd-acc-open" data-fdd-sec="status" tabindex="0" role="button" aria-expanded="true">
-              <div class="mm-fdd-acc-left">
-                <span class="mm-fdd-acc-label">Status</span>
-                <span class="mm-fdd-acc-badge" id="mm-fddB-status" style="display:none"></span>
-              </div>
-              <svg class="mm-fdd-chev mm-fdd-chev-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <div class="mm-fdd-items mm-fdd-items-open" id="mm-fddI-status">
-              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="active">
-                <div class="mm-fdd-cb ${_state!.statusFilters.has('active') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
-                <span class="mm-fdd-lbl">Active</span>
-              </div>
-              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="visitor">
-                <div class="mm-fdd-cb ${_state!.statusFilters.has('visitor') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
-                <span class="mm-fdd-lbl">Visitor</span>
-              </div>
-              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="prospect">
-                <div class="mm-fdd-cb ${_state!.statusFilters.has('prospect') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
-                <span class="mm-fdd-lbl">Prospect</span>
-              </div>
-              <div class="mm-fdd-row" data-fdd-g="status" data-fdd-v="inactive">
-                <div class="mm-fdd-cb ${_state!.statusFilters.has('inactive') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
-                <span class="mm-fdd-lbl mm-fdd-lbl-dim">Inactive</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Gender accordion -->
-          <div class="mm-fdd-section">
-            <div class="mm-fdd-acc-hdr" data-fdd-sec="gender" tabindex="0" role="button" aria-expanded="false">
-              <div class="mm-fdd-acc-left">
-                <span class="mm-fdd-acc-label">Gender</span>
-                <span class="mm-fdd-acc-badge" id="mm-fddB-gender" style="display:none"></span>
-              </div>
-              <svg class="mm-fdd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <div class="mm-fdd-items" id="mm-fddI-gender">
-              <div class="mm-fdd-row" data-fdd-g="gender" data-fdd-v="male">
-                <div class="mm-fdd-cb ${_state!.genderFilters.has('male') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
-                <span class="mm-fdd-lbl">Male</span>
-              </div>
-              <div class="mm-fdd-row" data-fdd-g="gender" data-fdd-v="female">
-                <div class="mm-fdd-cb ${_state!.genderFilters.has('female') ? 'mm-fdd-on' : ''}"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5 5 4 8 8.5 2"/></svg></div>
-                <span class="mm-fdd-lbl">Female</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <div class="mm-fdd-footer">
-          <span class="mm-fdd-hint" id="mm-fddHint"></span>
-          <button class="mm-fdd-apply" id="mm-fddApply">Apply</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="mm-view-toggle">
-      <button class="mm-view-btn active" id="mm-gridViewBtn" title="Grid view">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-      </button>
-      <button class="mm-view-btn" id="mm-listViewBtn" title="List view">
-        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-      </button>
-    </div>
-    <button class="mm-btn-outline" id="mm-exportBtn">
-      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Export
-    </button>
-    ${can(getCurrentUser()!, 'members.import') ? '<button class="mm-btn-outline" id="mm-bulkImportBtn" style="gap:6px;display:flex;align-items:center;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Bulk Import</button>' : ''}
-    <button class="mm-btn-primary" id="mm-addMemberBtn">
-      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Member
-    </button>
-  </div>
-
-  <!-- Bulk bar -->
-  <div class="mm-bulk-bar" id="mm-bulkBar">
-    <div class="mm-bulk-bar-left">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span id="mm-bulkCount">0</span> members selected
-    </div>
-    <div class="mm-bulk-actions">
-      <button class="mm-bulk-btn" id="mm-bulkChangeStatus">Change Status</button>
-      <button class="mm-bulk-btn" id="mm-bulkSendSMS">Send SMS</button>
-      <button class="mm-bulk-btn" id="mm-bulkExport">Export Selected</button>
-      <button class="mm-bulk-btn danger" id="mm-bulkRemove">Deactivate</button>
-      <button class="mm-bulk-close" id="mm-bulkClose">
-        <svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Results info -->
-  <div class="mm-results-info">
-    <div class="mm-results-count">Showing <strong id="mm-visibleCount">0</strong> members</div>
-    <div style="font-size: var(--text-sm);color:var(--mm-text-muted);" id="mm-pageInfo">Page 1 of 1</div>
-  </div>
-
-  <!-- Grid View -->
-  <div id="mm-gridView" class="mm-member-grid"></div>
-
-  <!-- List View -->
-  <div id="mm-listView" class="mm-table-wrap" style="display:none;">
-    <table class="mm-table">
-      <thead>
-        <tr>
-          <th class="mm-col-check">
-            <div class="mm-table-cb" id="mm-selectAllCheck"></div>
-          </th>
-          <th>Name</th>
-          <th class="mm-col-id">Member ID</th>
-          <th class="mm-col-status">Status</th>
-          <th class="mm-col-occupation">Occupation</th>
-          <th class="mm-col-joined">Joined <i class="mm-sort-icon sorted">↓</i></th>
-          <th class="mm-col-actions"></th>
-        </tr>
-      </thead>
-      <tbody id="mm-tableBody"></tbody>
-    </table>
-  </div>
-
-  <!-- Empty state -->
-  <div class="mm-empty" id="mm-emptyState">
-    <div class="mm-empty-icon">
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    </div>
-    <div class="mm-empty-title">No members found</div>
-    <div class="mm-empty-sub">Try adjusting your search term or filters.</div>
-    <button class="mm-btn-outline" id="mm-clearSearch">Clear Search</button>
-  </div>
-
-  <!-- Pagination -->
-  <div class="mm-pagination">
-    <div class="mm-page-info" id="mm-paginationInfo">Showing 0 results</div>
-    <div class="mm-page-btns" id="mm-pageBtns"></div>
-  </div>
-
-</div>
-<!-- END MEMBERS LIST PAGE -->
-
-
-<!-- ░░░ ATTENDANCE PAGE ░░░ -->
-<div class="mm-section ${_state!.activeTab === 'attendance' ? 'active' : ''}" id="mm-section-attendance">
-  <div class="mm-att-page-header">
-    <div>
-      <div class="mm-att-page-title">Attendance</div>
-      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Track member attendance per service or event</div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button class="mm-btn-outline" id="mm-newSessionBtn">
-        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        New Session
-      </button>
-      <button class="mm-btn-primary" id="mm-markAttBtn">
-        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Mark Attendance
-      </button>
-    </div>
-  </div>
-
-  <div class="mm-stats-row">
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Last Sunday</div><div class="mm-stat-value">284</div>
-      <div class="mm-stat-sub">81.8% attendance</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:82%;background:var(--mm-blue);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Avg (This Month)</div><div class="mm-stat-value">271</div>
-      <div class="mm-stat-sub">78.1% of active</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:78%;background:var(--mm-blue);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Absent 3+ Weeks</div><div class="mm-stat-value">18</div>
-      <div class="mm-stat-sub">needs follow-up</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:22%;background:var(--mm-red);"></div></div>
-    </div>
-    <div class="mm-stat-card">
-      <div class="mm-stat-label">Sessions (May)</div><div class="mm-stat-value">5</div>
-      <div class="mm-stat-sub">4 Sunday, 1 mid-week</div>
-      <div class="mm-stat-bar"><div class="mm-stat-fill" style="width:60%;background:var(--mm-gold);"></div></div>
-    </div>
-  </div>
-
-  <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;">Recent Sessions</div>
-  <div class="mm-att-sessions-grid" id="mm-attSessionsGrid"></div>
-
-  <div id="mm-attTableWrap" style="display:none;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div>
-        <div style="font-size: var(--text-base);font-weight:600;" id="mm-attSessionLabel">—</div>
-        <div style="font-size: var(--text-sm);color:var(--mm-text-secondary);margin-top:2px;" id="mm-attSessionMeta">—</div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="mm-btn-ghost" id="mm-closeAttTableBtn">← Back to Sessions</button>
-        <button class="mm-btn-primary" id="mm-saveAttendanceBtn">Save Attendance</button>
-      </div>
-    </div>
-    <div class="mm-table-wrap">
-      <table class="mm-att-table">
-        <thead><tr><th>Member</th><th>Role</th><th>Status</th><th>Attendance</th></tr></thead>
-        <tbody id="mm-attTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-<!-- END ATTENDANCE PAGE -->
-
-
-<!-- ░░░ GROUPS PAGE ░░░ -->
-<div class="mm-section ${_state!.activeTab === 'groups' ? 'active' : ''}" id="mm-section-groups">
-  <div class="mm-att-page-header">
-    <div>
-      <div class="mm-att-page-title">Groups &amp; Units</div>
-      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Manage departments, fellowships, and ministry units</div>
-    </div>
-    <button class="mm-btn-primary" id="mm-newGroupBtn">
-      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      New Group
-    </button>
-  </div>
-  <div class="mm-stats-row">
-    <div class="mm-stat-card"><div class="mm-stat-label">Total Groups</div><div class="mm-stat-value">11</div><div class="mm-stat-sub">Across all types</div></div>
-    <div class="mm-stat-card"><div class="mm-stat-label">Departments</div><div class="mm-stat-value">4</div><div class="mm-stat-sub">Admin, Worship, Youth, Ushers</div></div>
-    <div class="mm-stat-card"><div class="mm-stat-label">Fellowships</div><div class="mm-stat-value">5</div><div class="mm-stat-sub">Men, Women, Youth, Children, Couples</div></div>
-    <div class="mm-stat-card"><div class="mm-stat-label">Cells</div><div class="mm-stat-value">2</div><div class="mm-stat-sub">Assakae, Tema</div></div>
-  </div>
-  <div class="mm-groups-grid" id="mm-groupsGrid"></div>
-</div>
-<!-- END GROUPS PAGE -->
-
-
-<!-- ░░░ PASTORAL CARE PAGE ░░░ -->
-<div class="mm-section ${_state!.activeTab === 'pastoral' ? 'active' : ''}" id="mm-section-pastoral">
-  <div class="mm-att-page-header">
-    <div>
-      <div class="mm-att-page-title">Pastoral Care</div>
-      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Follow up flags and care assignments</div>
-    </div>
-    <button class="mm-btn-primary" id="mm-addFlagBtn">
-      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-      Add Flag
-    </button>
-  </div>
-  <div class="mm-stats-row">
-    <div class="mm-stat-card"><div class="mm-stat-label">Open Flags</div><div class="mm-stat-value">7</div><div class="mm-stat-sub">Needs attention</div><div class="mm-stat-bar"><div class="mm-stat-fill" style="width:50%;background:var(--mm-red);"></div></div></div>
-    <div class="mm-stat-card"><div class="mm-stat-label">First Timers (May)</div><div class="mm-stat-value">4</div><div class="mm-stat-sub">2 followed up</div><div class="mm-stat-bar"><div class="mm-stat-fill" style="width:30%;background:#1a7f37;"></div></div></div>
-    <div class="mm-stat-card"><div class="mm-stat-label">Long Absent</div><div class="mm-stat-value">18</div><div class="mm-stat-sub">3+ weeks absent</div><div class="mm-stat-bar"><div class="mm-stat-fill" style="width:40%;background:var(--mm-gold);"></div></div></div>
-    <div class="mm-stat-card"><div class="mm-stat-label">Life Events</div><div class="mm-stat-value">3</div><div class="mm-stat-sub">Bereavements, births</div><div class="mm-stat-bar"><div class="mm-stat-fill" style="width:20%;background:#7c3aed;"></div></div></div>
-  </div>
-  <div class="mm-pastoral-cols">
-    <div>
-      <div class="mm-pc-card">
-        <div class="mm-pc-card-title">Open Follow-up Flags</div>
-        <div id="mm-pcFlagsContainer"></div>
-      </div>
-    </div>
-    <div>
-      <div class="mm-pc-card">
-        <div class="mm-pc-card-title">First Timers — May 2025</div>
-        <div id="mm-pcFirstTimers"></div>
-      </div>
-      <div class="mm-pc-card">
-        <div class="mm-pc-card-title">Life Events</div>
-        <div id="mm-pcLifeEvents"></div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- END PASTORAL CARE PAGE -->
-
-
-<!-- ░░░ REPORTS PAGE ░░░ -->
-<div class="mm-section ${_state!.activeTab === 'reports' ? 'active' : ''}" id="mm-section-reports">
-  <div class="mm-att-page-header">
-    <div>
-      <div class="mm-att-page-title">Reports</div>
-      <div style="font-size: var(--text-base);color:var(--mm-text-secondary);margin-top:2px;">Membership analytics and downloadable reports</div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <select class="mm-sort-select" id="mm-reportPeriodSelect">
-        <option value="2025">Year 2025</option>
-        <option value="2024">Year 2024</option>
-        <option value="q1">Q1 2025</option>
-        <option value="q2">Q2 2025</option>
-      </select>
-      <button class="mm-btn-outline" id="mm-exportReportBtn">
-        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Export PDF
-      </button>
-    </div>
-  </div>
-
-  <div class="mm-reports-grid" style="grid-template-columns:1fr;">
-    <div class="mm-pc-card" style="grid-column:span 1;">
-      <div class="mm-pc-card-title">Membership Growth — Jan to May 2025</div>
-      <div id="mm-growthChart" style="margin-top:8px;"></div>
-    </div>
-  </div>
-  <div class="mm-reports-grid">
-    <div class="mm-pc-card">
-      <div class="mm-pc-card-title">Gender Breakdown</div>
-      <div id="mm-genderChart" style="margin-top:8px;"></div>
-    </div>
-    <div class="mm-pc-card">
-      <div class="mm-pc-card-title">Status Distribution</div>
-      <div id="mm-statusChart" style="margin-top:8px;"></div>
-    </div>
-    <div class="mm-pc-card">
-      <div class="mm-pc-card-title">Monthly Growth Table</div>
-      <table class="mm-growth-table" id="mm-growthTable"></table>
-    </div>
-  </div>
-
-  <div style="font-size: var(--text-base);font-weight:600;color:var(--mm-text-primary);margin-bottom:12px;margin-top:8px;">Downloadable Reports</div>
-  <div class="mm-reports-grid">
-    <div class="mm-report-card">
-      <div class="mm-report-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-      <div class="mm-report-name">Full Member Register</div>
-      <div class="mm-report-desc">All members with contact info, status, role, and joined date. Exports to CSV or PDF.</div>
-      <div class="mm-report-footer">Last generated: May 1, 2025</div>
-    </div>
-    <div class="mm-report-card">
-      <div class="mm-report-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg></div>
-      <div class="mm-report-name">Attendance Summary</div>
-      <div class="mm-report-desc">Per-session attendance with present, absent, and excused counts for any date range.</div>
-      <div class="mm-report-footer">Last generated: Apr 30, 2025</div>
-    </div>
-    <div class="mm-report-card">
-      <div class="mm-report-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>
-      <div class="mm-report-name">New Members Report</div>
-      <div class="mm-report-desc">All newly registered members within a selected period, including who registered them.</div>
-      <div class="mm-report-footer">Last generated: May 1, 2025</div>
-    </div>
-    <div class="mm-report-card">
-      <div class="mm-report-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-      <div class="mm-report-name">Long Absent Members</div>
-      <div class="mm-report-desc">Members absent for 3 or more consecutive weeks, with last seen date and contact info.</div>
-      <div class="mm-report-footer">Last generated: Apr 28, 2025</div>
-    </div>
-    <div class="mm-report-card">
-      <div class="mm-report-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-      <div class="mm-report-name">Pastoral Care Report</div>
-      <div class="mm-report-desc">Open follow-up flags, first timers, and life events requiring pastoral attention.</div>
-      <div class="mm-report-footer">Last generated: May 2, 2025</div>
-    </div>
-    <div class="mm-report-card">
-      <div class="mm-report-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-      <div class="mm-report-name">Demographics Report</div>
-      <div class="mm-report-desc">Age, gender, occupation, and district breakdown. Useful for ministry planning.</div>
-      <div class="mm-report-footer">Last generated: Apr 15, 2025</div>
-    </div>
-  </div>
-</div>
-<!-- END REPORTS PAGE -->
-
-</main>
-</div>
-<!-- END WEB LAYOUT -->
-
-
-<!-- ═══ DETAIL PANEL ═══ -->
-<div class="mm-detail-overlay" id="mm-detailOverlay"></div>
-<div class="mm-detail-panel" id="mm-detailPanel">
-  <div class="mm-detail-header">
-    <span class="mm-detail-header-title">Member Profile</span>
-    <button class="mm-detail-close" id="mm-detailClose">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="mm-detail-body" id="mm-detailBody"></div>
-</div>
-
-
-</div>
-
-
-<!-- ═══ ATTENDANCE SESSION MODAL ═══ -->
-<div class="mm-modal-overlay" id="mm-attSessionModalOverlay"></div>
-<div class="mm-modal-centred" id="mm-attSessionModal">
-  <div class="mm-modal-header">
-    <div class="mm-modal-title">New Attendance Session</div>
-    <button class="mm-modal-close" id="mm-closeAttSessionModal">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="mm-modal-body">
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Session Name <span class="req">*</span></label>
-        <input type="text" class="mm-form-input" id="mm-attSessionName" placeholder="e.g. Sunday Service">
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Session Type</label>
-        <select class="mm-form-select" id="mm-attSessionType">
-          <option>Sunday Service</option>
-          <option>Mid-week Service</option>
-          <option>Youth Service</option>
-          <option>Prayer Meeting</option>
-          <option>Special Event</option>
-        </select>
-      </div>
-    </div>
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Date <span class="req">*</span></label>
-        <input type="date" class="mm-form-input" id="mm-attSessionDate">
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Time</label>
-        <input type="time" class="mm-form-input" id="mm-attSessionTime" value="09:00">
-      </div>
-    </div>
-    <div class="mm-form-field">
-      <label class="mm-form-label">Notes</label>
-      <textarea class="mm-form-textarea" id="mm-attSessionNotes" placeholder="Optional notes…"></textarea>
-    </div>
-  </div>
-  <div class="mm-modal-footer">
-    <button class="mm-btn-outline" id="mm-cancelAttSession">Cancel</button>
-    <button class="mm-btn-primary" id="mm-saveAttSessionBtn">Create Session</button>
-  </div>
-</div>
-
-
-<!-- ═══ GROUP MODAL ═══ -->
-<div class="mm-modal-overlay" id="mm-groupModalOverlay"></div>
-<div class="mm-modal-centred" id="mm-groupModal">
-  <div class="mm-modal-header">
-    <div class="mm-modal-title" id="mm-groupModalTitle">New Group</div>
-    <button class="mm-modal-close" id="mm-closeGroupModal">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="mm-modal-body">
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Group Name <span class="req">*</span></label>
-        <input type="text" class="mm-form-input" id="mm-gName" placeholder="e.g. Worship Team">
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Type</label>
-        <select class="mm-form-select" id="mm-gType">
-          <option>Department</option><option>Fellowship</option><option>Cell Group</option>
-          <option>Ministry</option><option>Committee</option>
-        </select>
-      </div>
-    </div>
-    <div class="mm-form-field">
-      <label class="mm-form-label">Description</label>
-      <textarea class="mm-form-textarea" id="mm-gDesc" placeholder="What does this group do?"></textarea>
-    </div>
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Leader / Head</label>
-        <select class="mm-form-select" id="mm-gLeader">
-          <option value="">Select member…</option>
-        </select>
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Meeting Day</label>
-        <select class="mm-form-select" id="mm-gDay">
-          <option value="">—</option>
-          <option>Sunday</option><option>Monday</option><option>Tuesday</option>
-          <option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option>
-        </select>
-      </div>
-    </div>
-  </div>
-  <div class="mm-modal-footer">
-    <button class="mm-btn-outline" id="mm-groupModalCancel">Cancel</button>
-    <button class="mm-btn-primary" id="mm-saveGroupBtn">Create Group</button>
-  </div>
-</div>
-
-
-<!-- ═══ PASTORAL FLAG MODAL ═══ -->
-<div class="mm-modal-overlay" id="mm-flagModalOverlay"></div>
-<div class="mm-modal-centred" id="mm-flagModal">
-  <div class="mm-modal-header">
-    <div class="mm-modal-title">Add Pastoral Flag</div>
-    <button class="mm-modal-close" id="mm-closeFlagModal">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="mm-modal-body">
-    <div class="mm-form-field">
-      <label class="mm-form-label">Member <span class="req">*</span></label>
-      <select class="mm-form-select" id="mm-flagMember">
-        <option value="">Select member…</option>
-      </select>
-    </div>
-    <div class="mm-form-row">
-      <div class="mm-form-field">
-        <label class="mm-form-label">Flag Type</label>
-        <select class="mm-form-select" id="mm-flagType">
-          <option value="followup">General Follow-up</option>
-          <option value="absent">Long Absent</option>
-          <option value="life-event">Life Event</option>
-          <option value="first-timer">First Timer</option>
-          <option value="counselling">Needs Counselling</option>
-        </select>
-      </div>
-      <div class="mm-form-field">
-        <label class="mm-form-label">Priority</label>
-        <select class="mm-form-select" id="mm-flagPriority">
-          <option value="normal">Normal</option>
-          <option value="high">High</option>
-          <option value="urgent">Urgent</option>
-        </select>
-      </div>
-    </div>
-    <div class="mm-form-field">
-      <label class="mm-form-label">Assign To</label>
-      <select class="mm-form-select" id="mm-flagAssign">
-        <option>Unassigned</option><option>Pastor</option>
-        <option>Elder Mensah</option><option>Deaconess Ama Osei</option>
-        <option>Youth Leader Efua</option>
-      </select>
-    </div>
-    <div class="mm-form-field">
-      <label class="mm-form-label">Notes</label>
-      <textarea class="mm-form-textarea" id="mm-flagNotes" placeholder="Describe the reason for this flag…"></textarea>
-    </div>
-  </div>
-  <div class="mm-modal-footer">
-    <button class="mm-btn-outline" id="mm-flagModalCancel">Cancel</button>
-    <button class="mm-btn-primary" id="mm-saveFlagBtn">Save Flag</button>
-  </div>
-</div>
-
-</div>
-<!-- END .mm-root -->
-`
+  document.addEventListener('keydown', _onKeydown)
+  _listeners.push([document as unknown as HTMLElement, 'keydown', _onKeydown as EventListener])
 }

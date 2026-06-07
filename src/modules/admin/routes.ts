@@ -1,43 +1,13 @@
 // src/modules/admin/routes.ts
-// All admin routes — guarded with RBAC permissions.
+// Admin sub-routes have been consolidated into the single /admin workspace.
+// The /admin route itself is declared in index.ts and renders AdminPage.ts
+// which mounts AdminWorkspaceShell with all tabs (Accounts, Roles, Permissions,
+// Households, Audit Log, Settings).
+//
+// Legacy old_pages/ routes have been removed — they are superseded by the
+// tab-based workspace. Deep-link navigation (e.g. /admin/users/:id) can be
+// added back here when individual account-detail pages are needed.
 
 import type { RouteDefinition } from '../../types/module.types'
 
-export const adminRoutes: RouteDefinition[] = [
-  {
-    path: '/admin/audit',
-    page: () => import('./pages/GlobalAuditLog'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.view',
-  },
-  {
-    path: '/admin/roles',
-    page: () => import('./pages/RoleBuilder'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.users.manage',
-  },
-  {
-    path: '/admin/users',
-    page: () => import('./pages/UserManagement'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.users.manage',
-  },
-  {
-    path: '/admin/users/provision/select-member',
-    page: () => import('./pages/SelectMemberToProvision'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.users.manage',
-  },
-  {
-    path: '/admin/users/provision/:memberId',
-    page: () => import('./pages/ProvisionUser'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.users.manage',
-  },
-  {
-    path: '/admin/users/:id',
-    page: () => import('./pages/AccountDetail'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'admin.users.manage',
-  },
-]
+export const adminRoutes: RouteDefinition[] = []

@@ -39,6 +39,7 @@ export async function loadCurrentUser(): Promise<void> {
 
   if (error || !profile) {
     console.error('[auth] user_profiles row not found or error for', user.id, error)
+    await supabase.auth.signOut()
     _currentUser = null
     _activeAssemblyId = null
     return
@@ -79,6 +80,15 @@ export async function loadCurrentUser(): Promise<void> {
     must_change_password: p.must_change_password as boolean,
     isMfaEnrolled:        false,
     isMfaVerified:        false,
+  }
+
+  // Automatically sign out if account is deactivated
+  if (!_currentUser.isActive) {
+    console.warn('[auth] User is deactivated. Signing out immediately.')
+    await supabase.auth.signOut()
+    _currentUser = null
+    _activeAssemblyId = null
+    return
   }
 
   _activeAssemblyId = (p.assembly_id as string | null)

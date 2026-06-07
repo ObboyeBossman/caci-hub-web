@@ -4,6 +4,13 @@
 import type { RouteDefinition } from '../../types/module.types'
 
 export const membershipRoutes: RouteDefinition[] = [
+  // ── Home ──────────────────────────────────────────────────────────────────
+  {
+    path: '/home',
+    page: () => import('./pages/Home'),
+    middleware: ['auth', 'mustChangePassword'],
+  },
+
   // ── Members ───────────────────────────────────────────────────────────────
   {
     path: '/members',
@@ -82,15 +89,27 @@ export const membershipRoutes: RouteDefinition[] = [
   // ── Groups ────────────────────────────────────────────────────────────────
   {
     path: '/groups',
-    page: () => import('./pages/MemberList'),
+    page: () => import('./pages/Groups'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
+    permission: 'groups.view',
   },
   {
     path: '/groups/new',
     page: () => import('./pages/GroupCreate'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
+    permission: 'groups.create',
+  },
+  {
+    path: '/groups/:id',
+    page: () => import('./pages/GroupDetail'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'groups.view',
+  },
+  {
+    path: '/groups/:id/edit',
+    page: () => import('./pages/GroupCreate'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'groups.edit',
   },
 
   // ── Attendance ────────────────────────────────────────────────────────────
@@ -100,19 +119,13 @@ export const membershipRoutes: RouteDefinition[] = [
     middleware: ['auth', 'mustChangePassword', 'permissions'],
     permission: 'members.view',
   },
-  {
-    path: '/attendance/record',
-    page: () => import('./pages/RecordAttendance'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
-  },
 
   // ── Pastoral Care ─────────────────────────────────────────────────────────
   {
     path: '/pastoral-care',
-    page: () => import('./pages/MemberList'),
+    page: () => import('./pages/PastoralCare'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
+    permission: 'pastoral.view',
   },
   {
     path: '/flag-member',
@@ -133,6 +146,14 @@ export const membershipRoutes: RouteDefinition[] = [
     page: () => import('./pages/ReportDetail'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
     permission: 'reports.view',
+  },
+
+  // ── Audit Logs ───────────────────────────────────────────────────────────────
+  {
+    path: '/audit-logs',
+    page: () => import('./pages/AuditLogs'),
+    middleware: ['auth', 'mustChangePassword', 'permissions'],
+    permission: 'members.view',
   },
 
   // ── My Profile & Admin ────────────────────────────────────────────────────

@@ -23,13 +23,14 @@ serve(async (req: Request) => {
       })
     }
 
-    const supabaseUser = createClient(
+    const jwt = authHeader.replace(/^Bearer\s+/i, '')
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } },
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser()
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(jwt)
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -37,14 +38,18 @@ serve(async (req: Request) => {
       })
     }
 
+    const permissions: string[] = user.app_metadata?.permissions ?? []
+    const hasAdminPerm = permissions.includes('admin.users.manage')
+
     // Role check: Caller must be admin
-    const { data: profile, error: profileError } = await supabaseUser
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('user_profiles')
-      .select('role, assembly_id')
+      .select('system_role, assembly_id')
       .eq('id', user.id)
       .single()
 
-    if (profileError || !profile || profile.role !== 'admin') {
+    const isAdmin = profile?.system_role === 'admin'
+    if (profileError || (!hasAdminPerm && !isAdmin)) {
       return new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

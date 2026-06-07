@@ -34,7 +34,7 @@ import { formatName } from './utils/member-helpers'
 // ── PostgREST embed — mirrors SupabaseMemberDataSource._memberViewSelect ──────
 // Join household name inline so the view row includes households.family_name.
 const MEMBER_VIEW_SELECT =
-  '*, households!members_household_id_fkey(id, family_name)'
+  '*, households!members_household_id_fkey(id, family_name), assemblies(name)'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -470,28 +470,29 @@ export async function restoreMember(memberId: string): Promise<void> {
 // ── Membership number ─────────────────────────────────────────────────────────
 
 /**
- * Call the assign-membership-number Edge Function.
+ * Call the assign_membership_number RPC.
  * Mirrors: SupabaseMemberDataSource.callAssignMembershipNumber()
  * Returns the generated membership number string.
  */
 export async function assignMembershipNumber(memberId: string): Promise<string> {
+  const assemblyId = getActiveAssemblyId()
+  if (!assemblyId) throw new RepositoryError('No active assembly selected.', null, 'NO_ASSEMBLY')
+
   try {
-    const { data, error } = await supabase.functions.invoke(
-      'generate-membership-number',
-      { body: { memberId } }
-    )
+    const { data, error } = await supabase.rpc('assign_membership_number', {
+      p_member_id: memberId,
+      p_assembly_id: assemblyId
+    })
 
     if (error) throw error
+    if (!data) throw new Error('RPC returned null membershipNumber')
 
-    const number = (data as { membershipNumber?: string })?.membershipNumber
-    if (!number) throw new Error('Edge Function returned null membershipNumber')
-
-    return number
+    return data as string
   } catch (err) {
     throw new RepositoryError(
       'Failed to assign membership number.',
       err,
-      'EF_ERROR'
+      'RPC_ERROR'
     )
   }
 }
@@ -629,6 +630,123 @@ export async function getLastAuditEntry(
     }
   } catch {
     return null
+  }
+}
+
+// ── Global audit log (Audit Logs page) ───────────────────────────────────────
+
+export interface AuditLogEntry extends MemberAuditEntry {
+  /** Display name of the member whose record was changed */
+  member_name: string | null
+}
+
+export interface AuditLogFilter {
+  search?:    string        // free-text across actor name / member name / field
+  memberId?:  string        // narrow to one member
+  field?:     string        // e.g. 'membership_status', 'profile_photo_url'
+  dateFrom?:  string        // ISO date string
+  dateTo?:    string        // ISO date string
+  limit?:     number
+  offset?:    number
+}
+
+/**
+ * Fetch paginated audit log entries across all members for the active assembly.
+ * Joins user_profiles for actor name and members_view for member name.
+ * Mirrors the per-member getMemberAuditLog() but scoped to the full assembly.
+ */
+export async function listAllAuditLogs(
+  filter: AuditLogFilter = {}
+): Promise<{ entries: AuditLogEntry[]; total: number }> {
+  const assemblyId = getActiveAssemblyId()
+  const limit  = filter.limit  ?? 50
+  const offset = filter.offset ?? 0
+
+  try {
+    // ── 1. Count query ──────────────────────────────────────────────────────
+    let countQ = supabase
+      .from('member_audit_log')
+      .select('*', { count: 'exact', head: true })
+
+    if (assemblyId)      countQ = countQ.eq('assembly_id', assemblyId)
+    if (filter.memberId) countQ = countQ.eq('member_id', filter.memberId)
+    if (filter.field)    countQ = countQ.eq('field_changed', filter.field)
+    if (filter.dateFrom) countQ = countQ.gte('changed_at', filter.dateFrom)
+    if (filter.dateTo)   countQ = countQ.lte('changed_at', filter.dateTo)
+
+    const { count } = await countQ
+
+    // ── 2. Data query ───────────────────────────────────────────────────────
+    let q = supabase
+      .from('member_audit_log')
+      .select('*')
+
+    if (assemblyId)      q = q.eq('assembly_id', assemblyId)
+    if (filter.memberId) q = q.eq('member_id', filter.memberId)
+    if (filter.field)    q = q.eq('field_changed', filter.field)
+    if (filter.dateFrom) q = q.gte('changed_at', filter.dateFrom)
+    if (filter.dateTo)   q = q.lte('changed_at', filter.dateTo)
+
+    const { data, error } = await q
+      .order('changed_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (error) throw error
+    const rows = (data ?? []) as any[]
+
+    // ── 3. Batch-resolve actor names ─────────────────────────────────────────
+    const actorIds = [...new Set(rows.map(r => r.changed_by).filter(Boolean))] as string[]
+    const actorMap = new Map<string, string>()
+    if (actorIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('id, full_name')
+        .in('id', actorIds)
+      ;(profiles ?? []).forEach((p: any) => actorMap.set(p.id, p.full_name))
+    }
+
+    // ── 4. Batch-resolve member names ────────────────────────────────────────
+    const memberIds = [...new Set(rows.map(r => r.member_id).filter(Boolean))] as string[]
+    const memberMap = new Map<string, string>()
+    if (memberIds.length > 0) {
+      const { data: members } = await supabase
+        .from('members_view')
+        .select('id, first_name, last_name')
+        .in('id', memberIds)
+      ;(members ?? []).forEach((m: any) =>
+        memberMap.set(m.id, `${m.first_name ?? ''} ${m.last_name ?? ''}`.trim())
+      )
+    }
+
+    // ── 5. Assemble result ───────────────────────────────────────────────────
+    const entries: AuditLogEntry[] = rows.map(row => ({
+      id:              row.id as string,
+      member_id:       row.member_id as string,
+      assembly_id:     row.assembly_id as string,
+      changed_by:      row.changed_by as string | null,
+      changed_by_name: actorMap.get(row.changed_by) ?? null,
+      field_changed:   row.field_changed as string,
+      old_value:       row.old_value as string | null,
+      new_value:       row.new_value as string | null,
+      changed_at:      row.changed_at as string,
+      member_name:     memberMap.get(row.member_id) ?? null,
+    }))
+
+    // ── 6. Client-side free-text filter (search) ─────────────────────────────
+    const q2 = (filter.search ?? '').toLowerCase()
+    const filtered = q2
+      ? entries.filter(e =>
+          (e.member_name ?? '').toLowerCase().includes(q2) ||
+          (e.changed_by_name ?? '').toLowerCase().includes(q2) ||
+          e.field_changed.toLowerCase().includes(q2) ||
+          (e.old_value ?? '').toLowerCase().includes(q2) ||
+          (e.new_value ?? '').toLowerCase().includes(q2)
+        )
+      : entries
+
+    return { entries: filtered, total: count ?? 0 }
+  } catch (err) {
+    throw mapError(err, 'listAllAuditLogs')
   }
 }
 

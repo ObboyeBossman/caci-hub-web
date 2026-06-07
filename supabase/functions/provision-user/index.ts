@@ -199,8 +199,13 @@ serve(async (req: Request) => {
         }
 
         const normalizedPhone = normalizePhone(member.primary_phone)
+        // Resolve email: prefer what the admin typed in the form, fall back
+        // to the email already stored on the member record.
+        const emailForAuth = (body.email?.trim().toLowerCase()) || (member.email?.trim().toLowerCase()) || undefined
+
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
           phone: normalizedPhone,
+          ...(emailForAuth ? { email: emailForAuth, email_confirm: true } : {}),
           password: assembly.default_member_password,
           phone_confirm: true,
         })
@@ -213,17 +218,17 @@ serve(async (req: Request) => {
           assembly_id: adminAssemblyId,
           role,
           full_name: fullName,
-          phone: normalizedPhone,
           is_active: true,
           must_change_password: true,
         })
         if (insErr) throw insErr
 
+        // Persist the auth_user_id link (and the resolved email if present)
         await supabaseAdmin.from('members')
-          .update({ auth_user_id: newUserId })
+          .update({ auth_user_id: newUserId, ...(emailForAuth ? { email: emailForAuth } : {}) })
           .eq('id', memberId)
 
-        responseData = { userId: newUserId, phone: member.primary_phone, fullName, role, path: 'default_password' }
+        responseData = { userId: newUserId, phone: member.primary_phone, email: emailForAuth ?? null, fullName, role, path: 'default_password' }
       } else if (path === 'custom_password') {
         const emailFinal = (body.email ?? member.email)?.trim().toLowerCase()
         if (!emailFinal) {

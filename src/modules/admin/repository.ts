@@ -336,15 +336,15 @@ export async function provisionUser(payload: {
 // ── Assembly Roles & Permissions ──────────────────────────────────────────────
 
 export interface AssemblyRole {
-  id:          string
-  assemblyId:  string
-  name:        string
+  id: string
+  assemblyId: string
+  name: string
   description: string | null
   permissions: string[]  // array of permission IDs
 }
 
 export interface Permission {
-  id:          string
+  id: string
   description: string | null
 }
 
@@ -383,9 +383,9 @@ export async function listAssemblyRoles(assemblyId?: string): Promise<AssemblyRo
     if (error) throw error
 
     return (data ?? []).map((r: any) => ({
-      id:          r.id,
-      assemblyId:  r.assembly_id,
-      name:        r.name,
+      id: r.id,
+      assemblyId: r.assembly_id,
+      name: r.name,
       description: r.description,
       permissions: (r.role_permissions ?? []).map((rp: any) => rp.permission_key),
     }))
@@ -399,7 +399,7 @@ export async function listAssemblyRoles(assemblyId?: string): Promise<AssemblyRo
  * Returns the created role's id.
  */
 export async function createAssemblyRole(payload: {
-  name:        string
+  name: string
   description?: string
   assemblyId?: string
 }): Promise<string> {
@@ -422,7 +422,7 @@ export async function createAssemblyRole(payload: {
  * Update name and/or description of an existing assembly role.
  */
 export async function updateAssemblyRole(
-  id:      string,
+  id: string,
   payload: { name?: string; description?: string | null }
 ): Promise<void> {
   try {
@@ -457,7 +457,7 @@ export async function deleteAssemblyRole(id: string): Promise<void> {
  * Deletes existing role_permissions rows then bulk-inserts the new set.
  */
 export async function setRolePermissions(
-  roleId:        string,
+  roleId: string,
   permissionIds: string[]
 ): Promise<void> {
   try {

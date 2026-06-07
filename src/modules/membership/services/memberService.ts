@@ -41,10 +41,11 @@ export interface RegisterMemberResult {
  * The caller receives a result object describing what succeeded.
  */
 export async function registerMember(
-  payload: Omit<CreateMemberPayload, 'assembly_id'>
+  payload: Omit<CreateMemberPayload, 'assembly_id'> & { profile_photo_file?: File | null }
 ): Promise<RegisterMemberResult> {
+  const { profile_photo_file, ...dbPayload } = payload
   // Step 1: Create member record
-  const member = await createMember(payload)
+  const member = await createMember(dbPayload)
 
   const result: RegisterMemberResult = {
     member,
@@ -54,13 +55,31 @@ export async function registerMember(
     welcomeSmsSent:     false,
   }
 
+  // Step 1.5: Upload photo if provided
+  if (profile_photo_file) {
+    try {
+      // RLS policy requires folder prefix = auth.uid() (not member.id)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No authenticated user')
+
+      const { uploadProfilePhoto } = await import('../repository')
+      const photoUrl = await uploadProfilePhoto({
+        authUid: user.id,               // ← must be auth.uid(), not member.id
+        fileName: `profile_${Date.now()}_${profile_photo_file.name}`,
+        blob: profile_photo_file,
+        mimeType: profile_photo_file.type
+      })
+      result.member = await updateMember(member.id, { profile_photo_url: photoUrl })
+    } catch (err) {
+      console.warn('[memberService] Photo upload failed:', err)
+    }
+  }
+
   // Step 2: Assign membership number (background, non-fatal)
   // Mirrors: MemberCreateNotifier._assignMembershipNumber()
   try {
     const number = await assignMembershipNumber(member.id)
     result.membershipNumber = number
-    // Patch the returned member with the number (updateMember emits member:updated)
-    result.member = await updateMember(member.id, { profile_photo_url: member.profile_photo_url })
     // Re-fetch for the number — the EF updates the DB row directly
     const { getMember } = await import('../repository')
     result.member = await getMember(member.id)
@@ -131,19 +150,35 @@ export async function exportMembersCsv(filter?: {
   if (!assemblyId) throw new RepositoryError('No active assembly selected.', null, 'NO_ASSEMBLY')
 
   try {
-    const { data, error } = await supabase.functions.invoke('export-members-csv', {
-      body: { assemblyId, filter: filter ?? {} },
+    // Use a raw fetch so we can reliably read the CSV text body.
+    // supabase.functions.invoke can mis-parse text/csv responses.
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+    if (!token) throw new Error('Not authenticated')
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+    const url = `${supabaseUrl}/functions/v1/export-members-csv`
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ assemblyId, filter: filter ?? {} }),
     })
 
-    if (error) throw error
+    const text = await res.text()
 
-    // EF returns a CSV string in data
-    if (typeof data === 'string') return data
+    if (!res.ok) {
+      throw new Error(`EF returned ${res.status}: ${text}`)
+    }
 
-    throw new Error('export-members-csv EF returned unexpected shape')
-  } catch (err) {
+    return text
+  } catch (err: any) {
+    const underlying = err?.message ?? String(err)
     throw new RepositoryError(
-      'Export failed. Please try again.',
+      `Export failed: ${underlying}`,
       err,
       'EF_ERROR'
     )

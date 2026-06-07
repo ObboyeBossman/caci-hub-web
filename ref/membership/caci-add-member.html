@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub — Add Member</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+/* ─── Design Tokens ─────────────────────────────────────────────────── */
+:root{
+  --caci-red:#C60026;--caci-red-light:#FF1A46;--caci-red-dim:#8C001A;
+  --caci-red-glow:rgba(198,0,38,.28);
+  --caci-blue:#004BA0;--caci-blue-light:#4D9FFF;--caci-blue-dim:#003578;
+  --caci-blue-glow:rgba(77,159,255,.22);
+  --green:#1a7f37;--green-glow:rgba(26,127,55,.25);
+  --amber:#9a6700;
+}
+:root,[data-theme="light"]{
+  --bg-page:#eef1f6;
+  --bg-card:#ffffff;
+  --bg-card2:#f4f6fa;
+  --bg-sidebar:#ffffff;
+  --bg-danger:rgba(198,0,38,.06);
+  --bg-info:rgba(0,75,160,.06);
+  --bg-success:rgba(26,127,55,.08);
+  --bg-warning:rgba(154,103,0,.08);
+  --text-primary:#0d1117;
+  --text-secondary:#55606e;
+  --text-muted:#8b949e;
+  --text-link:#004BA0;
+  --text-danger:#C60026;
+  --text-success:#1a7f37;
+  --text-amber:#9a6700;
+  --border-default:#dde2ea;
+  --border-strong:#b8c0cc;
+  --border-focus:#004BA0;
+  --focus-ring:rgba(0,75,160,.18);
+  --shadow-card:0 1px 4px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --shadow-hover:0 8px 32px rgba(0,0,0,.12);
+  --shadow-sidebar:2px 0 24px rgba(0,0,0,.06);
+  --avatar-border:#fff;
+  --scrollbar:#c9d1d9;
+  --divider:#e4e9f0;
+  --header-bg:rgba(238,241,246,.95);
+  --inp-bg:#fff;
+  --inp-bg-focus:#fafbfd;
+  --step-inactive-bg:#e6edf3;
+  --step-inactive-text:#8b949e;
+  --sidebar-step-active-bg:rgba(198,0,38,.07);
+  --tip-bg:rgba(0,75,160,.05);
+  --queue-item-bg:#f4f6fa;
+  --queue-item-hover:#eaeff5;
+  --noise-opacity:.018;
+  --orb1:rgba(198,0,38,.06);
+  --orb2:rgba(0,75,160,.05);
+  --gradient-accent:linear-gradient(135deg,#C60026,#004BA0);
+}
+[data-theme="dark"]{
+  --bg-page:#0a0d13;
+  --bg-card:#111620;
+  --bg-card2:#161c2a;
+  --bg-sidebar:#111620;
+  --bg-danger:rgba(198,0,38,.13);
+  --bg-info:rgba(0,75,160,.15);
+  --bg-success:rgba(26,127,55,.14);
+  --bg-warning:rgba(154,103,0,.14);
+  --text-primary:#e8edf5;
+  --text-secondary:#8b97a8;
+  --text-muted:#5e6b7c;
+  --text-link:#4D9FFF;
+  --text-danger:#FF1A46;
+  --text-success:#3fb950;
+  --text-amber:#d29922;
+  --border-default:#1e2535;
+  --border-strong:#2d3a50;
+  --border-focus:#4D9FFF;
+  --focus-ring:rgba(77,159,255,.22);
+  --shadow-card:0 2px 12px rgba(0,0,0,.4),0 1px 3px rgba(0,0,0,.3);
+  --shadow-hover:0 12px 40px rgba(0,0,0,.6);
+  --shadow-sidebar:2px 0 32px rgba(0,0,0,.4);
+  --avatar-border:#0a0d13;
+  --scrollbar:#2d3a50;
+  --divider:#181f2e;
+  --header-bg:rgba(10,13,19,.92);
+  --inp-bg:#0d1120;
+  --inp-bg-focus:#111825;
+  --step-inactive-bg:#181f2e;
+  --step-inactive-text:#5e6b7c;
+  --sidebar-step-active-bg:rgba(198,0,38,.1);
+  --tip-bg:rgba(77,159,255,.06);
+  --queue-item-bg:#161c2a;
+  --queue-item-hover:#1b2235;
+  --noise-opacity:.04;
+  --orb1:rgba(198,0,38,.035);
+  --orb2:rgba(0,75,160,.12);
+  --gradient-accent:linear-gradient(135deg,#C60026,#1a4fa8);
+}
+
+/* ─── Reset & Base ──────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Sora',system-ui,sans-serif;
+  background:var(--bg-page);
+  color:var(--text-primary);
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .35s,color .35s;
+  overflow-x:hidden;
+}
+/* Prevent any child from blowing out the viewport */
+.content-panel,.shell,.step-content,.form-grid{min-width:0;}
+img,input,select,textarea,button{max-width:100%;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:99px;}
+.ms{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;font-style:normal;line-height:1;display:inline-flex;align-items:center;user-select:none;}
+.ms.fill{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+
+/* ─── Background Orbs ──────────────────────────────────────────────── */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;transition:opacity .5s;}
+.orb-1{width:420px;height:420px;top:-180px;left:-220px;background:var(--orb1);filter:blur(120px);}
+.orb-2{width:500px;height:500px;bottom:-80px;right:-80px;background:var(--orb2);}
+[data-theme="light"] .orb{opacity:.4;}
+
+/* ─── Animations ─────────────────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes successPop{0%{opacity:0;transform:scale(.55)}70%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes qIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes qOut{from{opacity:1;transform:translateX(0);max-height:120px;margin-bottom:8px}to{opacity:0;transform:translateX(28px);max-height:0;margin-bottom:0;padding:0;}}
+@keyframes countBounce{0%,100%{transform:scale(1)}45%{transform:scale(1.4)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.8) translateY(6px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes progressGlow{0%,100%{box-shadow:none}50%{box-shadow:0 0 10px rgba(198,0,38,.5)}}
+
+.anim-fade-up{animation:fadeUp .45s cubic-bezier(.16,1,.3,1) both;}
+.anim-shake{animation:shake .38s ease both;}
+.d1{animation-delay:50ms}.d2{animation-delay:110ms}.d3{animation-delay:170ms}.d4{animation-delay:230ms}
+
+/* ─── Top Bar ─────────────────────────────────────────────────────── */
+.top-bar{
+  position:relative;z-index:100;
+  max-width:1080px;margin:0 auto;
+  padding:14px 12px 0;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:transparent;
+  min-width:0;
+}
+@media(min-width:480px){.top-bar{padding:18px 18px 0;gap:12px;}}
+.brand{display:flex;align-items:center;gap:8px;}
+.brand-logo{display:none;}
+.breadcrumb{display:flex;align-items:center;gap:0;line-height:1;min-width:0;flex:1 1 auto;overflow:hidden;}
+.back-btn{
+  display:inline-flex;align-items:center;gap:0;
+  background:none;border:none;padding:2px 0;border-radius:4px;
+  color:var(--text-muted);font-size:11px;font-weight:400;cursor:pointer;
+  transition:color .18s;font-family:'Sora',sans-serif;
+  white-space:nowrap;flex-shrink:0;
+}
+.back-btn:hover{color:var(--text-primary);}
+.breadcrumb-sep{
+  color:var(--text-muted);opacity:.45;
+  font-size:11px;line-height:1;margin:0 4px;font-weight:300;flex-shrink:0;
+}
+.breadcrumb-current{
+  font-size:11px;font-weight:600;color:var(--text-primary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.top-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+@media(min-width:480px){.top-actions{gap:8px;}}
+.queue-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 10px;border-radius:10px;
+  border:1px solid var(--border-default);
+  background:var(--bg-card);
+  color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;
+  transition:all .22s;box-shadow:var(--shadow-card);
+  white-space:nowrap;flex-shrink:0;
+}
+@media(min-width:480px){.queue-pill{gap:7px;padding:7px 13px;font-size:12.5px;}}
+.queue-pill:hover{border-color:var(--border-strong);color:var(--text-primary);}
+.queue-pill.has-items{
+  border-color:var(--caci-blue-light);color:var(--caci-blue-light);
+  background:var(--bg-info);box-shadow:0 0 0 1px rgba(77,159,255,.1);
+}
+[data-theme="light"] .queue-pill.has-items{border-color:var(--caci-blue);color:var(--caci-blue);}
+.q-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 5px;border-radius:99px;
+  background:var(--caci-red);color:#fff;font-size:10.5px;font-weight:700;
+  animation:countBounce .28s ease;box-shadow:0 2px 8px var(--caci-red-glow);
+}
+
+/* ─── Layout Shell ────────────────────────────────────────────────── */
+.shell{
+  position:relative;z-index:1;
+  max-width:1080px;margin:12px auto 36px;padding:0 12px;
+  display:grid;grid-template-columns:272px 1fr;gap:22px;align-items:start;
+  min-width:0;
+}
+@media(min-width:480px){.shell{padding:0 18px;}}
+@media(max-width:780px){.shell{grid-template-columns:1fr;margin:12px auto;}.sidebar{display:none;}}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────── */
+.sidebar{
+  position:sticky;top:20px;
+  background:var(--bg-sidebar);
+  border:1px solid var(--border-default);border-radius:20px;
+  box-shadow:var(--shadow-card);overflow:hidden;
+}
+.sidebar-progress{
+  height:3px;background:var(--step-inactive-bg);
+  background:linear-gradient(90deg,var(--step-inactive-bg) 100%,transparent 0);
+}
+.sidebar-progress-fill{
+  height:100%;border-radius:0 99px 99px 0;
+  background:var(--gradient-accent);
+  transition:width .55s cubic-bezier(.16,1,.3,1);
+  animation:progressGlow 2s ease infinite;
+}
+.sidebar-inner{padding:22px 18px;}
+
+/* Step Items */
+.v-step{
+  display:flex;align-items:flex-start;gap:13px;
+  padding:11px 12px;border-radius:13px;
+  cursor:pointer;transition:background .2s,transform .15s;
+  position:relative;
+}
+.v-step:hover{background:var(--bg-card2);}
+.v-step:hover:not(.active){transform:translateX(3px);}
+.v-step.active{background:var(--sidebar-step-active-bg);}
+.v-step.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:60%;background:var(--caci-red);border-radius:0 3px 3px 0;
+}
+.v-step-indicator{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;font-weight:700;
+  border:2px solid var(--step-inactive-bg);
+  background:var(--step-inactive-bg);
+  color:var(--step-inactive-text);
+  transition:all .38s cubic-bezier(.16,1,.3,1);
+}
+.v-step.active .v-step-indicator{
+  background:var(--caci-red);border-color:var(--caci-red-dim);color:#fff;
+  box-shadow:0 3px 14px var(--caci-red-glow);transform:scale(1.05);
+}
+.v-step.done .v-step-indicator{
+  background:var(--green);border-color:var(--green);color:#fff;
+  box-shadow:0 2px 8px var(--green-glow);
+}
+.v-step-num{font-size:10px;color:var(--text-muted);font-weight:500;line-height:1.2;margin-bottom:1px;}
+.v-step-label{font-size:13px;font-weight:600;color:var(--text-secondary);transition:color .2s;}
+.v-step.active .v-step-label{color:var(--text-primary);}
+.v-step.done .v-step-label{color:var(--text-success);}
+.v-connector{
+  width:2px;height:20px;margin:0 0 0 28px;border-radius:99px;
+  background:var(--step-inactive-bg);transition:background .35s;
+}
+.v-connector.done{background:var(--green);}
+
+/* Tip Box */
+.sidebar-tip{
+  margin:16px 0 0;padding:12px 14px;border-radius:12px;
+  background:var(--tip-bg);border:1px solid var(--border-default);
+  display:flex;gap:10px;align-items:flex-start;
+}
+.sidebar-tip .ms{color:var(--caci-blue-light);font-size:18px;flex-shrink:0;margin-top:1px;}
+[data-theme="light"] .sidebar-tip .ms{color:var(--caci-blue);}
+.sidebar-tip p{font-size:11px;color:var(--text-secondary);line-height:1.55;}
+.sidebar-tip p strong{color:var(--text-primary);}
+
+/* Sidebar Queue */
+.sidebar-queue{margin:14px 0 0;}
+.sq-divider{height:1px;background:var(--divider);margin:0 0 14px;}
+.sq-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.sq-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);}
+.sq-upload-btn{
+  font-size:11px;font-weight:600;color:#fff;
+  background:var(--caci-blue);border:none;border-radius:7px;
+  padding:4px 10px;cursor:pointer;font-family:'Sora',sans-serif;
+  transition:all .2s;display:flex;align-items:center;gap:4px;
+  box-shadow:0 2px 8px var(--caci-blue-glow);
+}
+.sq-upload-btn:hover{background:var(--caci-blue-light);}
+.sq-upload-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+.sq-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:11px;
+  background:var(--queue-item-bg);border:1px solid var(--border-default);
+  margin-bottom:6px;cursor:pointer;transition:all .2s;
+  animation:qIn .28s cubic-bezier(.16,1,.3,1) both;overflow:hidden;
+}
+.sq-item:hover{background:var(--queue-item-hover);border-color:var(--border-strong);}
+.sq-item.active-edit{border-color:var(--caci-blue-light);background:var(--bg-info);}
+[data-theme="light"] .sq-item.active-edit{border-color:var(--caci-blue);}
+.sq-item.uploading{border-color:rgba(26,127,55,.4);background:var(--bg-success);cursor:default;}
+.sq-item.removing{animation:qOut .3s ease forwards;}
+.sq-avatar{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  background:var(--gradient-accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10.5px;font-weight:700;color:#fff;
+  background-size:cover;background-position:center;
+}
+.sq-info{flex:1;min-width:0;}
+.sq-name{font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sq-meta{font-size:10px;color:var(--text-muted);}
+.sq-prog{height:2px;background:var(--border-default);border-radius:99px;margin-top:4px;overflow:hidden;}
+.sq-prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--caci-blue-light));transition:width .4s ease;}
+.sq-actions{display:flex;gap:3px;flex-shrink:0;}
+.sq-btn{
+  width:26px;height:26px;border-radius:6px;border:none;
+  background:transparent;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-muted);transition:all .15s;
+}
+.sq-btn:hover{background:var(--border-default);color:var(--text-primary);}
+.sq-btn.del:hover{background:var(--bg-danger);color:var(--text-danger);}
+
+/* ─── Content Panel ───────────────────────────────────────────────── */
+.content-panel{
+  background:var(--bg-card);
+  border:1px solid var(--border-default);
+  border-radius:20px;
+  box-shadow:var(--shadow-card);
+  overflow:hidden;
+}
+.progress-bar{height:3px;background:var(--step-inactive-bg);}
+.progress-fill{
+  height:100%;
+  background:var(--gradient-accent);
+  transition:width .5s cubic-bezier(.16,1,.3,1);
+}
+.editing-banner{
+  display:none;align-items:center;gap:8px;
+  padding:10px 16px;background:var(--bg-info);
+  border-bottom:1px solid var(--border-default);
+  font-size:12px;color:var(--text-secondary);
+  flex-wrap:wrap;
+}
+@media(min-width:480px){.editing-banner{padding:10px 28px;gap:10px;}}
+.editing-banner.visible{display:flex;}
+.editing-banner strong{color:var(--text-primary);}
+
+/* Step Header */
+.content-head{
+  padding:18px 18px 16px;border-bottom:1px solid var(--divider);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+@media(min-width:480px){.content-head{padding:26px 28px 20px;}}
+@media(min-width:640px){.content-head{padding:26px 32px 20px;}}
+.content-head-text{}
+.step-eyebrow{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--caci-red);margin-bottom:6px;
+  display:flex;align-items:center;gap:5px;
+}
+.content-head h1{font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-.3px;}
+.content-head p{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.5;}
+.step-icon-wrap{
+  width:46px;height:46px;border-radius:13px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-card2);border:1px solid var(--border-default);
+}
+.step-icon-wrap .ms{font-size:22px;color:var(--caci-red);}
+
+/* Step Content */
+.step-content{padding:18px 18px;animation:fadeIn .3s ease both;}
+@media(min-width:480px){.step-content{padding:22px 24px;}}
+@media(min-width:640px){.step-content{padding:28px 32px;}}
+.form-grid{display:grid;gap:16px 18px;}
+@media(min-width:480px){.form-grid{gap:18px 22px;}}
+.form-grid-2{grid-template-columns:repeat(2,1fr);}
+.form-grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:480px){.form-grid-2,.form-grid-3{grid-template-columns:1fr;}}
+@media(max-width:560px){.form-grid-3{grid-template-columns:1fr;}}
+@media(min-width:481px) and (max-width:560px){.form-grid-2{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:561px) and (max-width:780px){.form-grid-3{grid-template-columns:repeat(2,1fr);}}
+.col2{grid-column:span 2;}.col3{grid-column:span 3;}
+@media(max-width:480px){.col2,.col3{grid-column:span 1;}}
+@media(min-width:481px) and (max-width:560px){.col2{grid-column:span 2;}.col3{grid-column:span 1;}}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{
+  font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--text-muted);display:flex;align-items:center;gap:4px;
+}
+.req{color:var(--caci-red);font-size:13px;line-height:1;}
+
+/* Inputs */
+.inp{
+  width:100%;height:42px;
+  border:1px solid var(--border-default);border-radius:10px;
+  padding:0 14px;font-family:'Sora',sans-serif;font-size:13px;
+  color:var(--text-primary);background:var(--inp-bg);
+  outline:none;transition:border-color .2s,box-shadow .2s,background .2s;
+  appearance:none;
+}
+.inp::placeholder{color:var(--text-muted);opacity:.65;}
+.inp:hover{border-color:var(--border-strong);}
+.inp:focus{
+  border-color:var(--border-focus);
+  box-shadow:0 0 0 3px var(--focus-ring);
+  background:var(--inp-bg-focus);
+}
+.inp-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:34px;cursor:pointer;
+}
+.inp-select option{background:var(--bg-card);color:var(--text-primary);}
+textarea.inp{height:auto;padding:12px 14px;resize:vertical;min-height:84px;line-height:1.55;}
+.form-hint{font-size:11px;color:var(--text-muted);}
+.form-error{font-size:11px;color:var(--text-danger);display:none;align-items:center;gap:3px;}
+.form-group.has-error .form-error{display:flex;}
+.form-group.has-error .inp{border-color:var(--text-danger);box-shadow:0 0 0 3px rgba(198,0,38,.13);}
+
+/* Section Headers */
+.section-title{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--text-muted);margin-bottom:16px;
+  display:flex;align-items:center;gap:6px;
+}
+.divider{height:1px;background:var(--divider);margin:22px 0;}
+.phone-wrap{display:flex;}
+.phone-prefix{
+  height:42px;padding:0 11px;flex-shrink:0;
+  border:1px solid var(--border-default);border-right:none;
+  border-radius:10px 0 0 10px;background:var(--bg-card2);
+  display:flex;align-items:center;gap:5px;
+  font-size:12.5px;color:var(--text-secondary);cursor:pointer;
+  white-space:nowrap;transition:border-color .2s;
+}
+.phone-prefix:hover{border-color:var(--border-strong);}
+.phone-wrap .inp{border-radius:0 10px 10px 0;}
+
+/* Photo Area */
+.photo-area{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px;}
+@media(min-width:400px){.photo-area{gap:22px;margin-bottom:22px;}}
+.photo-preview{
+  width:72px;height:72px;border-radius:50%;flex-shrink:0;
+  background:var(--gradient-accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;color:#fff;
+  border:3px solid var(--avatar-border);
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  transition:transform .25s,box-shadow .25s;
+  background-size:cover;background-position:center;cursor:pointer;
+}
+@media(min-width:400px){.photo-preview{width:76px;height:76px;font-size:26px;}}
+.photo-preview:hover{transform:scale(1.08);box-shadow:0 10px 32px rgba(0,0,0,.4);}
+.photo-upload-col{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px;}
+.photo-upload{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;padding:16px;border-radius:12px;
+  border:2px dashed var(--border-default);background:var(--bg-card2);
+  cursor:pointer;transition:all .22s;text-align:center;
+}
+.photo-upload:hover{border-color:var(--caci-blue);background:var(--bg-info);}
+.photo-upload.has-photo{border-style:solid;border-color:var(--green);background:var(--bg-success);}
+
+/* Review */
+.review-section-title{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-muted);margin-bottom:12px;
+  display:flex;align-items:center;gap:6px;
+}
+.review-section-title button{margin-left:auto;font-size:11.5px;color:var(--text-link);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;padding:4px 8px;border-radius:6px;transition:background .18s;}
+.review-section-title button:hover{background:var(--bg-info);}
+.review-row{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--divider);flex-wrap:wrap;}
+.review-row:last-child{border-bottom:none;}
+.review-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);min-width:100px;max-width:140px;flex-shrink:0;padding-top:2px;}
+@media(min-width:400px){.review-label{min-width:140px;}}
+.review-value{font-size:13px;color:var(--text-primary);font-weight:500;flex:1;word-break:break-word;min-width:0;}
+.review-empty{color:var(--border-strong);font-style:italic;font-weight:400;}
+.review-block{margin-bottom:24px;padding:16px 18px;border-radius:14px;background:var(--bg-card2);border:1px solid var(--border-default);}
+.review-block:last-child{margin-bottom:0;}
+
+/* Add another */
+.add-queue-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:15px 20px;border-radius:14px;
+  border:2px dashed var(--caci-blue);
+  background:var(--bg-info);color:var(--caci-blue-light);
+  font-size:13.5px;font-weight:600;cursor:pointer;
+  transition:all .22s;font-family:'Sora',sans-serif;width:100%;margin-top:22px;
+}
+[data-theme="light"] .add-queue-btn{color:var(--caci-blue);border-color:var(--caci-blue);}
+.add-queue-btn:hover{background:rgba(0,75,160,.13);border-color:var(--caci-blue-light);transform:translateY(-1px);}
+.add-queue-btn .ms{font-size:20px;}
+
+/* Footer */
+.content-foot{
+  padding:12px 16px;border-top:1px solid var(--divider);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+}
+@media(min-width:480px){.content-foot{padding:16px 24px;gap:12px;}}
+@media(min-width:640px){.content-foot{padding:16px 32px;}}
+.foot-meta{font-size:12px;color:var(--text-muted);}
+.foot-meta strong{color:var(--text-primary);}
+.foot-actions{display:flex;gap:9px;flex-wrap:wrap;}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:0 14px;height:40px;border-radius:11px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  border:1px solid var(--border-default);background:var(--bg-card);
+  color:var(--text-secondary);transition:all .2s;
+  font-family:'Sora',sans-serif;white-space:nowrap;
+  min-width:0;
+}
+@media(min-width:480px){.btn{padding:0 20px;height:42px;gap:7px;}}
+.btn:hover{border-color:var(--border-strong);color:var(--text-primary);transform:translateY(-1px);box-shadow:var(--shadow-card);}
+.btn:active{transform:translateY(0);}
+.btn-primary{
+  background:var(--caci-red);border-color:var(--caci-red-dim);color:#fff;
+  box-shadow:0 3px 12px var(--caci-red-glow);
+}
+.btn-primary:hover{background:var(--caci-red-light);border-color:var(--caci-red);color:#fff;box-shadow:0 6px 22px var(--caci-red-glow);}
+.btn-blue{
+  background:var(--caci-blue);border-color:var(--caci-blue-dim);color:#fff;
+  box-shadow:0 3px 12px var(--caci-blue-glow);
+}
+.btn-blue:hover{background:var(--caci-blue-light);border-color:var(--caci-blue);color:#fff;box-shadow:0 6px 22px var(--caci-blue-glow);}
+.btn-green{
+  background:var(--green);border-color:#155d27;color:#fff;
+  box-shadow:0 3px 10px var(--green-glow);
+}
+.btn-green:hover{background:#22a24a;color:#fff;box-shadow:0 6px 18px var(--green-glow);}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none;transform:none;box-shadow:none;}
+.btn .ms{font-size:16px;}
+
+/* Spinner */
+.spinner{width:15px;height:15px;border:2px solid var(--border-default);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+
+/* ─── Upload Drawer (right side) ─────────────────────────────────── */
+.upload-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:stretch;justify-content:flex-end;
+  background:rgba(0,0,0,0);
+  backdrop-filter:blur(0px);pointer-events:none;
+  transition:background .3s,backdrop-filter .3s;
+}
+.upload-overlay.open{background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:all;}
+.upload-panel{
+  width:100%;max-width:420px;height:100%;
+  background:var(--bg-card);
+  border-left:1px solid var(--border-default);
+  box-shadow:-16px 0 56px rgba(0,0,0,.35);
+  transform:translateX(100%);
+  transition:transform .4s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.upload-overlay.open .upload-panel{transform:translateX(0);}
+
+/* drawer accent stripe at top */
+.up-accent{
+  height:3px;flex-shrink:0;
+  background:var(--gradient-accent);
+}
+.up-head{
+  padding:20px 22px 16px;border-bottom:1px solid var(--divider);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;
+}
+.up-head-text h2{font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-.2px;}
+.up-head-text p{font-size:11.5px;color:var(--text-muted);margin-top:3px;}
+.up-body{flex:1;overflow-y:auto;padding:16px 18px;}
+.uq-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:13px;
+  background:var(--queue-item-bg);border:1px solid var(--border-default);
+  margin-bottom:9px;transition:all .22s;
+  animation:qIn .32s cubic-bezier(.16,1,.3,1) both;
+}
+.uq-item.uploading{border-color:rgba(26,127,55,.4);background:var(--bg-success);}
+.uq-item.done{border-color:var(--green);opacity:.6;}
+.uq-item.removing{animation:qOut .3s ease forwards;}
+.uq-avatar{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:var(--gradient-accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:#fff;
+  background-size:cover;background-position:center;
+}
+.uq-info{flex:1;min-width:0;}
+.uq-name{font-size:13px;font-weight:600;color:var(--text-primary);}
+.uq-sub{font-size:11px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.uq-prog{height:3px;background:var(--border-default);border-radius:99px;margin-top:6px;overflow:hidden;}
+.uq-prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--caci-blue-light));transition:width .5s ease;}
+.uq-status{flex-shrink:0;display:flex;align-items:center;gap:6px;}
+.up-footer{
+  padding:14px 18px;background:var(--bg-card2);
+  border-top:1px solid var(--divider);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.up-counter{font-size:12px;color:var(--text-muted);}
+.up-counter strong{color:var(--text-primary);}
+.up-empty{text-align:center;padding:52px 20px;color:var(--text-muted);font-size:13px;}
+.up-empty .ms{font-size:42px;display:block;margin-bottom:14px;opacity:.28;}
+.up-empty p{line-height:1.6;}
+/* hide the old bottom-sheet handle — not needed for a side drawer */
+.up-handle{display:none;}
+
+/* ─── Avatar Modal ──────────────────────────────────────────────── */
+.avatar-modal{
+  position:fixed;inset:0;z-index:999;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0);backdrop-filter:blur(0px);
+  transition:background .28s,backdrop-filter .28s;pointer-events:none;
+}
+.avatar-modal.open{background:rgba(0,0,0,.78);backdrop-filter:blur(10px);pointer-events:all;}
+.avatar-modal-inner{position:relative;transform:scale(.72);opacity:0;transition:transform .32s cubic-bezier(.16,1,.3,1),opacity .26s;}
+.avatar-modal.open .avatar-modal-inner{transform:scale(1);opacity:1;}
+.avatar-modal-img{
+  width:270px;height:270px;border-radius:50%;
+  background:var(--gradient-accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:84px;font-weight:700;color:#fff;
+  border:4px solid rgba(255,255,255,.18);
+  box-shadow:0 28px 72px rgba(0,0,0,.65);
+  background-size:cover;background-position:center;
+}
+.avatar-modal-close{
+  position:absolute;top:-14px;right:-14px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg-card);border:1px solid var(--border-default);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:var(--shadow-hover);color:var(--text-secondary);transition:all .2s;
+}
+.avatar-modal-close:hover{color:var(--text-primary);border-color:var(--border-strong);}
+.avatar-modal-name{margin-top:18px;text-align:center;font-size:15px;font-weight:600;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+
+/* ─── Success Screen ─────────────────────────────────────────────── */
+.success-screen{
+  display:none;flex-direction:column;align-items:center;
+  text-align:center;padding:64px 28px;gap:18px;
+}
+.success-icon{animation:successPop .55s cubic-bezier(.16,1,.3,1) both;}
+.success-ring{
+  width:88px;height:88px;border-radius:50%;
+  background:var(--bg-success);border:2px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 10px rgba(26,127,55,.08),0 0 32px var(--green-glow);
+}
+
+/* ─── Step Transition ─────────────────────────────────────────────── */
+.step-panel{animation:fadeUp .3s cubic-bezier(.16,1,.3,1) both;}
+</style>
+</head>
+<body>
+<!-- Background Orbs -->
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <nav class="breadcrumb">
+    <button class="back-btn" onclick="goBack()">Members</button>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Add Member</span>
+  </nav>
+  <div class="top-actions">
+    <button class="queue-pill" id="queueBadgeBtn" onclick="openUploadPanel()">
+      <span class="ms" style="font-size:16px;">inbox</span>
+      Queue
+      <span class="q-badge" id="qPill" style="display:none;">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar anim-fade-up d1">
+    <div class="sidebar-progress">
+      <div class="sidebar-progress-fill" id="progressFill" style="width:25%;"></div>
+    </div>
+    <div class="sidebar-inner">
+      <div class="v-step active" data-step="1" onclick="goToStep(1)" id="vstep1">
+        <div class="v-step-indicator" id="vi1">1</div>
+        <div class="v-step-text">
+          <div class="v-step-num">Step 1 of 4</div>
+          <div class="v-step-label">Personal Info</div>
+        </div>
+      </div>
+      <div class="v-connector" id="vc1"></div>
+      <div class="v-step" data-step="2" onclick="goToStep(2)" id="vstep2">
+        <div class="v-step-indicator" id="vi2">2</div>
+        <div class="v-step-text">
+          <div class="v-step-num">Step 2 of 4</div>
+          <div class="v-step-label">Contact Details</div>
+        </div>
+      </div>
+      <div class="v-connector" id="vc2"></div>
+      <div class="v-step" data-step="3" onclick="goToStep(3)" id="vstep3">
+        <div class="v-step-indicator" id="vi3">3</div>
+        <div class="v-step-text">
+          <div class="v-step-num">Step 3 of 4</div>
+          <div class="v-step-label">Membership Info</div>
+        </div>
+      </div>
+      <div class="v-connector" id="vc3"></div>
+      <div class="v-step" data-step="4" onclick="goToStep(4)" id="vstep4">
+        <div class="v-step-indicator" id="vi4">4</div>
+        <div class="v-step-text">
+          <div class="v-step-num">Step 4 of 4</div>
+          <div class="v-step-label">Review</div>
+        </div>
+      </div>
+      <div class="sidebar-tip">
+        <span class="ms">info</span>
+        <p id="tipText"><strong>Tip:</strong> Fill in the member details across each step. Required fields are marked *</p>
+      </div>
+      <div class="sidebar-queue" id="sidebarQueue" style="display:none;">
+        <div class="sq-divider"></div>
+        <div class="sq-header">
+          <span class="sq-label">Pending Queue</span>
+          <button class="sq-upload-btn" id="sqUploadBtn" onclick="startUploadAll()">
+            <span class="ms" style="font-size:13px;">cloud_upload</span> Upload All
+          </button>
+        </div>
+        <div id="sqList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Content Panel -->
+  <div class="content-panel anim-fade-up d2">
+    <div class="progress-bar"><div class="progress-fill" id="progressFillMob" style="width:25%;"></div></div>
+    <div class="editing-banner" id="editingBanner">
+      <span class="ms fill" style="font-size:16px;color:var(--caci-blue-light);">edit_note</span>
+      Editing: <strong id="editingName">—</strong>
+      <button onclick="cancelEdit()" style="margin-left:auto;font-size:11.5px;color:var(--text-danger);background:none;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;display:flex;align-items:center;gap:4px;">
+        <span class="ms" style="font-size:14px;">close</span> Cancel Edit
+      </button>
+    </div>
+
+    <!-- Step 1: Personal Info -->
+    <div id="step1">
+      <div class="content-head">
+        <div class="content-head-text">
+          <div class="step-eyebrow"><span class="ms fill" style="font-size:11px;">radio_button_checked</span>Step 1 of 4</div>
+          <h1>Personal Info</h1>
+          <p>Basic details about the new member</p>
+        </div>
+        <div class="step-icon-wrap"><span class="ms">person</span></div>
+      </div>
+      <div class="step-content step-panel">
+        <div class="photo-area">
+          <div class="photo-preview" id="avatarPreview" onclick="openAvatarModal()" title="Click to enlarge">?</div>
+          <div class="photo-upload-col">
+            <p class="form-label">Profile Photo</p>
+            <div class="photo-upload" id="photoUpload" onclick="document.getElementById('photoInput').click()">
+              <span class="ms" style="font-size:24px;color:var(--text-muted);">add_photo_alternate</span>
+              <p style="font-size:12px;color:var(--text-muted);font-weight:500;">Click to upload photo</p>
+              <p style="font-size:10.5px;color:var(--text-muted);opacity:.55;">JPG, PNG up to 5MB</p>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhoto(event)">
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="form-grid form-grid-3" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <select class="inp inp-select" id="f_title">
+              <option value="">Select…</option>
+              <option>Mr.</option><option>Mrs.</option><option>Miss</option>
+              <option>Dr.</option><option>Rev.</option><option>Prof.</option><option>Apostle</option>
+            </select>
+          </div>
+          <div class="form-group col2">
+            <label class="form-label">First Name <span class="req">*</span></label>
+            <input class="inp" id="f_first" type="text" placeholder="e.g. Stephen" oninput="updatePreview()">
+            <span class="form-error"><span class="ms" style="font-size:12px;">error</span>First name is required</span>
+          </div>
+          <div class="form-group col3">
+            <label class="form-label">Other Names</label>
+            <input class="inp" id="f_other" type="text" placeholder="Middle names (optional)" oninput="updatePreview()">
+          </div>
+          <div class="form-group col3">
+            <label class="form-label">Last Name <span class="req">*</span></label>
+            <input class="inp" id="f_last" type="text" placeholder="e.g. Ankomah" oninput="updatePreview()">
+            <span class="form-error"><span class="ms" style="font-size:12px;">error</span>Last name is required</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="section-title"><span class="ms fill" style="color:var(--green);font-size:15px;">people</span>Demographics</p>
+        <div class="form-grid form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input class="inp" id="f_dob" type="date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gender <span class="req">*</span></label>
+            <select class="inp inp-select" id="f_gender">
+              <option value="">Select…</option><option>Male</option><option>Female</option>
+            </select>
+            <span class="form-error"><span class="ms" style="font-size:12px;">error</span>Gender is required</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Marital Status</label>
+            <select class="inp inp-select" id="f_marital">
+              <option value="">Select…</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
+            </select>
+          </div>
+          <div class="form-group col3">
+            <label class="form-label">Occupation</label>
+            <input class="inp" id="f_occupation" type="text" placeholder="e.g. Teacher, Engineer, Student…">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Contact Details -->
+    <div id="step2" style="display:none;">
+      <div class="content-head">
+        <div class="content-head-text">
+          <div class="step-eyebrow"><span class="ms fill" style="font-size:11px;">radio_button_checked</span>Step 2 of 4</div>
+          <h1>Contact Details</h1>
+          <p>Phone, email and address information</p>
+        </div>
+        <div class="step-icon-wrap"><span class="ms">contact_phone</span></div>
+      </div>
+      <div class="step-content step-panel">
+        <div class="form-grid form-grid-2" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label class="form-label">Primary Phone <span class="req">*</span></label>
+            <div class="phone-wrap">
+              <div class="phone-prefix"><span style="font-size:15px;">🇬🇭</span> +233</div>
+              <input class="inp" id="f_phone" type="tel" placeholder="24 123 4567">
+            </div>
+            <span class="form-error"><span class="ms" style="font-size:12px;">error</span>Phone number is required</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Secondary Phone</label>
+            <div class="phone-wrap">
+              <div class="phone-prefix"><span style="font-size:15px;">🇬🇭</span> +233</div>
+              <input class="inp" id="f_phone2" type="tel" placeholder="24 123 4567">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="inp" id="f_email" type="email" placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Digital Address (GhanaPost)</label>
+            <input class="inp" id="f_digital_addr" type="text" placeholder="e.g. AK-123-4567">
+          </div>
+          <div class="form-group col2">
+            <label class="form-label">Physical Address</label>
+            <textarea class="inp" id="f_address" placeholder="Home address" style="min-height:70px;"></textarea>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="section-title"><span class="ms" style="color:var(--caci-blue-light);font-size:15px;">share</span>Social Media <span style="font-size:10px;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">(optional)</span></p>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">WhatsApp Number</label>
+          <div class="phone-wrap">
+            <div class="phone-prefix"><span style="font-size:15px;">🇬🇭</span> +233</div>
+            <input class="inp" id="f_whatsapp" type="tel" placeholder="+233 …">
+          </div>
+        </div>
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Facebook URL</label>
+            <input class="inp" id="f_facebook" type="url" placeholder="https://facebook.com/…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instagram URL</label>
+            <input class="inp" id="f_instagram" type="url" placeholder="https://instagram.com/…">
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="section-title"><span class="ms" style="color:var(--text-amber);font-size:15px;">emergency</span>Emergency Contact</p>
+        <div class="form-grid form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="inp" id="f_ec_name" type="text" placeholder="Contact person's name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <div class="phone-wrap">
+              <div class="phone-prefix"><span style="font-size:15px;">🇬🇭</span> +233</div>
+              <input class="inp" id="f_ec_phone" type="tel" placeholder="24 123 4567">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Relationship</label>
+            <select class="inp inp-select" id="f_ec_relation">
+              <option value="">Select…</option>
+              <option>Spouse</option><option>Parent</option><option>Child</option>
+              <option>Sibling</option><option>Friend</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Membership Info -->
+    <div id="step3" style="display:none;">
+      <div class="content-head">
+        <div class="content-head-text">
+          <div class="step-eyebrow"><span class="ms fill" style="font-size:11px;">radio_button_checked</span>Step 3 of 4</div>
+          <h1>Membership Info</h1>
+          <p>Membership type and assignment details</p>
+        </div>
+        <div class="step-icon-wrap"><span class="ms">badge</span></div>
+      </div>
+      <div class="step-content step-panel">
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Membership Type <span class="req">*</span></label>
+            <select class="inp inp-select" id="f_mem_type">
+              <option value="">Select…</option>
+              <option>Full Member</option><option>Associate Member</option>
+              <option>Visitor</option><option>Prospect</option>
+            </select>
+            <span class="form-error"><span class="ms" style="font-size:12px;">error</span>Membership type is required</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Join Date</label>
+            <input class="inp" id="f_join_date" type="date">
+            <span class="form-hint">Defaults to today's date</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Household</label>
+            <div style="position:relative;">
+              <input class="inp" id="f_household" type="text" placeholder="Search household…" autocomplete="off" style="padding-right:38px;">
+              <span class="ms" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-muted);pointer-events:none;">search</span>
+            </div>
+            <span class="form-hint">Optional — assign to an existing household</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="inp inp-select" id="f_status">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="visitor">Visitor</option>
+            </select>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="section-title"><span class="ms" style="color:var(--caci-red);font-size:15px;">lock</span>Pastoral Notes <span style="font-size:10px;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">— staff only, optional</span></p>
+        <div class="form-group">
+          <textarea class="inp" id="f_pastoral_notes" placeholder="Any initial pastoral observations or notes…" style="min-height:108px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Review -->
+    <div id="step4" style="display:none;">
+      <div class="content-head">
+        <div class="content-head-text">
+          <div class="step-eyebrow"><span class="ms fill" style="font-size:11px;">radio_button_checked</span>Step 4 of 4</div>
+          <h1>Review &amp; Confirm</h1>
+          <p>Verify all details before queuing or uploading</p>
+        </div>
+        <div class="step-icon-wrap"><span class="ms">fact_check</span></div>
+      </div>
+      <div class="step-content step-panel">
+        <div class="review-block">
+          <div class="review-section-title">
+            <span class="ms fill" style="color:var(--caci-blue);font-size:16px;">person</span>Personal
+            <button onclick="goToStep(1)">Edit</button>
+          </div>
+          <div id="review_personal"></div>
+        </div>
+        <div class="review-block">
+          <div class="review-section-title">
+            <span class="ms fill" style="color:var(--green);font-size:16px;">contact_phone</span>Contact
+            <button onclick="goToStep(2)">Edit</button>
+          </div>
+          <div id="review_contact"></div>
+        </div>
+        <div class="review-block">
+          <div class="review-section-title">
+            <span class="ms fill" style="color:var(--caci-red);font-size:16px;">badge</span>Membership
+            <button onclick="goToStep(3)">Edit</button>
+          </div>
+          <div id="review_membership"></div>
+        </div>
+        <button class="add-queue-btn" onclick="addToQueueAndAddAnother()">
+          <span class="ms">person_add</span>
+          Save &amp; add another member before uploading
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="successScreen" class="success-screen">
+      <div class="success-icon">
+        <div class="success-ring">
+          <span class="ms fill" style="font-size:44px;color:var(--text-success);">check_circle</span>
+        </div>
+      </div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-.3px;">All Members Uploaded!</h2>
+      <p style="font-size:13.5px;color:var(--text-muted);max-width:300px;line-height:1.6;" id="successMsg">All queued members have been successfully added to CACI Hub.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
+        <button class="btn btn-primary" onclick="location.reload()"><span class="ms">person_add</span> Add More</button>
+        <button class="btn btn-blue" onclick="viewMember()"><span class="ms">visibility</span> View Members</button>
+        <button class="btn" onclick="goBack()"><span class="ms">group</span> All Members</button>
+      </div>
+    </div>
+
+    <!-- Footer Navigation -->
+    <div class="content-foot" id="navFooter">
+      <div class="foot-meta">Step <strong id="stepLabel">1</strong> of 4</div>
+      <div class="foot-actions">
+        <button class="btn" id="btnBack" onclick="prevStep()" style="display:none;"><span class="ms">arrow_back</span> Back</button>
+        <button class="btn btn-blue" id="btnNext" onclick="nextStep()">Continue <span class="ms">arrow_forward</span></button>
+        <button class="btn btn-primary" id="btnQueue" onclick="addToQueueAndAddAnother()" style="display:none;"><span class="ms">add_circle</span> Add to Queue</button>
+        <button class="btn btn-green" id="btnUploadAll" onclick="startUploadAll()" style="display:none;"><span class="ms">cloud_upload</span> Upload All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Drawer (right side) -->
+<div class="upload-overlay" id="uploadOverlay" onclick="overlayClick(event)">
+  <div class="upload-panel" id="uploadPanel">
+    <div class="up-accent"></div>
+    <div class="up-head">
+      <div class="up-head-text">
+        <h2>Upload Queue</h2>
+        <p id="panelSubtitle">0 members pending</p>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+        <button onclick="closeUploadPanel()" class="icon-btn" title="Close"><span class="ms" style="font-size:18px;">close</span></button>
+        <button class="btn btn-green" id="panelUploadBtn" onclick="startUploadAll()" style="height:36px;font-size:12px;width:100%;justify-content:center;"><span class="ms" style="font-size:15px;">cloud_upload</span> Upload All</button>
+      </div>
+    </div>
+    <div class="up-body" id="upBody">
+      <div class="up-empty" id="upEmpty">
+        <span class="ms">inbox</span>
+        <p>No members queued yet.<br>Fill in the form and click <strong>Add to Queue</strong>.</p>
+      </div>
+    </div>
+    <div class="up-footer">
+      <span class="ms" style="font-size:15px;color:var(--text-muted);">info</span>
+      <span class="up-counter" id="upCounter">Uploaded: <strong>0</strong> / <strong>0</strong></span>
+      <button class="btn btn-primary" onclick="closeUploadPanel();currentStep=1;updateStepper();resetForm();" style="margin-left:auto;height:34px;font-size:11.5px;padding:0 14px;"><span class="ms" style="font-size:14px;">add</span> Add Member</button>
+    </div>
+  </div>
+</div>
+
+<!-- Avatar Modal -->
+<div class="avatar-modal" id="avatarModal" onclick="closeAvatarModal(event)">
+  <div class="avatar-modal-inner">
+    <div class="avatar-modal-img" id="modalImg"></div>
+    <div class="avatar-modal-name" id="modalName"></div>
+    <button class="avatar-modal-close" onclick="closeAvatarModal()"><span class="ms" style="font-size:18px;">close</span></button>
+  </div>
+</div>
+
+<script>
+/* ─── Theme ────────────────────────────────────────────────────────── */
+const html=document.documentElement;
+function applyTheme(t){
+  html.setAttribute('data-theme',t);
+  localStorage.setItem('caci-theme',t);
+}
+applyTheme(localStorage.getItem('caci-theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+
+/* ─── State ────────────────────────────────────────────────────────── */
+let currentStep=1,totalSteps=4;
+let memberQueue=[],editingId=null,uploadedCount=0,isUploading=false;
+const tips=[
+  'Fields marked <strong>*</strong> are required to continue.',
+  '<strong>Tip:</strong> Accurate contact info helps keep members updated.',
+  'Household is optional — you can assign it later.',
+  'Click <em>Add to Queue</em> to stage, or <em>Upload All</em> to commit.'
+];
+
+/* ─── Stepper ──────────────────────────────────────────────────────── */
+function updateStepper(){
+  const pct=(currentStep/totalSteps)*100;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressFillMob').style.width=pct+'%';
+  document.getElementById('stepLabel').textContent=currentStep;
+  for(let i=1;i<=totalSteps;i++){
+    const vs=document.getElementById('vstep'+i),vi=document.getElementById('vi'+i);
+    vs.classList.remove('active','done');
+    if(i<currentStep){
+      vs.classList.add('done');
+      vi.innerHTML='<span class="ms fill" style="font-size:14px;">check</span>';
+    } else if(i===currentStep){
+      vs.classList.add('active');vi.textContent=i;
+    } else {
+      vi.textContent=i;
+    }
+    if(i<totalSteps)document.getElementById('vc'+i).classList.toggle('done',i<currentStep);
+  }
+  for(let i=1;i<=totalSteps;i++){
+    const el=document.getElementById('step'+i);
+    if(el){
+      if(i===currentStep){el.style.display='';el.querySelector('.step-panel')&&(el.querySelector('.step-panel').style.animation='none',requestAnimationFrame(()=>el.querySelector('.step-panel').style.animation=''));}
+      else el.style.display='none';
+    }
+  }
+  document.getElementById('btnBack').style.display=currentStep>1?'':'none';
+  document.getElementById('btnNext').style.display=currentStep<totalSteps?'':'none';
+  const onReview=currentStep===totalSteps;
+  document.getElementById('btnQueue').style.display=onReview?'':'none';
+  const hasPending=memberQueue.filter(m=>m.status==='pending').length>0;
+  document.getElementById('btnUploadAll').style.display=(onReview&&hasPending)?'':'none';
+  document.getElementById('tipText').innerHTML=tips[currentStep-1];
+}
+
+function goToStep(n){
+  if(n>currentStep&&!validateStep(currentStep))return;
+  if(n>=1&&n<=totalSteps){currentStep=n;updateStepper();window.scrollTo({top:0,behavior:'smooth'});}
+}
+function nextStep(){
+  if(!validateStep(currentStep))return;
+  if(currentStep===totalSteps-1)buildReview();
+  if(currentStep<totalSteps){currentStep++;updateStepper();window.scrollTo({top:0,behavior:'smooth'});}
+}
+function prevStep(){if(currentStep>1){currentStep--;updateStepper();window.scrollTo({top:0,behavior:'smooth'});}}
+
+/* ─── Validation ───────────────────────────────────────────────────── */
+const required={1:['f_first','f_last','f_gender'],2:['f_phone'],3:['f_mem_type']};
+function validateStep(step){
+  let ok=true;
+  (required[step]||[]).forEach(id=>{
+    const el=document.getElementById(id),fg=el?.closest('.form-group');
+    if(!el?.value.trim()){
+      if(fg){fg.classList.add('has-error','anim-shake');setTimeout(()=>fg.classList.remove('anim-shake'),400);}
+      ok=false;
+    } else fg?.classList.remove('has-error');
+  });
+  return ok;
+}
+document.addEventListener('input',e=>{const fg=e.target.closest('.form-group');if(fg&&e.target.value.trim())fg.classList.remove('has-error');});
+document.addEventListener('change',e=>{const fg=e.target.closest('.form-group');if(fg&&e.target.value.trim())fg.classList.remove('has-error');});
+
+/* ─── Photo Upload ─────────────────────────────────────────────────── */
+let currentPhotoDataUrl=null;
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    currentPhotoDataUrl=ev.target.result;
+    const p=document.getElementById('avatarPreview');
+    p.style.backgroundImage=`url(${ev.target.result})`;p.style.backgroundSize='cover';p.style.backgroundPosition='center';p.textContent='';
+    const pu=document.getElementById('photoUpload');pu.classList.add('has-photo');
+    pu.innerHTML='<span class="ms fill" style="font-size:24px;color:var(--text-success);">check_circle</span><p style="font-size:12px;color:var(--text-success);font-weight:500;">Photo uploaded</p>';
+  };
+  reader.readAsDataURL(file);
+}
+function updatePreview(){
+  const f=document.getElementById('f_first').value.trim(),l=document.getElementById('f_last').value.trim();
+  const p=document.getElementById('avatarPreview');
+  if(!p.style.backgroundImage)p.textContent=((f[0]||'')+(l[0]||'')).toUpperCase()||'?';
+}
+
+/* ─── Form Helpers ─────────────────────────────────────────────────── */
+function g(id){return(document.getElementById(id)||{}).value||'';}
+function collectFormData(){return{title:g('f_title'),first:g('f_first'),other:g('f_other'),last:g('f_last'),dob:g('f_dob'),gender:g('f_gender'),marital:g('f_marital'),occupation:g('f_occupation'),phone:g('f_phone'),phone2:g('f_phone2'),email:g('f_email'),digital_addr:g('f_digital_addr'),address:g('f_address'),whatsapp:g('f_whatsapp'),facebook:g('f_facebook'),instagram:g('f_instagram'),ec_name:g('f_ec_name'),ec_phone:g('f_ec_phone'),ec_relation:g('f_ec_relation'),mem_type:g('f_mem_type'),join_date:g('f_join_date'),household:g('f_household'),status:g('f_status'),pastoral_notes:g('f_pastoral_notes')};}
+function populateForm(d){Object.keys(d).forEach(k=>{const el=document.getElementById('f_'+k);if(el)el.value=d[k]||'';});}
+function resetForm(){
+  ['f_title','f_first','f_other','f_last','f_dob','f_gender','f_marital','f_occupation','f_phone','f_phone2','f_email','f_digital_addr','f_address','f_whatsapp','f_facebook','f_instagram','f_ec_name','f_ec_phone','f_ec_relation','f_mem_type','f_household','f_pastoral_notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f_status').value='active';
+  document.getElementById('f_join_date').value=new Date().toISOString().split('T')[0];
+  currentPhotoDataUrl=null;
+  const p=document.getElementById('avatarPreview');p.style.backgroundImage='';p.style.backgroundSize='';p.textContent='?';
+  const pu=document.getElementById('photoUpload');pu.classList.remove('has-photo');
+  pu.innerHTML='<span class="ms" style="font-size:24px;color:var(--text-muted);">add_photo_alternate</span><p style="font-size:12px;color:var(--text-muted);font-weight:500;">Click to upload photo</p><p style="font-size:10.5px;color:var(--text-muted);opacity:.55;">JPG, PNG up to 5MB</p>';
+  document.getElementById('photoInput').value='';
+  editingId=null;document.getElementById('editingBanner').classList.remove('visible');
+}
+
+/* ─── Review Builder ───────────────────────────────────────────────── */
+function rv(label,value){const v=(value||'').trim();return `<div class="review-row"><span class="review-label">${label}</span><span class="review-value ${v?'':'review-empty'}">${v||'—'}</span></div>`;}
+function buildReview(){
+  document.getElementById('review_personal').innerHTML=rv('Title',g('f_title'))+rv('First Name',g('f_first'))+rv('Other Names',g('f_other'))+rv('Last Name',g('f_last'))+rv('Date of Birth',g('f_dob'))+rv('Gender',g('f_gender'))+rv('Marital Status',g('f_marital'))+rv('Occupation',g('f_occupation'));
+  document.getElementById('review_contact').innerHTML=rv('Primary Phone',g('f_phone'))+rv('Secondary Phone',g('f_phone2'))+rv('WhatsApp',g('f_whatsapp'))+rv('Email',g('f_email'))+rv('Address',g('f_address'))+rv('Digital Address',g('f_digital_addr'))+rv('Facebook',g('f_facebook'))+rv('Instagram',g('f_instagram'))+rv('Emergency – Name',g('f_ec_name'))+rv('Emergency – Phone',g('f_ec_phone'))+rv('Emergency – Relation',g('f_ec_relation'));
+  document.getElementById('review_membership').innerHTML=rv('Membership Type',g('f_mem_type'))+rv('Join Date',g('f_join_date'))+rv('Household',g('f_household'))+rv('Status',g('f_status'))+rv('Pastoral Notes',g('f_pastoral_notes'));
+}
+
+function mName(d){return[d.title,d.first,d.last].filter(Boolean).join(' ')||'Unnamed Member';}
+function mInitials(d){return((d.first||'')[0]||(d.last||'')[0]||'?').toUpperCase();}
+
+/* ─── Queue Operations ─────────────────────────────────────────────── */
+function addToQueueAndAddAnother(){
+  const data=collectFormData();
+  if(editingId!==null){
+    const idx=memberQueue.findIndex(m=>m.id===editingId);
+    if(idx>-1){memberQueue[idx].data=data;memberQueue[idx].photoDataUrl=currentPhotoDataUrl;}
+    editingId=null;document.getElementById('editingBanner').classList.remove('visible');
+  } else {
+    memberQueue.push({id:Date.now()+Math.random(),data,photoDataUrl:currentPhotoDataUrl,status:'pending'});
+  }
+  renderQueue();resetForm();currentStep=1;updateStepper();
+  window.scrollTo({top:0,behavior:'smooth'});
+  const pill=document.getElementById('qPill');pill.style.animation='none';setTimeout(()=>{pill.style.animation='';},10);
+}
+function removeFromQueue(id){
+  const el=document.getElementById('qi_'+id)||document.getElementById('sqi_'+id);
+  if(el){el.classList.add('removing');setTimeout(()=>{memberQueue=memberQueue.filter(m=>m.id!==id);renderQueue();},300);}
+  else{memberQueue=memberQueue.filter(m=>m.id!==id);renderQueue();}
+}
+function editFromQueue(id){
+  const m=memberQueue.find(x=>x.id===id);if(!m||m.status!=='pending')return;
+  editingId=id;populateForm(m.data);
+  if(m.photoDataUrl){
+    currentPhotoDataUrl=m.photoDataUrl;
+    const p=document.getElementById('avatarPreview');
+    p.style.backgroundImage=`url(${m.photoDataUrl})`;p.style.backgroundSize='cover';p.style.backgroundPosition='center';p.textContent='';
+    const pu=document.getElementById('photoUpload');pu.classList.add('has-photo');
+    pu.innerHTML='<span class="ms fill" style="font-size:24px;color:var(--text-success);">check_circle</span><p style="font-size:12px;color:var(--text-success);font-weight:500;">Photo uploaded</p>';
+  }
+  document.getElementById('editingName').textContent=mName(m.data);
+  document.getElementById('editingBanner').classList.add('visible');
+  closeUploadPanel();currentStep=1;updateStepper();window.scrollTo({top:0,behavior:'smooth'});
+}
+function cancelEdit(){editingId=null;resetForm();}
+
+/* ─── Render Queue ─────────────────────────────────────────────────── */
+function renderQueue(){
+  const pending=memberQueue.filter(m=>m.status==='pending').length;
+  const total=memberQueue.length;
+  const pill=document.getElementById('qPill'),badge=document.getElementById('queueBadgeBtn');
+  if(total>0){pill.style.display='inline-flex';pill.textContent=total;badge.classList.add('has-items');}
+  else{pill.style.display='none';badge.classList.remove('has-items');}
+  const sqC=document.getElementById('sidebarQueue'),sqL=document.getElementById('sqList');
+  sqC.style.display=total>0?'block':'none';sqL.innerHTML='';
+  memberQueue.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='sq-item'+(m.id===editingId?' active-edit':'')+(m.status==='uploading'?' uploading':'');
+    el.id='sqi_'+m.id;
+    const aSt=m.photoDataUrl?`background-image:url(${m.photoDataUrl});background-size:cover;background-position:center;`:'';
+    el.innerHTML=`<div class="sq-avatar" style="${aSt}">${m.photoDataUrl?'':mInitials(m.data)}</div>
+      <div class="sq-info"><div class="sq-name">${mName(m.data)}</div><div class="sq-meta">${m.data.mem_type||'No type'} · ${m.status==='uploading'?'Uploading…':'Pending'}</div>${m.status==='uploading'?`<div class="sq-prog"><div class="sq-prog-fill" id="sqp_${m.id}"></div></div>`:''}</div>
+      <div class="sq-actions">${m.status==='pending'?`<button class="sq-btn" onclick="event.stopPropagation();editFromQueue(${m.id})" title="Edit"><span class="ms" style="font-size:13px;">edit</span></button><button class="sq-btn del" onclick="event.stopPropagation();removeFromQueue(${m.id})" title="Remove"><span class="ms" style="font-size:13px;">delete</span></button>`:''} ${m.status==='uploading'?'<div class="spinner"></div>':''}</div>`;
+    el.onclick=()=>{if(m.status==='pending')editFromQueue(m.id);};
+    sqL.appendChild(el);
+  });
+  const body=document.getElementById('upBody'),upEmpty=document.getElementById('upEmpty');
+  upEmpty.style.display=total===0?'block':'none';
+  body.querySelectorAll('.uq-item').forEach(e=>e.remove());
+  memberQueue.forEach((m,idx)=>{
+    const el=document.createElement('div');
+    el.className='uq-item'+(m.status==='uploading'?' uploading':'')+(m.status==='done'?' done':'');
+    el.id='qi_'+m.id;el.style.animationDelay=(idx*45)+'ms';
+    const aSt=m.photoDataUrl?`background-image:url(${m.photoDataUrl});background-size:cover;background-position:center;`:'';
+    el.innerHTML=`<div class="uq-avatar" style="${aSt}">${m.photoDataUrl?'':mInitials(m.data)}</div>
+      <div class="uq-info"><div class="uq-name">${mName(m.data)}</div><div class="uq-sub">${m.data.mem_type||'No type'} · ${m.data.gender||'—'} · ${m.data.phone||'No phone'}</div><div class="uq-prog"><div class="uq-prog-fill" id="uqp_${m.id}" style="width:${m.status==='done'?100:0}%"></div></div></div>
+      <div class="uq-status" id="uqs_${m.id}">${m.status==='pending'?`<button class="sq-btn" onclick="editFromQueue(${m.id})" title="Edit" style="width:32px;height:32px;"><span class="ms" style="font-size:15px;">edit</span></button><button class="sq-btn del" onclick="removeFromQueue(${m.id})" title="Remove" style="width:32px;height:32px;"><span class="ms" style="font-size:15px;">delete</span></button>`:''} ${m.status==='uploading'?'<div class="spinner"></div>':''} ${m.status==='done'?'<span class="ms fill" style="font-size:22px;color:var(--text-success);">check_circle</span>':''}</div>`;
+    body.appendChild(el);
+  });
+  document.getElementById('upCounter').innerHTML=`Uploaded: <strong>${uploadedCount}</strong> / <strong>${total+uploadedCount}</strong>`;
+  document.getElementById('panelSubtitle').textContent=`${pending} pending · ${uploadedCount} uploaded`;
+  const hasPending=pending>0;
+  document.getElementById('panelUploadBtn').disabled=!hasPending||isUploading;
+  document.getElementById('sqUploadBtn').disabled=!hasPending||isUploading;
+  if(currentStep===totalSteps)document.getElementById('btnUploadAll').style.display=hasPending?'':'none';
+}
+
+/* ─── Upload Logic ─────────────────────────────────────────────────── */
+async function startUploadAll(){
+  const pending=memberQueue.filter(m=>m.status==='pending');
+  if(!pending.length||isUploading)return;
+  isUploading=true;renderQueue();openUploadPanel();
+  for(const m of pending)await uploadMember(m);
+  isUploading=false;
+  if(memberQueue.length===0)setTimeout(showAllDoneSuccess,700);
+}
+function uploadMember(m){
+  return new Promise(resolve=>{
+    m.status='uploading';renderQueue();let p=0;
+    const tick=setInterval(()=>{
+      p+=Math.random()*15+8;if(p>100)p=100;
+      const fs=document.getElementById('sqp_'+m.id),fu=document.getElementById('uqp_'+m.id);
+      if(fs)fs.style.width=p+'%';if(fu)fu.style.width=p+'%';
+      if(p>=100){
+        clearInterval(tick);
+        memberQueue=memberQueue.filter(x=>x.id!==m.id);uploadedCount++;
+        const el=document.getElementById('qi_'+m.id);
+        if(el){el.classList.add('done');setTimeout(()=>{el.classList.add('removing');setTimeout(()=>{renderQueue();resolve();},300);},450);}
+        else{renderQueue();resolve();}
+      }
+    },80);
+  });
+}
+function showAllDoneSuccess(){
+  closeUploadPanel();
+  for(let i=1;i<=totalSteps;i++){const el=document.getElementById('step'+i);if(el)el.style.display='none';}
+  document.getElementById('navFooter').style.display='none';
+  document.getElementById('editingBanner').classList.remove('visible');
+  document.getElementById('successMsg').textContent=`${uploadedCount} member${uploadedCount!==1?'s':''} successfully added to CACI Hub.`;
+  document.getElementById('successScreen').style.display='flex';
+  for(let i=1;i<=4;i++){const vs=document.getElementById('vstep'+i),vi=document.getElementById('vi'+i);vs.classList.remove('active');vs.classList.add('done');vi.innerHTML='<span class="ms fill" style="font-size:14px;">check</span>';if(i<4)document.getElementById('vc'+i).classList.add('done');}
+  document.getElementById('progressFill').style.width='100%';
+}
+
+/* ─── Panel & Modal ────────────────────────────────────────────────── */
+function openUploadPanel(){renderQueue();document.getElementById('uploadOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeUploadPanel(){document.getElementById('uploadOverlay').classList.remove('open');document.body.style.overflow='';}
+function overlayClick(e){if(e.target===document.getElementById('uploadOverlay'))closeUploadPanel();}
+function openAvatarModal(){
+  const src=document.getElementById('avatarPreview'),mImg=document.getElementById('modalImg'),bg=src.style.backgroundImage;
+  if(bg){mImg.style.backgroundImage=bg;mImg.style.backgroundSize='cover';mImg.style.backgroundPosition='center';mImg.textContent='';}
+  else{mImg.style.backgroundImage='';mImg.style.background='var(--gradient-accent)';mImg.textContent=src.textContent;}
+  document.getElementById('modalName').textContent=[g('f_title'),document.getElementById('f_first').value.trim(),document.getElementById('f_last').value.trim()].filter(Boolean).join(' ')||'';
+  document.getElementById('avatarModal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeAvatarModal(e){
+  if(e&&e.target!==document.getElementById('avatarModal')&&!e.target.closest('.avatar-modal-close'))return;
+  document.getElementById('avatarModal').classList.remove('open');document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAvatarModal();closeUploadPanel();}});
+
+function viewMember(){window.location.href='caci-members.html';}
+function goBack(){window.location.href='caci-hub-members.html';}
+
+/* ─── Init ─────────────────────────────────────────────────────────── */
+document.getElementById('f_join_date').value=new Date().toISOString().split('T')[0];
+updateStepper();renderQueue();
+</script>
+</body>
+</html>

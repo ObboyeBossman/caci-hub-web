@@ -17,6 +17,7 @@ export const PERMISSIONS = {
   MEMBERS_EDIT:       'members.edit',
   MEMBERS_DEACTIVATE: 'members.deactivate',
   MEMBERS_IMPORT:     'members.import',
+  MEMBERS_EXPORT:     'members.export',
 
   // ── Membership: Households ───────────────────────────────────────────────────
   HOUSEHOLDS_VIEW:    'households.view',
@@ -27,13 +28,35 @@ export const PERMISSIONS = {
   REPORTS_VIEW:       'reports.view',
   REPORTS_EXPORT:     'reports.export',
 
-  // ── Finance ───────────────────────────────────────────────────────────────────
-  FINANCE_OFFERINGS_VIEW: 'finance.offerings.view',
-  FINANCE_OFFERINGS_EDIT: 'finance.offerings.edit',
 
   // ── Admin ─────────────────────────────────────────────────────────────────────
   ADMIN_VIEW:           'admin.view',
   ADMIN_USERS_MANAGE:   'admin.users.manage',
+
+  // ── Services ─────────────────────────────────────────────────────────────────
+  SERVICES_VIEW:              'services.view',
+  SERVICES_CREATE:            'services.create',
+  SERVICES_EDIT:              'services.edit',
+  SERVICES_DELETE:            'services.delete',
+  SERVICES_TEMPLATES_MANAGE:  'services.templates.manage',
+  SERVICES_ATTENDANCE_MARK:   'services.attendance.mark',
+
+  // ── Groups ────────────────────────────────────────────────────────────────
+  GROUPS_VIEW:            'groups.view',
+  GROUPS_CREATE:          'groups.create',
+  GROUPS_EDIT:            'groups.edit',
+  GROUPS_DELETE:          'groups.delete',
+  GROUPS_MEMBERS_MANAGE:  'groups.members.manage',
+
+  // ── Finance ────────────────────────────────────────────────────────────────
+  FINANCE_VIEW:    'finance.view',
+  FINANCE_MANAGE:  'finance.manage',
+  FINANCE_EXPORT:  'finance.export',
+
+  // ── Pastoral Care ──────────────────────────────────────────────────────────
+  PASTORAL_VIEW:          'pastoral.view',
+  PASTORAL_MANAGE:        'pastoral.manage',
+  PASTORAL_PRAYER_MANAGE: 'pastoral.prayer.manage',
 } as const
 
 /** Union of all valid platform permission keys. */
