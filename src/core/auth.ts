@@ -53,6 +53,7 @@ export async function loadCurrentUser(): Promise<void> {
   // Admin bypass: don't bother loading permissions (admin has all access)
   let permissions: string[] = []
   const assemblyRoleId: string | null = p.assembly_role_id ?? null
+  let assemblyRoleName: string | null = null
 
   if (p.role === 'member' && assemblyRoleId) {
     const { data: rolePerms, error: rpErr } = await supabase
@@ -67,6 +68,20 @@ export async function loadCurrentUser(): Promise<void> {
     }
   }
 
+  // Fetch assembly role name for display (optional)
+  if (assemblyRoleId) {
+    try {
+      const { data: roleRow, error: rrErr } = await supabase
+        .from('assembly_roles')
+        .select('name')
+        .eq('id', assemblyRoleId)
+        .single()
+      if (!rrErr && roleRow) assemblyRoleName = (roleRow as any).name ?? null
+    } catch (e) {
+      console.warn('[auth] Failed to load assembly role name', e)
+    }
+  }
+
   _currentUser = {
     id:                   user.id,
     email:                user.email ?? null,
@@ -75,6 +90,7 @@ export async function loadCurrentUser(): Promise<void> {
     role:                 p.role as 'admin' | 'member',
     assemblyId:           (p.assembly_id as string) ?? null,
     assemblyRoleId,
+    assemblyRoleName,
     permissions,
     isActive:             p.is_active as boolean,
     must_change_password: p.must_change_password as boolean,

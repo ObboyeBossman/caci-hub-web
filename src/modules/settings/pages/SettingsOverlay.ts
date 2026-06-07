@@ -1,6 +1,7 @@
 // src/modules/settings/pages/SettingsOverlay.ts
 
 import { getCurrentUser }  from '@core/auth';
+import { formatRole } from '../../../shared/utils/format';
 import { makeToast }       from './utils/settingsToast';
 import { profilePanelHTML, profilePanelSkeleton, bindProfilePanel, onPwdStrengthInput } from './panels/ProfilePanel';
 import { appearancePanelHTML, bindAppearancePanel, syncAppearancePanel } from './panels/AppearancePanel';
@@ -34,7 +35,11 @@ export class SettingsOverlay {
     const user        = getCurrentUser();
     const displayName = user?.fullName ?? 'User';
     const email       = user?.email    ?? '';
-    const role        = user?.role?.replace(/_/g, ' ') ?? 'Member';
+    const role        = (() => {
+      if (!user) return '';
+      if (user.role === 'admin') return 'Admin';
+      return user.assemblyRoleName ? formatRole(user.assemblyRoleName) : '';
+    })();
     const initials    = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
     this._el = document.createElement('div');
