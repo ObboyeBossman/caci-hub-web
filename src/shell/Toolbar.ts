@@ -47,6 +47,8 @@ const TOOLBAR_CSS = /* css */`
   color: var(--text-primary);
   transition: background 0.15s;
   flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .topnav-hamburger:hover { background: var(--bg-hover); }
 .topnav-hamburger span {
@@ -81,6 +83,8 @@ const TOOLBAR_CSS = /* css */`
   color: var(--text-secondary); font-size: 1.286rem;
   position: relative;
   transition: background 0.15s, color 0.15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .topnav-icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 
@@ -96,6 +100,8 @@ const TOOLBAR_CSS = /* css */`
   transition: background 0.15s, border-color 0.15s, color 0.15s;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 200px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .topnav-info-btn:hover {
   background: var(--bg-hover); border-color: var(--border-strong); color: var(--text-primary);
