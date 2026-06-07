@@ -1512,7 +1512,7 @@ async function _startUploadAll(): Promise<void> {
         _renderDrawer()
 
         try {
-            const payload: Omit<import('../../../types/member.types').CreateMemberPayload, 'assembly_id'> = {
+            const payload: Omit<import('../../../types/member.types').CreateMemberPayload, 'assembly_id'> & { profile_photo_file?: File | null } = {
                 title:                          m.data.title || null,
                 first_name:                     m.data.first,
                 last_name:                      m.data.last,
@@ -1535,7 +1535,7 @@ async function _startUploadAll(): Promise<void> {
                 join_date:                      m.data.join_date || null,
                 household_id:                   m.data.household_id || null,
                 pastoral_notes:                 m.data.pastoral_notes || null,
-            } as Omit<import('../../../types/member.types').CreateMemberPayload, 'assembly_id'> & { profile_photo_file?: File | null }
+            }
             payload.profile_photo_file = m.photoFile;
             
             await registerMember(payload)

@@ -10,17 +10,25 @@ serve(async (req: Request) => {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-    const supabaseUser = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', { global: { headers: { Authorization: authHeader } } })
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser()
+    const jwt = authHeader.replace(/^Bearer\s+/i, '')
+    const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', { auth: { autoRefreshToken: false, persistSession: false } })
+
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(jwt)
     if (authError || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-    const { data: profile, error: profileError } = await supabaseUser.from('user_profiles').select('role, assembly_id').eq('id', user.id).single()
-    if (profileError || !profile || profile.role !== 'admin') return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: corsHeaders })
+    const permissions: string[] = user.app_metadata?.permissions ?? []
+    const hasAdminPerm = permissions.includes('admin.users.manage')
+
+    const { data: profile, error: profileError } = await supabaseAdmin.from('user_profiles').select('system_role, assembly_id').eq('id', user.id).single()
+    if (profileError || !profile) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+
+    const isAdmin = profile.system_role === 'admin'
+    if (!hasAdminPerm && !isAdmin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: corsHeaders })
 
     const { memberId } = await req.json()
     if (!memberId) return new Response(JSON.stringify({ error: 'memberId is required' }), { status: 400, headers: corsHeaders })
 
-    const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', { auth: { autoRefreshToken: false, persistSession: false } })
+    // supabaseAdmin already initialized above
 
     const { data: member, error: memErr } = await supabaseAdmin.from('members').select('assembly_id, auth_user_id').eq('id', memberId).single()
     if (memErr || !member) return new Response(JSON.stringify({ error: 'Member not found' }), { status: 404, headers: corsHeaders })
