@@ -1,66 +1,88 @@
-import type { Module } from '@/types/modules'
+import { register } from '../../core/authorization/permission-registry'
 
-export const communicationManifest: Module = {
-  id: 'communication',
-  name: 'Communications',
-  description: 'Multi-channel messaging, announcements, and audio broadcasts',
-  icon: 'MessageSquare',
-  version: '1.0.0',
+export const CommunicationModule = {
+  name: 'communication',
   permissions: [
-    'communications.broadcast.send',
-    'communications.broadcast.schedule',
-    'communications.direct.send',
-    'communications.direct.send_pastoral',
-    'communications.direct.moderate',
-    'communications.audio.broadcast',
-    'communications.announcements.manage',
-    'communications.templates.manage',
-    'communications.attachments.view_pastoral',
-    'communications.attachments.manage',
-    'communications.reports.view'
+    {
+      key:          'communications.broadcast.send',
+      label:        'Send Broadcasts',
+      description:  'Allows sending broadcast messages to assemblies or groups',
+      category:     'Broadcasting',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.broadcast.schedule',
+      label:        'Schedule Broadcasts',
+      description:  'Allows scheduling broadcast messages for future delivery',
+      category:     'Broadcasting',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.direct.send',
+      label:        'Send Direct Messages',
+      description:  'Allows sending direct messages to members',
+      category:     'Messaging',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.direct.send_pastoral',
+      label:        'Send Pastoral Messages',
+      description:  'Allows sending pastoral care messages via direct messaging',
+      category:     'Messaging',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.direct.moderate',
+      label:        'Moderate Messages',
+      description:  'Allows moderating and flagging message threads',
+      category:     'Messaging',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.audio.broadcast',
+      label:        'Audio Broadcast',
+      description:  'Allows recording and broadcasting audio messages',
+      category:     'Audio',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.announcements.manage',
+      label:        'Manage Announcements',
+      description:  'Allows creating and managing assembly announcements',
+      category:     'Announcements',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.templates.manage',
+      label:        'Manage Templates',
+      description:  'Allows creating and managing message templates',
+      category:     'Templates',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.attachments.view_pastoral',
+      label:        'View Pastoral Attachments',
+      description:  'Allows viewing sensitive pastoral attachments',
+      category:     'Attachments',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.attachments.manage',
+      label:        'Manage Attachments',
+      description:  'Allows managing message attachments',
+      category:     'Attachments',
+      isAssignable: true,
+    },
+    {
+      key:          'communications.reports.view',
+      label:        'View Communication Reports',
+      description:  'Allows viewing communication analytics and reports',
+      category:     'Reports',
+      isAssignable: true,
+    },
   ],
-  features: {
-    broadcasting: {
-      enabled: true,
-      description: 'Send broadcasts to assemblies or groups'
-    },
-    directMessaging: {
-      enabled: true,
-      description: 'Send direct messages and pastoral threads'
-    },
-    audioBroadcast: {
-      enabled: true,
-      description: 'Record and broadcast audio messages (pastor-only)',
-      requiresPermission: 'communications.audio.broadcast'
-    },
-    announcements: {
-      enabled: true,
-      description: 'Create and manage assembly announcements'
-    },
-    templates: {
-      enabled: true,
-      description: 'Create reusable message templates'
-    }
-  },
-  storage: {
-    buckets: [
-      {
-        name: 'messages-media-public',
-        description: 'Public media for announcements and broadcasts'
-      },
-      {
-        name: 'messages-media-private',
-        description: 'Private media including pastoral audio'
-      }
-    ]
-  },
-  edgeFunctions: [
-    'comm-fanout',
-    'comm-dispatch',
-    'comm-webhook',
-    'comm-archive',
-    'comm-triggers',
-    'storage-signed-url',
-    'storage-cleanup'
-  ]
+}
+
+export function registerCommunicationPermissions(): void {
+  register({ moduleName: CommunicationModule.name, permissions: CommunicationModule.permissions })
 }

@@ -57,6 +57,19 @@ export const PERMISSIONS = {
   PASTORAL_VIEW:          'pastoral.view',
   PASTORAL_MANAGE:        'pastoral.manage',
   PASTORAL_PRAYER_MANAGE: 'pastoral.prayer.manage',
+
+  // ── Communications ──────────────────────────────────────────────────────────
+  COMMS_BROADCAST_SEND:           'communications.broadcast.send',
+  COMMS_BROADCAST_SCHEDULE:       'communications.broadcast.schedule',
+  COMMS_DIRECT_SEND:              'communications.direct.send',
+  COMMS_DIRECT_SEND_PASTORAL:     'communications.direct.send_pastoral',
+  COMMS_DIRECT_MODERATE:          'communications.direct.moderate',
+  COMMS_AUDIO_BROADCAST:          'communications.audio.broadcast',
+  COMMS_ANNOUNCEMENTS_MANAGE:     'communications.announcements.manage',
+  COMMS_TEMPLATES_MANAGE:         'communications.templates.manage',
+  COMMS_ATTACHMENTS_VIEW_PASTORAL:'communications.attachments.view_pastoral',
+  COMMS_ATTACHMENTS_MANAGE:       'communications.attachments.manage',
+  COMMS_REPORTS_VIEW:             'communications.reports.view',
 } as const
 
 /** Union of all valid platform permission keys. */

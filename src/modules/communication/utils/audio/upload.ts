@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@core/supabase'
 import { sha256 } from './checksum'
 import { validateAudioUpload } from './validation'
 

@@ -543,11 +543,16 @@ export class _Sidebar {
     const adminTabs = permitted.filter(i => i.parentPath === '/admin')
     const adminItems = adminParent ? [adminParent, ...adminTabs] : []
 
+    const communicationParent = permitted.find(i => i.path === '/communications')
+    const communicationTabs = permitted.filter(i => i.parentPath === '/communications')
+    const communicationItems = communicationParent ? [communicationParent, ...communicationTabs] : []
+
     const otherItems = permitted.filter(i =>
       !membershipItems.includes(i) &&
       !servicesItems.includes(i) &&
       !financeItems.includes(i) &&
-      !adminItems.includes(i)
+      !adminItems.includes(i) &&
+      !communicationItems.includes(i)
     )
 
     // Quick actions (always shown)
@@ -646,6 +651,30 @@ export class _Sidebar {
               `).join('') : `
                 <button class="sb-sub-item ${this._isActive('/admin') ? 'active' : ''}"
                   data-route="/admin" type="button">Go to Admin</button>
+              `}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${communicationParent ? /* html */`
+        <div class="sb-accord-item ${this._anyActiveQ([communicationParent, ...communicationTabs]) ? 'open' : ''}" data-accord="communications">
+          <button class="sb-nav-item ${this._anyActiveQ([communicationParent, ...communicationTabs]) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="communications">
+            <i class="bi bi-chat-dots-fill" aria-hidden="true"></i>
+            <span class="sb-nav-item-label">Communication</span>
+            <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
+          </button>
+          <div class="sb-accord-content">
+            <div class="sb-accord-sub">
+              ${communicationTabs.length > 0 ? communicationTabs.map(item => /* html */`
+                <button class="sb-sub-item ${this._isActiveQ(item.path) ? 'active' : ''}"
+                  data-route-full="${item.path}"
+                  type="button">
+                  ${item.label}
+                </button>
+              `).join('') : `
+                <button class="sb-sub-item ${this._isActive('/communications') ? 'active' : ''}"
+                  data-route="/communications" type="button">All Communications</button>
               `}
             </div>
           </div>
