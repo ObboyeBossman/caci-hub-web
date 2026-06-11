@@ -355,7 +355,7 @@ export interface Permission {
 export async function listPermissions(): Promise<Permission[]> {
   try {
     const { data, error } = await supabase
-      .from('permissions')
+      .from('system_permissions')
       .select('id, description')
       .order('id', { ascending: true })
     if (error) throw error

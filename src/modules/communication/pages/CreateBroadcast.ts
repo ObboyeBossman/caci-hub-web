@@ -101,7 +101,7 @@ function _renderForm(): void {
       <div class="cb-template-pick">
         ${_templates.map(t => `
           <div class="cb-template-card" data-tpl-id="${t.id}">
-            <div class="cb-template-name">${t.name}</div>
+            <div class="cb-template-name">${t.title}</div>
             <div class="cb-template-preview">${t.body?.slice(0, 60) ?? 'No preview'}${(t.body?.length ?? 0) > 60 ? '…' : ''}</div>
           </div>
         `).join('')}
@@ -171,7 +171,7 @@ function _bindEvents(): void {
         if (tpl) {
           const titleInput = _container!.querySelector<HTMLInputElement>('#cb-title')
           const bodyInput = _container!.querySelector<HTMLTextAreaElement>('#cb-body')
-          if (titleInput && !titleInput.value) titleInput.value = `[Template] ${tpl.name}`
+          if (titleInput && !titleInput.value) titleInput.value = `[Template] ${tpl.title}`
           if (bodyInput) bodyInput.value = tpl.body
         }
       }

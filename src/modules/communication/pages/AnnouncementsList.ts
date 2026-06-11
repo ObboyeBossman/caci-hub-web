@@ -167,7 +167,6 @@ function _openCreateModal(): void {
     assembly_id: assemblyId,
     title,
     body,
-    visibility_type: 'all',
     is_pinned: false,
     visible_from: new Date().toISOString(),
     visible_until: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
