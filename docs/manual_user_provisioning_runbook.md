@@ -1,8 +1,8 @@
 # Manual user provisioning — SQL editor runbook
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Scope:** CACI Hub · Supabase SQL Editor  
 **Audience:** Admin / Database operator  
-**Last updated:** May 2026
+**Last updated:** June 2026
 
 ---
 
@@ -14,8 +14,7 @@ directly from the Supabase SQL editor — without going through the
 
 **Typical scenarios:**
 - The admin module UI is not yet built or deployed.
-- You are setting up the first admin account (chicken-and-egg — the admin
-  needs a login before they can provision anyone else).
+- You are setting up the প্রথম/first admin account (chicken-and-egg — the admin needs a login before they can provision anyone else).
 - You need to recover an account after a failed Edge Function provision.
 - You are working in a local dev environment with no running frontend.
 
@@ -24,143 +23,182 @@ directly from the Supabase SQL editor — without going through the
 ## Prerequisites
 
 - Access to the Supabase dashboard → SQL Editor for your project.
-- The target person must already have a **member record** in
-  `public.members`. User accounts may not exist without a member record.
-- You need the member's `id` (UUID) from the `members` table.
-  Find it with:
-  ```sql
-  SELECT id, first_name, last_name, email, phone_number, auth_user_id
-  FROM public.members
-  WHERE last_name ILIKE '%bossman%';   -- replace with name
-  ```
-- Confirm `auth_user_id IS NULL` on the returned row before continuing.
-  If it is already set, the member has a login — do not provision again.
+- You need to know the assembly code (e.g. `GH-ASSAK`).
+- For the **Auth-Only** script, the person must already have a **member record** in `public.members`. You will need their member `id` (UUID).
 
 ---
 
-## Step 0 — Confirm the member has no existing login
+## 🔍 Pre-flight check (Run this first)
+
+Before provisioning, check if the member record already exists and if they already have an active login:
 
 ```sql
+-- Replace the email, phone or assembly code with the target member's details
 SELECT
   id,
   first_name,
   last_name,
   email,
-  phone_number,
-  auth_user_id          -- must be NULL before you continue
+  primary_phone,
+  auth_user_id
 FROM public.members
-WHERE id = '<member-uuid>';
+WHERE (email = 'obboyebossman@gmail.com' OR primary_phone = '+233593529509')
+  AND assembly_id = (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK');
 ```
 
-**Expected:** `auth_user_id = NULL`  
-**If not NULL:** stop — the member already has an account. Use the
-`UserManagement` page to manage their existing login instead.
+**How to interpret the results:**
+- **No row returned:** The member does not exist in the database yet. Use **Script A (Full Script)**.
+- **Row returned, `auth_user_id` is NULL:** The member exists but has no login. Copy the `id` from the result and use **Script B (Auth-Only Script)**.
+- **Row returned, `auth_user_id` is NOT NULL:** The member already has an account. Stop here. Do not provision again.
 
 ---
 
-## Step 1 — Create the auth user
+## 📜 Script A: Full Script (Member + Login)
 
-Run this in the SQL editor. Replace the placeholder values before running.
+Use this if the member **does not exist** yet. This script safely creates the `auth.users` row, the `members` row, the `user_profiles` row, and links them all atomically.
+
+**Instructions:**
+1. Copy the script below.
+2. Edit the `DECLARE` block at the top with the member's details.
+3. Run the script in the SQL editor.
 
 ```sql
-INSERT INTO auth.users (
-  id,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  created_at,
-  updated_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  is_super_admin,
-  role
-)
-VALUES (
-  gen_random_uuid(),
-  'member@example.com',             -- ← replace: member's email address
-  extensions.crypt(
-    'TemporaryPass123!',             -- ← replace: temporary password
-    extensions.gen_salt('bf')        --   member will be forced to change this
-  ),
-  now(),                             -- email pre-confirmed — no confirmation email sent
-  now(),
-  now(),
-  '{"provider":"email","providers":["email"]}',
-  '{}',
-  false,
-  'authenticated'
-)
-RETURNING id;
+DO $$
+DECLARE
+  -- 1. Assembly and Role settings
+  v_assembly_code TEXT := 'GH-ASSAK';
+  v_role          public.user_role := 'admin'; -- admin/pastor/secretary/volunteer/member
+
+  -- 2. Member details (Replace these)
+  v_first_name    TEXT := 'Abraham Obboye';
+  v_last_name     TEXT := 'Bossman';
+  v_full_name     TEXT := 'Abraham Obboye Bossman'; -- for user_profiles
+  v_gender        public.gender_type := 'male';
+  v_phone         TEXT := '+233593529509';
+  v_email         TEXT := 'obboyebossman@gmail.com';
+  
+  -- 3. Security (Force change password on first login?)
+  v_temp_password TEXT := 'TemporaryPass123!';
+  v_must_change   BOOLEAN := true;
+
+  -- Internal variables
+  v_assembly_id   uuid;
+  v_auth_id       uuid := gen_random_uuid();
+  v_member_id     uuid := gen_random_uuid();
+BEGIN
+
+  -- Resolve assembly ID
+  SELECT id INTO v_assembly_id FROM public.assemblies WHERE assembly_code = v_assembly_code;
+  IF v_assembly_id IS NULL THEN
+    RAISE EXCEPTION 'Assembly % not found', v_assembly_code;
+  END IF;
+
+  -- 1. Create auth user
+  INSERT INTO auth.users (
+    id, email, encrypted_password, email_confirmed_at,
+    created_at, updated_at, raw_app_meta_data, raw_user_meta_data,
+    is_super_admin, role
+  )
+  VALUES (
+    v_auth_id, v_email, extensions.crypt(v_temp_password, extensions.gen_salt('bf')),
+    now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}',
+    false, 'authenticated'
+  );
+
+  -- 2. Create member record
+  INSERT INTO public.members (
+    id, assembly_id, membership_number, first_name, last_name,
+    primary_phone, email, gender, membership_status, created_by, auth_user_id
+  )
+  VALUES (
+    v_member_id, v_assembly_id, NULL, v_first_name, v_last_name,
+    v_phone, v_email, v_gender, 'active', v_auth_id, v_auth_id
+  );
+
+  -- 3. Create user profile
+  INSERT INTO public.user_profiles (
+    id, assembly_id, role, full_name, is_active, must_change_password
+  )
+  VALUES (
+    v_auth_id, v_assembly_id, v_role, v_full_name, true, v_must_change
+  );
+
+END $$;
 ```
-
-**After running:** copy the returned UUID. You will need it in Steps 2 and 3.
-
-> **Password rules:**  
-> Minimum 8 characters. Must contain at least one uppercase letter,
-> one number, and one special character.  
-> Example: `Welcome2026!`  
-> The member will be forced to change this on first login
-> (`must_change_password = true` is set in Step 2).
 
 ---
 
-## Step 2 — Create the user_profiles row
+## 📜 Script B: Auth-Only Script (Login Only)
 
-Replace `<new-user-uuid>` with the UUID returned in Step 1.
+Use this if the member **already exists** but has no login account (Step 0 returned a row with a NULL `auth_user_id`).
+
+**Instructions:**
+1. Copy the script below.
+2. Edit the `DECLARE` block with the member's existing UUID and target email/password.
+3. Run the script in the SQL editor.
 
 ```sql
-INSERT INTO public.user_profiles (
-  id,
-  assembly_id,
-  role,
-  full_name,
-  is_active,
-  must_change_password
-)
-VALUES (
-  '<new-user-uuid>',                 -- ← from Step 1 RETURNING
-  (SELECT id FROM public.assemblies
-   WHERE assembly_code = 'GH-ASSAK'),-- ← assembly code for your assembly
-  'member',                          -- ← role: admin/pastor/secretary/volunteer/member
-  'Abraham Bossman',                 -- ← member's full name
-  true,
-  true                               -- forces password change on first login
-);
+DO $$
+DECLARE
+  -- Replace this with the existing member's UUID from Step 0
+  v_existing_member_id uuid := '<paste-uuid-here>'; 
+
+  -- Account setup
+  v_email         TEXT := 'member@example.com';
+  v_temp_password TEXT := 'TemporaryPass123!';
+  v_role          public.user_role := 'member';
+  v_full_name     TEXT := 'Full Name Here';       -- for user_profiles
+
+  -- Internal variables
+  v_assembly_id   uuid;
+  v_auth_id       uuid := gen_random_uuid();
+BEGIN
+
+  -- Resolve assembly from the existing member
+  SELECT assembly_id INTO v_assembly_id FROM public.members WHERE id = v_existing_member_id;
+  IF v_assembly_id IS NULL THEN
+    RAISE EXCEPTION 'Member % not found', v_existing_member_id;
+  END IF;
+
+  -- 1. Create auth user
+  INSERT INTO auth.users (
+    id, email, encrypted_password, email_confirmed_at,
+    created_at, updated_at, raw_app_meta_data, raw_user_meta_data,
+    is_super_admin, role
+  )
+  VALUES (
+    v_auth_id, v_email, extensions.crypt(v_temp_password, extensions.gen_salt('bf')),
+    now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}',
+    false, 'authenticated'
+  );
+
+  -- 2. Create user profile
+  INSERT INTO public.user_profiles (
+    id, assembly_id, role, full_name, is_active, must_change_password
+  )
+  VALUES (
+    v_auth_id, v_assembly_id, v_role, v_full_name, true, true
+  );
+
+  -- 3. Link auth_user_id on the existing member row
+  UPDATE public.members
+  SET auth_user_id = v_auth_id
+  WHERE id = v_existing_member_id;
+
+END $$;
 ```
-
-**Role reference:**
-
-| Role | Who it is for |
-|---|---|
-| `admin` | Assembly administrator |
-| `pastor` | Lead pastor or associate pastor |
-| `secretary` | Church secretary |
-| `volunteer` | Volunteer with read-only directory access |
-| `member` | Regular church member |
 
 ---
 
-## Step 3 — Link the auth account to the member record
+## ✅ Verification
 
-Replace both UUIDs with real values.
-
-```sql
-UPDATE public.members
-SET auth_user_id = '<new-user-uuid>'   -- ← from Step 1 RETURNING
-WHERE id = '<member-uuid>';            -- ← member's id from Step 0
-```
-
----
-
-## Step 4 — Verify
-
-Run this verification query to confirm all three records are correctly linked.
+Run this query after executing either script to ensure all three table records were linked properly:
 
 ```sql
 SELECT
   m.id              AS member_id,
-  m.first_name,
-  m.last_name,
+  m.first_name || ' ' || m.last_name AS name,
+  m.primary_phone,
   m.auth_user_id,
   up.id             AS profile_id,
   up.role,
@@ -171,201 +209,47 @@ SELECT
 FROM public.members m
 JOIN public.user_profiles up ON up.id  = m.auth_user_id
 JOIN auth.users au            ON au.id = m.auth_user_id
-WHERE m.id = '<member-uuid>';
+WHERE m.email = 'obboyebossman@gmail.com';  -- replace with member's email
 ```
 
-**Expected result:**
-
-| Column | Expected value |
-|---|---|
-| `member_id` | The member's UUID |
-| `auth_user_id` | The new auth user UUID (matches `profile_id`) |
-| `role` | The role you assigned |
-| `is_active` | `true` |
-| `must_change_password` | `true` |
-| `auth_email` | The email you used |
-| `email_confirmed_at` | A timestamp (not null — pre-confirmed) |
-
-If any of these are wrong, see the **Rollback** section below.
+**Expected results:**
+- `member_id` is populated
+- `auth_user_id` matches `profile_id`
+- `role` matches the assigned role
+- `is_active` is `true`
+- `auth_email` matches the email used in the script
 
 ---
 
-## Full script — copy-paste template
+## ⏪ Rollback
 
-Use this when you are confident about the values. Replace all
-`← replace` placeholders before running. The transaction ensures
-either all three steps succeed or none of them do.
-
-```sql
-BEGIN;
-
--- ── Step 1: Create auth user ──────────────────────────────────────────────────
-INSERT INTO auth.users (
-  id,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  created_at,
-  updated_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  is_super_admin,
-  role
-)
-VALUES (
-  gen_random_uuid(),
-  'member@example.com',             -- ← replace
-  extensions.crypt(
-    'TemporaryPass123!',             -- ← replace
-    extensions.gen_salt('bf')
-  ),
-  now(),
-  now(),
-  now(),
-  '{"provider":"email","providers":["email"]}',
-  '{}',
-  false,
-  'authenticated'
-)
-RETURNING id;
-
--- ── Stop here, copy the UUID above, paste it into the two queries below ───────
-
--- ── Step 2: Create user_profiles row ─────────────────────────────────────────
-INSERT INTO public.user_profiles (
-  id,
-  assembly_id,
-  role,
-  full_name,
-  is_active,
-  must_change_password
-)
-VALUES (
-  '<new-user-uuid>',                 -- ← paste UUID from Step 1
-  (SELECT id FROM public.assemblies
-   WHERE assembly_code = 'GH-ASSAK'),-- ← replace if different assembly
-  'member',                          -- ← replace with correct role
-  'Full Name Here',                  -- ← replace
-  true,
-  true
-);
-
--- ── Step 3: Link to member record ─────────────────────────────────────────────
-UPDATE public.members
-SET auth_user_id = '<new-user-uuid>' -- ← paste UUID from Step 1
-WHERE id = '<member-uuid>';          -- ← replace with member's id
-
-COMMIT;
-```
-
-> **Note on the two-step approach:**  
-> `gen_random_uuid()` generates the UUID inside the INSERT, so it is not
-> available as a variable within the same transaction in the SQL editor.
-> This is why you copy the UUID from the `RETURNING` output and paste it
-> manually into Steps 2 and 3. If you are running this via `psql` or a
-> script, you can use a CTE to avoid the manual copy:
+If something went wrong, you can safely undo the provisioning. 
+Replace `<auth-user-uuid>` with the `auth_user_id` outputted from the Verification query above.
 
 ```sql
--- Alternative: single atomic CTE (psql / scripted use only)
-BEGIN;
-
-WITH new_auth_user AS (
-  INSERT INTO auth.users (
-    id, email, encrypted_password,
-    email_confirmed_at, created_at, updated_at,
-    raw_app_meta_data, raw_user_meta_data,
-    is_super_admin, role
-  )
-  VALUES (
-    gen_random_uuid(),
-    'member@example.com',
-    extensions.crypt('TemporaryPass123!', extensions.gen_salt('bf')),
-    now(), now(), now(),
-    '{"provider":"email","providers":["email"]}',
-    '{}', false, 'authenticated'
-  )
-  RETURNING id
-),
-new_profile AS (
-  INSERT INTO public.user_profiles (
-    id, assembly_id, role, full_name, is_active, must_change_password
-  )
-  SELECT
-    new_auth_user.id,
-    (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'),
-    'member',
-    'Full Name Here',
-    true,
-    true
-  FROM new_auth_user
-  RETURNING id
-)
-UPDATE public.members
-SET auth_user_id = (SELECT id FROM new_auth_user)
-WHERE id = '<member-uuid>';
-
-COMMIT;
+DO $$
+DECLARE
+  v_auth_id uuid := '<auth-user-uuid>';
+BEGIN
+  -- 1. Unlink from member
+  UPDATE public.members SET auth_user_id = NULL WHERE auth_user_id = v_auth_id;
+  
+  -- 2. Delete user profile
+  DELETE FROM public.user_profiles WHERE id = v_auth_id;
+  
+  -- 3. Delete auth user
+  DELETE FROM auth.users WHERE id = v_auth_id;
+END $$;
 ```
 
 ---
 
-## Rollback — if something goes wrong
+## ✉️ Communicating Credentials
 
-If any step fails or the verification query shows incorrect data,
-run this to undo all three steps. Replace `<new-user-uuid>` with
-the UUID that was created.
-
-```sql
-BEGIN;
-
--- Unlink from member record
-UPDATE public.members
-SET auth_user_id = NULL
-WHERE auth_user_id = '<new-user-uuid>';
-
--- Delete user_profiles row
-DELETE FROM public.user_profiles
-WHERE id = '<new-user-uuid>';
-
--- Delete auth user
-DELETE FROM auth.users
-WHERE id = '<new-user-uuid>';
-
-COMMIT;
-```
-
-After rollback, verify the member record is clean:
-
-```sql
-SELECT id, first_name, last_name, auth_user_id
-FROM public.members
-WHERE id = '<member-uuid>';
--- Expected: auth_user_id = NULL
-```
-
----
-
-## Communicate credentials to the member
-
-Once provisioning is confirmed, share the login credentials with the member.
-The recommended channels for a church context:
+Once provisioning is confirmed, share the login credentials with the member. The recommended channels for a church context:
 
 - In person — write the temporary password on a card.
 - WhatsApp — send directly to the member's phone number on their record.
 - Phone call — read the password to the member.
 
-**Do not store the temporary password anywhere** — it is a one-time
-bootstrap credential. The member will be forced to change it on first login
-(`must_change_password = true`).
-
----
-
-## Common errors
-
-| Error | Cause | Fix |
-|---|---|---|
-| `duplicate key value violates unique constraint "users_email_key"` | Email already exists in `auth.users` | Use a different email, or look up the existing auth user and link them instead |
-| `insert or update on table "user_profiles" violates foreign key constraint` | `<new-user-uuid>` does not exist in `auth.users` | Step 1 failed or UUID was copied incorrectly — re-check |
-| `duplicate key value violates unique constraint "idx_members_auth_user_id_unique"` | Another member already has this `auth_user_id` | UUID was pasted incorrectly — check which member has it: `SELECT id, first_name FROM members WHERE auth_user_id = '<uuid>'` |
-| `UPDATE 0` on Step 3 | `<member-uuid>` is wrong or member does not exist | Re-check the member UUID from Step 0 |
-| Member can sign in but sees no data | `assembly_id` on `user_profiles` is wrong | `UPDATE user_profiles SET assembly_id = (SELECT id FROM assemblies WHERE assembly_code = 'GH-ASSAK') WHERE id = '<new-user-uuid>'` |
+**Do not store the temporary password anywhere** — it is a one-time bootstrap credential. If `must_change_password` is set to `true`, the UI will force them to choose a new password on their first login.

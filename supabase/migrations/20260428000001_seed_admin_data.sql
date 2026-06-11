@@ -13,21 +13,24 @@
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
--- 1. Assembly
+-- 1. Assembly — UUID is pinned so sessionStorage survives db reset cycles
 -- -----------------------------------------------------------------------------
 INSERT INTO public.assemblies (
+  id,
   name,
   assembly_code,
   address,
   digital_address
 )
 VALUES (
-  'Christ Apostolic Church International — Assakae',
+  '4833e9ed-0ff9-4b25-96a9-0d8528a2356f',
+  'Assakae Central Assembly',
   'GH-ASSAK',
   'Assakae, Takoradi, Western Region, Ghana',
   NULL
 )
-ON CONFLICT (assembly_code) DO NOTHING;
+ON CONFLICT (assembly_code) DO UPDATE
+  SET id = '4833e9ed-0ff9-4b25-96a9-0d8528a2356f';
 
 
 -- -----------------------------------------------------------------------------
@@ -47,9 +50,9 @@ INSERT INTO public.members (
 )
 VALUES (
   '8cf54258-0050-423d-b9a3-7f344ead04df',
-  (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'),
+  '4833e9ed-0ff9-4b25-96a9-0d8528a2356f',
   'CACI-GH-ASSAK-00001',
-  'Abraham',
+  'Abraham Obboye',
   'Bossman',
   '+233593529509',
   'obboyebossman@gmail.com',
@@ -72,9 +75,9 @@ INSERT INTO public.user_profiles (
 )
 VALUES (
   'deed0df7-d6de-404a-853d-0428c4196c9a',
-  (SELECT id FROM public.assemblies WHERE assembly_code = 'GH-ASSAK'),
+  '4833e9ed-0ff9-4b25-96a9-0d8528a2356f',
   'admin',
-  'Abraham Nhyiraba Obboye Bossman',
+  'Abraham Obboye Bossman',
   true
 )
 ON CONFLICT (id) DO NOTHING;

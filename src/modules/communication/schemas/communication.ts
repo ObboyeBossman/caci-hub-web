@@ -37,14 +37,17 @@ export interface CampaignMessage {
 export interface Template {
   id: string
   assembly_id: string
-  name: string
+  title: string
   body: string
-  variables: Record<string, string>
+  variables: Record<string, any>
   channel: 'in_app' | 'email' | 'sms' | 'push'
+  category: string
+  whatsapp_template_name?: string
   is_active: boolean
-  created_by: string
+  created_by?: string
   created_at: string
   updated_at: string
+  deleted_at?: string
 }
 
 // Direct message thread types
@@ -112,15 +115,15 @@ export interface Announcement {
   assembly_id: string
   title: string
   body: string
-  visibility_type: 'all' | 'groups' | 'roles'
-  visible_to_ids: string[] | null
+  target_group_ids: string[]
   is_pinned: boolean
   visible_from: string
-  visible_until: string
-  created_by: string
+  visible_until?: string
+  posted_by?: string
   created_at: string
   updated_at: string
-  deleted_at: string | null
+  deleted_at?: string
+  deleted_by?: string
 }
 
 // Communication preference types
