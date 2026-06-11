@@ -74,7 +74,7 @@ DECLARE
   v_last_name     TEXT := 'Bossman';
   v_full_name     TEXT := 'Abraham Obboye Bossman'; -- for user_profiles
   v_gender        public.gender_type := 'male';
-  v_phone         TEXT := '+233593529509';
+  v_phone         TEXT := '233593529509'; -- NO '+' PREFIX
   v_email         TEXT := 'obboyebossman@gmail.com';
   
   -- 3. Security (Force change password on first login?)
@@ -117,7 +117,7 @@ BEGIN
 
   -- 3. Create user profile
   INSERT INTO public.user_profiles (
-    id, assembly_id, role, full_name, is_active, must_change_password
+    id, assembly_id, system_role, full_name, is_active, must_change_password
   )
   VALUES (
     v_auth_id, v_assembly_id, v_role, v_full_name, true, v_must_change
@@ -174,7 +174,7 @@ BEGIN
 
   -- 2. Create user profile
   INSERT INTO public.user_profiles (
-    id, assembly_id, role, full_name, is_active, must_change_password
+    id, assembly_id, system_role, full_name, is_active, must_change_password
   )
   VALUES (
     v_auth_id, v_assembly_id, v_role, v_full_name, true, true

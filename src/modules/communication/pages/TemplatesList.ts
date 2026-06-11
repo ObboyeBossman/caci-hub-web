@@ -172,7 +172,7 @@ function _openCreateModal(): void {
 
   CommunicationService.createTemplate({
     assembly_id: assemblyId,
-    name,
+    title: name,
     body,
     variables: {},
     channel: 'in_app',
