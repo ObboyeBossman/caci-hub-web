@@ -47,6 +47,16 @@ const SIDEBAR_CSS = /* css */`
 }
 .dash-sidebar.drawer-open { transform: translateX(0); }
 
+/* Desktop overrides: persistent, non-floating sidebar */
+@media (min-width: 1025px) {
+  .dash-sidebar {
+    position: relative;
+    transform: none !important;
+    box-shadow: none;
+    z-index: 100;
+  }
+}
+
 /* Light theme glass */
 :root .dash-sidebar,
 [data-theme="light"] .dash-sidebar {
@@ -117,6 +127,9 @@ const SIDEBAR_CSS = /* css */`
   z-index: 10;
 }
 .sb-close-btn:hover { background: var(--sb-hover-bg); color: var(--sb-text); }
+@media (min-width: 1025px) {
+  .sb-close-btn { display: none; }
+}
 
 .sb-avatar-wrap {
   width: 76px; height: 76px; border-radius: 50%;
@@ -406,7 +419,7 @@ export class _Sidebar {
       return (user.assemblyRoleName ? formatRole(user.assemblyRoleName) : '')
     })()
     const membershipNo = (user as any)?.membershipNumber ?? ''
-    const photoUrl = (user as any)?.avatarUrl ?? (user as any)?.photoUrl ?? ''
+    const photoUrl = user?.avatarUrl ?? ''
     const initials = _initials(displayName)
 
     this._el.innerHTML = /* html */`

@@ -5,7 +5,7 @@ import { authService, mapAuthError } from '../services/authService'
 import { navigate }                  from '../../../core/router'
 import { loadCurrentUser }           from '../../../core/auth'
 import type { PageModule }           from '../../../types/module.types'
-import logoUrl from '../../../assets/caci-logo.png'
+import { logoUrl } from '@shell/Shell'
 
 let _container:    HTMLElement | null = null
 let _isEnrollment: boolean            = false

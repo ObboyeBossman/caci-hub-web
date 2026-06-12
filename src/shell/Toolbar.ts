@@ -56,17 +56,20 @@ const TOOLBAR_CSS = /* css */`
   background: currentColor; border-radius: 2px;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
+@media (min-width: 1025px) {
+  .topnav-hamburger { display: none; }
+}
 
 /* ── Title ── */
 .topnav-title {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-size: 1.143rem; font-weight: 600; letter-spacing: -0.01em;
+  font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em;
   color: var(--text-primary); white-space: nowrap;
   cursor: pointer; user-select: none;
   text-decoration: none;
 }
 .topnav-logo {
-  height: 24px; width: auto; object-fit: contain; flex-shrink: 0;
+  height: 40px; width: auto; object-fit: contain; flex-shrink: 0;
 }
 
 /* ── Right zone ── */

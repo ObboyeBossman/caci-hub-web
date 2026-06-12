@@ -5,7 +5,7 @@
 import { navigate }       from '../../../core/router'
 import { getCurrentUser } from '../../../core/auth'
 import type { PageModule } from '../../../types/module.types'
-import logoUrl from '../../../assets/caci-logo.png'
+import { logoUrl } from '@shell/Shell'
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 

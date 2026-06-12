@@ -18,6 +18,9 @@ const DRAWER_CSS = /* css */`
 @media (max-width: 1024px) {
   /* No overrides needed here anymore, backdrop is global */
 }
+@media (min-width: 1025px) {
+  .drawer-backdrop { display: none !important; }
+}
 `
 
 function _injectDrawerCSS(): void {

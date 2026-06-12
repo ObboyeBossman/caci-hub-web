@@ -30,6 +30,10 @@ const AdminPage: PageModule = {
       return
     }
 
+    const hashParts = location.hash.split('?')
+    const queryParams = new URLSearchParams(hashParts[1] || '')
+    const initialTabId = queryParams.get('tab') || undefined
+
     // Instantiate all tabs (permission filtering happens inside the shell)
     _shell = new AdminWorkspaceShell(container, [
       new AccountsTab(),
@@ -38,7 +42,7 @@ const AdminPage: PageModule = {
       new HouseholdsTab(),
       new AuditLogTab(),
       new SettingsTab(),
-    ])
+    ], initialTabId)
   },
 
   destroy(): void {

@@ -149,7 +149,7 @@ export class CommunicationWorkspaceShell {
   private _contentEl:   HTMLElement | null = null
   private _destroyed    = false
 
-  constructor(container: HTMLElement, tabs: WorkspaceTab[]) {
+  constructor(container: HTMLElement, tabs: WorkspaceTab[], initialTabId?: string) {
     _injectShellCSS()
     injectWidgetCSS()
     this._container = container
@@ -161,10 +161,10 @@ export class CommunicationWorkspaceShell {
       !t.permission || (user && can(user, t.permission as any))
     )
 
-    this._render()
+    this._render(initialTabId)
   }
 
-  private _render(): void {
+  private _render(initialTabId?: string): void {
     const user = getCurrentUser()
 
     this._container.innerHTML = /* html */`
@@ -243,12 +243,15 @@ export class CommunicationWorkspaceShell {
       })
     })
 
-    // Activate saved tab or first
+    // Activate initial tab, saved tab, or first
     const savedTabId = sessionStorage.getItem(SESSION_TAB_KEY)
     const firstTab   = this._visibleTabs[0]
-    const targetId   = (savedTabId && this._visibleTabs.find(t => t.id === savedTabId))
-      ? savedTabId
-      : firstTab?.id ?? null
+    
+    // Priority: initialTabId (from URL) > savedTabId (session) > first available tab
+    const targetId = 
+      (initialTabId && this._visibleTabs.find(t => t.id === initialTabId)) ? initialTabId :
+      (savedTabId   && this._visibleTabs.find(t => t.id === savedTabId))   ? savedTabId :
+      firstTab?.id ?? null
 
     if (targetId) this._switchTab(targetId)
   }
@@ -274,6 +277,9 @@ export class CommunicationWorkspaceShell {
 
     this._activeTabId = id
     sessionStorage.setItem(SESSION_TAB_KEY, id)
+
+    // Sync URL silently without triggering router reload
+    history.replaceState(null, '', `#/communications/${id}`)
 
     // Clear and re-animate content
     this._contentEl.innerHTML = ''

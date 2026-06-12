@@ -11,6 +11,7 @@ export class CommunicationService {
       .from('communication_campaigns')
       .select('*')
       .eq('assembly_id', assemblyId)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -195,10 +196,17 @@ export class CommunicationService {
       .select('thread:thread_id(*)')
       .eq('member_id', memberId)
       .is('thread.deleted_at', null)
-      .order('thread.updated_at', { ascending: false })
 
     if (error) throw error
-    return data.map((d: any) => d.thread) as MessageThread[]
+
+    return data
+      .map((d: any) => d.thread as MessageThread)
+      .filter(Boolean)
+      .sort((a: MessageThread, b: MessageThread) => {
+        const timeA = new Date(a.updated_at || a.created_at).getTime()
+        const timeB = new Date(b.updated_at || b.created_at).getTime()
+        return timeB - timeA
+      })
   }
 
   static async getThreadMessages(threadId: string) {
@@ -211,6 +219,23 @@ export class CommunicationService {
 
     if (error) throw error
     return data as ThreadMessage[]
+  }
+
+  static async sendThreadMessage(payload: { thread_id: string, sender_id: string, body?: string, message_type: 'text' | 'audio', attachment_id?: string }) {
+    const { data, error } = await db
+      .from('communication_thread_messages')
+      .insert({
+        thread_id: payload.thread_id,
+        sender_id: payload.sender_id,
+        body: payload.body || null,
+        message_type: payload.message_type,
+        attachment_id: payload.attachment_id || null
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as ThreadMessage
   }
 
   // ── Permissions ─────────────────────────────────────────────────────────────
@@ -228,7 +253,35 @@ export class CommunicationService {
   }
 
   static async getMemberId(): Promise<string | null> {
-    const { data } = await db.rpc('auth_member_id')
+    const { data, error } = await db.rpc('auth_member_id')
+    if (error) {
+      console.error('[CommunicationService] auth_member_id error:', error)
+      throw error
+    }
     return data as string | null
   }
+
+  // In communication.service.ts — add these two static methods:
+
+static async updateCampaign(id: string, updates: Partial<Campaign>): Promise<Campaign> {
+  const { data, error } = await db
+    .from('communication_campaigns')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data as Campaign
 }
+
+static async deleteCampaign(id: string): Promise<void> {
+  const { error } = await db
+    .from('communication_campaigns')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+
+  if (error) throw error
+}
+}
+
+

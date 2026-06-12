@@ -7,7 +7,7 @@
 import { supabase } from '../../../core/supabase'
 import { navigate } from '../../../core/router'
 import type { PageModule } from '../../../types/module.types'
-import logoUrl from '../../../assets/caci-logo.png'
+import { logoUrl } from '@shell/Shell'
 import { debounce } from '@shared/utils/debounce'
 
 interface Assembly {

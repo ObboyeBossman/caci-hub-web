@@ -3,7 +3,7 @@
 
 import { authService, mapAuthError } from '../services/authService'
 import type { PageModule }           from '../../../types/module.types'
-import logoUrl from '../../../assets/caci-logo.png'
+import { logoUrl } from '@shell/Shell'
 
 let _container: HTMLElement | null = null
 

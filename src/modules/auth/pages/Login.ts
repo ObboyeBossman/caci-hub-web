@@ -7,7 +7,7 @@ import { getCurrentUser, loadCurrentUser } from '../../../core/auth'
 import { getFirstModuleRoute } from '../../../core/registry'
 import type { PageModule } from '../../../types/module.types'
 import type { AppUser } from '../../../types/auth.types'
-import logoUrl from '../../../assets/caci-logo.png'
+import { logoUrl } from '@shell/Shell'
 import { PhoneInput } from '@shared/components/PhoneInput'
 
 let _container: HTMLElement | null = null
