@@ -57,12 +57,8 @@ const CSS = /* css */`
 ══════════════════════════════════════════════════════ */
 
 .pc-page {
-  padding: var(--space-xl) var(--space-2xl);
-  max-width: 1400px;
   font-family: var(--font-sans);
-  margin: 0 auto;
 }
-@media (max-width: 640px) { .pc-page { padding: var(--space-lg) var(--space-md); } }
 
 /* ── Page header ── */
 .pc-page-header {

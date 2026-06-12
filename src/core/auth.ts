@@ -82,6 +82,16 @@ export async function loadCurrentUser(): Promise<void> {
     }
   }
 
+  // Fetch member profile photo if linked
+  let avatarUrl: string | null = null
+  const { data: memPhoto } = await supabase
+    .from('members')
+    .select('profile_photo_url')
+    .eq('auth_user_id', user.id)
+    .maybeSingle()
+  
+  if (memPhoto) avatarUrl = (memPhoto as any).profile_photo_url ?? null
+
   _currentUser = {
     id:                   user.id,
     email:                user.email ?? null,
@@ -96,6 +106,7 @@ export async function loadCurrentUser(): Promise<void> {
     must_change_password: p.must_change_password as boolean,
     isMfaEnrolled:        false,
     isMfaVerified:        false,
+    avatarUrl,
   }
 
   // Automatically sign out if account is deactivated

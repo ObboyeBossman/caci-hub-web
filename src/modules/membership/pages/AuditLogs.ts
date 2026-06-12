@@ -26,12 +26,8 @@ const CSS = /* css */`
 ══════════════════════════════════════════════════════════════ */
 
 .al-page {
-  padding: 20px 24px 64px;
-  max-width: 1280px;
-  margin: 0 auto;
   font-family: var(--font-sans);
 }
-@media (max-width: 640px) { .al-page { padding: 12px 12px 48px; } }
 
 /* ── Stat cards ────────────────────────────────────────────── */
 .al-stats {

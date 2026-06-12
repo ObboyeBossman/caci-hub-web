@@ -1,9 +1,9 @@
-import { supabase } from '@core/supabase'
+import { getCurrentUser } from '@core/auth'
+import { can } from '@core/authorization/authorization-service'
 
 export async function checkCanBroadcastAudio(): Promise<boolean> {
-  // @ts-expect-error - Types might not include auth_has_permission yet
-  const { data } = await supabase.rpc('auth_has_permission', {
-    perm_key: 'communications.audio.broadcast'
-  })
-  return !!data
+  const user = getCurrentUser()
+  if (!user) return false
+  
+  return can(user, 'communications.audio.broadcast' as any)
 }

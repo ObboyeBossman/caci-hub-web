@@ -11,7 +11,7 @@ import { _Sidebar } from './Sidebar'
 import { closeDrawer } from './Drawer'
 import { _initNotificationBell } from './NotificationBell'
 
-import logoUrl from '../assets/caci-logo.png'
+const logoUrl = '/caci-logo.jpeg'
 export { logoUrl }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -252,6 +252,7 @@ html, body {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   background: var(--bg-page);
   position: relative;
+  padding: 24px;
 }
 `
 
@@ -305,7 +306,7 @@ export function mountShell(): void {
     if (!banner) return
     navigator.onLine ? banner.classList.remove('show') : banner.classList.add('show')
   }
-  window.addEventListener('online',  _updateOffline)
+  window.addEventListener('online', _updateOffline)
   window.addEventListener('offline', _updateOffline)
   setTimeout(_updateOffline, 80)
 

@@ -23,10 +23,10 @@ const CSS = /* css */`
 ═══════════════════════════════════════════════════════════════════ */
 
 .am-wrap {
-  max-width: 1060px; margin: 0 auto;
+  // max-width: 1060px; margin: 0 auto;
   padding: 14px 16px 48px; position: relative;
 }
-@media (min-width: 480px) { .am-wrap { padding: 18px 20px 48px; } }
+// @media (min-width: 480px) { .am-wrap { padding: 18px 20px 48px; } }
 
 /* ── Shell grid ─────────────────────────────────────────────────── */
 .am-shell {

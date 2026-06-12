@@ -15,8 +15,8 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         icons: [
-          { src: '/caci-logo.png', sizes: '192x192', type: 'image/png' },
-          { src: '/caci-logo.png', sizes: '512x512', type: 'image/png' },
+          { src: '/caci-logo.jpeg', sizes: '192x192', type: 'image/jpeg' },
+          { src: '/caci-logo.jpeg', sizes: '512x512', type: 'image/jpeg' },
         ],
       },
       workbox: {

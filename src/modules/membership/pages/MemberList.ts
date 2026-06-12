@@ -22,15 +22,6 @@ const CSS = /* css */`
    MEMBER LIST PAGE
 ═══════════════════════════════════════════════════════════════════ */
 
-.ml-wrap {
-  padding: 20px 24px 48px;
-  max-width: 1280px;
-  margin: 0 auto;
-}
-@media (max-width: 640px) {
-  .ml-wrap { padding: 12px 12px 48px; }
-}
-
 /* ── Stat cards ─────────────────────────────────────────────────── */
 .ml-stats-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;

@@ -44,4 +44,7 @@ export interface AppUser {
   // MFA state
   isMfaEnrolled: boolean
   isMfaVerified: boolean
+
+  // Display
+  avatarUrl: string | null
 }
