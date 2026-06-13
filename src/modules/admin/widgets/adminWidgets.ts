@@ -268,7 +268,7 @@ const WIDGET_CSS = /* css */`
 .aw-empty {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; padding: 72px var(--space-lg); text-align: center;
-  gap: var(--space-md);
+  gap: var(--space-md); grid-column: 1 / -1; width: 100%;
 }
 .aw-empty-icon-wrap {
   width: 64px; height: 64px; border-radius: 50%;

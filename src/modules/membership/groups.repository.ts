@@ -14,6 +14,7 @@ import { RepositoryError, DB_ERROR_CODES } from '../../types/common.types'
 import type {
   Group,
   GroupMemberWithMember,
+  MemberGroupWithGroup,
   GroupFilter,
   GroupType,
   GroupMemberRole,
@@ -286,6 +287,51 @@ export async function listGroupMembers(groupId: string): Promise<GroupMemberWith
     })) satisfies GroupMemberWithMember[]
   } catch (err) {
     throw mapError(err, `listGroupMembers(${groupId})`)
+  }
+}
+
+/**
+ * List the active groups that a specific member belongs to.
+ * This joins the `groups` table to get group_name, group_type, etc.
+ */
+export async function listMemberGroups(memberId: string): Promise<MemberGroupWithGroup[]> {
+  try {
+    const { data, error } = await supabase
+      .from('group_members')
+      .select('*, groups(*)')
+      .eq('member_id', memberId)
+      .eq('is_active', true)
+      .is('deleted_at', null)
+      .order('joined_at', { ascending: false })
+
+    if (error) throw error
+
+    const rows = (data ?? []) as any[]
+    
+    return rows.map((row) => {
+      const g = row.groups || {}
+      return {
+        id:               row.id        as string,
+        group_id:         row.group_id  as string,
+        member_id:        row.member_id as string,
+        role:             row.role      as GroupMemberRole,
+        joined_at:        row.joined_at as string,
+        left_at:          row.left_at   as string | null,
+        is_active:        row.is_active as boolean,
+        created_by:       row.created_by as string | null,
+        created_at:       row.created_at as string,
+        deleted_at:       row.deleted_at as string | null,
+        deleted_by:       row.deleted_by as string | null,
+        
+        group_name:       g.name        as string,
+        group_type:       g.group_type  as GroupType,
+        description:      g.description as string | null,
+        leader_id:        g.leader_id   as string | null,
+        is_active_group:  g.is_active   as boolean,
+      }
+    }) satisfies MemberGroupWithGroup[]
+  } catch (err) {
+    throw mapError(err, `listMemberGroups(${memberId})`)
   }
 }
 

@@ -5,14 +5,18 @@ import { RepositoryError } from '../../types/common.types'
 import type { UserProfileSummary } from './utils/userProfileCache'
 import type { SystemRole } from '../../types/auth.types'
 
-export async function resetMemberPassword(memberId: string): Promise<void> {
+export async function resetMemberPassword(memberId: string, password?: string): Promise<void> {
   const { error } = await supabase.functions.invoke('reset-member-password', {
-    body: { memberId },
+    body: { memberId, password },
   })
-  if (error) throw new RepositoryError(
-    extractErrorMessage(error, 'Password reset failed'),
-    error,
-  )
+  if (error) {
+    if (error.context instanceof Response) {
+      let body: any
+      try { body = await error.context.json() } catch { /* ignore */ }
+      throw new RepositoryError(body?.error ?? body?.message ?? 'Password reset failed', error)
+    }
+    throw new RepositoryError(extractErrorMessage(error, 'Password reset failed'), error)
+  }
 }
 
 export async function deleteMemberAuth(memberId: string): Promise<void> {

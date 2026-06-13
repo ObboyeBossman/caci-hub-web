@@ -419,7 +419,7 @@ function _val(v: string | null | undefined, fallback = '—'): string {
 
 function _html(m: MemberView, assemblyName: string): string {
   const bg       = avatarColor(m.id ?? '')
-  const ini      = initials(m.first_name ?? '', m.last_name ?? '')
+  const ini      = initials((m.first_name ?? '') + ' ' + (m.last_name ?? ''))
   const fullName = [m.title, m.first_name, m.other_names, m.last_name].filter(Boolean).join(' ')
   const displayName = [m.first_name, m.last_name].filter(Boolean).join(' ')
 
@@ -742,7 +742,7 @@ export default {
     }
 
     // Skeleton while loading
-    renderSkeleton(container, 'profile')
+    renderSkeleton(container, 4)
 
     try {
       const user = getCurrentUser()
@@ -812,7 +812,7 @@ export default {
 
       // ── Bind events ─────────────────────────────────────────────────────
       const bg       = avatarColor(m.id ?? '')
-      const ini      = initials(m.first_name ?? '', m.last_name ?? '')
+      const ini      = initials((m.first_name ?? '') + ' ' + (m.last_name ?? ''))
       const fullName = [m.title, m.first_name, m.other_names, m.last_name].filter(Boolean).join(' ')
 
       // Avatar → zoom modal
@@ -845,7 +845,7 @@ export default {
       })
 
     } catch (err) {
-      renderError(container, err)
+      renderError(container, err, 'Failed to load your profile.')
     }
   },
 

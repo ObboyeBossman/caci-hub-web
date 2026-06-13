@@ -374,7 +374,6 @@ function _injectSidebarCSS(): void {
 
 export const COMING_SOON_PATHS = new Set([
   '/pastoral-care', '/pastoral', '/reports',
-  '/contributions', '/calendar', '/announcements', '/profile', '/my-attendance',
 ])
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -520,14 +519,14 @@ export class _Sidebar {
   private _renderMemberNav(): string {
     const myArea = [
       { path: '/home', icon: 'bi-house-fill', label: 'Home' },
-      { path: '/profile', icon: 'bi-person-badge', label: 'Profile & Digital ID', soon: true as const },
-      { path: '/my-attendance', icon: 'bi-calendar-check', label: 'My Attendance', soon: true as const },
-      { path: '/contributions', icon: 'bi-cash-stack', label: 'Contributions & Tithes', soon: true as const },
-      { path: '/groups', icon: 'bi-people-fill', label: 'My Groups', soon: true as const },
+      { path: '/my-profile', icon: 'bi-person-badge', label: 'Profile & Digital ID' },
+      { path: '/my-attendance', icon: 'bi-calendar-check', label: 'My Attendance' },
+      { path: '/my-giving', icon: 'bi-cash-stack', label: 'Contributions & Tithes' },
+      { path: '/my-groups', icon: 'bi-people-fill', label: 'My Groups' },
     ]
     const churchInfo = [
-      { path: '/announcements', icon: 'bi-megaphone', label: 'Announcements', soon: true as const },
-      { path: '/calendar', icon: 'bi-calendar3', label: 'Church Calendar', soon: true as const },
+      { path: '/announcements', icon: 'bi-megaphone', label: 'Announcements' },
+      { path: '/calendar', icon: 'bi-calendar3', label: 'Church Calendar' },
     ]
     return /* html */`
       <div class="sb-section-label">My Area</div>

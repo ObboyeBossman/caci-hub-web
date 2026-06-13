@@ -44,11 +44,11 @@ serve(async (req: Request) => {
     // Role check: Caller must be admin
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('user_profiles')
-      .select('system_role, assembly_id')
+      .select('role, assembly_id')
       .eq('id', user.id)
       .single()
 
-    const isAdmin = profile?.system_role === 'admin'
+    const isAdmin = profile?.role === 'admin'
     if (profileError || (!hasAdminPerm && !isAdmin)) {
       return new Response(JSON.stringify({ error: 'Forbidden' }), {
         status: 403,
@@ -78,11 +78,6 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
-
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    )
 
     const { error: upErr } = await supabaseAdmin
       .from('assemblies')

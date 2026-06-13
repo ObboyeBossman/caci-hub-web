@@ -14,7 +14,14 @@ export function avatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
 }
 
-export function initials(firstName: string, lastName: string): string {
+export function initials(firstName: string, lastName?: string): string {
+  if (lastName === undefined) {
+    const parts = firstName.trim().split(/\s+/)
+    if (parts.length >= 2) {
+      return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase()
+    }
+    return (parts[0][0] ?? '').toUpperCase()
+  }
   return `${firstName[0] ?? ''}${lastName[0] ?? ''}`.toUpperCase()
 }
 
