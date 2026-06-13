@@ -178,8 +178,10 @@ serve(async (req: Request) => {
 
         responseData = { userId: newUserId, email: emailFinal, fullName, role, path: 'invite' }
       } else if (path === 'default_password') {
-        if (!member.primary_phone) {
-          return new Response(JSON.stringify({ error: 'Member has no phone number. A phone number is required for this provisioning method.' }), {
+        const emailForAuth = (body.email?.trim().toLowerCase()) || (member.email?.trim().toLowerCase()) || undefined
+
+        if (!member.primary_phone && !emailForAuth) {
+          return new Response(JSON.stringify({ error: 'Member has no contact info. A phone number or email is required to provision an account.' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
@@ -198,16 +200,10 @@ serve(async (req: Request) => {
           })
         }
 
-        const normalizedPhone = normalizePhone(member.primary_phone)
-        // Resolve email: prefer what the admin typed in the form, fall back
-        // to the email already stored on the member record.
-        const emailForAuth = (body.email?.trim().toLowerCase()) || (member.email?.trim().toLowerCase()) || undefined
-
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-          phone: normalizedPhone,
+          ...(member.primary_phone ? { phone: normalizePhone(member.primary_phone), phone_confirm: true } : {}),
           ...(emailForAuth ? { email: emailForAuth, email_confirm: true } : {}),
           password: assembly.default_member_password,
-          phone_confirm: true,
         })
         if (createErr || !created?.user) throw createErr
 
@@ -228,7 +224,7 @@ serve(async (req: Request) => {
           .update({ auth_user_id: newUserId, ...(emailForAuth ? { email: emailForAuth } : {}) })
           .eq('id', memberId)
 
-        responseData = { userId: newUserId, phone: member.primary_phone, email: emailForAuth ?? null, fullName, role, path: 'default_password' }
+        responseData = { userId: newUserId, phone: member.primary_phone ?? null, email: emailForAuth ?? null, fullName, role, path: 'default_password' }
       } else if (path === 'custom_password') {
         const emailFinal = (body.email ?? member.email)?.trim().toLowerCase()
         if (!emailFinal) {

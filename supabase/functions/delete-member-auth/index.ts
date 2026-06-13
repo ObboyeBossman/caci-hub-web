@@ -19,10 +19,10 @@ serve(async (req: Request) => {
     const permissions: string[] = user.app_metadata?.permissions ?? []
     const hasAdminPerm = permissions.includes('admin.users.manage')
 
-    const { data: profile, error: profileError } = await supabaseAdmin.from('user_profiles').select('system_role, assembly_id').eq('id', user.id).single()
+    const { data: profile, error: profileError } = await supabaseAdmin.from('user_profiles').select('role, assembly_id').eq('id', user.id).single()
     if (profileError || !profile) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
 
-    const isAdmin = profile.system_role === 'admin'
+    const isAdmin = profile.role === 'admin'
     if (!hasAdminPerm && !isAdmin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: corsHeaders })
 
     const { memberId } = await req.json()

@@ -235,7 +235,7 @@ export async function getFinanceStats(): Promise<FinanceStats> {
 
     const { data, error } = await supabase
       .from('finance_transactions')
-      .select('amount, finance_categories ( category_type )')
+      .select('amount, transaction_type, finance_categories ( category_type )')
       .eq('assembly_id', assemblyId)
       .is('deleted_at', null)
 
@@ -245,9 +245,16 @@ export async function getFinanceStats(): Promise<FinanceStats> {
     let totalExpense = 0
 
     ;(data ?? []).forEach((row: any) => {
-      const type = row.finance_categories?.category_type
-      if (type === 'income')  totalIncome  += Number(row.amount)
-      if (type === 'expense') totalExpense += Number(row.amount)
+      const catType = row.finance_categories?.category_type
+      if (catType === 'income') {
+        totalIncome += Number(row.amount)
+      } else if (catType === 'expense') {
+        totalExpense += Number(row.amount)
+      } else if (row.transaction_type === 'expense') {
+        totalExpense += Number(row.amount)
+      } else {
+        totalIncome += Number(row.amount)
+      }
     })
 
     // pending = transactions created today (no formal pending flag in schema)
@@ -584,13 +591,26 @@ export async function getIncomeExpenseSummary(
 
     const { data, error } = await supabase
       .from('finance_transactions')
-      .select('transaction_date, amount, finance_categories ( category_type )')
+      .select('transaction_date, amount, transaction_type, finance_categories ( category_type )')
       .eq('assembly_id', assemblyId)
       .gte('transaction_date', `${year}-01-01`)
       .lte('transaction_date', `${year}-12-31`)
       .is('deleted_at', null)
 
     if (error) throw error
+
+    function addRow(row: any, bucket: { income: number; expense: number }): void {
+      const catType = row.finance_categories?.category_type
+      if (catType === 'income') {
+        bucket.income += Number(row.amount)
+      } else if (catType === 'expense') {
+        bucket.expense += Number(row.amount)
+      } else if (row.transaction_type === 'expense') {
+        bucket.expense += Number(row.amount)
+      } else {
+        bucket.income += Number(row.amount)
+      }
+    }
 
     if (period === 'monthly') {
       const months = Array.from({ length: 12 }, (_, i) => ({
@@ -601,9 +621,7 @@ export async function getIncomeExpenseSummary(
       }))
       ;(data ?? []).forEach((row: any) => {
         const m = new Date(row.transaction_date).getMonth()
-        const t = row.finance_categories?.category_type
-        if (t === 'income')  months[m].income  += Number(row.amount)
-        if (t === 'expense') months[m].expense += Number(row.amount)
+        addRow(row, months[m])
       })
       months.forEach(m => { m.net = m.income - m.expense })
       return months
@@ -616,22 +634,18 @@ export async function getIncomeExpenseSummary(
       ;(data ?? []).forEach((row: any) => {
         const m = new Date(row.transaction_date).getMonth()
         const q = Math.floor(m / 3)
-        const t = row.finance_categories?.category_type
-        if (t === 'income')  quarters[q].income  += Number(row.amount)
-        if (t === 'expense') quarters[q].expense += Number(row.amount)
+        addRow(row, quarters[q])
       })
       quarters.forEach(q => { q.net = q.income - q.expense })
       return quarters
     }
 
     // annual — single row
-    let income = 0, expense = 0
+    const annual = { income: 0, expense: 0 }
     ;(data ?? []).forEach((row: any) => {
-      const t = row.finance_categories?.category_type
-      if (t === 'income')  income  += Number(row.amount)
-      if (t === 'expense') expense += Number(row.amount)
+      addRow(row, annual)
     })
-    return [{ period: String(year), income, expense, net: income - expense }]
+    return [{ period: String(year), income: annual.income, expense: annual.expense, net: annual.income - annual.expense }]
   } catch (err) {
     throw mapError(err, 'getIncomeExpenseSummary')
   }

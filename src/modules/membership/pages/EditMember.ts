@@ -23,13 +23,13 @@ const CSS = /* css */`
    EDIT MEMBER PAGE
 ═══════════════════════════════════════════════════════════════════ */
 
-.em-wrap {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 14px 16px 100px;
-}
-@media (min-width: 480px) { .em-wrap { padding: 18px 20px 100px; } }
-@media (min-width: 640px) { .em-wrap { padding: 18px 24px 100px; } }
+// .em-wrap {
+//   max-width: 960px;
+//   margin: 0 auto;
+//   padding: 14px 16px 100px;
+// }
+// @media (min-width: 480px) { .em-wrap { padding: 18px 20px 100px; } }
+// @media (min-width: 640px) { .em-wrap { padding: 18px 24px 100px; } }
 
 /* ── Section card ───────────────────────────────────────────────── */
 .em-card {

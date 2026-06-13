@@ -24,13 +24,13 @@ const CSS = /* css */`
    MEMBER PROFILE PAGE
 ═══════════════════════════════════════════════════════════════════ */
 
-.mp-wrap {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 14px 16px 64px;
-}
-@media (min-width: 480px) { .mp-wrap { padding: 18px 20px 64px; } }
-@media (min-width: 640px) { .mp-wrap { padding: 18px 24px 64px; } }
+// .mp-wrap {
+//   max-width: 960px;
+//   margin: 0 auto;
+//   padding: 14px 16px 64px;
+// }
+// @media (min-width: 480px) { .mp-wrap { padding: 18px 20px 64px; } }
+// @media (min-width: 640px) { .mp-wrap { padding: 18px 24px 64px; } }
 
 /* ── Hero ───────────────────────────────────────────────────── */
 .mp-hero {

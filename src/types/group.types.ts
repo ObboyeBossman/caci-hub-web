@@ -26,6 +26,15 @@ export interface GroupMemberWithMember extends GroupMemberRow {
   member_photo_url: string | null // joined: profile_photo_url
 }
 
+// ── MemberGroupWithGroup — joined shape for My Groups portal ─────────────────
+export interface MemberGroupWithGroup extends GroupMemberRow {
+  group_name:       string
+  group_type:       GroupType
+  description:      string | null
+  leader_id:        string | null
+  is_active_group:  boolean
+}
+
 // ── CreateGroupPayload ────────────────────────────────────────────────────────
 export interface CreateGroupPayload {
   name:         string

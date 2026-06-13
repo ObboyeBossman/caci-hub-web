@@ -859,8 +859,29 @@ export class AccountsTab implements WorkspaceTab {
 
     private async _bulkReset(ids: Set<string>): Promise<void> {
         const n = ids.size
-        showToast(`Password reset initiated for ${n} account${n > 1 ? 's' : ''}`, 'info')
+        let success = 0
+        let failed = 0
+        for (const id of ids) {
+            try {
+                // Find the member by account ID (user ID)
+                const account = this._state.accounts.find(a => a.id === id || a.memberId === id)
+                if (!account?.memberId) {
+                    failed++
+                    continue
+                }
+                await resetMemberPassword(account.memberId)
+                success++
+            } catch (error) {
+                console.error(`Failed to reset password for account ${id}:`, error)
+                failed++
+            }
+        }
+        const message = failed > 0
+            ? `Password reset for ${success} of ${n} account${n > 1 ? 's' : ''} (${failed} failed)`
+            : `Password reset for ${success} of ${n} account${n > 1 ? 's' : ''}`
+        showToast(message, failed > 0 ? 'warning' : 'success')
         this._clearSelection()
+        await this._reload()
     }
 
     private _clearSelection(): void {
@@ -1265,7 +1286,7 @@ export class AccountsTab implements WorkspaceTab {
             submitBtn.innerHTML = `<span class="aw-spinner"></span> Resetting…`
 
             try {
-                await resetMemberPassword(account.memberId ?? account.id)
+                await resetMemberPassword(account.memberId ?? account.id, isCustom ? password : undefined)
                 close()
                 showToast('Password reset — user will be prompted on next login', 'success')
             } catch (err: any) {
