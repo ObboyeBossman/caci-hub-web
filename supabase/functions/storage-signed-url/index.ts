@@ -4,7 +4,16 @@ import { GetObjectCommand } from 'https://esm.sh/@aws-sdk/client-s3@3'
 import { getR2Client } from '../_shared/r2.ts'
 import { getSignedUrl } from 'https://esm.sh/@aws-sdk/s3-request-presigner@3'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -20,16 +29,18 @@ serve(async (req) => {
     .is('deleted_at', null)
     .single()
 
-  if (!attachment) return new Response('Not found', { status: 404 })
+  if (!attachment) {
+    return new Response(JSON.stringify({ error: 'Not found' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 })
+  }
 
   const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('assembly_id, assembly_role_id')
-    .eq('id', requester_id)
+    .from('members_view')
+    .select('assembly_id')
+    .eq('auth_user_id', requester_id)
     .single()
 
   if (profile?.assembly_id !== attachment.assembly_id) {
-    return new Response('Forbidden', { status: 403 })
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 })
   }
 
   if (attachment.is_sensitive) {
@@ -67,6 +78,6 @@ serve(async (req) => {
   })
 
   return new Response(JSON.stringify({ url: signedUrl, expires_in: EXPIRY_SECONDS }), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
 })

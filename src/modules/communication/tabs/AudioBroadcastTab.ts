@@ -381,28 +381,37 @@ export class AudioBroadcastTab implements WorkspaceTab {
     this._renderSending()
 
     try {
+      // 1. Create campaign as draft first to get an ID for the attachment
+      const campaign = await CommunicationService.createCampaign({
+        assembly_id:      assemblyId,
+        title,
+        channel:          'audio' as any,
+        audience_type:    audience as any,
+        audience_ids:     [],
+        trigger_type:     'manual',
+        status:           'draft',
+        total_recipients: 0,
+      } as any)
+
+      // 2. Upload audio and link the attachment to the campaign
       const result = await uploadAudio({
         blob: this._recordedBlob,
         durationSeconds: this._durationSecs,
         mimeType: this._recordedBlob.type || 'audio/webm;codecs=opus',
         waveformData: this._waveformData,
         assemblyId,
+        campaignId: campaign.id,
         isPublicBroadcast: true,
       })
 
-      if (!result.success) throw new Error(result.error)
+      if (!result.success) {
+        // Clean up the orphan draft campaign if upload fails
+        await CommunicationService.deleteCampaign(campaign.id).catch(() => {})
+        throw new Error(result.error)
+      }
 
-      // Create a campaign record linking to this broadcast
-      await CommunicationService.createCampaign({
-        assembly_id: assemblyId,
-        title,
-        channel: 'audio' as any,
-        audience_type: audience as any,
-        audience_ids: [],
-        trigger_type: 'manual',
-        status: 'sent',
-        total_recipients: 0,
-      } as any)
+      // 3. Mark campaign as sent
+      await CommunicationService.updateCampaign(campaign.id, { status: 'sent' })
 
       if (this._destroyed) return
       showToast('Audio broadcast sent successfully!', 'success')

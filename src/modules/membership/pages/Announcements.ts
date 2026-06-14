@@ -287,12 +287,15 @@ export default {
       const announcements = (annRes.data ?? []).filter(_isVisible).map(a => ({ ...a, type: 'announcement' }))
       
       // Remap the nested attachments to the top level for rendering
-      const broadcasts = (audioRes.data ?? []).map((b: any) => ({ 
-        ...b, 
-        type: 'audio', 
-        is_pinned: false,
-        attachment: b.attachments 
-      }))
+      // Only show broadcasts that actually have an audio file attached
+      const broadcasts = (audioRes.data ?? [])
+        .filter((b: any) => b.attachments && b.attachments.length > 0)
+        .map((b: any) => ({ 
+          ...b, 
+          type: 'audio', 
+          is_pinned: false,
+          attachment: b.attachments 
+        }))
       
       // Merge and sort: pinned first, then by date descending
       const all = [...announcements, ...broadcasts].sort((a, b) => {
