@@ -1,8 +1,8 @@
 // src/modules/communication/tabs/MessagesTab.ts
 
-import type { WorkspaceTab }  from '../workspace/CommunicationWorkspaceShell'
+import type { WorkspaceTab } from '../workspace/CommunicationWorkspaceShell'
 import { showToast, openModal } from '../widgets/communicationWidgets'
-import { CommunicationService }  from '../services/communication.service'
+import { CommunicationService } from '../services/communication.service'
 import type { MessageThread, ThreadMessage } from '../schemas/communication'
 
 // ─── CSS ─────────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function _threadIcon(t: MessageThread): string {
 }
 function _threadColor(t: MessageThread): { bg: string; color: string } {
   if (t.thread_type === 'pastoral') return { bg: 'rgba(227,179,65,0.12)', color: '#e3b341' }
-  if (t.thread_type === 'support')   return { bg: 'rgba(124,58,237,0.1)', color: '#a78bfa' }
+  if (t.thread_type === 'support') return { bg: 'rgba(124,58,237,0.1)', color: '#a78bfa' }
   return { bg: 'rgba(0,75,160,0.1)', color: 'var(--caci-blue-light)' }
 }
 function _fmtTime(d: string | null | undefined): string {
@@ -99,26 +99,26 @@ function _fmtTime(d: string | null | undefined): string {
 // ─── Tab ─────────────────────────────────────────────────────────────────────
 
 export class MessagesTab implements WorkspaceTab {
-  readonly id         = 'messages'
-  readonly label      = 'Messages'
-  readonly icon       = 'chat-dots-fill'
+  readonly id = 'messages'
+  readonly label = 'Messages'
+  readonly icon = 'chat-dots-fill'
   readonly permission = 'communications.direct.send'
 
   private _container: HTMLElement | null = null
-  private _threads:   MessageThread[]    = []
-  private _memberId:  string | null      = null
-  private _destroyed  = false
+  private _threads: MessageThread[] = []
+  private _memberId: string | null = null
+  private _destroyed = false
 
   async render(container: HTMLElement): Promise<void> {
     _injectCSS()
     this._container = container
-    this._destroyed  = false
+    this._destroyed = false
 
     container.innerHTML = `<div style="padding:40px;text-align:center;"><span class="cw-spinner"></span></div>`
 
     try {
       this._memberId = await CommunicationService.getMemberId()
-      
+
       if (!this._memberId) {
         console.warn('[MessagesTab] No member profile found for current user.')
         container.innerHTML = `
@@ -162,9 +162,9 @@ export class MessagesTab implements WorkspaceTab {
     this._container.innerHTML = `
       <div class="msg-thread-list">
         ${this._threads.map(t => {
-          const { bg, color } = _threadColor(t)
-          const label = t.thread_type === 'pastoral' ? 'Pastoral' : t.thread_type === 'support' ? 'Support' : 'Direct'
-          return `
+      const { bg, color } = _threadColor(t)
+      const label = t.thread_type === 'pastoral' ? 'Pastoral' : t.thread_type === 'support' ? 'Support' : 'Direct'
+      return `
             <div class="msg-thread-row" data-thread-id="${t.id}">
               <div class="msg-thread-avatar" style="background:${bg};">
                 <i class="bi bi-${_threadIcon(t)}" style="color:${color};"></i>
@@ -180,7 +180,7 @@ export class MessagesTab implements WorkspaceTab {
                 <span class="msg-thread-date">${_fmtTime(t.updated_at ?? t.created_at)}</span>
               </div>
             </div>`
-        }).join('')}
+    }).join('')}
       </div>`
 
     this._container.querySelectorAll<HTMLElement>('[data-thread-id]').forEach(row => {
@@ -227,24 +227,24 @@ export class MessagesTab implements WorkspaceTab {
         </div>
         <div class="msg-detail-msgs" id="msg-msgs">
           ${!messages.length
-            ? `<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">
+        ? `<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">
                 <i class="bi bi-chat" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
                 No messages yet. Start the conversation below.
                </div>`
-            : messages.map(m => {
-                const isSelf = m.sender_id === this._memberId
-                return `
+        : messages.map(m => {
+          const isSelf = m.sender_id === this._memberId
+          return `
                   <div style="display:flex;flex-direction:column;align-items:${isSelf ? 'flex-end' : 'flex-start'};">
                     <div class="msg-bubble msg-bubble-${isSelf ? 'self' : 'other'}">
                       ${m.message_type === 'audio'
-                        ? `<div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+              ? `<div style="display:flex;align-items:center;gap:8px;font-size:12px;">
                              <i class="bi bi-mic-fill"></i> Audio message
                            </div>`
-                        : (m.body ?? '')}
+              : (m.body ?? '')}
                       <div class="msg-bubble-time">${_fmtTime(m.created_at)}</div>
                     </div>
                   </div>`
-              }).join('')}
+        }).join('')}
         </div>
         <div class="msg-compose">
           <textarea class="msg-compose-inp" id="msg-inp" rows="1"
@@ -261,18 +261,18 @@ export class MessagesTab implements WorkspaceTab {
 
     this._container.querySelector('#msg-back')?.addEventListener('click', () => this._renderList())
 
-    const inp    = this._container.querySelector<HTMLTextAreaElement>('#msg-inp')!
+    const inp = this._container.querySelector<HTMLTextAreaElement>('#msg-inp')!
     const sendBtn = this._container.querySelector<HTMLButtonElement>('#msg-send')!
 
     const _send = async () => {
       const body = inp.value.trim()
       if (!body || !this._memberId) return
-      inp.value    = ''
+      inp.value = ''
       sendBtn.disabled = true
       try {
         await CommunicationService.sendThreadMessage({
-          thread_id:    t.id,
-          sender_id:    this._memberId,
+          thread_id: t.id,
+          sender_id: this._memberId,
           body,
           message_type: 'text',
         })
@@ -300,7 +300,7 @@ export class MessagesTab implements WorkspaceTab {
   destroy(): void {
     this._destroyed = true
     this._container = null
-    this._threads   = []
-    this._memberId  = null
+    this._threads = []
+    this._memberId = null
   }
 }

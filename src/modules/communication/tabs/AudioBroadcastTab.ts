@@ -2,15 +2,15 @@
 // Pastor-only audio recording and broadcast tab.
 // Permission-gated at shell level (permission = 'communications.audio.broadcast').
 
-import type { WorkspaceTab }   from '../workspace/CommunicationWorkspaceShell'
+import type { WorkspaceTab } from '../workspace/CommunicationWorkspaceShell'
 import { getActiveAssemblyId } from '@core/auth'
-import { showToast }           from '../widgets/communicationWidgets'
+import { showToast } from '../widgets/communicationWidgets'
 import { checkCanBroadcastAudio } from '../hooks'
-import { AudioRecorder }          from '../utils/audio/recorder'
-import { validateAudioUpload }    from '../utils/audio/validation'
-import { uploadAudio }            from '../utils/audio/upload'
-import { CommunicationService }   from '../services/communication.service'
-import { emit }                   from '@core/events'
+import { AudioRecorder } from '../utils/audio/recorder'
+import { validateAudioUpload } from '../utils/audio/validation'
+import { uploadAudio } from '../utils/audio/upload'
+import { CommunicationService } from '../services/communication.service'
+import { emit } from '@core/events'
 
 // ─── CSS ─────────────────────────────────────────────────────────────────────
 
@@ -96,27 +96,27 @@ type RecordingState = 'idle' | 'recording' | 'preview' | 'sending'
 // ─── Tab ─────────────────────────────────────────────────────────────────────
 
 export class AudioBroadcastTab implements WorkspaceTab {
-  readonly id         = 'audio'
-  readonly label      = 'Audio Broadcast'
-  readonly icon       = 'mic-fill'
+  readonly id = 'audio'
+  readonly label = 'Audio Broadcast'
+  readonly icon = 'mic-fill'
   readonly permission = 'communications.audio.broadcast'
 
-  private _container:    HTMLElement | null  = null
-  private _state:        RecordingState      = 'idle'
-  private _recorder:     AudioRecorder | null = null
-  private _recordedBlob: Blob | null         = null
-  private _durationSecs: number              = 0
-  private _waveformData: number[]            = []
-  private _timerSecs:    number              = 0
-  private _timerIntvl:   ReturnType<typeof setInterval> | null = null
-  private _animFrame:    number              = 0
-  private _destroyed     = false
+  private _container: HTMLElement | null = null
+  private _state: RecordingState = 'idle'
+  private _recorder: AudioRecorder | null = null
+  private _recordedBlob: Blob | null = null
+  private _durationSecs: number = 0
+  private _waveformData: number[] = []
+  private _timerSecs: number = 0
+  private _timerIntvl: ReturnType<typeof setInterval> | null = null
+  private _animFrame: number = 0
+  private _destroyed = false
 
   async render(container: HTMLElement): Promise<void> {
     _injectCSS()
     this._container = container
-    this._destroyed  = false
-    this._state      = 'idle'
+    this._destroyed = false
+    this._state = 'idle'
 
     // Check permission server-side (belt-and-suspenders)
     container.innerHTML = `<div style="padding:40px;text-align:center;"><span class="cw-spinner"></span></div>`
@@ -155,9 +155,9 @@ export class AudioBroadcastTab implements WorkspaceTab {
           <div class="abt-timer-label">Ready to Record</div>
           <div class="abt-waveform" id="abt-wave">
             ${Array.from({ length: 40 }, (_, i) => {
-              const h = 15 + Math.sin(i * 0.7) * 10
-              return `<div class="abt-bar" style="height:${h}%;background:var(--border-default);"></div>`
-            }).join('')}
+      const h = 15 + Math.sin(i * 0.7) * 10
+      return `<div class="abt-bar" style="height:${h}%;background:var(--border-default);"></div>`
+    }).join('')}
           </div>
           <div class="abt-hint">Tap to start recording · Max 10 minutes · Mono 16kHz</div>
         </div>
@@ -183,7 +183,7 @@ export class AudioBroadcastTab implements WorkspaceTab {
           <div class="abt-timer-label recording">● Recording</div>
           <div class="abt-waveform" id="abt-wave">
             ${Array.from({ length: 40 }, () =>
-              `<div class="abt-bar" style="height:20%;background:var(--caci-red);opacity:0.7;"></div>`).join('')}
+      `<div class="abt-bar" style="height:20%;background:var(--caci-red);opacity:0.7;"></div>`).join('')}
           </div>
           <div class="abt-actions">
             <button class="cw-tbtn cw-tbtn-danger" id="abt-cancel">
@@ -220,9 +220,9 @@ export class AudioBroadcastTab implements WorkspaceTab {
           </div>
           <div class="abt-waveform">
             ${this._waveformData.map(a => {
-              const h = Math.max(10, (a / maxAmp) * 100)
-              return `<div class="abt-bar" style="height:${h}%;background:var(--caci-blue);"></div>`
-            }).join('')}
+      const h = Math.max(10, (a / maxAmp) * 100)
+      return `<div class="abt-bar" style="height:${h}%;background:var(--caci-blue);"></div>`
+    }).join('')}
           </div>
         </div>
 
@@ -278,9 +278,9 @@ export class AudioBroadcastTab implements WorkspaceTab {
 
     this._container.querySelector('#abt-rerecord')?.addEventListener('click', () => {
       audioEl?.pause(); audioEl = null
-      this._recordedBlob  = null
-      this._durationSecs  = 0
-      this._waveformData  = []
+      this._recordedBlob = null
+      this._durationSecs = 0
+      this._waveformData = []
       this._renderIdle()
     })
 
@@ -307,8 +307,8 @@ export class AudioBroadcastTab implements WorkspaceTab {
   // ── Recording logic ────────────────────────────────────────────────────────
 
   private async _startRecording(): Promise<void> {
-    this._recorder   = new AudioRecorder()
-    this._timerSecs  = 0
+    this._recorder = new AudioRecorder()
+    this._timerSecs = 0
     try {
       await this._recorder.start()
     } catch (err: any) {
@@ -317,7 +317,7 @@ export class AudioBroadcastTab implements WorkspaceTab {
       return
     }
 
-    if (this._destroyed) { this._recorder?.stop().catch(() => {}); return }
+    if (this._destroyed) { this._recorder?.stop().catch(() => { }); return }
 
     this._renderRecording()
 
@@ -335,11 +335,11 @@ export class AudioBroadcastTab implements WorkspaceTab {
     this._clearTimer()
     if (!this._recorder) return
     try {
-      const result        = await this._recorder.stop()
-      this._recorder      = null
-      this._recordedBlob  = result.blob
-      this._durationSecs  = result.durationSeconds
-      this._waveformData  = result.waveformData
+      const result = await this._recorder.stop()
+      this._recorder = null
+      this._recordedBlob = result.blob
+      this._durationSecs = result.durationSeconds
+      this._waveformData = result.waveformData
 
       if (this._destroyed) return
 
@@ -360,12 +360,12 @@ export class AudioBroadcastTab implements WorkspaceTab {
   private _cancelRecording(): void {
     this._clearTimer()
     cancelAnimationFrame(this._animFrame)
-    if (this._recorder) { this._recorder.stop().catch(() => {}); this._recorder = null }
+    if (this._recorder) { this._recorder.stop().catch(() => { }); this._recorder = null }
     this._renderIdle()
   }
 
   private async _sendBroadcast(): Promise<void> {
-    const title    = this._container?.querySelector<HTMLInputElement>('#abt-title')?.value.trim()
+    const title = this._container?.querySelector<HTMLInputElement>('#abt-title')?.value.trim()
     const audience = this._container?.querySelector<HTMLSelectElement>('#abt-audience')?.value ?? 'assembly'
 
     if (!title) {
@@ -382,10 +382,10 @@ export class AudioBroadcastTab implements WorkspaceTab {
 
     try {
       const result = await uploadAudio({
-        blob:              this._recordedBlob,
-        durationSeconds:   this._durationSecs,
-        mimeType:          this._recordedBlob.type || 'audio/webm;codecs=opus',
-        waveformData:      this._waveformData,
+        blob: this._recordedBlob,
+        durationSeconds: this._durationSecs,
+        mimeType: this._recordedBlob.type || 'audio/webm;codecs=opus',
+        waveformData: this._waveformData,
         assemblyId,
         isPublicBroadcast: true,
       })
@@ -394,13 +394,13 @@ export class AudioBroadcastTab implements WorkspaceTab {
 
       // Create a campaign record linking to this broadcast
       await CommunicationService.createCampaign({
-        assembly_id:      assemblyId,
+        assembly_id: assemblyId,
         title,
-        channel:          'audio' as any,
-        audience_type:    audience as any,
-        audience_ids:     [],
-        trigger_type:     'manual',
-        status:           'sent',
+        channel: 'audio' as any,
+        audience_type: audience as any,
+        audience_ids: [],
+        trigger_type: 'manual',
+        status: 'sent',
         total_recipients: 0,
       } as any)
 
@@ -452,7 +452,7 @@ export class AudioBroadcastTab implements WorkspaceTab {
     this._destroyed = true
     this._clearTimer()
     cancelAnimationFrame(this._animFrame)
-    if (this._recorder) { this._recorder.stop().catch(() => {}); this._recorder = null }
+    if (this._recorder) { this._recorder.stop().catch(() => { }); this._recorder = null }
     this._container = null
   }
 }

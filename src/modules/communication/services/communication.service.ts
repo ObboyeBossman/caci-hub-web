@@ -263,25 +263,25 @@ export class CommunicationService {
 
   // In communication.service.ts — add these two static methods:
 
-static async updateCampaign(id: string, updates: Partial<Campaign>): Promise<Campaign> {
-  const { data, error } = await db
-    .from('communication_campaigns')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-  if (error) throw error
-  return data as Campaign
-}
+  static async updateCampaign(id: string, updates: Partial<Campaign>): Promise<Campaign> {
+    const { data, error } = await db
+      .from('communication_campaigns')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data as Campaign
+  }
 
-static async deleteCampaign(id: string): Promise<void> {
-  const { error } = await db
-    .from('communication_campaigns')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
+  static async deleteCampaign(id: string): Promise<void> {
+    const { error } = await db
+      .from('communication_campaigns')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
 
-  if (error) throw error
-}
+    if (error) throw error
+  }
 }
 
 
