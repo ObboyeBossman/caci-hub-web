@@ -166,6 +166,13 @@ const ACCT_CSS = /* css */`
   font-size: 10.5px; color: var(--text-muted);
 }
 .acct-mob-meta i { font-size: 12px; }
+
+/* Locked/protected row action (self or last-admin) */
+.acct-row-action.acct-locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 `
 
 let _acctCSSInjected = false
@@ -648,16 +655,20 @@ export class AccountsTab implements WorkspaceTab {
           <span style="font-size:10px;color:var(--text-muted);">ID: ${a.id.slice(0, 8)}…</span>
         </div>
         <div class="aw-col-cell" style="justify-content:flex-end;gap:2px;">
-          <button class="acct-row-action ${a.isActive ? 'toggle-on' : 'toggle-off'}"
-                  title="${a.isActive ? 'Deactivate' : 'Activate'}" data-toggle-id="${a.id}">
+          ${(() => {
+            const locked = !!this._isProtected(a)
+            return `
+          <button class="acct-row-action ${a.isActive ? 'toggle-on' : 'toggle-off'}${locked ? ' acct-locked' : ''}"
+                  title="${locked ? 'Protected account' : (a.isActive ? 'Deactivate' : 'Activate')}" data-toggle-id="${a.id}"${locked ? ' disabled' : ''}>
             <i class="bi bi-toggle-${a.isActive ? 'on' : 'off'}" style="font-size:20px;"></i>
           </button>
-          <button class="acct-row-action" title="Reset password" data-reset-id="${a.id}">
+          <button class="acct-row-action${locked ? ' acct-locked' : ''}" title="${locked ? 'Protected account' : 'Reset password'}" data-reset-id="${a.id}"${locked ? ' disabled' : ''}>
             <i class="bi bi-key-fill"></i>
           </button>
           <button class="acct-row-action" title="More options" data-ctx-id="${a.id}">
             <i class="bi bi-three-dots-vertical"></i>
-          </button>
+          </button>`
+          })()}
         </div>
       </div>`
         }).join('')
@@ -834,6 +845,8 @@ export class AccountsTab implements WorkspaceTab {
     // ── Quick toggle ─────────────────────────────────────────────────────────
 
     private async _quickToggle(account: UserProfileSummary): Promise<void> {
+        const reason = this._isProtected(account)
+        if (reason) { showToast(reason, 'warning'); return }
         const next = !account.isActive
         try {
             await setUserActive(account.id, next)
@@ -841,6 +854,28 @@ export class AccountsTab implements WorkspaceTab {
         } catch (err: any) {
             showToast(err?.message ?? 'Update failed', 'danger')
         }
+    }
+
+    /**
+     * Returns a human-readable reason why this account cannot be modified,
+     * or null if it can be modified freely.
+     *
+     * Rules:
+     *   1. You cannot modify your own account.
+     *   2. You cannot modify the last remaining admin in the assembly.
+     */
+    private _isProtected(account: UserProfileSummary): string | null {
+        const me = getCurrentUser()
+        if (me && account.id === me.id) {
+            return 'You cannot modify your own account.'
+        }
+        if (account.role === 'admin') {
+            const adminCount = this._state.accounts.filter(a => a.role === 'admin').length
+            if (adminCount <= 1) {
+                return 'This is the only admin account — it cannot be modified.'
+            }
+        }
+        return null
     }
 
     // ── Bulk actions ─────────────────────────────────────────────────────────
@@ -897,12 +932,14 @@ export class AccountsTab implements WorkspaceTab {
         account: UserProfileSummary,
         canManage: boolean
     ): void {
+        const protectionReason = this._isProtected(account)
+
         const items = [
             {
                 id: 'view', label: 'View Profile', icon: 'eye-fill', variant: 'default' as const,
                 onClick: () => showToast(`Opening profile for ${account.fullName}`, 'info'),
             },
-            ...(canManage ? [
+            ...(canManage && !protectionReason ? [
                 {
                     id: 'edit', label: 'Edit Account', icon: 'pencil-fill', variant: 'default' as const,
                     divider: false,
@@ -1192,6 +1229,8 @@ export class AccountsTab implements WorkspaceTab {
     // ── Reset Password Modal ──────────────────────────────────────────────────
 
     private _openResetModal(account: UserProfileSummary): void {
+        const reason = this._isProtected(account)
+        if (reason) { showToast(reason, 'warning'); return }
         const av = initials(account.fullName)
         const avColor = avatarColor(account.fullName)
         const ringCls = avatarRingClass(getAccountStatus(account))
@@ -1300,6 +1339,8 @@ export class AccountsTab implements WorkspaceTab {
     // ── Delete Account Modal ──────────────────────────────────────────────────
 
     private _openDeleteModal(account: UserProfileSummary): void {
+        const reason = this._isProtected(account)
+        if (reason) { showToast(reason, 'warning'); return }
         const body = `
       <div class="acct-info-banner danger" style="margin-bottom:16px;">
         <i class="bi bi-exclamation-triangle-fill" style="font-size:20px;"></i>
