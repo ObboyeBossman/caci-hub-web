@@ -24,6 +24,7 @@ export interface UserProfileSummary {
   role:       SystemRole
   isActive:   boolean
   assemblyId: string | null
+  assemblyRoleId?: string | null
 }
 
 type ProfileFetcher     = (id: string)      => Promise<UserProfileSummary | null>
