@@ -880,6 +880,13 @@ export class Toolbar {
     return this._el.querySelector<HTMLInputElement>('.aw-search input')?.value ?? ''
   }
 
+  clearSearch(): void {
+    const inp = this._el.querySelector<HTMLInputElement>('.aw-search input')
+    if (inp) inp.value = ''
+    this._el.classList.remove('search-open')
+    this._resetTimer()
+  }
+
   getFilterValue(id: string): string {
     return this._el.querySelector<HTMLSelectElement>(`[data-filter-id="${id}"]`)?.value ?? 'all'
   }

@@ -17,6 +17,7 @@ import {
     resetMemberPassword,
     listUnprovisionedMembers,
     listAssemblyRoles,
+    type AssemblyRole,
 } from '../repository'
 import type { UserProfileSummary } from '../utils/userProfileCache'
 import type { WorkspaceTab } from '../workspace/AdminWorkspaceShell'
@@ -235,6 +236,7 @@ function formatDate(dateStr: string): string {
 
 interface TabState {
     accounts: UserProfileSummary[]
+    assemblyRoles: AssemblyRole[]
     filtered: UserProfileSummary[]
     search: string
     statusFilter: string
@@ -258,7 +260,7 @@ export class AccountsTab implements WorkspaceTab {
 
     private _container: HTMLElement | null = null
     private _state: TabState = {
-        accounts: [], filtered: [], search: '', statusFilter: 'all',
+        accounts: [], assemblyRoles: [], filtered: [], search: '', statusFilter: 'all',
         roleFilter: 'all', sortField: 'name', sortAsc: true,
         statFilter: null, selectedIds: new Set(), loading: true,
     }
@@ -302,7 +304,12 @@ export class AccountsTab implements WorkspaceTab {
 
     private async _loadAccounts(): Promise<void> {
         try {
-            this._state.accounts = await listAccounts()
+            const [accounts, roles] = await Promise.all([
+                listAccounts(),
+                listAssemblyRoles()
+            ])
+            this._state.accounts = accounts
+            this._state.assemblyRoles = roles
             this._state.loading = false
         } catch (err) {
             console.error('[AccountsTab] load error', err)
@@ -314,7 +321,12 @@ export class AccountsTab implements WorkspaceTab {
     private async _reload(): Promise<void> {
         if (this._destroyed) return
         try {
-            this._state.accounts = await listAccounts()
+            const [accounts, roles] = await Promise.all([
+                listAccounts(),
+                listAssemblyRoles()
+            ])
+            this._state.accounts = accounts
+            this._state.assemblyRoles = roles
             this._applyFilters()
             this._statsGroup?.update()
             this._renderContent()
@@ -420,6 +432,7 @@ export class AccountsTab implements WorkspaceTab {
             { value: 'all', label: 'All Roles' },
             { value: 'admin', label: 'Administrator' },
             { value: 'member', label: 'Member' },
+            ...this._state.assemblyRoles.map(r => ({ value: r.id, label: r.name })),
         ]
 
         this._toolbar = new Toolbar(wrap, {
@@ -502,7 +515,15 @@ export class AccountsTab implements WorkspaceTab {
 
             const status = getAccountStatus(a)
             const matchStatus = statusFilter === 'all' || status === statusFilter
-            const matchRole = roleFilter === 'all' || a.role === roleFilter
+
+            // Match role. If roleFilter is 'all', match.
+            // If it's a system role ('admin', 'member'), check a.role.
+            // Otherwise, assume it's an assemblyRole ID and match against a.assemblyRoleId (from UserProfileSummary, check shape below).
+            let matchRole = false
+            if (roleFilter === 'all') matchRole = true
+            else if (roleFilter === 'admin' || roleFilter === 'member') matchRole = a.role === roleFilter
+            else matchRole = (a as any).assemblyRoleId === roleFilter
+
             const matchStat = !statFilter || statFilter === 'all'
                 || (statFilter === 'active' && a.isActive)
                 || (statFilter === 'inactive' && !a.isActive)
