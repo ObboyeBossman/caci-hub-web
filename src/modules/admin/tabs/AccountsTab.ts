@@ -12,6 +12,7 @@ import {
     listAccounts,
     setUserActive,
     updateUserRole,
+    assignRoleToUser,
     provisionUser,
     deleteMemberAuth,
     resetMemberPassword,
@@ -1018,10 +1019,11 @@ export class AccountsTab implements WorkspaceTab {
       </div>
 
       <div class="aw-form-group">
-        <label class="aw-form-label">System Role</label>
+        <label class="aw-form-label">Role</label>
         <select class="aw-form-select" id="prov-role">
           <option value="member">Member</option>
           <option value="admin">Administrator</option>
+          <option disabled>──────────</option>
           ${assemblyRoles.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
         </select>
       </div>
@@ -1143,9 +1145,13 @@ export class AccountsTab implements WorkspaceTab {
             submitBtn.innerHTML = `<span class="aw-spinner"></span> Provisioning…`
 
             try {
-                const payload: any = { memberId, role, path: selectedPath }
+                const sysRole = role === 'admin' || role === 'member' ? role : 'member'
+                const payload: any = { memberId, role: sysRole, path: selectedPath }
                 if (selectedPath === 'custom_password') payload.password = password
-                await provisionUser(payload)
+                const res = await provisionUser(payload)
+                if (role !== 'admin' && role !== 'member') {
+                     await assignRoleToUser(res.userId, role)
+                }
                 close()
                 showToast(`Account provisioned successfully`, 'success')
                 await this._reload()
@@ -1170,10 +1176,12 @@ export class AccountsTab implements WorkspaceTab {
         <input type="text" class="aw-form-inp" id="edit-name" value="${account.fullName}">
       </div>
       <div class="aw-form-group">
-        <label class="aw-form-label">System Role</label>
+        <label class="aw-form-label">Role</label>
         <select class="aw-form-select" id="edit-role">
-          <option value="member"${account.role === 'member' ? ' selected' : ''}>Member</option>
+          <option value="member"${account.role === 'member' && !(account as any).assemblyRoleId ? ' selected' : ''}>Member</option>
           <option value="admin"${account.role === 'admin' ? ' selected' : ''}>Administrator</option>
+          <option disabled>──────────</option>
+          ${this._state.assemblyRoles.map(r => `<option value="${r.id}"${(account as any).assemblyRoleId === r.id ? ' selected' : ''}>${r.name}</option>`).join('')}
         </select>
       </div>
       <div class="aw-form-group">
@@ -1224,7 +1232,7 @@ export class AccountsTab implements WorkspaceTab {
         overlay.querySelector('#edit-cancel')?.addEventListener('click', close)
 
         overlay.querySelector('#edit-save')?.addEventListener('click', async () => {
-            const role = overlay.querySelector<HTMLSelectElement>('#edit-role')?.value ?? 'member'
+            const roleSelection = overlay.querySelector<HTMLSelectElement>('#edit-role')?.value ?? 'member'
             const newStatus = overlay.querySelector<HTMLSelectElement>('#edit-status')?.value === 'active'
             const saveBtn = overlay.querySelector<HTMLButtonElement>('#edit-save')!
 
@@ -1232,8 +1240,12 @@ export class AccountsTab implements WorkspaceTab {
             saveBtn.innerHTML = `<span class="aw-spinner"></span> Saving…`
 
             try {
+                const sysRole = roleSelection === 'admin' || roleSelection === 'member' ? roleSelection : 'member'
+                const assemblyRole = roleSelection === 'admin' || roleSelection === 'member' ? null : roleSelection
+
                 await Promise.all([
-                    updateUserRole(account.id, role as any),
+                    updateUserRole(account.id, sysRole as any),
+                    assignRoleToUser(account.id, assemblyRole),
                     account.isActive !== newStatus ? setUserActive(account.id, newStatus) : Promise.resolve(),
                 ])
                 close()
