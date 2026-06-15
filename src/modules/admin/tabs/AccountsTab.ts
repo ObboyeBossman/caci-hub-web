@@ -921,8 +921,8 @@ export class AccountsTab implements WorkspaceTab {
                     onClick: () => this._quickToggle(account),
                 },
                 {
-                    id: 'unlink', label: 'Unlink Member', icon: 'link-slash', variant: 'danger' as const,
-                    onClick: () => this._openUnlinkModal(account),
+                    id: 'delete', label: 'Delete Account', icon: 'trash3-fill', variant: 'danger' as const,
+                    onClick: () => this._openDeleteModal(account),
                 },
             ] : []),
         ]
@@ -1297,44 +1297,43 @@ export class AccountsTab implements WorkspaceTab {
         })
     }
 
-    // ── Unlink Modal ──────────────────────────────────────────────────────────
+    // ── Delete Account Modal ──────────────────────────────────────────────────
 
-    private _openUnlinkModal(account: UserProfileSummary): void {
-        const memberIdDisplay = account.memberId ?? '—'
-
+    private _openDeleteModal(account: UserProfileSummary): void {
         const body = `
-      <div class="acct-info-banner danger">
+      <div class="acct-info-banner danger" style="margin-bottom:16px;">
         <i class="bi bi-exclamation-triangle-fill" style="font-size:20px;"></i>
         <div>
           <p style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 4px;">
-            This action cannot be easily undone
+            This action is permanent and cannot be undone
           </p>
           <p style="margin:0;">
-            Unlinking will remove the connection between 
-            <strong style="color:var(--text-primary);">${account.fullName}</strong> 
-            and their member record. The login account will remain but will be marked as unlinked.
+            Deleting this account will permanently remove
+            <strong style="color:var(--text-primary);">${account.fullName}</strong>'s
+            login credentials, system profile, and all session data.
+            The member record will be preserved but will no longer have a linked account.
           </p>
         </div>
       </div>
       <div class="aw-form-group">
-        <label class="aw-form-label">Type the member ID to confirm</label>
-        <input type="text" class="aw-form-inp acct-confirm-id" id="unlink-confirm"
-               placeholder="${memberIdDisplay}" autocomplete="off">
-        <div class="aw-form-error" id="unlink-err">Member ID does not match.</div>
+        <label class="aw-form-label">Type the account holder's full name to confirm</label>
+        <input type="text" class="aw-form-inp" id="delete-confirm"
+               placeholder="${account.fullName}" autocomplete="off">
+        <div class="aw-form-error" id="delete-err">Name does not match. Please type it exactly.</div>
       </div>`
 
         const footer = `
-      <button class="aw-tbtn" id="unlink-cancel">Cancel</button>
-      <button class="aw-tbtn aw-tbtn-danger" id="unlink-submit">
-        <i class="bi bi-link-slash"></i>
-        <span>Unlink Member</span>
+      <button class="aw-tbtn" id="delete-cancel">Cancel</button>
+      <button class="aw-tbtn aw-tbtn-danger" id="delete-submit">
+        <i class="bi bi-trash3-fill"></i>
+        <span>Delete Account</span>
       </button>`
 
         const close = openModal({
-            title: 'Unlink Member',
+            title: 'Delete Account',
             subtitle: account.fullName,
-            icon: 'link-slash',
-            iconBg: 'rgba(198,0,38,0.1)',
+            icon: 'trash3-fill',
+            iconBg: 'rgba(198,0,38,0.12)',
             iconColor: 'var(--caci-red)',
             body,
             footer,
@@ -1342,32 +1341,37 @@ export class AccountsTab implements WorkspaceTab {
 
         const overlay = document.getElementById('aw-shared-modal')!
 
-        overlay.querySelector('#unlink-cancel')?.addEventListener('click', close)
+        overlay.querySelector('#delete-cancel')?.addEventListener('click', close)
 
-        overlay.querySelector('#unlink-submit')?.addEventListener('click', async () => {
-            const confirmVal = overlay.querySelector<HTMLInputElement>('#unlink-confirm')?.value.trim() ?? ''
-            const errEl = overlay.querySelector<HTMLElement>('#unlink-err')!
-            const submitBtn = overlay.querySelector<HTMLButtonElement>('#unlink-submit')!
+        overlay.querySelector('#delete-submit')?.addEventListener('click', async () => {
+            const confirmVal = overlay.querySelector<HTMLInputElement>('#delete-confirm')?.value.trim() ?? ''
+            const errEl = overlay.querySelector<HTMLElement>('#delete-err')!
+            const submitBtn = overlay.querySelector<HTMLButtonElement>('#delete-submit')!
 
-            // Enforce confirmation
-            if (confirmVal !== memberIdDisplay) {
+            if (confirmVal !== account.fullName) {
                 errEl.classList.add('show')
                 return
             }
             errEl.classList.remove('show')
 
             submitBtn.disabled = true
-            submitBtn.innerHTML = `<span class="aw-spinner"></span> Unlinking…`
+            submitBtn.innerHTML = `<span class="aw-spinner"></span> Deleting…`
 
             try {
                 await deleteMemberAuth(account.memberId ?? account.id)
+                // Optimistically remove from local state so the row disappears instantly
+                this._state.accounts = this._state.accounts.filter(a => a.id !== account.id)
+                this._applyFilters()
+                this._statsGroup?.update()
+                this._renderContent()
                 close()
-                showToast('Member unlinked from account', 'warning')
-                await this._reload()
+                showToast(`${account.fullName}'s account has been permanently deleted`, 'success')
+                // Background sync to confirm server state
+                this._reload()
             } catch (err: any) {
                 submitBtn.disabled = false
-                submitBtn.innerHTML = `<i class="bi bi-link-slash"></i> Unlink Member`
-                showToast(err?.message ?? 'Unlink failed', 'danger')
+                submitBtn.innerHTML = `<i class="bi bi-trash3-fill"></i> Delete Account`
+                showToast(err?.message ?? 'Delete failed', 'danger')
             }
         })
     }
