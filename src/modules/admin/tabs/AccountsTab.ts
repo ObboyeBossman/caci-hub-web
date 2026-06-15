@@ -1168,7 +1168,6 @@ export class AccountsTab implements WorkspaceTab {
 
     private _openEditModal(account: UserProfileSummary): void {
         const status = getAccountStatus(account)
-        const roleDisplay = getDisplayRole(account.role)
 
         const body = `
       <div class="aw-form-group">
