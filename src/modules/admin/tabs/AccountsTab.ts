@@ -200,13 +200,13 @@ const ROLE_ICON: Record<string, string> = {
     'Pastor': 'book',
 }
 
-function getRoleIcon(role: string): string {
-    return ROLE_ICON[role] ?? 'person-fill'
+function getRoleIcon(profile: UserProfileSummary): string {
+    if (profile.roleSource === 'custom') return 'shield-fill'
+    return ROLE_ICON[profile.role] ?? 'person-fill'
 }
 
-function getDisplayRole(role: string): string {
-    const map: Record<string, string> = { admin: 'Administrator', member: 'Member' }
-    return map[role] ?? role
+function getDisplayRole(profile: UserProfileSummary): string {
+    return profile.effectiveRoleName ?? (profile.role === 'admin' ? 'Administrator' : 'Member')
 }
 
 function getAccountStatus(profile: UserProfileSummary): AccountStatus {
@@ -637,7 +637,7 @@ export class AccountsTab implements WorkspaceTab {
             const ringCls = avatarRingClass(status)
             const sel = selectedIds.has(a.id)
             const delay = Math.min(i * 35, 350)
-            const roleDisplay = getDisplayRole(a.role)
+            const roleDisplay = getDisplayRole(a)
 
             return `
       <div class="aw-table-row acct-row-grid${sel ? ' selected' : ''}"
@@ -662,7 +662,7 @@ export class AccountsTab implements WorkspaceTab {
         </div>
         <div class="aw-col-cell acct-col-role">
           <span class="aw-role-pill">
-            <i class="bi bi-${getRoleIcon(a.role)}"></i>
+            <i class="bi bi-${getRoleIcon(a)}"></i>
             ${roleDisplay}
           </span>
         </div>
@@ -702,7 +702,7 @@ export class AccountsTab implements WorkspaceTab {
             const avColor = avatarColor(a.fullName)
             const ringCls = avatarRingClass(status)
             const delay = Math.min(i * 35, 350)
-            const roleDisplay = getDisplayRole(a.role)
+            const roleDisplay = getDisplayRole(a)
 
             return `
       <div class="aw-mob-row"
@@ -719,7 +719,7 @@ export class AccountsTab implements WorkspaceTab {
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span class="aw-role-pill" style="font-size:10px;padding:2px 8px;">
-              <i class="bi bi-${getRoleIcon(a.role)}" style="font-size:10px;"></i>
+              <i class="bi bi-${getRoleIcon(a)}" style="font-size:10px;"></i>
               ${roleDisplay}
             </span>
           </div>
