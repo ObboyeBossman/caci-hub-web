@@ -673,7 +673,7 @@ export class AccountsTab implements WorkspaceTab {
                     : `<span class="acct-link-chip unlinked"><i class="bi bi-link-slash"></i>Unlinked</span>`}
         </div>
         <div class="aw-col-cell acct-col-provisioned" style="flex-direction:column;align-items:flex-start;gap:1px;">
-          <span style="font-size:12px;color:var(--text-secondary);">${a.role === 'admin' ? 'Administrator' : 'Member'}</span>
+          <span style="font-size:12px;color:var(--text-secondary);">${roleDisplay}</span>
           <span style="font-size:10px;color:var(--text-muted);">ID: ${a.id.slice(0, 8)}…</span>
         </div>
         <div class="aw-col-cell" style="justify-content:flex-end;gap:2px;">
