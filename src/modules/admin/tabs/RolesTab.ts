@@ -377,11 +377,13 @@ export class RolesTab implements WorkspaceTab {
   // ── Member count per role ────────────────────────────────────────────────
 
   private _memberCountForRole(roleId: string): number {
-    return this._accounts.filter((a: any) => a.assemblyRoleId === roleId).length
+    return this._membersForRole(roleId).length
   }
 
-  private _membersForRole(roleId: string) {
-    return this._accounts.filter((a: any) => a.assemblyRoleId === roleId)
+  private _membersForRole(roleId: string): any[] {
+    const role = this._roles.find(r => r.id === roleId)
+    if (!role) return []
+    return this._accounts.filter((a: any) => a.effectiveRoleName === role.name)
   }
 
   // ── Build UI ─────────────────────────────────────────────────────────────
@@ -562,8 +564,8 @@ export class RolesTab implements WorkspaceTab {
       </div>`
     }
 
-    const adminAccounts = this._accounts.filter((a: any) => a.role === 'admin')
-    const memberAccounts = this._accounts.filter((a: any) => a.role === 'member' && !a.assemblyRoleId)
+    const adminAccounts = this._accounts.filter((a: any) => a.effectiveRoleName === 'Administrator')
+    const memberAccounts = this._accounts.filter((a: any) => a.effectiveRoleName === 'Member')
 
     const sysHtml = this._search ? '' : [
       renderSystemCard('admin', 'Administrator', 'Full system access and privileges.', 'shield-lock-fill', adminAccounts, 'All', '<span class="rol-perm-chip">system.*</span>'),

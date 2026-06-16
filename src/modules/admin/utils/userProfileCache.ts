@@ -25,6 +25,8 @@ export interface UserProfileSummary {
   isActive:   boolean
   assemblyId: string | null
   assemblyRoleId?: string | null
+  effectiveRoleName?: string | null  // from DB view: 'Administrator', 'Member', or custom role name
+  roleSource?: 'system' | 'custom' | null  // from DB view: 'system' or 'custom'
 }
 
 type ProfileFetcher     = (id: string)      => Promise<UserProfileSummary | null>
