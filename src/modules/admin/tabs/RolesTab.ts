@@ -563,7 +563,7 @@ export class RolesTab implements WorkspaceTab {
     }
 
     const adminAccounts = this._accounts.filter((a: any) => a.role === 'admin')
-    const memberAccounts = this._accounts.filter((a: any) => a.role === 'member')
+    const memberAccounts = this._accounts.filter((a: any) => a.role === 'member' && !a.assemblyRoleId)
 
     const sysHtml = this._search ? '' : [
       renderSystemCard('admin', 'Administrator', 'Full system access and privileges.', 'shield-lock-fill', adminAccounts, 'All', '<span class="rol-perm-chip">system.*</span>'),
