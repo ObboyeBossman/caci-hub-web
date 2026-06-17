@@ -14,7 +14,7 @@ import type { PageModule } from '../../../types/module.types'
 import { navigate } from '@core/router'
 import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { debounce } from '@shared/utils/debounce'
-import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { listAllAuditLogs } from '../repository'
 import type { AuditLogEntry } from '../repository'
 
@@ -391,8 +391,15 @@ function fmtValue(v: string | null, field: string): string {
 
 // ── Page module ───────────────────────────────────────────────────────────────
 
-const AuditLogsPage: PageModule = { render, destroy }
-export default AuditLogsPage
+export function createAuditLogsTab(): WorkspaceTab {
+  return {
+    id: 'audit',
+    label: 'Audit Logs',
+    icon: 'clock-history',
+    render,
+    destroy,
+  }
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -512,8 +519,6 @@ async function _fetchStats(): Promise<{ total: number; today: number; week: numb
 function _buildShell(): string {
   return /* html */`
 <div class="al-page">
-
-  ${renderMembershipTab('audit')}
 
   <!-- Stat cards -->
   <div class="al-stats" id="al-stats">
@@ -705,9 +710,6 @@ function _hideLoadMore(): void {
 function _bindEvents(): void {
   const container = _container
   if (!container) return
-
-  // Tab bar
-  bindMembershipTabEvents(container)
 
   // Search (debounced)
   const searchInp = container.querySelector<HTMLInputElement>('#al-search')

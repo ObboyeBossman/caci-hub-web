@@ -13,7 +13,7 @@ import { renderSkeleton, renderError } from '@shared/utils/pageHelpers'
 import { debounce } from '@shared/utils/debounce'
 import { avatarColor, initials, fmtDate, formatName } from '../utils/member-helpers'
 import type { MemberView, MemberFilter } from '../../../types/member.types'
-import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 
@@ -421,13 +421,15 @@ function genderColor(g: string): string {
   return g === 'male' ? 'var(--caci-blue)' : g === 'female' ? '#f778ba' : 'var(--text-muted)'
 }
 
-// ── Page Module ───────────────────────────────────────────────────────────────
-
-const MemberListPage: PageModule = {
-  render,
-  destroy,
+export function createMembersTab(): WorkspaceTab {
+  return {
+    id: 'members',
+    label: 'All Members',
+    icon: 'people-fill',
+    render,
+    destroy,
+  }
 }
-export default MemberListPage
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -488,8 +490,6 @@ function buildShell(): string {
 
   return /* html */`
 <div class="ml-wrap">
-
-  ${renderMembershipTab('members', { members: _counts.total })}
 
   <!-- Stat cards -->
   <div class="ml-stats-grid" id="ml-stats-grid" style="margin-bottom:20px;">

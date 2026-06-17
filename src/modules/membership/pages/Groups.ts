@@ -31,7 +31,7 @@ import {
 } from '../groups.repository'
 import { getMemberCounts } from '../repository'
 import type { Group, GroupType, CreateGroupPayload } from '../../../types/group.types'
-import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 
@@ -1251,53 +1251,54 @@ function _showDeleteConfirm(group: Group): void {
   })
 }
 
-// ── Main render ───────────────────────────────────────────────────────────────
-const Groups: PageModule = {
+export function createGroupsTab(): WorkspaceTab {
+  return {
+    id: 'groups',
+    label: 'Groups & Units',
+    icon: 'diagram-3-fill',
 
-  async render(container: HTMLElement): Promise<void> {
-    _destroyed  = false
-    _container  = container
-    _state.search     = ''
-    _state.sort       = 'name_az'
-    _state.typeFilter = 'all'
-    _state.statFilter = null
+    async render(container: HTMLElement): Promise<void> {
+      _destroyed  = false
+      _container  = container
+      _state.search     = ''
+      _state.sort       = 'name_az'
+      _state.typeFilter = 'all'
+      _state.statFilter = null
 
-    injectCSS()
+      injectCSS()
 
-    const user     = getCurrentUser()
-    const canCreate = user && can(user, PERMISSIONS.GROUPS_CREATE)
+      const user     = getCurrentUser()
+      const canCreate = user && can(user, PERMISSIONS.GROUPS_CREATE)
 
-    // Register realtime listeners
-    on('group:created', _onGroupCreated)
-    on('group:updated', _onGroupUpdated)
-    on('group:deleted', _onGroupDeleted)
+      // Register realtime listeners
+      on('group:created', _onGroupCreated)
+      on('group:updated', _onGroupUpdated)
+      on('group:deleted', _onGroupDeleted)
 
-    let groups: Group[] = []
-    let totalMembers = 0
-    try {
-      const [_groupsRes, _counts] = await Promise.all([
-        listGroups({ includeDeleted: false }),
-        getMemberCounts().catch(() => ({ total: 0 }))
-      ])
-      groups = _groupsRes
-      totalMembers = _counts.total
-    } catch (err) {
-      renderError(container, err, { retry: () => Groups.render(container) })
-      return
-    }
+      let groups: Group[] = []
+      let totalMembers = 0
+      try {
+        const [_groupsRes, _counts] = await Promise.all([
+          listGroups({ includeDeleted: false }),
+          getMemberCounts().catch(() => ({ total: 0 }))
+        ])
+        groups = _groupsRes
+        totalMembers = _counts.total
+      } catch (err) {
+        renderError(container, err, { retry: () => this.render(container) })
+        return
+      }
 
-    if (_destroyed) return
+      if (_destroyed) return
 
-    _state.groups = groups
-    _applyFilters()
+      _state.groups = groups
+      _applyFilters()
 
-    container.innerHTML = /* html */`
-      <div class="grp-page">
+      container.innerHTML = /* html */`
+        <div class="grp-page">
 
-        ${renderMembershipTab('groups', { members: totalMembers })}
-
-        <!-- Stat cards -->
-        <div class="grp-stats-row"></div>
+          <!-- Stat cards -->
+          <div class="grp-stats-row"></div>
 
         <!-- Toolbar -->
         <div class="grp-toolbar" style="margin-bottom:var(--space-md);">
@@ -1365,9 +1366,6 @@ const Groups: PageModule = {
     const openCreate = () => _openCreateModal()
     container.querySelector('#grp-create-btn')?.addEventListener('click', openCreate)
     container.querySelector('#grp-create-btn-toolbar')?.addEventListener('click', openCreate)
-
-    // Tab bar routing
-    bindMembershipTabEvents(container)
   },
 
   destroy(): void {
@@ -1380,6 +1378,5 @@ const Groups: PageModule = {
     document.getElementById('grp-create-modal')?.remove()
     document.getElementById('grp-confirm-modal')?.remove()
   },
+ }
 }
-
-export default Groups
