@@ -3,7 +3,7 @@
 // Future: Edit assembly name, address, digital_address,
 // default_member_password (via Edge Function), is_active toggle.
 
-import type { WorkspaceTab } from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { getCurrentUser } from '@core/auth'
 import { getAssembly, setAssemblyDefaultPassword } from '../repository'
 import { injectWidgetCSS, showToast } from '../widgets/adminWidgets'

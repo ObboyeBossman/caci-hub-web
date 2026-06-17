@@ -2,7 +2,7 @@
 // Pastor-only audio recording and broadcast tab.
 // Permission-gated at shell level (permission = 'communications.audio.broadcast').
 
-import type { WorkspaceTab } from '../workspace/CommunicationWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { getActiveAssemblyId } from '@core/auth'
 import { showToast } from '../widgets/communicationWidgets'
 import { checkCanBroadcastAudio } from '../hooks'

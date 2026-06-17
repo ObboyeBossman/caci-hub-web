@@ -1,6 +1,6 @@
 // src/modules/communication/tabs/AnnouncementsTab.ts
 
-import type { WorkspaceTab }  from '../workspace/CommunicationWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { getCurrentUser, getActiveAssemblyId } from '@core/auth'
 import { can }                from '@core/authorization/authorization-service'
 import { Toolbar, ContextMenu, openModal, showToast } from '../widgets/communicationWidgets'

@@ -6,7 +6,7 @@
 import { supabase }            from '@core/supabase'
 import { getActiveAssemblyId } from '@core/auth'
 import { debounce }            from '@shared/utils/debounce'
-import type { WorkspaceTab }   from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import {
   injectWidgetCSS,
   StatsCardGroup,

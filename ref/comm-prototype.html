@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CACI Hub — Broadcast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ════════════════════════════════════════════════════════════ */
+:root {
+  --brand-blue:       #004BA0;
+  --brand-blue-dark:  #003880;
+  --brand-red:        #C60026;
+
+  --bg-page:          #F6F8FA;
+  --bg-surface:       #FFFFFF;
+  --bg-surface-2:     #F0F3F7;
+  --bg-hover:         #EEF2F7;
+  --border:           #D8DFE8;
+  --border-light:     #E8ECF1;
+
+  --text-primary:     #0D1117;
+  --text-secondary:   #57606A;
+  --text-muted:       #8B949E;
+
+  --green-bg:         #E6F4EA; --green-text: #1A7F37; --green-500: #2DA44E;
+  --blue-bg:          #EAF1FB; --blue-text:  #0550AE; --blue-500:  #0969DA;
+  --orange-bg:        #FFF3E0; --orange-text:#B56101; --orange-500:#E36209;
+  --red-bg:           #FFEBE9; --red-text:   #CF222E; --red-500:   #CF222E;
+  --purple-bg:        #F3EFF8; --purple-text:#6E40C9; --purple-500:#6E40C9;
+  --gray-200:         #EEF2F7; --gray-300:   #D8DFE8; --gray-400:  #8B949E; --gray-500: #57606A;
+
+  /* Channel colours — 3 true channels */
+  --ch-email:   #0550AE;
+  --ch-sms:     #1A7F37;
+  --ch-inapp:   #6E40C9;
+
+  --nav-h:       60px;
+  --sidebar-w:   240px;
+  --radius-sm:   6px;  --radius-md: 8px; --radius-lg: 12px;
+  --radius-xl:   16px; --radius-full: 9999px;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:   0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,.12);
+  --ease:        cubic-bezier(.4,0,.2,1);
+}
+
+[data-theme="dark"] {
+  --bg-page:      #0D1117; --bg-surface:   #161B22; --bg-surface-2: #1C2128;
+  --bg-hover:     #21262D; --border:       #30363D; --border-light: #21262D;
+  --text-primary: #E6EDF3; --text-secondary:#8B949E; --text-muted: #6E7681;
+  --green-bg:     #122519; --green-text:   #56D364;
+  --blue-bg:      #051D3A; --blue-text:    #58A6FF;
+  --orange-bg:    #2D1E0A; --orange-text:  #D29922;
+  --red-bg:       #2D0E0E; --red-text:     #FF7B72;
+  --purple-bg:    #1A1030; --purple-text:  #BC8CFF;
+  --gray-200:     #21262D; --gray-300:     #30363D;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:    0 4px 12px rgba(0,0,0,.4);
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESET & BASE
+   ════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-text-size-adjust:100%}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg-page);color:var(--text-primary);line-height:1.5;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:inherit}
+img{display:block;max-width:100%}
+svg{flex-shrink:0}
+
+/* ════════════════════════════════════════════════════════════
+   TOP NAV
+   ════════════════════════════════════════════════════════════ */
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);
+  background:var(--bg-surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.nav-container{display:flex;align-items:center;height:100%;padding:0 20px;max-width:1400px;margin:0 auto}
+.nav-brand{display:flex;align-items:center;gap:8px;min-width:var(--sidebar-w);
+  padding-right:16px;border-right:1px solid var(--border);flex-shrink:0}
+.nav-brand-logo{width:28px;height:28px;border-radius:6px;background:var(--brand-blue);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.nav-brand-name{font-size:15px;font-weight:700}
+.nav-brand-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.nav-menu{display:flex;align-items:center;gap:2px;flex:1;padding:0 16px}
+.nav-link{display:flex;align-items:center;gap:6px;padding:7px 12px;
+  border-radius:var(--radius-md);color:var(--text-secondary);font-size:13.5px;font-weight:500;
+  transition:all .15s var(--ease);white-space:nowrap;cursor:pointer}
+.nav-link:hover{background:var(--bg-hover);color:var(--text-primary)}
+.nav-link.active{background:var(--blue-bg);color:var(--brand-blue);font-weight:600}
+[data-theme="dark"] .nav-link.active{color:var(--blue-text)}
+.nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+.nav-icon-btn{width:34px;height:34px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-secondary);transition:all .15s var(--ease)}
+.nav-icon-btn:hover{background:var(--bg-hover);color:var(--text-primary)}
+.theme-icon-dark{display:none}
+[data-theme="dark"] .theme-icon-light{display:none}
+[data-theme="dark"] .theme-icon-dark{display:block}
+.user-menu{position:relative}
+.user-btn{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;
+  border-radius:var(--radius-md);color:var(--text-primary);font-size:13px;font-weight:500;
+  transition:background .15s var(--ease)}
+.user-btn:hover{background:var(--bg-hover)}
+.user-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+.user-name{font-size:13px;font-weight:600}
+.user-dropdown{position:absolute;right:0;top:calc(100% + 6px);min-width:200px;
+  background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-md);padding:6px;z-index:200;display:none}
+.user-dropdown.active{display:block}
+.user-dropdown-header{padding:8px 10px 10px}
+.user-dropdown-name{font-size:13px;font-weight:600}
+.user-dropdown-role{font-size:11px;color:var(--text-muted);margin-top:2px}
+.user-dropdown-divider{height:1px;background:var(--border);margin:4px 0}
+.user-dropdown-item{display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);
+  transition:all .12s var(--ease);cursor:pointer}
+.user-dropdown-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT
+   ════════════════════════════════════════════════════════════ */
+.app-shell{display:flex;padding-top:var(--nav-h);min-height:100vh}
+.sidebar{position:fixed;top:var(--nav-h);left:0;bottom:0;width:var(--sidebar-w);
+  background:var(--bg-surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-muted);padding:6px 10px 4px}
+.sidebar-link{display:flex;align-items:center;gap:9px;padding:8px 10px;
+  border-radius:var(--radius-md);color:var(--text-secondary);font-size:13px;font-weight:500;
+  transition:all .12s var(--ease);cursor:pointer;position:relative}
+.sidebar-link:hover{background:var(--bg-hover);color:var(--text-primary)}
+.sidebar-link.active{background:var(--blue-bg);color:var(--brand-blue);font-weight:600}
+[data-theme="dark"] .sidebar-link.active{color:var(--blue-text)}
+.sidebar-badge{margin-left:auto;min-width:18px;height:18px;background:var(--brand-red);
+  color:#fff;border-radius:var(--radius-full);font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;padding:0 5px}
+.main-content{flex:1;margin-left:var(--sidebar-w);min-height:calc(100vh - var(--nav-h));
+  padding:24px;max-width:calc(100% - var(--sidebar-w))}
+.page{display:none}
+.page.active{display:block}
+
+/* ════════════════════════════════════════════════════════════
+   BUTTONS
+   ════════════════════════════════════════════════════════════ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+  border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;
+  border:1px solid transparent;transition:all .15s var(--ease);white-space:nowrap;line-height:1}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-primary{background:var(--brand-blue);color:#fff;border-color:var(--brand-blue)}
+.btn-primary:hover{background:var(--brand-blue-dark);border-color:var(--brand-blue-dark)}
+.btn-secondary{background:var(--bg-surface);color:var(--text-primary);border-color:var(--border)}
+.btn-secondary:hover{background:var(--bg-hover)}
+.btn-danger{background:var(--red-bg);color:var(--red-text);border-color:var(--red-text)}
+.btn-danger:hover{background:var(--brand-red);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}
+.btn-ghost:hover{background:var(--bg-hover);color:var(--text-primary)}
+.btn-success{background:var(--green-500);color:#fff;border-color:var(--green-500)}
+.btn-success:hover{background:#1e8a3c}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* ════════════════════════════════════════════════════════════
+   FORM
+   ════════════════════════════════════════════════════════════ */
+.input{width:100%;padding:8px 12px;background:var(--bg-surface);color:var(--text-primary);
+  border:1px solid var(--border);border-radius:var(--radius-md);font-size:13.5px;
+  transition:border-color .15s var(--ease);outline:none}
+.input:focus{border-color:var(--brand-blue);box-shadow:0 0 0 3px rgba(0,75,160,.12)}
+textarea.input{resize:vertical;min-height:100px}
+.label{display:block;font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:5px}
+.field{margin-bottom:16px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.help-text{font-size:11.5px;color:var(--text-muted);margin-top:4px}
+
+/* ════════════════════════════════════════════════════════════
+   CARDS
+   ════════════════════════════════════════════════════════════ */
+.card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.card-header{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border-light)}
+.card-title{font-size:14px;font-weight:600;color:var(--text-primary)}
+.card-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+.card-body{padding:20px}
+
+/* ════════════════════════════════════════════════════════════
+   BADGES
+   ════════════════════════════════════════════════════════════ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
+  border-radius:var(--radius-full);font-size:11px;font-weight:600;white-space:nowrap}
+.badge-blue  {background:var(--blue-bg);  color:var(--blue-text)}
+.badge-green {background:var(--green-bg); color:var(--green-text)}
+.badge-orange{background:var(--orange-bg);color:var(--orange-text)}
+.badge-red   {background:var(--red-bg);   color:var(--red-text)}
+.badge-purple{background:var(--purple-bg);color:var(--purple-text)}
+.badge-gray  {background:var(--gray-200); color:var(--gray-500)}
+
+/* ════════════════════════════════════════════════════════════
+   PAGE HEADER
+   ════════════════════════════════════════════════════════════ */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.page-title{font-size:20px;font-weight:700;color:var(--text-primary)}
+.page-subtitle{font-size:13px;color:var(--text-muted);margin-top:3px}
+.page-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;
+  font-weight:500;color:var(--text-secondary);padding:5px 0;transition:color .12s;cursor:pointer}
+.back-btn:hover{color:var(--text-primary)}
+
+/* ════════════════════════════════════════════════════════════
+   CHANNEL SELECTOR — 3 CHANNELS
+   ════════════════════════════════════════════════════════════ */
+.channel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:0}
+.channel-card{border:2px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px 16px;cursor:pointer;transition:all .18s var(--ease);
+  background:var(--bg-surface);position:relative;overflow:hidden}
+.channel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--ch-color,var(--brand-blue));border-radius:2px 2px 0 0;opacity:0;transition:opacity .18s}
+.channel-card:hover{border-color:var(--ch-color,var(--brand-blue));
+  transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.channel-card.selected{border-color:var(--ch-color,var(--brand-blue));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ch-color,var(--brand-blue)) 15%,transparent)}
+.channel-card.selected::before{opacity:1}
+.channel-icon{width:44px;height:44px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:#fff}
+.channel-name{font-size:14px;font-weight:700;color:var(--text-primary)}
+.channel-desc{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+.channel-delivery{display:flex;align-items:center;gap:4px;margin-top:10px;
+  font-size:11px;color:var(--text-muted);flex-wrap:wrap}
+.channel-delivery-chip{display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:var(--radius-full);font-size:10.5px;font-weight:500;
+  background:var(--gray-200);color:var(--gray-500)}
+.channel-check{position:absolute;top:10px;right:10px;width:20px;height:20px;
+  border-radius:50%;background:var(--ch-color,var(--brand-blue));color:#fff;
+  display:none;align-items:center;justify-content:center}
+.channel-card.selected .channel-check{display:flex}
+
+/* ════════════════════════════════════════════════════════════
+   IN-APP FORMAT SELECTOR (replaces audio/push tabs)
+   ════════════════════════════════════════════════════════════ */
+.format-selector{display:flex;gap:8px;padding:16px 20px;
+  border-bottom:1px solid var(--border-light);flex-wrap:wrap}
+.format-btn{display:flex;align-items:center;gap:7px;padding:8px 14px;
+  border:1px solid var(--border);border-radius:var(--radius-md);
+  font-size:12.5px;font-weight:500;color:var(--text-secondary);
+  cursor:pointer;transition:all .15s var(--ease);background:var(--bg-surface)}
+.format-btn:hover{border-color:var(--purple-500);color:var(--purple-text)}
+.format-btn.active{background:var(--purple-bg);border-color:var(--purple-500);
+  color:var(--purple-text);font-weight:600}
+.format-btn svg{color:currentColor}
+
+/* push-preview banner inside In-App */
+.push-preview-banner{display:flex;align-items:center;gap:10px;
+  background:var(--gray-200);border-radius:var(--radius-md);padding:10px 14px;
+  margin:0 20px 14px;font-size:12px;color:var(--text-secondary)}
+.push-preview-icon{width:28px;height:28px;border-radius:8px;
+  background:var(--purple-500);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.push-preview-text strong{display:block;font-size:12px;color:var(--text-primary)}
+.push-toggle-row{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;border-top:1px solid var(--border-light);background:var(--bg-surface-2)}
+.push-toggle-label{font-size:12.5px;font-weight:500;color:var(--text-primary)}
+.push-toggle-sub{font-size:11px;color:var(--text-muted)}
+
+/* ════════════════════════════════════════════════════════════
+   RECIPIENTS
+   ════════════════════════════════════════════════════════════ */
+.recipient-tags{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;
+  border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-surface);
+  min-height:42px;cursor:text;transition:border-color .15s}
+.recipient-tags:focus-within{border-color:var(--brand-blue);box-shadow:0 0 0 3px rgba(0,75,160,.12)}
+.recipient-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
+  background:var(--blue-bg);color:var(--blue-text);border-radius:var(--radius-full);
+  font-size:12px;font-weight:500}
+.recipient-tag-remove{width:14px;height:14px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;font-size:10px;
+  transition:background .12s;color:var(--blue-text)}
+.recipient-tag-remove:hover{background:var(--brand-blue);color:#fff}
+.recipient-tag-input{border:none;outline:none;background:transparent;
+  font-size:13px;color:var(--text-primary);flex:1;min-width:120px}
+.recipient-dropdown{background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:6px;
+  margin-top:4px;display:none}
+.recipient-dropdown.open{display:block}
+.recipient-option{display:flex;align-items:center;gap:10px;padding:8px 10px;
+  border-radius:var(--radius-sm);cursor:pointer;transition:background .12s}
+.recipient-option:hover{background:var(--bg-hover)}
+.recipient-option-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--border);background:var(--gray-200);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  font-weight:600;color:var(--text-secondary)}
+.recipient-option-name{font-size:13px;font-weight:500}
+.recipient-option-meta{font-size:11px;color:var(--text-muted)}
+
+/* ════════════════════════════════════════════════════════════
+   COMPOSE
+   ════════════════════════════════════════════════════════════ */
+.compose-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.compose-toolbar{display:flex;align-items:center;gap:2px;padding:6px 10px;
+  border-bottom:1px solid var(--border-light);flex-wrap:wrap}
+.tb-btn{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;
+  align-items:center;justify-content:center;color:var(--text-secondary);
+  font-size:12px;font-weight:700;cursor:pointer;transition:all .12s}
+.tb-btn:hover{background:var(--bg-hover);color:var(--text-primary)}
+.tb-sep{width:1px;height:18px;background:var(--border);margin:0 4px}
+.compose-message{min-height:200px;padding:14px;border:none;outline:none;
+  width:100%;resize:none;background:var(--bg-surface);color:var(--text-primary);
+  font-size:14px;line-height:1.6;font-family:inherit}
+.sms-counter{display:flex;align-items:center;justify-content:space-between;
+  padding:6px 14px;background:var(--bg-surface-2);font-size:11px;
+  color:var(--text-muted);border-top:1px solid var(--border-light)}
+.attachments-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 14px;border-top:1px solid var(--border-light);background:var(--gray-200)}
+.attachment-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+  background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--radius-full);font-size:11.5px;color:var(--text-secondary)}
+.attachment-remove{cursor:pointer;color:var(--text-muted);transition:color .12s}
+.attachment-remove:hover{color:var(--red-text)}
+.mb-4{margin-bottom:16px}
+
+/* ════════════════════════════════════════════════════════════
+   AUDIO RECORDER
+   ════════════════════════════════════════════════════════════ */
+.audio-recorder{display:flex;flex-direction:column;align-items:center;
+  gap:16px;padding:32px 20px}
+.record-btn{width:72px;height:72px;border-radius:50%;background:var(--brand-red);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:0;
+  border:4px solid transparent;cursor:pointer;transition:all .2s var(--ease);
+  box-shadow:0 0 0 6px rgba(198,0,38,.15)}
+.record-btn:hover{transform:scale(1.05);box-shadow:0 0 0 10px rgba(198,0,38,.12)}
+.record-btn.recording{background:#fff;border-color:var(--brand-red);
+  animation:pulse-ring 1.2s infinite}
+@keyframes pulse-ring{
+  0%  {box-shadow:0 0 0 0 rgba(198,0,38,.4)}
+  70% {box-shadow:0 0 0 14px rgba(198,0,38,0)}
+  100%{box-shadow:0 0 0 0 rgba(198,0,38,0)}
+}
+.record-dot{width:24px;height:24px;border-radius:50%;background:currentColor;transition:all .2s}
+.record-btn.recording .record-dot{border-radius:4px;width:20px;height:20px;background:var(--brand-red)}
+.audio-timer{font-size:28px;font-weight:700;color:var(--text-primary);
+  font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.audio-status{font-size:12.5px;color:var(--text-muted)}
+.audio-waveform{width:100%;height:48px;display:flex;align-items:center;
+  gap:2px;justify-content:center}
+.waveform-bar{width:3px;border-radius:2px;background:var(--gray-300);transition:height .1s}
+.recording .waveform-bar{background:var(--brand-red)}
+.playback-bar{width:100%;background:var(--bg-surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.pb-play{width:32px;height:32px;border-radius:50%;background:var(--brand-blue);
+  color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+.pb-progress{flex:1;height:4px;background:var(--border);border-radius:2px;
+  position:relative;cursor:pointer}
+.pb-fill{height:100%;background:var(--brand-blue);border-radius:2px;width:0%;transition:width .1s}
+.pb-time{font-size:11.5px;color:var(--text-muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ════════════════════════════════════════════════════════════
+   TOGGLE SWITCH
+   ════════════════════════════════════════════════════════════ */
+.toggle-switch{width:36px;height:20px;background:var(--border);border-radius:var(--radius-full);
+  position:relative;transition:background .2s;cursor:pointer;flex-shrink:0}
+.toggle-switch.on{background:var(--brand-blue)}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;
+  border-radius:50%;background:#fff;transition:left .2s;box-shadow:var(--shadow-sm)}
+.toggle-switch.on::after{left:18px}
+
+/* ════════════════════════════════════════════════════════════
+   SCHEDULE
+   ════════════════════════════════════════════════════════════ */
+.schedule-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.schedule-toggle{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;cursor:pointer}
+.schedule-toggle-label{font-size:13px;font-weight:600}
+.schedule-fields{padding:0 16px 16px;display:none}
+.schedule-fields.open{display:block}
+
+/* ════════════════════════════════════════════════════════════
+   PREVIEW PANEL
+   ════════════════════════════════════════════════════════════ */
+.preview-panel{display:flex;flex-direction:column;gap:16px}
+.preview-device{background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px}
+.preview-device-label{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;
+  display:flex;align-items:center;gap:6px}
+.phone-mockup{width:190px;margin:0 auto;background:var(--bg-page);
+  border:2px solid var(--border);border-radius:28px;padding:16px 12px 14px;overflow:hidden}
+.phone-notch{width:70px;height:8px;background:var(--border);border-radius:var(--radius-full);
+  margin:0 auto 14px}
+.phone-push-notif{background:rgba(0,0,0,.08);border-radius:12px;padding:10px 12px;
+  margin-bottom:8px}
+[data-theme="dark"] .phone-push-notif{background:rgba(255,255,255,.06)}
+.phone-push-app{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.phone-push-app-icon{width:16px;height:16px;border-radius:4px;
+  background:var(--purple-500);flex-shrink:0}
+.phone-push-app-name{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+.phone-push-time{font-size:9px;color:var(--text-muted);margin-left:auto}
+.phone-push-title{font-size:11px;font-weight:700;color:var(--text-primary)}
+.phone-push-body{font-size:10px;color:var(--text-secondary);margin-top:2px;line-height:1.4}
+.email-mockup{background:var(--bg-page);border:1px solid var(--border);
+  border-radius:var(--radius-md);font-size:11px;overflow:hidden}
+.email-mock-header{background:var(--bg-surface-2);padding:8px 12px;
+  border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.email-mock-row{display:flex;gap:6px}
+.email-mock-label{color:var(--text-muted);width:30px;flex-shrink:0}
+.email-mock-val{color:var(--text-secondary)}
+.email-mock-body{padding:12px;color:var(--text-secondary);line-height:1.5}
+
+/* ════════════════════════════════════════════════════════════
+   BROADCAST LIST
+   ════════════════════════════════════════════════════════════ */
+.broadcast-tabs{display:flex;align-items:center;gap:2px;
+  border-bottom:1px solid var(--border);margin-bottom:20px}
+.broadcast-tab{padding:9px 14px;font-size:13px;font-weight:500;color:var(--text-secondary);
+  border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;margin-bottom:-1px}
+.broadcast-tab:hover{color:var(--text-primary)}
+.broadcast-tab.active{color:var(--brand-blue);border-bottom-color:var(--brand-blue);font-weight:600}
+.broadcast-list{display:flex;flex-direction:column;gap:6px}
+.broadcast-item{display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);
+  cursor:pointer;transition:all .12s}
+.broadcast-item:hover{border-color:var(--brand-blue);box-shadow:var(--shadow-sm)}
+.broadcast-channel-dot{width:38px;height:38px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.broadcast-info{flex:1;min-width:0}
+.broadcast-subject{font-size:13.5px;font-weight:600;color:var(--text-primary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.broadcast-meta{font-size:11.5px;color:var(--text-muted);margin-top:2px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.broadcast-meta-sep{color:var(--border)}
+.broadcast-format-badge{display:inline-flex;align-items:center;gap:3px;
+  font-size:10.5px;font-weight:500;color:var(--text-muted)}
+.broadcast-stats{display:flex;gap:16px;flex-shrink:0;align-items:center}
+.broadcast-stat{text-align:center}
+.broadcast-stat-val{font-size:14px;font-weight:700;color:var(--text-primary)}
+.broadcast-stat-lbl{font-size:10px;color:var(--text-muted)}
+.broadcast-actions{display:flex;gap:4px;flex-shrink:0}
+
+/* ════════════════════════════════════════════════════════════
+   DETAIL / STATS
+   ════════════════════════════════════════════════════════════ */
+.detail-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.detail-stat-card{background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px}
+.detail-stat-val{font-size:24px;font-weight:800;color:var(--text-primary)}
+.detail-stat-lbl{font-size:12px;color:var(--text-muted);margin-top:2px}
+.detail-stat-sub{font-size:11px;margin-top:4px}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:3px;transition:width .6s var(--ease)}
+
+/* ════════════════════════════════════════════════════════════
+   TEMPLATES
+   ════════════════════════════════════════════════════════════ */
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.template-card{background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all .15s var(--ease)}
+.template-card:hover{border-color:var(--brand-blue);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.template-preview{height:110px;background:var(--gray-200);display:flex;
+  align-items:center;justify-content:center;border-bottom:1px solid var(--border);padding:12px}
+.template-preview-inner{width:100%;background:var(--bg-surface);border-radius:var(--radius-sm);
+  padding:10px;font-size:9px;color:var(--text-secondary);line-height:1.4}
+.template-preview-h{font-size:10px;font-weight:700;color:var(--text-primary);margin-bottom:4px}
+.template-info{padding:12px 14px}
+.template-name{font-size:13px;font-weight:600;color:var(--text-primary)}
+.template-desc{font-size:11.5px;color:var(--text-muted);margin-top:3px}
+.template-chips{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+
+/* ════════════════════════════════════════════════════════════
+   MODAL
+   ════════════════════════════════════════════════════════════ */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
+  display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  animation:modal-in .2s var(--ease)}
+@keyframes modal-in{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;
+  align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer;transition:background .12s}
+.modal-close:hover{background:var(--bg-hover);color:var(--text-primary)}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.confirm-summary{background:var(--gray-200);border-radius:var(--radius-md);padding:16px;margin-bottom:16px}
+.confirm-row{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:6px 0;font-size:13px;border-bottom:1px solid var(--border-light)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-label{color:var(--text-muted);font-size:12px}
+.confirm-value{color:var(--text-primary);font-weight:500;text-align:right}
+
+/* ════════════════════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════════════════════ */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;background:var(--bg-surface);
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;
+  box-shadow:var(--shadow-lg);font-size:13px;animation:toast-in .3s var(--ease);pointer-events:all}
+@keyframes toast-in{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success .toast-icon{color:var(--green-500)}
+.toast.error   .toast-icon{color:var(--red-text)}
+
+/* ════════════════════════════════════════════════════════════
+   SPINNER
+   ════════════════════════════════════════════════════════════ */
+.spinner{width:16px;height:16px;border:2px solid currentColor;border-top-color:transparent;
+  border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ════════════════════════════════════════════════════════════
+   UTILITIES
+   ════════════════════════════════════════════════════════════ */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.text-muted{color:var(--text-muted)}
+.text-sm{font-size:12px}
+.fw-600{font-weight:600}
+.mt-1{margin-top:4px}
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE CHROME
+   ════════════════════════════════════════════════════════════ */
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;z-index:100;height:54px;
+  background:var(--bg-surface);border-bottom:1px solid var(--border);
+  align-items:center;justify-content:space-between;padding:0 16px}
+.mobile-header-title{font-size:16px;font-weight:700}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:var(--bg-surface);border-top:1px solid var(--border);
+  padding:8px 0 max(8px,env(safe-area-inset-bottom));box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.bottom-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 12px;cursor:pointer;flex:1;color:var(--text-muted);
+  transition:color .15s;position:relative}
+.bn-item.active{color:var(--brand-blue)}
+.bn-label{font-size:10px;font-weight:500}
+.bn-badge{position:absolute;top:0;right:calc(50% - 22px);min-width:16px;height:16px;
+  background:var(--brand-red);color:#fff;border-radius:var(--radius-full);
+  font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  padding:0 4px;border:2px solid var(--bg-surface)}
+.compose-fab{display:none;position:fixed;bottom:80px;right:20px;z-index:90;
+  width:52px;height:52px;border-radius:50%;background:var(--brand-blue);color:#fff;
+  align-items:center;justify-content:center;box-shadow:var(--shadow-lg);cursor:pointer;
+  transition:transform .2s var(--ease)}
+.compose-fab:hover{transform:scale(1.06)}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET
+   ════════════════════════════════════════════════════════════ */
+@media(max-width:1024px){
+  :root{--sidebar-w:56px}
+  .sidebar{padding:12px 6px}
+  .sidebar-label,.sidebar-link span{display:none}
+  .sidebar-link{justify-content:center;padding:10px}
+  .sidebar-badge{position:absolute;top:4px;right:4px;min-width:14px;height:14px;font-size:8px}
+  .nav-brand-sub{display:none}
+  .compose-layout{grid-template-columns:1fr}
+  .preview-panel{display:none}
+  .detail-stats-grid{grid-template-columns:repeat(2,1fr)}
+  .user-name{display:none}
+  .channel-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+   ════════════════════════════════════════════════════════════ */
+@media(max-width:640px){
+  .top-nav,.sidebar{display:none}
+  .bottom-nav{display:block}
+  .mobile-header{display:flex}
+  .compose-fab{display:flex}
+  .app-shell{padding-top:54px}
+  .main-content{margin-left:0;max-width:100%;padding:16px 14px 90px}
+  .page-header{flex-direction:column;gap:10px}
+  .page-actions{width:100%}
+  .page-actions .btn{flex:1;justify-content:center}
+  .channel-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .channel-card{padding:14px 10px}
+  .channel-icon{width:36px;height:36px;margin-bottom:8px}
+  .channel-name{font-size:12px}
+  .channel-desc,.channel-delivery{display:none}
+  .field-row{grid-template-columns:1fr}
+  .broadcast-stats{display:none}
+  .broadcast-item{gap:10px}
+  .detail-stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .detail-stat-val{font-size:20px}
+  .template-grid{grid-template-columns:1fr}
+  .modal-backdrop{padding:0;align-items:flex-end}
+  .modal{border-radius:var(--radius-xl) var(--radius-xl) 0 0;max-height:85vh;max-width:100%}
+  .toast-container{bottom:90px;left:14px;right:14px}
+  .toast{width:100%}
+  .format-selector{gap:6px;padding:12px 14px}
+  .format-btn{padding:6px 10px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE HEADER -->
+<div class="mobile-header" id="mobile-header">
+  <div class="mobile-header-title" id="mobile-header-title">Broadcasts</div>
+  <button class="nav-icon-btn" onclick="toggleTheme()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon-light"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon-dark"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+
+<!-- DESKTOP TOP NAV -->
+<nav class="top-nav">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <div class="nav-brand-logo">CH</div>
+      <div>
+        <div class="nav-brand-name">CACI Hub</div>
+        <div class="nav-brand-sub">Broadcast Module</div>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <a class="nav-link" onclick="alert('Navigate to Dashboard')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-link" onclick="alert('Navigate to Members')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Members</span>
+      </a>
+      <a class="nav-link active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        <span>Broadcast</span>
+      </a>
+      <a class="nav-link" onclick="alert('Navigate to Households')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Households</span>
+      </a>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" onclick="toggleTheme()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon-light"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon-dark"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="user-menu">
+        <button class="user-btn" id="user-menu-toggle">
+          <img src="https://ui-avatars.com/api/?name=Admin+User&background=004BA0&color=fff" alt="User" class="user-avatar">
+          <span class="user-name">Admin User</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name">Admin User</div>
+            <div class="user-dropdown-role">Super Admin · CACI Assakae Central</div>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <div class="user-dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile</div>
+          <div class="user-dropdown-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4"/></svg> Settings</div>
+          <div class="user-dropdown-divider"></div>
+          <div class="user-dropdown-item" style="color:var(--red-text)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Broadcast</div>
+      <div class="sidebar-link active" id="sb-inbox" onclick="showPage('page-inbox',this,'sb-inbox','Broadcasts')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <span>All Broadcasts</span><span class="sidebar-badge">3</span>
+      </div>
+      <div class="sidebar-link" id="sb-compose" onclick="showPage('page-compose',this,'sb-compose','New Broadcast')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span>New Broadcast</span>
+      </div>
+      <div class="sidebar-link" id="sb-scheduled" onclick="showPage('page-scheduled',this,'sb-scheduled','Scheduled')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Scheduled</span>
+      </div>
+      <div class="sidebar-link" id="sb-templates" onclick="showPage('page-templates',this,'sb-templates','Templates')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span>Templates</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Send</div>
+      <div class="sidebar-link" onclick="showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast');selectChannel('email')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>via Email</span>
+      </div>
+      <div class="sidebar-link" onclick="showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast');selectChannel('sms')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>via SMS</span>
+      </div>
+      <div class="sidebar-link" onclick="showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast');selectChannel('inapp')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <span>via In-App</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:auto">
+      <div class="sidebar-label">App</div>
+      <div class="sidebar-link" onclick="alert('Members module')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Members</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ═══════════════════ PAGE: INBOX ═══════════════════ -->
+    <div id="page-inbox" class="page active">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Broadcasts</h1>
+          <p class="page-subtitle">All outgoing communications to your assembly</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Broadcast
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-stats-grid" style="margin-bottom:20px">
+        <div class="detail-stat-card"><div class="detail-stat-val">24</div><div class="detail-stat-lbl">This Month</div><div class="detail-stat-sub text-muted">Total broadcasts</div></div>
+        <div class="detail-stat-card"><div class="detail-stat-val" style="color:var(--green-text)">3,412</div><div class="detail-stat-lbl">Delivered</div><div class="progress-bar mt-1"><div class="progress-fill" style="width:94%;background:var(--green-500)"></div></div></div>
+        <div class="detail-stat-card"><div class="detail-stat-val" style="color:var(--blue-text)">68%</div><div class="detail-stat-lbl">Avg. Open Rate</div><div class="progress-bar mt-1"><div class="progress-fill" style="width:68%;background:var(--blue-500)"></div></div></div>
+        <div class="detail-stat-card"><div class="detail-stat-val" style="color:var(--orange-text)">3</div><div class="detail-stat-lbl">Scheduled</div><div class="detail-stat-sub text-muted">Pending send</div></div>
+      </div>
+
+      <div class="broadcast-tabs">
+        <div class="broadcast-tab active" onclick="filterTab(this,'all')">All</div>
+        <div class="broadcast-tab" onclick="filterTab(this,'email')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email
+        </div>
+        <div class="broadcast-tab" onclick="filterTab(this,'sms')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          SMS
+        </div>
+        <div class="broadcast-tab" onclick="filterTab(this,'inapp')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          In-App
+        </div>
+      </div>
+
+      <div class="broadcast-list">
+        <!-- Email broadcast -->
+        <div class="broadcast-item" data-channel="email" onclick="showPage('page-detail',document.getElementById('sb-inbox'),'sb-inbox','Broadcast Detail')">
+          <div class="broadcast-channel-dot" style="background:var(--ch-email)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Sunday Service Reminder — June 15</div>
+            <div class="broadcast-meta">
+              <span class="badge badge-green">Sent</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Email · Text</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>All Members (347)</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Jun 14 · 6:00 PM</span>
+            </div>
+          </div>
+          <div class="broadcast-stats">
+            <div class="broadcast-stat"><div class="broadcast-stat-val">347</div><div class="broadcast-stat-lbl">Sent</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--green-text)">312</div><div class="broadcast-stat-lbl">Opened</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--blue-text)">90%</div><div class="broadcast-stat-lbl">Rate</div></div>
+          </div>
+        </div>
+
+        <!-- SMS broadcast -->
+        <div class="broadcast-item" data-channel="sms">
+          <div class="broadcast-channel-dot" style="background:var(--ch-sms)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Monthly Offering Update</div>
+            <div class="broadcast-meta">
+              <span class="badge badge-green">Sent</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>SMS · Text</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Active Members (312)</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Jun 10 · 9:00 AM</span>
+            </div>
+          </div>
+          <div class="broadcast-stats">
+            <div class="broadcast-stat"><div class="broadcast-stat-val">312</div><div class="broadcast-stat-lbl">Sent</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--green-text)">308</div><div class="broadcast-stat-lbl">Delivered</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--blue-text)">99%</div><div class="broadcast-stat-lbl">Rate</div></div>
+          </div>
+        </div>
+
+        <!-- In-App · Audio broadcast -->
+        <div class="broadcast-item" data-channel="inapp">
+          <div class="broadcast-channel-dot" style="background:var(--ch-inapp)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Pastoral Voice Message — Encouragement</div>
+            <div class="broadcast-meta">
+              <span class="badge badge-green">Sent</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>In-App · 🎙 Audio + Push</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>All Members (347)</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Jun 8 · 7:30 PM</span>
+            </div>
+          </div>
+          <div class="broadcast-stats">
+            <div class="broadcast-stat"><div class="broadcast-stat-val">347</div><div class="broadcast-stat-lbl">Sent</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--green-text)">289</div><div class="broadcast-stat-lbl">Played</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--blue-text)">83%</div><div class="broadcast-stat-lbl">Rate</div></div>
+          </div>
+        </div>
+
+        <!-- In-App · Text + Push scheduled -->
+        <div class="broadcast-item" data-channel="inapp">
+          <div class="broadcast-channel-dot" style="background:var(--ch-inapp)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Youth Fellowship — Weekend Recap</div>
+            <div class="broadcast-meta">
+              <span class="badge badge-orange">Scheduled</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>In-App · 📝 Text + Push</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Youth Group (48)</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Sends Jun 17 · 8:00 AM</span>
+            </div>
+          </div>
+          <div class="broadcast-stats">
+            <div class="broadcast-stat"><div class="broadcast-stat-val">48</div><div class="broadcast-stat-lbl">Target</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--orange-text)">–</div><div class="broadcast-stat-lbl">Sent</div></div>
+            <div class="broadcast-stat"><div class="broadcast-stat-val" style="color:var(--text-muted)">–</div><div class="broadcast-stat-lbl">Rate</div></div>
+          </div>
+        </div>
+
+        <!-- Email Draft -->
+        <div class="broadcast-item" data-channel="email">
+          <div class="broadcast-channel-dot" style="background:var(--ch-email)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Welcome to CACI Hub — Getting Started</div>
+            <div class="broadcast-meta">
+              <span class="badge badge-blue">Draft</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Email · Text</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>All Members (347)</span>
+              <span class="broadcast-meta-sep">·</span>
+              <span>Last edited Jun 5</span>
+            </div>
+          </div>
+          <div class="broadcast-actions">
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast')">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ PAGE: COMPOSE ═══════════════════ -->
+    <div id="page-compose" class="page">
+      <div class="page-header">
+        <div>
+          <div class="back-btn" onclick="showPage('page-inbox',document.getElementById('sb-inbox'),'sb-inbox','Broadcasts')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            All Broadcasts
+          </div>
+          <h1 class="page-title" style="margin-top:6px">New Broadcast</h1>
+          <p class="page-subtitle">Send a message to your assembly</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm">Save Draft</button>
+          <button class="btn btn-primary btn-sm" onclick="openConfirmModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Broadcast
+          </button>
+        </div>
+      </div>
+
+      <div class="compose-layout">
+        <div>
+
+          <!-- STEP 1: Channel — 3 channels -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div>
+                <div class="card-title">1 · Choose Channel</div>
+                <div class="card-subtitle">How do you want to reach your members?</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="channel-grid">
+
+                <!-- EMAIL -->
+                <div class="channel-card selected" id="ch-email" onclick="selectChannel('email')" style="--ch-color:var(--ch-email)">
+                  <div class="channel-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="channel-icon" style="background:var(--ch-email)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  </div>
+                  <div class="channel-name">Email</div>
+                  <div class="channel-desc">Rich HTML emails via Resend</div>
+                  <div class="channel-delivery">
+                    <span class="channel-delivery-chip">→ Inbox</span>
+                  </div>
+                </div>
+
+                <!-- SMS -->
+                <div class="channel-card" id="ch-sms" onclick="selectChannel('sms')" style="--ch-color:var(--ch-sms)">
+                  <div class="channel-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="channel-icon" style="background:var(--ch-sms)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <div class="channel-name">SMS</div>
+                  <div class="channel-desc">Text messages via Arkesel</div>
+                  <div class="channel-delivery">
+                    <span class="channel-delivery-chip">→ Messages app</span>
+                  </div>
+                </div>
+
+                <!-- IN-APP (covers Text + Audio + Push) -->
+                <div class="channel-card" id="ch-inapp" onclick="selectChannel('inapp')" style="--ch-color:var(--ch-inapp)">
+                  <div class="channel-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="channel-icon" style="background:var(--ch-inapp)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                  </div>
+                  <div class="channel-name">In-App</div>
+                  <div class="channel-desc">Text or audio inside CACI Hub</div>
+                  <div class="channel-delivery">
+                    <span class="channel-delivery-chip">🔔 Push → opens app</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Recipients -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div>
+                <div class="card-title">2 · Recipients</div>
+                <div class="card-subtitle">Groups, households, or individual members</div>
+              </div>
+              <span class="badge badge-blue" id="recipient-count">347 members</span>
+            </div>
+            <div class="card-body">
+              <div class="field">
+                <label class="label">Send to</label>
+                <div class="recipient-tags" onclick="document.getElementById('rec-input').focus()">
+                  <span class="recipient-tag">All Members<span class="recipient-tag-remove" onclick="removeTag(this)">×</span></span>
+                  <input type="text" class="recipient-tag-input" id="rec-input"
+                    placeholder="Add group or member..."
+                    onfocus="document.getElementById('rec-dropdown').classList.add('open')"
+                    onblur="setTimeout(()=>document.getElementById('rec-dropdown').classList.remove('open'),180)">
+                </div>
+                <div id="rec-dropdown" class="recipient-dropdown">
+                  <div class="recipient-option" onclick="addTag('Active Members','312')"><div class="recipient-option-avatar" style="background:var(--green-bg);color:var(--green-text)">GRP</div><div><div class="recipient-option-name">Active Members</div><div class="recipient-option-meta">312 members</div></div></div>
+                  <div class="recipient-option" onclick="addTag('Youth Group','48')"><div class="recipient-option-avatar" style="background:var(--purple-bg);color:var(--purple-text)">YTH</div><div><div class="recipient-option-name">Youth Group</div><div class="recipient-option-meta">48 members</div></div></div>
+                  <div class="recipient-option" onclick="addTag('Mensah Family','4')"><div class="recipient-option-avatar" style="background:var(--blue-bg);color:var(--blue-text)">HH</div><div><div class="recipient-option-name">Mensah Family</div><div class="recipient-option-meta">Household · 4 members</div></div></div>
+                  <div class="recipient-option" onclick="addTag('Kwame Mensah','1')"><img src="https://ui-avatars.com/api/?name=Kwame+Mensah&background=004BA0&color=fff&size=28" class="recipient-option-avatar" alt=""><div><div class="recipient-option-name">Kwame Mensah</div><div class="recipient-option-meta">CACI-ACC-00142 · Active</div></div></div>
+                </div>
+                <p class="help-text">Type to search members, groups, or households</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Compose -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div>
+                <div class="card-title" id="compose-title">3 · Compose Email</div>
+                <div class="card-subtitle" id="compose-subtitle">Write your message — sent directly to members' inboxes</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="openTemplatesModal()">Use Template</button>
+            </div>
+
+            <!-- ── EMAIL ── -->
+            <div id="form-email">
+              <div style="padding:14px 20px 0;border-bottom:1px solid var(--border-light)">
+                <div class="field">
+                  <label class="label">Subject line</label>
+                  <input type="text" class="input" id="email-subject" value="Sunday Service Reminder — June 22" oninput="updatePreview()">
+                </div>
+              </div>
+              <div class="compose-toolbar">
+                <div class="tb-btn"><b>B</b></div><div class="tb-btn"><i>I</i></div><div class="tb-btn"><u>U</u></div>
+                <div class="tb-sep"></div>
+                <div class="tb-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+                <div class="tb-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg></div>
+                <div class="tb-sep"></div>
+                <div class="tb-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+                <div class="tb-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+              </div>
+              <textarea class="compose-message" id="email-body" oninput="updatePreview()">Dear {Member Name},
+
+We are excited to invite you to our Sunday Service this weekend. Join us as we worship together and grow in faith.
+
+📍 Venue: CACI Assakae Central Church
+🕐 Time: 9:00 AM – 12:00 PM
+📅 Date: Sunday, June 22, 2026
+
+Please bring your Bible and a friend.
+
+In His Service,
+CACI Assakae Central</textarea>
+              <div class="attachments-bar">
+                <span style="font-size:11.5px;color:var(--text-muted);margin-right:4px">Attachments:</span>
+                <div class="attachment-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>service-program.pdf<span class="attachment-remove" onclick="this.parentElement.remove()">×</span></div>
+                <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:2px 8px">+ Add</button>
+              </div>
+            </div>
+
+            <!-- ── SMS ── -->
+            <div id="form-sms" style="display:none">
+              <textarea class="compose-message" id="sms-body" oninput="countSMS(this)" style="min-height:140px">Sunday Service Reminder: Join us at CACI Assakae Central this Sunday, June 22 at 9:00 AM. Bring a friend! - CACI Hub</textarea>
+              <div class="sms-counter">
+                <span id="sms-count">140 / 160 characters</span>
+                <span id="sms-parts">1 SMS per recipient · <strong>347 total</strong></span>
+              </div>
+            </div>
+
+            <!-- ── IN-APP ── -->
+            <div id="form-inapp" style="display:none">
+
+              <!-- Format selector: Text | Audio -->
+              <div class="format-selector">
+                <div class="format-btn active" id="fmt-text" onclick="selectFormat('text')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                  Text message
+                </div>
+                <div class="format-btn" id="fmt-audio" onclick="selectFormat('audio')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                  Voice / Audio
+                </div>
+              </div>
+
+              <!-- Push preview banner — always shown for In-App -->
+              <div class="push-preview-banner">
+                <div class="push-preview-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+                <div class="push-preview-text">
+                  <strong>Push notification included automatically</strong>
+                  Members get an alert on their phone → tap to open message in CACI Hub. Just like WhatsApp.
+                </div>
+              </div>
+
+              <!-- Text form -->
+              <div id="inapp-text-form">
+                <div style="padding:14px 20px 0;border-bottom:1px solid var(--border-light)">
+                  <div class="field">
+                    <label class="label">Notification title <span style="font-size:11px;color:var(--text-muted);font-weight:400">(shown on lock screen)</span></label>
+                    <input type="text" class="input" id="inapp-title" placeholder="e.g. New announcement from CACI" value="Sunday Service This Weekend!">
+                  </div>
+                </div>
+                <textarea class="compose-message" id="inapp-body" style="min-height:130px">Don't miss this Sunday's service at CACI Assakae Central — 9:00 AM. We'd love to see you there. Tap to read the full message.</textarea>
+                <div class="sms-counter">
+                  <span>In-app text message</span>
+                  <span class="badge badge-purple" style="font-size:10px">🔔 + Push alert</span>
+                </div>
+              </div>
+
+              <!-- Audio form -->
+              <div id="inapp-audio-form" style="display:none">
+                <div style="padding:14px 20px 0;border-bottom:1px solid var(--border-light)">
+                  <div class="field">
+                    <label class="label">Notification title <span style="font-size:11px;color:var(--text-muted);font-weight:400">(shown on lock screen)</span></label>
+                    <input type="text" class="input" id="audio-title" value="🎙 New voice message from Pastor">
+                  </div>
+                </div>
+                <div class="audio-recorder" id="audio-recorder-ui">
+                  <div class="audio-waveform" id="waveform"></div>
+                  <div class="audio-timer" id="audio-timer">0:00</div>
+                  <div class="audio-status" id="audio-status">Tap to start recording</div>
+                  <button class="record-btn" id="record-btn" onclick="toggleRecording()">
+                    <div class="record-dot"></div>
+                  </button>
+                  <div style="font-size:12px;color:var(--text-muted);text-align:center">Max 5 min · MP3</div>
+                </div>
+                <div id="playback-section" style="display:none;padding:16px 20px">
+                  <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px">Recording ready — review before sending</p>
+                  <div class="playback-bar">
+                    <div class="pb-play" onclick="togglePlayback()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+                    <div class="pb-progress"><div class="pb-fill" id="pb-fill"></div></div>
+                    <div class="pb-time" id="pb-time">0:00 / –:––</div>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn btn-secondary btn-sm" onclick="discardRecording()">Re-record</button>
+                  </div>
+                </div>
+                <div class="sms-counter">
+                  <span>In-app voice message</span>
+                  <span class="badge badge-purple" style="font-size:10px">🔔 + Push alert</span>
+                </div>
+              </div>
+
+              <!-- Push toggle (optional silent push only) -->
+              <div class="push-toggle-row">
+                <div>
+                  <div class="push-toggle-label">Send as push notification only</div>
+                  <div class="push-toggle-sub">No in-app record — just a quick device alert, like a ping</div>
+                </div>
+                <div class="toggle-switch" id="push-only-toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- STEP 4: Schedule -->
+          <div class="schedule-card mb-4">
+            <div class="schedule-toggle" onclick="toggleSchedule()">
+              <div>
+                <div class="schedule-toggle-label">4 · Schedule Delivery</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Send now or choose a future date and time</div>
+              </div>
+              <div class="toggle-switch" id="schedule-toggle"></div>
+            </div>
+            <div class="schedule-fields" id="schedule-fields">
+              <div class="field-row" style="margin-top:4px">
+                <div class="field"><label class="label">Date</label><input type="date" class="input" value="2026-06-17"></div>
+                <div class="field"><label class="label">Time</label><input type="time" class="input" value="08:00"></div>
+              </div>
+              <div class="field">
+                <label class="label">Timezone</label>
+                <select class="input">
+                  <option>GMT+0:00 — Ghana / London (UTC)</option>
+                  <option>GMT-5:00 — New York (EST)</option>
+                  <option>GMT+1:00 — Paris / Berlin (CET)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Preview -->
+        <div class="preview-panel" id="preview-panel">
+
+          <div class="preview-device" id="preview-phone">
+            <div class="preview-device-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              Push Preview
+            </div>
+            <div class="phone-mockup">
+              <div class="phone-notch"></div>
+              <div class="phone-push-notif">
+                <div class="phone-push-app">
+                  <div class="phone-push-app-icon" id="preview-app-icon" style="background:var(--ch-email)"></div>
+                  <div class="phone-push-app-name">CACI Hub</div>
+                  <div class="phone-push-time">now</div>
+                </div>
+                <div class="phone-push-title" id="preview-push-title">Sunday Service Reminder — June 22</div>
+                <div class="phone-push-body" id="preview-push-body">Dear Member, We are excited to invite you to our Sunday Service...</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-device" id="preview-email-box">
+            <div class="preview-device-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email Preview
+            </div>
+            <div class="email-mockup">
+              <div class="email-mock-header">
+                <div class="email-mock-row"><span class="email-mock-label">From:</span><span class="email-mock-val">CACI Hub &lt;noreply@cacihub.com&gt;</span></div>
+                <div class="email-mock-row"><span class="email-mock-label">To:</span><span class="email-mock-val">All Members (347)</span></div>
+                <div class="email-mock-row"><span class="email-mock-label">Sub:</span><span class="email-mock-val" id="preview-email-subject">Sunday Service Reminder</span></div>
+              </div>
+              <div class="email-mock-body" id="preview-email-body">Dear {Member Name}, We are excited to invite you to our Sunday Service...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">Send Summary</div></div>
+            <div class="card-body" style="padding:14px">
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px">
+                <div style="display:flex;justify-content:space-between"><span class="text-muted">Channel</span><span class="fw-600" id="sum-channel">Email</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="text-muted">Format</span><span class="fw-600" id="sum-format">HTML Email</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="text-muted">Recipients</span><span class="fw-600">347 members</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="text-muted">Delivery</span><span class="fw-600" id="sum-delivery">Send Now</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="text-muted">Est. Cost</span><span class="fw-600" id="sum-cost">Free (Email)</span></div>
+              </div>
+              <div class="divider"></div>
+              <button class="btn btn-success" style="width:100%" onclick="openConfirmModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send Broadcast
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ PAGE: SCHEDULED ═══════════════════ -->
+    <div id="page-scheduled" class="page">
+      <div class="page-header">
+        <div><h1 class="page-title">Scheduled</h1><p class="page-subtitle">Queued for future delivery</p></div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Schedule New
+        </button>
+      </div>
+      <div class="broadcast-list">
+        <div class="broadcast-item">
+          <div class="broadcast-channel-dot" style="background:var(--ch-inapp)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Youth Fellowship — Weekend Recap</div>
+            <div class="broadcast-meta"><span class="badge badge-orange">Sends Jun 17 · 8:00 AM</span><span class="broadcast-meta-sep">·</span><span>In-App · Text + Push</span><span class="broadcast-meta-sep">·</span><span>Youth (48)</span></div>
+          </div>
+          <div class="broadcast-actions" style="gap:6px"><button class="btn btn-secondary btn-sm">Edit</button><button class="btn btn-danger btn-sm">Cancel</button></div>
+        </div>
+        <div class="broadcast-item">
+          <div class="broadcast-channel-dot" style="background:var(--ch-sms)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Prayer Meeting Tonight Reminder</div>
+            <div class="broadcast-meta"><span class="badge badge-orange">Sends Jun 18 · 5:00 PM</span><span class="broadcast-meta-sep">·</span><span>SMS · Text</span><span class="broadcast-meta-sep">·</span><span>All Members (347)</span></div>
+          </div>
+          <div class="broadcast-actions" style="gap:6px"><button class="btn btn-secondary btn-sm">Edit</button><button class="btn btn-danger btn-sm">Cancel</button></div>
+        </div>
+        <div class="broadcast-item">
+          <div class="broadcast-channel-dot" style="background:var(--ch-inapp)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="broadcast-info">
+            <div class="broadcast-subject">Pastor's Note — New Week Devotional</div>
+            <div class="broadcast-meta"><span class="badge badge-orange">Sends Jun 20 · 10:00 AM</span><span class="broadcast-meta-sep">·</span><span>In-App · Audio + Push</span><span class="broadcast-meta-sep">·</span><span>Active (312)</span></div>
+          </div>
+          <div class="broadcast-actions" style="gap:6px"><button class="btn btn-secondary btn-sm">Edit</button><button class="btn btn-danger btn-sm">Cancel</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ PAGE: TEMPLATES ═══════════════════ -->
+    <div id="page-templates" class="page">
+      <div class="page-header">
+        <div><h1 class="page-title">Templates</h1><p class="page-subtitle">Reusable message templates</p></div>
+        <button class="btn btn-primary btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Template</button>
+      </div>
+      <div class="template-grid">
+        <div class="template-card" onclick="useTemplate('service')"><div class="template-preview"><div class="template-preview-inner"><div class="template-preview-h">Sunday Service Reminder</div>Dear {Member Name}, join us this Sunday at {Time} for our weekly service at {Venue}...</div></div><div class="template-info"><div class="template-name">Sunday Service Reminder</div><div class="template-desc">Weekly service reminder with variable fields</div><div class="template-chips"><span class="badge badge-blue">Email</span><span class="badge badge-green">SMS</span><span class="badge badge-purple">In-App</span></div></div></div>
+        <div class="template-card" onclick="useTemplate('welcome')"><div class="template-preview"><div class="template-preview-inner"><div class="template-preview-h">Welcome to CACI!</div>Welcome, {Member Name}! Your membership number is {Number}. We are so glad you're here...</div></div><div class="template-info"><div class="template-name">New Member Welcome</div><div class="template-desc">Sent automatically on member creation</div><div class="template-chips"><span class="badge badge-blue">Email</span><span class="badge badge-green">SMS</span></div></div></div>
+        <div class="template-card" onclick="useTemplate('prayer')"><div class="template-preview"><div class="template-preview-inner"><div class="template-preview-h">Prayer Meeting Tonight</div>Reminder: Prayer meeting tonight at {Time}. Venue: {Location}. Come expecting a move of God...</div></div><div class="template-info"><div class="template-name">Prayer Meeting Reminder</div><div class="template-desc">Quick reminder for prayer events</div><div class="template-chips"><span class="badge badge-green">SMS</span><span class="badge badge-purple">In-App</span></div></div></div>
+        <div class="template-card" onclick="useTemplate('birthday')"><div class="template-preview"><div class="template-preview-inner"><div class="template-preview-h">🎂 Happy Birthday!</div>Dear {Member Name}, wishing you a wonderful birthday filled with God's blessings and joy...</div></div><div class="template-info"><div class="template-name">Birthday Greetings</div><div class="template-desc">Automated birthday message</div><div class="template-chips"><span class="badge badge-blue">Email</span><span class="badge badge-purple">In-App</span></div></div></div>
+        <div class="template-card" onclick="useTemplate('announcement')"><div class="template-preview"><div class="template-preview-inner"><div class="template-preview-h">📢 Announcement</div>Dear assembly, we wish to inform you about {Subject}. Please read carefully and share with your household...</div></div><div class="template-info"><div class="template-name">General Announcement</div><div class="template-desc">Flexible template for church-wide notices</div><div class="template-chips"><span class="badge badge-blue">Email</span><span class="badge badge-green">SMS</span><span class="badge badge-purple">In-App</span></div></div></div>
+        <div class="template-card" onclick="useTemplate('pastoral')"><div class="template-preview"><div class="template-preview-inner"><div class="template-preview-h">A Word from the Pastor</div>Beloved, today I want to share a word of encouragement from {Scripture}. God's word says...</div></div><div class="template-info"><div class="template-name">Pastoral Message</div><div class="template-desc">Weekly pastor's note — text or voice</div><div class="template-chips"><span class="badge badge-blue">Email</span><span class="badge badge-purple">In-App Audio</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ PAGE: DETAIL ═══════════════════ -->
+    <div id="page-detail" class="page">
+      <div class="page-header">
+        <div>
+          <div class="back-btn" onclick="showPage('page-inbox',document.getElementById('sb-inbox'),'sb-inbox','Broadcasts')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            All Broadcasts
+          </div>
+          <h1 class="page-title" style="margin-top:6px">Sunday Service Reminder — June 15</h1>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span class="badge badge-green">Sent</span>
+            <span style="font-size:12px;color:var(--text-muted)">Email · Text · Jun 14, 2026 at 6:00 PM</span>
+          </div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export</button>
+          <button class="btn btn-primary btn-sm">Resend</button>
+        </div>
+      </div>
+      <div class="detail-stats-grid">
+        <div class="detail-stat-card"><div class="detail-stat-val">347</div><div class="detail-stat-lbl">Total Sent</div><div class="progress-bar mt-1"><div class="progress-fill" style="width:100%;background:var(--gray-300)"></div></div></div>
+        <div class="detail-stat-card"><div class="detail-stat-val" style="color:var(--green-text)">312</div><div class="detail-stat-lbl">Delivered</div><div class="detail-stat-sub" style="color:var(--green-text)">89.9%</div><div class="progress-bar mt-1"><div class="progress-fill" style="width:90%;background:var(--green-500)"></div></div></div>
+        <div class="detail-stat-card"><div class="detail-stat-val" style="color:var(--blue-text)">280</div><div class="detail-stat-lbl">Opened</div><div class="detail-stat-sub" style="color:var(--blue-text)">80.7% open rate</div><div class="progress-bar mt-1"><div class="progress-fill" style="width:81%;background:var(--blue-500)"></div></div></div>
+        <div class="detail-stat-card"><div class="detail-stat-val" style="color:var(--red-text)">35</div><div class="detail-stat-lbl">Bounced</div><div class="detail-stat-sub" style="color:var(--red-text)">10.1%</div><div class="progress-bar mt-1"><div class="progress-fill" style="width:10%;background:var(--red-500)"></div></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card"><div class="card-header"><div class="card-title">Message</div></div><div class="card-body" style="font-size:13.5px;line-height:1.7;color:var(--text-secondary)"><strong style="display:block;font-size:15px;color:var(--text-primary);margin-bottom:8px">Sunday Service Reminder — June 15</strong>Dear [Member Name],<br><br>We are excited to invite you to our Sunday Service this weekend...<br><br>📍 CACI Assakae Central · 🕐 9:00 AM</div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Breakdown</div></div><div class="card-body" style="padding:14px;display:flex;flex-direction:column;gap:12px;font-size:13px"><div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Opened</span><span class="fw-600">280 (81%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:81%;background:var(--green-500)"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Delivered, not opened</span><span class="fw-600">32 (9%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:9%;background:var(--blue-500)"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Bounced</span><span class="fw-600">35 (10%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--red-500)"></div></div></div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bn-item active" id="bn-inbox" onclick="mobilePage('page-inbox','bn-inbox','Broadcasts')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <div class="bn-label">Inbox</div><div class="bn-badge">3</div>
+    </div>
+    <div class="bn-item" id="bn-compose" onclick="mobilePage('page-compose','bn-compose','New Broadcast')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <div class="bn-label">Compose</div>
+    </div>
+    <div class="bn-item" id="bn-scheduled" onclick="mobilePage('page-scheduled','bn-scheduled','Scheduled')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div class="bn-label">Scheduled</div>
+    </div>
+    <div class="bn-item" id="bn-templates" onclick="mobilePage('page-templates','bn-templates','Templates')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <div class="bn-label">Templates</div>
+    </div>
+    <div class="bn-item" onclick="alert('Members module')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <div class="bn-label">Members</div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile FAB -->
+<div class="compose-fab" onclick="mobilePage('page-compose','bn-compose','New Broadcast')">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-backdrop" id="confirm-modal" onclick="closeConfirmModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><div class="modal-title">Confirm Broadcast</div><div class="modal-close" onclick="closeConfirmModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:var(--text-secondary);margin-bottom:14px">Review before sending.</p>
+      <div class="confirm-summary">
+        <div class="confirm-row"><span class="confirm-label">Channel</span><span class="confirm-value" id="cm-channel">📧 Email</span></div>
+        <div class="confirm-row"><span class="confirm-label">Format</span><span class="confirm-value" id="cm-format">HTML Text</span></div>
+        <div class="confirm-row"><span class="confirm-label">Recipients</span><span class="confirm-value">All Members — 347 people</span></div>
+        <div class="confirm-row"><span class="confirm-label">Delivery</span><span class="confirm-value" id="cm-delivery">Send Now</span></div>
+        <div class="confirm-row"><span class="confirm-label">Est. Cost</span><span class="confirm-value" style="color:var(--green-text)" id="cm-cost">Free (Email)</span></div>
+      </div>
+      <div style="background:var(--orange-bg);border:1px solid var(--orange-text);border-radius:var(--radius-md);padding:10px 14px;font-size:12.5px;color:var(--orange-text)">
+        ⚠️ This will send to 347 members immediately and cannot be undone.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+      <button class="btn btn-success" id="confirm-send-btn" onclick="sendBroadcast()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send to 347 Members
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES MODAL -->
+<div class="modal-backdrop" id="templates-modal" onclick="closeTemplatesModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header"><div class="modal-title">Choose a Template</div><div class="modal-close" onclick="closeTemplatesModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:8px">
+      <div class="recipient-option" onclick="applyTemplate('service');closeTemplatesModal()" style="border:1px solid var(--border);border-radius:var(--radius-md)"><div class="recipient-option-avatar" style="background:var(--blue-bg);color:var(--blue-text)">📧</div><div><div class="recipient-option-name">Sunday Service Reminder</div><div class="recipient-option-meta">Email · SMS · In-App</div></div></div>
+      <div class="recipient-option" onclick="applyTemplate('welcome');closeTemplatesModal()" style="border:1px solid var(--border);border-radius:var(--radius-md)"><div class="recipient-option-avatar" style="background:var(--green-bg);color:var(--green-text)">👋</div><div><div class="recipient-option-name">New Member Welcome</div><div class="recipient-option-meta">Email · SMS</div></div></div>
+      <div class="recipient-option" onclick="applyTemplate('prayer');closeTemplatesModal()" style="border:1px solid var(--border);border-radius:var(--radius-md)"><div class="recipient-option-avatar" style="background:var(--purple-bg);color:var(--purple-text)">🙏</div><div><div class="recipient-option-name">Prayer Meeting Reminder</div><div class="recipient-option-meta">SMS · In-App</div></div></div>
+      <div class="recipient-option" onclick="applyTemplate('birthday');closeTemplatesModal()" style="border:1px solid var(--border);border-radius:var(--radius-md)"><div class="recipient-option-avatar" style="background:var(--orange-bg);color:var(--orange-text)">🎂</div><div><div class="recipient-option-name">Birthday Greetings</div><div class="recipient-option-meta">Email · In-App</div></div></div>
+      <div class="recipient-option" onclick="applyTemplate('announcement');closeTemplatesModal()" style="border:1px solid var(--border);border-radius:var(--radius-md)"><div class="recipient-option-avatar" style="background:var(--red-bg);color:var(--red-text)">📢</div><div><div class="recipient-option-name">General Announcement</div><div class="recipient-option-meta">All channels</div></div></div>
+      <div class="recipient-option" onclick="applyTemplate('pastoral');closeTemplatesModal()" style="border:1px solid var(--border);border-radius:var(--radius-md)"><div class="recipient-option-avatar" style="background:var(--purple-bg);color:var(--purple-text)">🎙</div><div><div class="recipient-option-name">Pastoral Voice Message</div><div class="recipient-option-meta">In-App Audio</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── Theme ─────────────────────────────────────────────────
+function toggleTheme(){
+  const h=document.documentElement;
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark');
+}
+
+// ── Page routing ──────────────────────────────────────────
+function showPage(pageId,sbEl,sbId,mobileTitle){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  if(sbEl) sbEl.classList.add('active');
+}
+function mobilePage(pageId,bnId,title){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.bn-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById(bnId).classList.add('active');
+  document.getElementById('mobile-header-title').textContent=title;
+}
+
+// ── Filter tabs ───────────────────────────────────────────
+function filterTab(el,ch){
+  document.querySelectorAll('.broadcast-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.broadcast-item[data-channel]').forEach(item=>{
+    item.style.display=(ch==='all'||item.dataset.channel===ch)?'':'none';
+  });
+}
+
+// ── Channel select — 3 channels ───────────────────────────
+const channelMeta={
+  email: {label:'Email',      format:'HTML Email',    cost:'Free (Email)',    icon:'📧', previewPhone:false, previewEmail:true},
+  sms:   {label:'SMS',        format:'Text Message',  cost:'~₵0.05 / msg',   icon:'💬', previewPhone:true,  previewEmail:false},
+  inapp: {label:'In-App',     format:'Text + Push',   cost:'Free (In-App)',  icon:'📱', previewPhone:true,  previewEmail:false},
+};
+let currentChannel='email';
+
+function selectChannel(ch){
+  document.querySelectorAll('.channel-card').forEach(c=>c.classList.remove('selected'));
+  const card=document.getElementById('ch-'+ch);
+  if(card) card.classList.add('selected');
+
+  ['email','sms','inapp'].forEach(k=>{
+    const f=document.getElementById('form-'+k);
+    if(f) f.style.display=k===ch?'':'none';
+  });
+
+  currentChannel=ch;
+  const m=channelMeta[ch];
+  document.getElementById('compose-title').textContent='3 · Compose '+m.label;
+  document.getElementById('compose-subtitle').textContent={
+    email:'Write your email — delivered to members\' inboxes',
+    sms:'Write your SMS — delivered to members\' Messages app',
+    inapp:'Compose your in-app message — members get a push notification, then open it in CACI Hub'
+  }[ch];
+  document.getElementById('sum-channel').textContent=m.label;
+  document.getElementById('sum-format').textContent=m.format;
+  document.getElementById('sum-cost').textContent=m.cost;
+  document.getElementById('cm-channel').textContent=m.icon+' '+m.label;
+  document.getElementById('cm-format').textContent=m.format;
+  document.getElementById('cm-cost').textContent=m.cost;
+
+  // Preview panel visibility
+  const phoneBox=document.getElementById('preview-phone');
+  const emailBox=document.getElementById('preview-email-box');
+  if(phoneBox) phoneBox.style.display=m.previewPhone?'':'none';
+  if(emailBox) emailBox.style.display=m.previewEmail?'':'none';
+
+  // Push preview icon colour
+  const iconEl=document.getElementById('preview-app-icon');
+  if(iconEl) iconEl.style.background={'email':'var(--ch-email)','sms':'var(--ch-sms)','inapp':'var(--ch-inapp)'}[ch];
+
+  updatePreview();
+}
+
+// ── In-App format selector ────────────────────────────────
+function selectFormat(fmt){
+  ['text','audio'].forEach(f=>{
+    document.getElementById('fmt-'+f).classList.toggle('active',f===fmt);
+    document.getElementById('inapp-'+f+'-form').style.display=f===fmt?'':'none';
+  });
+  const m=channelMeta['inapp'];
+  m.format=fmt==='audio'?'Voice Audio + Push':'Text + Push';
+  document.getElementById('sum-format').textContent=m.format;
+  document.getElementById('cm-format').textContent=m.format;
+}
+
+// ── Preview ───────────────────────────────────────────────
+function updatePreview(){
+  const subj=document.getElementById('email-subject');
+  const body=document.getElementById('email-body');
+  if(subj) document.getElementById('preview-push-title').textContent=subj.value||'(no subject)';
+  if(body){
+    const snippet=body.value.substring(0,80)+'...';
+    document.getElementById('preview-push-body').textContent=snippet;
+    document.getElementById('preview-email-body').textContent=snippet;
+  }
+  if(subj) document.getElementById('preview-email-subject').textContent=subj.value;
+}
+
+// ── SMS counter ───────────────────────────────────────────
+function countSMS(el){
+  const l=el.value.length,parts=Math.ceil(l/160)||1;
+  document.getElementById('sms-count').textContent=l+' / '+(160*parts)+' characters';
+  document.getElementById('sms-parts').innerHTML=parts+' SMS per recipient · <strong>347 total</strong>';
+}
+
+// ── Schedule ──────────────────────────────────────────────
+function toggleSchedule(){
+  const sw=document.getElementById('schedule-toggle');
+  const fld=document.getElementById('schedule-fields');
+  sw.classList.toggle('on');
+  fld.classList.toggle('open');
+  const on=sw.classList.contains('on');
+  document.getElementById('sum-delivery').textContent=on?'Jun 17 · 8:00 AM':'Send Now';
+  document.getElementById('cm-delivery').textContent=on?'Jun 17 · 8:00 AM':'Send Now';
+}
+
+// ── Recipients ────────────────────────────────────────────
+function addTag(name){
+  const container=document.querySelector('.recipient-tags');
+  const input=document.getElementById('rec-input');
+  const tag=document.createElement('span');
+  tag.className='recipient-tag';
+  tag.innerHTML=name+'<span class="recipient-tag-remove" onclick="removeTag(this)">×</span>';
+  container.insertBefore(tag,input);
+  input.value='';
+  document.getElementById('rec-dropdown').classList.remove('open');
+}
+function removeTag(el){el.parentElement.remove()}
+
+// ── Audio recorder ────────────────────────────────────────
+let recording=false,recSec=0,recInt=null,waveInt=null;
+const wf=document.getElementById('waveform');
+for(let i=0;i<32;i++){const b=document.createElement('div');b.className='waveform-bar';b.style.height='8px';wf.appendChild(b);}
+
+function toggleRecording(){
+  recording=!recording;
+  const btn=document.getElementById('record-btn');
+  const status=document.getElementById('audio-status');
+  if(recording){
+    btn.classList.add('recording');wf.classList.add('recording');
+    status.textContent='Recording… tap to stop';
+    recInt=setInterval(()=>{recSec++;document.getElementById('audio-timer').textContent=fmt(recSec);if(recSec>=300)stopRec();},1000);
+    waveInt=setInterval(()=>{document.querySelectorAll('.waveform-bar').forEach(b=>b.style.height=(4+Math.random()*36)+'px');},120);
+  } else stopRec();
+}
+function stopRec(){
+  recording=false;clearInterval(recInt);clearInterval(waveInt);
+  document.getElementById('record-btn').classList.remove('recording');
+  wf.classList.remove('recording');
+  document.querySelectorAll('.waveform-bar').forEach(b=>b.style.height='8px');
+  if(recSec>0){
+    document.getElementById('audio-recorder-ui').style.display='none';
+    document.getElementById('playback-section').style.display='';
+    document.getElementById('pb-time').textContent='0:00 / '+fmt(recSec);
+  }
+}
+function discardRecording(){
+  recSec=0;
+  document.getElementById('audio-timer').textContent='0:00';
+  document.getElementById('audio-status').textContent='Tap to start recording';
+  document.getElementById('audio-recorder-ui').style.display='';
+  document.getElementById('playback-section').style.display='none';
+}
+function togglePlayback(){
+  let pct=0;const fill=document.getElementById('pb-fill');
+  const iv=setInterval(()=>{pct+=2;fill.style.width=pct+'%';if(pct>=100)clearInterval(iv);},80);
+}
+function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+
+// ── Modals ────────────────────────────────────────────────
+function openConfirmModal(){document.getElementById('confirm-modal').classList.add('open')}
+function closeConfirmModal(){document.getElementById('confirm-modal').classList.remove('open')}
+function openTemplatesModal(){document.getElementById('templates-modal').classList.add('open')}
+function closeTemplatesModal(){document.getElementById('templates-modal').classList.remove('open')}
+
+function sendBroadcast(){
+  const btn=document.getElementById('confirm-send-btn');
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Sending…';
+  setTimeout(()=>{
+    closeConfirmModal();
+    btn.disabled=false;btn.innerHTML='✓ Send to 347 Members';
+    showPage('page-inbox',document.getElementById('sb-inbox'),'sb-inbox','Broadcasts');
+    showToast('Broadcast sent to 347 members!','success');
+  },1800);
+}
+
+// ── Templates ─────────────────────────────────────────────
+const TMPL={
+  service:{subj:'Sunday Service Reminder — June 22',body:'Dear {Member Name},\n\nWe are excited to invite you to our Sunday Service this weekend. Join us as we worship together.\n\n📍 Venue: CACI Assakae Central Church\n🕐 Time: 9:00 AM – 12:00 PM\n📅 Date: Sunday, June 22, 2026\n\nIn His Service,\nCACl Assakae Central'},
+  welcome:{subj:'Welcome to CACI Hub!',body:'Dear {Member Name},\n\nWelcome to our beloved assembly! Your membership number is: {Membership Number}.\n\nGod bless you,\nCACl Assakae Central'},
+  prayer:{subj:'Prayer Meeting Tonight',body:'Beloved, join us for prayer tonight at {Time}. Venue: {Location}. Come expecting a move of God! — CACI Hub'},
+  birthday:{subj:'🎂 Happy Birthday from CACI!',body:'Dear {Member Name},\n\nWishing you a wonderful birthday filled with God\'s blessings and peace.\n\nWith love,\nCACl Assakae Central'},
+  announcement:{subj:'📢 Important Announcement',body:'Dear Assembly,\n\n{Announcement Content}\n\nIn His Service,\nCACl Assakae Central'},
+  pastoral:{subj:'🎙 A Word from the Pastor',body:'Beloved, today I want to share a word of encouragement. {Scripture}\n\nBe blessed,\nPastor'},
+};
+function useTemplate(k){showPage('page-compose',document.getElementById('sb-compose'),'sb-compose','New Broadcast');applyTemplate(k);}
+function applyTemplate(k){
+  const t=TMPL[k];if(!t)return;
+  const s=document.getElementById('email-subject');
+  const b=document.getElementById('email-body');
+  if(s)s.value=t.subj;if(b){b.value=t.body;updatePreview();}
+  showToast('Template applied','success');
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg,type='success'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML=`<div class="toast-icon">${type==='success'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>':'⚠'}</div><span>${msg}</span>`;
+  c.appendChild(t);setTimeout(()=>t.remove(),4000);
+}
+
+// ── User dropdown ─────────────────────────────────────────
+document.getElementById('user-menu-toggle').addEventListener('click',function(e){
+  e.stopPropagation();document.getElementById('user-dropdown').classList.toggle('active');
+});
+document.addEventListener('click',()=>document.getElementById('user-dropdown').classList.remove('active'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeConfirmModal();closeTemplatesModal();}});
+
+// ── Init ──────────────────────────────────────────────────
+updatePreview();
+selectChannel('email');
+</script>
+</body>
+</html>

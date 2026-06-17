@@ -1,6 +1,6 @@
 // src/modules/communication/tabs/TemplatesTab.ts
 
-import type { WorkspaceTab }    from '../workspace/CommunicationWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { getActiveAssemblyId }  from '@core/auth'
 import { Toolbar, ContextMenu, openModal, showToast } from '../widgets/communicationWidgets'
 import { CommunicationService }  from '../services/communication.service'

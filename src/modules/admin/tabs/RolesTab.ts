@@ -18,7 +18,7 @@ import {
   type AssemblyRole,
 } from '../repository'
 import { getAll as getAllPermissions } from '@core/authorization/permission-registry'
-import type { WorkspaceTab }          from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import {
   injectWidgetCSS,
   StatsCardGroup,

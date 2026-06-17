@@ -408,5 +408,11 @@ export function createReportsTab() {
     if (el) el.textContent = val
   }
 
-  return { render, destroy: () => {} }
+  return {
+    id: 'reports',
+    label: 'Reports',
+    icon: 'bar-chart-line',
+    render,
+    destroy: () => {},
+  }
 }

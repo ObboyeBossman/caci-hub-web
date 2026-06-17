@@ -441,5 +441,11 @@ export function createBudgetTab() {
     if (el) el.textContent = val
   }
 
-  return { render, destroy: () => {} }
+  return {
+    id: 'budget',
+    label: 'Budget',
+    icon: 'wallet2',
+    render,
+    destroy: () => {},
+  }
 }

@@ -1,6 +1,6 @@
 // src/modules/communication/tabs/MessagesTab.ts
 
-import type { WorkspaceTab } from '../workspace/CommunicationWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { showToast, openModal } from '../widgets/communicationWidgets'
 import { CommunicationService } from '../services/communication.service'
 import type { MessageThread, ThreadMessage } from '../schemas/communication'

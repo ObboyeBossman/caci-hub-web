@@ -11,7 +11,7 @@ import {
   type Permission,
 } from '../repository'
 import { getAll as getAllRegistered } from '@core/authorization/permission-registry'
-import type { WorkspaceTab }          from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import {
   injectWidgetCSS,
   showToast,

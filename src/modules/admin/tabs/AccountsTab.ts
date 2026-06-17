@@ -21,7 +21,7 @@ import {
     type AssemblyRole,
 } from '../repository'
 import type { UserProfileSummary } from '../utils/userProfileCache'
-import type { WorkspaceTab } from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import {
     injectWidgetCSS,
     StatsCardGroup,
