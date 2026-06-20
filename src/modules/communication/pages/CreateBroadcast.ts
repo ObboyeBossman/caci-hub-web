@@ -5,6 +5,7 @@ import { supabase } from '@core/supabase';
 import { renderError } from '@shared/utils/pageHelpers';
 import { showToast } from '@shell/Toast';
 import { renderBreadcrumbs } from '@shell/Breadcrumbs';
+import { navigate } from '@core/router';
 import { can } from '@core/authorization/authorization-service';
 import { PERMISSIONS } from '@core/authorization/permissions';
 import type { Database } from '../../../types/database.types';
@@ -1019,7 +1020,10 @@ export default {
   },
 
   destroy(): void {
-    // Cleanup: remove any global listeners? (We'll use local listeners)
+    if ((window as any)._createBroadcastApp) {
+      (window as any)._createBroadcastApp.destroy();
+      delete (window as any)._createBroadcastApp;
+    }
   },
 } as PageModule;
 
@@ -1038,6 +1042,7 @@ class CreateBroadcastApp {
   private attachments: Record<string, Attachment> = {};
   private currentAttachType: string | null = null;
   private totalMembers = 0;
+  private _onOutsideClick: any;
 
   // DOM refs
   private els: any = {};
@@ -1053,6 +1058,8 @@ class CreateBroadcastApp {
 
     // 2. Render HTML
     this.renderHTML();
+
+    (window as any)._createBroadcastApp = this;
 
     // 3. Bind events
     this.bindEvents();
@@ -1412,12 +1419,13 @@ class CreateBroadcastApp {
     });
 
     // Close people results on outside click
-    document.addEventListener('click', (e) => {
+    this._onOutsideClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && !target.closest('.people-search') && !target.closest('.people-results')) {
         this.els.peopleResults.classList.remove('open');
       }
-    });
+    };
+    document.addEventListener('click', this._onOutsideClick);
 
     // Title input
     this.els.titleInput?.addEventListener('input', () => {
@@ -1996,13 +2004,9 @@ class CreateBroadcastApp {
         console.log('[CreateBroadcast] Dispatch response:', dispatchData);
       }
 
-      // 5. Show success toast
-      const scheduleText = scheduledAt ? ` · Scheduled ${scheduledAt}` : ' · Sending now';
-      const recurringText = recurring !== 'none' ? ` · Recurring (${recurring})` : '';
-      const attachSummary = Object.keys(this.attachments).length ? ' · with attachment' : '';
-      this.els.toastTitle.textContent = `"${title}" sent`;
-      this.els.toastDetail.textContent = `To: ${this.audienceLabel()}${scheduleText}${recurringText}${attachSummary}`;
-      this.els.successToast.classList.remove('hidden');
+      // 5. Show success toast and navigate back
+      showToast(`Broadcast "${title}" sent successfully.`);
+      navigate('/communications');
 
       // Reset button
       this.els.sendBtnLabel.textContent = 'Send broadcast';
@@ -2036,6 +2040,12 @@ class CreateBroadcastApp {
 
   private dismissToast(): void {
     this.els.successToast.classList.add('hidden');
+  }
+
+  destroy(): void {
+    if (this._onOutsideClick) {
+      document.removeEventListener('click', this._onOutsideClick);
+    }
   }
 }
 
