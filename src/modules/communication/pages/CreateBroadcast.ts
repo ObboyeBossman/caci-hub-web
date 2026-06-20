@@ -1923,7 +1923,7 @@ class CreateBroadcastApp {
           assembly_id: this.user.assemblyId,
           title: `Broadcast: ${title}`,
           body: body,
-          channel: channel,
+          channel: 'in_app', // Templates strictly require text-based channels
           category: 'broadcast',
           created_by: this.user.id,
         })
@@ -1945,18 +1945,21 @@ class CreateBroadcastApp {
         if (uploadErr) throw uploadErr;
 
         // Insert attachment record
-        const { data: attData, error: attErr } = await supabase
-          .from('communication_attachments')
-          .insert({
-            assembly_id: this.user.assemblyId,
-            storage_tier: 'hot',
-            storage_provider: 'supabase',
-            storage_bucket: 'campaigns-media-private',
-            storage_path: filePath,
-            mime_type: att.file.type,
-            file_size_bytes: att.file.size,
-            uploaded_by: this.user.id,
-          })
+        const attPayload: any = {
+          assembly_id: this.user.assemblyId,
+          media_category: firstType, // Explicitly save the media category corresponding to the format
+          storage_tier: 'hot',
+          storage_provider: 'supabase',
+          storage_bucket: 'campaigns-media-private',
+          storage_path: filePath,
+          mime_type: att.file.type,
+          file_size_bytes: att.file.size,
+          uploaded_by: this.user.id,
+        };
+
+        const { data: attData, error: attErr } = await (supabase
+          .from('communication_attachments') as any)
+          .insert(attPayload)
           .select('id')
           .single();
         if (attErr) throw attErr;

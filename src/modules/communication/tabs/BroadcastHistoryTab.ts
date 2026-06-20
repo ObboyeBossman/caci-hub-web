@@ -649,6 +649,7 @@ export class BroadcastHistoryTab implements WorkspaceTab {
 
   // ── Full render ───────────────────────────────────────────────────────────
   private _renderAll() {
+    console.log('[DEBUG] Campaigns:', this._campaigns)
     const total = this._campaigns.length
     const sent  = this._campaigns.filter(c => c.status === 'sent').length
     const views = this._campaigns.reduce((a, c) => a + (c.total_recipients ?? 0), 0)
