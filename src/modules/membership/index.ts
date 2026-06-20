@@ -50,29 +50,35 @@ const MembershipModule: ModuleManifest = {
   sidebar: [
     {
       label:      'All Members',
-      path:       '/members',
+      path:       '/membership?tab=members',
       icon:       'people-fill',
       permission: 'members.view',
       order:      10,
     },
     {
       label:      'Groups & Units',
-      path:       '/groups',
+      path:       '/membership?tab=groups',
       icon:       'diagram-3-fill',
       permission: 'groups.view',
       order:      30,
     },
-
+    {
+      label:      'Pastoral Care',
+      path:       '/membership?tab=pastoral',
+      icon:       'heart-fill',
+      permission: 'pastoral.view',
+      order:      40,
+    },
     {
       label:      'Audit Logs',
-      path:       '/audit-logs',
+      path:       '/membership?tab=audit',
       icon:       'clock-history',
       permission: 'members.view',
       order:      45,
     },
     {
       label:      'Reports',
-      path:       '/reports',
+      path:       '/membership?tab=reports',
       icon:       'bar-chart-fill',
       permission: 'reports.view',
       order:      50,

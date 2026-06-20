@@ -1066,10 +1066,7 @@ function _bindEvents(): void {
   // Add member
   _on(document.getElementById('ml-add-btn') as HTMLElement, 'click', () => navigate('/members/add'))
 
-  // Tab bar
-  if (_container) {
-    bindMembershipTabEvents(_container)
-  }
+  // Tab bar events are handled by WorkspaceShell — no bindings needed here.
 
   // Mobile search toggle
   const mobBtn = document.getElementById('ml-mob-search-btn')

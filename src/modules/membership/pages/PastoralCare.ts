@@ -1496,7 +1496,7 @@ async function _populateUserSelects(): Promise<void> {
 
 // ── Main render ───────────────────────────────────────────────────────────────
 export function createPastoralTab(): WorkspaceTab {
-  return {
+  const tab: WorkspaceTab = {
     id: 'pastoral',
     label: 'Pastoral Care',
     icon: 'heart-fill',
@@ -1524,7 +1524,7 @@ export function createPastoralTab(): WorkspaceTab {
     try {
       await Promise.all([_loadCases(), _loadPrayers()])
     } catch (err) {
-      renderError(container, err, { retry: () => PastoralCare.render(container) })
+      renderError(container, err, { retry: () => tab.render(container) })
       return
     }
     if (_destroyed) return
@@ -1928,4 +1928,5 @@ export function createPastoralTab(): WorkspaceTab {
     document.getElementById('pc-toast')?.remove()
   },
  }
+ return tab
 }

@@ -9,12 +9,7 @@ import { renderError }           from '@shared/utils/pageHelpers'
 import { WorkspaceShell }        from '@shell/WorkspaceShell'
 import type { ShellConfig }      from '@shell/WorkspaceShell'
 import { injectWidgetCSS }       from './widgets/communicationWidgets'
-import { HubTab }                from './tabs/HubTab'
-import { CampaignsTab }          from './tabs/CampaignsTab'
-import { MessagesTab }           from './tabs/MessagesTab'
-import { AnnouncementsTab }      from './tabs/AnnouncementsTab'
-import { TemplatesTab }          from './tabs/TemplatesTab'
-import { AudioBroadcastTab }     from './tabs/AudioBroadcastTab'
+import { BroadcastHistoryTab }   from './tabs/BroadcastHistoryTab'
 
 const COMM_CONFIG: ShellConfig = {
   sessionKey: 'comm_active_tab',
@@ -51,12 +46,7 @@ const CommunicationPage: PageModule = {
     const initialTabId = container.dataset['tab']
 
     _shell = new WorkspaceShell(container, [
-      new HubTab(),
-      new CampaignsTab(),
-      new MessagesTab(),
-      new AnnouncementsTab(),
-      new TemplatesTab(),
-      new AudioBroadcastTab(),
+      new BroadcastHistoryTab(),
     ], COMM_CONFIG, initialTabId)
   },
 

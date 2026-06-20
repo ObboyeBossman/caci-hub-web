@@ -6,10 +6,11 @@ export interface Campaign {
   id: string
   assembly_id: string
   template_id: string | null
+  attachment_id: string | null
   title: string
   body: string | null
   status: CampaignStatus
-  channel: 'in_app' | 'email' | 'sms' | 'push' | 'audio'
+  channel: 'in_app' | 'email' | 'sms' | 'push' | 'audio' | 'video' | 'document'
   audience_type: CampaignAudienceType
   audience_ids: string[] | null
   scheduled_for: string | null
@@ -79,33 +80,40 @@ export interface ThreadMessage {
   sender_id: string
   body: string | null
   attachment_id: string | null
-  message_type: 'text' | 'audio'
+  message_type: 'text' | 'audio' | 'image' | 'video' | 'document'
   created_at: string
   deleted_at: string | null
   deleted_by: string | null
 }
 
 // Attachment types
+export type AttachmentMediaCategory = 'audio' | 'video' | 'image' | 'document' | 'other'
+
 export interface Attachment {
   id: string
   assembly_id: string
   campaign_id: string | null
   thread_message_id: string | null
+  media_category: AttachmentMediaCategory
   storage_tier: 'hot' | 'warm' | 'cold'
   storage_provider: 'supabase' | 'r2'
   storage_bucket: string
   storage_path: string
+  public_url: string | null
   mime_type: string
   file_size_bytes: number
-  checksum: string
+  original_filename: string | null
+  checksum: string | null
   duration_seconds: number | null
   waveform_data: number[] | null
+  transcription_text: string | null
   is_sensitive: boolean
   virus_scan_status: 'pending' | 'clean' | 'infected' | 'skipped'
-  transcription_status: 'pending' | 'complete' | 'failed' | 'skipped'
+  transcription_status: 'pending' | 'processing' | 'done' | 'failed' | 'skipped'
   uploaded_by: string
-  archive_after: string
-  purge_after: string
+  archive_after: string | null
+  purge_after: string | null
+  archived_at: string | null
   created_at: string
   deleted_at: string | null
   deleted_by: string | null
