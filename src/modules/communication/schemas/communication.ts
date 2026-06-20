@@ -10,7 +10,7 @@ export interface Campaign {
   title: string
   body: string | null
   status: CampaignStatus
-  channel: 'in_app' | 'email' | 'sms' | 'push' | 'audio' | 'video' | 'document'
+  channel: 'in_app' | 'email' | 'sms' | 'push' | 'audio' | 'video' | 'document' | 'image'
   audience_type: CampaignAudienceType
   audience_ids: string[] | null
   scheduled_for: string | null
@@ -20,6 +20,9 @@ export interface Campaign {
   updated_at: string
   deleted_at?: string
   deleted_by?: string
+  attachment?: {
+    media_category?: string;
+  } | null;
 }
 
 export interface CampaignMessage {

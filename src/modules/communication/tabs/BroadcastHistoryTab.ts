@@ -11,10 +11,23 @@ import { navigate } from '@core/router'
 type ArchiveType = 'video' | 'audio' | 'text' | 'document'
 
 function _archiveType(c: Campaign): ArchiveType {
-  if (c.channel === 'video')                          return 'video'
-  if (c.channel === 'audio')                          return 'audio'
-  if (c.channel === 'email' || c.channel === 'document') return 'document'
-  return 'text'
+  // 1. Explicit channel values
+  if (c.channel === 'video')    return 'video';
+  if (c.channel === 'audio')    return 'audio';
+  if (c.channel === 'document') return 'document';
+  if (c.channel === 'image')    return 'image' as any; // if we ever use it
+
+  // 2. If channel is 'in_app' or other, check attachment
+  if (c.attachment?.media_category) {
+    const cat = c.attachment.media_category;
+    if (cat === 'video')   return 'video';
+    if (cat === 'audio')   return 'audio';
+    if (cat === 'image')   return 'document'; // treat image as document for now (or create separate type)
+    if (cat === 'document') return 'document';
+  }
+
+  // 3. Fallback to text
+  return 'text';
 }
 
 function _fmt(d: string | null | undefined): string {
@@ -338,6 +351,7 @@ const BH_CSS = /* css */`
 .bh-b-audio   { background: rgba(219,39,119,0.1); color: #db2777; }
 .bh-b-text    { background: rgba(5,150,105,0.1);  color: #059669; }
 .bh-b-doc     { background: rgba(217,119,6,0.1);  color: #d97706; }
+.bh-b-image   { background: rgba(14,165,233,0.1); color: #0ea5e9; }
 .bh-status {
   padding: 3px 10px; border-radius: 100px; font-size: 10px;
   font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; flex-shrink: 0;
@@ -556,15 +570,15 @@ function _statusClass(status: string): string {
 }
 
 function _badgeClass(t: ArchiveType): string {
-  return { video: 'bh-b-video', audio: 'bh-b-audio', text: 'bh-b-text', document: 'bh-b-doc' }[t]
+  return { video: 'bh-b-video', audio: 'bh-b-audio', text: 'bh-b-text', document: 'bh-b-doc', image: 'bh-b-image' as any }[t]
 }
 
 function _badgeIcon(t: ArchiveType): string {
-  return { video: 'bi-camera-video-fill', audio: 'bi-mic-fill', text: 'bi-chat-text-fill', document: 'bi-file-earmark-text-fill' }[t]
+  return { video: 'bi-camera-video-fill', audio: 'bi-mic-fill', text: 'bi-chat-text-fill', document: 'bi-file-earmark-text-fill', image: 'bi-image-fill' as any }[t]
 }
 
 function _badgeLabel(t: ArchiveType): string {
-  return { video: 'Video', audio: 'Audio', text: 'Text', document: 'Document' }[t]
+  return { video: 'Video', audio: 'Audio', text: 'Text', document: 'Document', image: 'Image' as any }[t]
 }
 
 function _n(v: number | null | undefined): string {

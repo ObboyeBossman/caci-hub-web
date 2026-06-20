@@ -1901,8 +1901,16 @@ class CreateBroadcastApp {
       audienceIds = Array.from(this.selectedPeopleIds);
     }
 
-    // Determine channel: we'll default to "in_app" for now
-    const channel = 'in_app';
+    // Determine channel based on attachment type
+    let channel = 'in_app';
+    const attKeys = Object.keys(this.attachments);
+    if (attKeys.length > 0) {
+      const firstType = attKeys[0];
+      if (firstType === 'audio') channel = 'audio';
+      else if (firstType === 'video') channel = 'video';
+      else if (firstType === 'document') channel = 'document';
+      else if (firstType === 'image') channel = 'document'; // or 'image' if we add it to DB constraint
+    }
 
     try {
       this.els.sendBtn.disabled = true;

@@ -9,7 +9,10 @@ export class CommunicationService {
   static async getCampaigns(assemblyId: string) {
     const { data, error } = await db
       .from('communication_campaigns')
-      .select('*')
+      .select(`
+        *,
+        attachment:communication_attachments!attachment_id (media_category)
+      `)
       .eq('assembly_id', assemblyId)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
