@@ -856,3 +856,4 @@ export class _Sidebar {
 // Module-level refresh helper (called by Shell.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 // (Shell.ts holds the singleton instance and exposes refreshSidebar())
+// (Shell.ts holds the singleton instance and exposes refreshSidebar())
