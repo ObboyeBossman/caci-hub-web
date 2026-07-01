@@ -541,6 +541,7 @@ export class _Sidebar {
 
     // Build accordion groups from registered modules
     const membershipItems = permitted.filter(i =>
+      i.path.startsWith('/membership') ||
       ['/members', '/groups', '/reports', '/audit-logs'].includes(i.path)
     )
     const servicesParent = permitted.find(i => i.path === '/services')
@@ -576,17 +577,17 @@ export class _Sidebar {
       <div class="sb-section-label">Main Menu</div>
 
       ${membershipItems.length > 0 ? /* html */`
-        <div class="sb-accord-item ${this._anyActive(membershipItems) ? 'open' : ''}" data-accord="members">
-          <button class="sb-nav-item ${this._anyActive(membershipItems) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="members">
+        <div class="sb-accord-item ${this._anyActiveQ(membershipItems) ? 'open' : ''}" data-accord="members">
+          <button class="sb-nav-item ${this._anyActiveQ(membershipItems) ? 'active-glow' : ''} w-full" type="button" data-accord-trigger="members">
             <i class="bi bi-people-fill" aria-hidden="true"></i>
-            <span class="sb-nav-item-label">Members</span>
+            <span class="sb-nav-item-label">Membership</span>
             <i class="bi bi-chevron-down sb-accord-chevron" aria-hidden="true"></i>
           </button>
           <div class="sb-accord-content">
             <div class="sb-accord-sub">
               ${membershipItems.map(item => /* html */`
-                <button class="sb-sub-item ${this._isActive(item.path) ? 'active' : ''}"
-                  data-route="${item.path}"
+                <button class="sb-sub-item ${this._isActiveQ(item.path) ? 'active' : ''}"
+                  data-route-full="${item.path}"
                   ${COMING_SOON_PATHS.has(item.path) ? 'data-coming-soon="true"' : ''}
                   type="button">
                   ${item.label}
@@ -595,7 +596,7 @@ export class _Sidebar {
             </div>
           </div>
         </div>
-      ` : this._navItem({ path: '/members', icon: 'bi-people-fill', label: 'All Members' })}
+      ` : this._navItem({ path: '/membership', icon: 'bi-people-fill', label: 'All Members' })}
 
       ${servicesParent ? /* html */`
         <div class="sb-accord-item ${this._anyActiveQ([servicesParent, ...servicesTabs]) ? 'open' : ''}" data-accord="services">
