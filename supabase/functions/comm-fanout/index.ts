@@ -1,13 +1,18 @@
-// supabase/functions/comm-fanout/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
 
 serve(async (req) => {
-  const { campaign_id } = await req.json()
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const { campaign_id } = await req.json()
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
 
   const { data: campaign } = await supabase
     .from('communication_campaigns')
@@ -84,8 +89,14 @@ serve(async (req) => {
     .eq('id', campaign_id)
 
   return new Response(JSON.stringify({ queued: messages.length }), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400
+    })
+  }
 })
 
 function resolveTemplate(body: string, vars: Record<string, string>): string {

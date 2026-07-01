@@ -43,13 +43,15 @@ export const membershipRoutes: RouteDefinition[] = [
     middleware: ['auth', 'mustChangePassword'],
   },
 
-  // ── Admin: Members ────────────────────────────────────────────────────────
+  // ── Admin: Membership workspace (shell) ──────────────────────────────────
   {
-    path: '/members',
-    page: () => import('./pages/MemberList'),
+    path: '/membership',
+    page: () => import('./pages/MembershipWorkspacePage'),
     middleware: ['auth', 'mustChangePassword', 'permissions'],
     permission: 'members.view',
   },
+
+  // ── Admin: Members (deep links only — base route lives in /membership) ────
   {
     path: '/members/add',
     page: () => import('./pages/AddMember'),
@@ -118,13 +120,7 @@ export const membershipRoutes: RouteDefinition[] = [
     permission: 'households.edit',
   },
 
-  // ── Admin: Groups ─────────────────────────────────────────────────────────
-  {
-    path: '/groups',
-    page: () => import('./pages/Groups'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'groups.view',
-  },
+  // ── Admin: Groups (deep links only — base route lives in /membership) ─────
   {
     path: '/groups/new',
     page: () => import('./pages/GroupCreate'),
@@ -144,13 +140,7 @@ export const membershipRoutes: RouteDefinition[] = [
     permission: 'groups.edit',
   },
 
-  // ── Admin: Pastoral Care ──────────────────────────────────────────────────
-  {
-    path: '/pastoral-care',
-    page: () => import('./pages/PastoralCare'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'pastoral.view',
-  },
+  // ── Admin: Pastoral Care (deep links only — base route lives in /membership)
   {
     path: '/flag-member',
     page: () => import('./pages/FlagMember'),
@@ -158,13 +148,7 @@ export const membershipRoutes: RouteDefinition[] = [
     permission: 'members.view',
   },
 
-  // ── Admin: Reports ────────────────────────────────────────────────────────
-  {
-    path: '/reports',
-    page: () => import('./pages/MemberList'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'reports.view',
-  },
+  // ── Admin: Reports (deep links only — base route lives in /membership) ─────
   {
     path: '/reports/:type',
     page: () => import('./pages/ReportDetail'),
@@ -172,19 +156,7 @@ export const membershipRoutes: RouteDefinition[] = [
     permission: 'reports.view',
   },
 
-  // ── Admin: Audit Logs ─────────────────────────────────────────────────────
-  {
-    path: '/audit-logs',
-    page: () => import('./pages/AuditLogs'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
-  },
+  // ── Admin: Audit Logs (deep links only — base route lives in /membership) ──
 
-  // ── Admin: Attendance ─────────────────────────────────────────────────────
-  {
-    path: '/attendance',
-    page: () => import('./pages/MemberList'),
-    middleware: ['auth', 'mustChangePassword', 'permissions'],
-    permission: 'members.view',
-  },
+  // ── Admin: Attendance (tab in /membership workspace) ─────────────────────
 ]

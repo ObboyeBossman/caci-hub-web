@@ -945,5 +945,11 @@ export function createTransactionsTab() {
     document.removeEventListener('keydown', handleKeydown)
   }
 
-  return { render, destroy }
+  return {
+    id: 'transactions',
+    label: 'Transactions',
+    icon: 'receipt-cutoff',
+    render,
+    destroy,
+  }
 }

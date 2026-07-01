@@ -541,6 +541,7 @@ export class _Sidebar {
 
     // Build accordion groups from registered modules
     const membershipItems = permitted.filter(i =>
+      i.path.startsWith('/membership') ||
       ['/members', '/groups', '/reports', '/audit-logs'].includes(i.path)
     )
     const servicesParent = permitted.find(i => i.path === '/services')
@@ -686,7 +687,7 @@ export class _Sidebar {
                 </button>
               `).join('') : `
                 <button class="sb-sub-item ${this._isActive('/communications') ? 'active' : ''}"
-                  data-route="/communications" type="button">All Communications</button>
+                  data-route="/communications" type="button">All Broadcasts</button>
               `}
             </div>
           </div>
@@ -854,4 +855,5 @@ export class _Sidebar {
 // ─────────────────────────────────────────────────────────────────────────────
 // Module-level refresh helper (called by Shell.ts)
 // ─────────────────────────────────────────────────────────────────────────────
+// (Shell.ts holds the singleton instance and exposes refreshSidebar())
 // (Shell.ts holds the singleton instance and exposes refreshSidebar())

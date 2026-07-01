@@ -1,10 +1,13 @@
-// supabase/functions/comm-dispatch/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
 
 const BATCH_SIZE = 50
 
-serve(async (_req) => {
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -17,7 +20,11 @@ serve(async (_req) => {
     .is('deleted_at', null)
     .limit(BATCH_SIZE)
 
-  if (!messages?.length) return new Response('Nothing to dispatch')
+  if (!messages?.length) {
+    return new Response('Nothing to dispatch', { 
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
+    })
+  }
 
   const results = await Promise.allSettled(
     messages.map(msg => dispatch(msg))
@@ -45,7 +52,9 @@ serve(async (_req) => {
   return new Response(JSON.stringify({
     dispatched: results.filter(r => r.status === 'fulfilled').length,
     failed: results.filter(r => r.status === 'rejected').length
-  }))
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  })
 })
 
 async function dispatch(msg: any) {

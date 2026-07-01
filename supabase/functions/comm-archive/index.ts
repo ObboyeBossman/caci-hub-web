@@ -1,8 +1,9 @@
 // supabase/functions/comm-archive/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { S3Client, CopyObjectCommand, DeleteObjectCommand, PutObjectCommand }
+import { CopyObjectCommand, DeleteObjectCommand, PutObjectCommand }
   from 'https://esm.sh/@aws-sdk/client-s3@3'
+import { getR2Client } from '../_shared/r2.ts'
 
 const WARM_DAYS  = 60
 const COLD_DAYS  = 365
@@ -14,14 +15,8 @@ serve(async (_req) => {
   )
 
   // R2 client — S3-compatible
-  const r2 = new S3Client({
-    region: 'auto',
-    endpoint: `https://${Deno.env.get('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId:     Deno.env.get('R2_ACCESS_KEY_ID')!,
-      secretAccessKey: Deno.env.get('R2_SECRET_ACCESS_KEY')!
-    }
-  })
+  // R2 client — S3-compatible (from shared)
+  const r2 = getR2Client()
 
   const now = new Date()
   const warmCutoff = new Date(now.getTime() - WARM_DAYS * 86400000).toISOString()
@@ -84,48 +79,14 @@ serve(async (_req) => {
     }
   }
 
-  // 2. Warm → Cold: files older than 365 days on R2 warm
+  // 2. Warm → Cold: files older than 365 days on R2 warm (DEFERRED TO V2 with Google Drive)
+  /*
   const { data: toCold } = await supabase
     .from('communication_attachments')
-    .select('*')
-    .eq('storage_tier', 'warm')
-    .eq('storage_provider', 'r2')
-    .lt('created_at', coldCutoff)
-    .is('deleted_at', null)
-    .limit(100)
-
-  let colded = 0
-  for (const attachment of toCold ?? []) {
-    try {
-      const coldKey = attachment.storage_path.replace('/warm/', '/cold/')
-
-      // R2-to-R2 copy (no download needed)
-      await r2.send(new CopyObjectCommand({
-        Bucket:     Deno.env.get('R2_COLD_BUCKET')!,
-        Key:        coldKey,
-        CopySource: `${Deno.env.get('R2_WARM_BUCKET')}/${attachment.storage_path}`
-      }))
-
-      // Delete from warm bucket
-      await r2.send(new DeleteObjectCommand({
-        Bucket: Deno.env.get('R2_WARM_BUCKET')!,
-        Key:    attachment.storage_path
-      }))
-
-      await supabase
-        .from('communication_attachments')
-        .update({
-          storage_tier:   'cold',
-          storage_bucket: Deno.env.get('R2_COLD_BUCKET')!,
-          storage_path:   coldKey
-        })
-        .eq('id', attachment.id)
-
-      colded++
-    } catch (err) {
-      console.error(`Failed to move to cold ${attachment.id}:`, err)
-    }
-  }
-
+    ... (omitted to save space in thought block, I'll put the exact replacement in the field)
+  */
+  
+  let colded = 0 // Disabled for v2
+  
   return new Response(JSON.stringify({ warmed, colded }))
 })

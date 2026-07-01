@@ -84,8 +84,8 @@ export async function listAccounts(assemblyId?: string): Promise<UserProfileSumm
   const aid = assemblyId ?? getActiveAssemblyId()
   try {
     let query = supabase
-      .from('user_profiles')
-      .select('id, assembly_id, role, full_name, is_active')
+      .from('user_profiles_with_effective_role' as any)
+      .select('id, assembly_id, assembly_role_id, role, full_name, is_active, effective_role_name, role_source')
 
     if (aid) query = (query as any).eq('assembly_id', aid)
 
@@ -113,6 +113,9 @@ export async function listAccounts(assemblyId?: string): Promise<UserProfileSumm
       fullName: p.full_name,
       email: memberMap.get(p.id)?.email ?? null,
       role: p.role as SystemRole,
+      assemblyRoleId: p.assembly_role_id,
+      effectiveRoleName: p.effective_role_name,
+      roleSource: p.role_source,
       isActive: p.is_active,
       assemblyId: p.assembly_id,
     })) satisfies UserProfileSummary[]
@@ -127,8 +130,8 @@ export async function listAccounts(assemblyId?: string): Promise<UserProfileSumm
 export async function getAccountById(userId: string): Promise<UserProfileSummary> {
   try {
     const { data: profile, error } = await supabase
-      .from('user_profiles')
-      .select('id, assembly_id, role, full_name, is_active')
+      .from('user_profiles_with_effective_role' as any)
+      .select('id, assembly_id, assembly_role_id, role, full_name, is_active, effective_role_name, role_source')
       .eq('id', userId)
       .single()
 
@@ -151,6 +154,9 @@ export async function getAccountById(userId: string): Promise<UserProfileSummary
       fullName: p.full_name,
       email: m?.email ?? null,
       role: p.role as SystemRole,
+      assemblyRoleId: p.assembly_role_id,
+      effectiveRoleName: p.effective_role_name,
+      roleSource: p.role_source,
       isActive: p.is_active,
       assemblyId: p.assembly_id,
     }
@@ -171,8 +177,8 @@ export async function fetchUserProfiles(ids: string[]): Promise<UserProfileSumma
   if (ids.length === 0) return []
   try {
     const { data: profiles, error } = await supabase
-      .from('user_profiles')
-      .select('id, assembly_id, role, full_name, is_active')
+      .from('user_profiles_with_effective_role' as any)
+      .select('id, assembly_id, assembly_role_id, role, full_name, is_active, effective_role_name, role_source')
       .in('id', ids)
 
     if (error) return []
@@ -193,6 +199,9 @@ export async function fetchUserProfiles(ids: string[]): Promise<UserProfileSumma
       fullName: p.full_name,
       email: memberMap.get(p.id)?.email ?? null,
       role: p.role as SystemRole,
+      assemblyRoleId: p.assembly_role_id,
+      effectiveRoleName: p.effective_role_name,
+      roleSource: p.role_source,
       isActive: p.is_active,
       assemblyId: p.assembly_id,
     }))

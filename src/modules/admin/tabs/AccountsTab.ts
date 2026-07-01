@@ -12,14 +12,16 @@ import {
     listAccounts,
     setUserActive,
     updateUserRole,
+    assignRoleToUser,
     provisionUser,
     deleteMemberAuth,
     resetMemberPassword,
     listUnprovisionedMembers,
     listAssemblyRoles,
+    type AssemblyRole,
 } from '../repository'
 import type { UserProfileSummary } from '../utils/userProfileCache'
-import type { WorkspaceTab } from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import {
     injectWidgetCSS,
     StatsCardGroup,
@@ -166,6 +168,13 @@ const ACCT_CSS = /* css */`
   font-size: 10.5px; color: var(--text-muted);
 }
 .acct-mob-meta i { font-size: 12px; }
+
+/* Locked/protected row action (self or last-admin) */
+.acct-row-action.acct-locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 `
 
 let _acctCSSInjected = false
@@ -191,13 +200,13 @@ const ROLE_ICON: Record<string, string> = {
     'Pastor': 'book',
 }
 
-function getRoleIcon(role: string): string {
-    return ROLE_ICON[role] ?? 'person-fill'
+function getRoleIcon(profile: UserProfileSummary): string {
+    if (profile.roleSource === 'custom') return 'shield-fill'
+    return ROLE_ICON[profile.role] ?? 'person-fill'
 }
 
-function getDisplayRole(role: string): string {
-    const map: Record<string, string> = { admin: 'Administrator', member: 'Member' }
-    return map[role] ?? role
+function getDisplayRole(profile: UserProfileSummary): string {
+    return profile.effectiveRoleName ?? (profile.role === 'admin' ? 'Administrator' : 'Member')
 }
 
 function getAccountStatus(profile: UserProfileSummary): AccountStatus {
@@ -228,6 +237,7 @@ function formatDate(dateStr: string): string {
 
 interface TabState {
     accounts: UserProfileSummary[]
+    assemblyRoles: AssemblyRole[]
     filtered: UserProfileSummary[]
     search: string
     statusFilter: string
@@ -251,7 +261,7 @@ export class AccountsTab implements WorkspaceTab {
 
     private _container: HTMLElement | null = null
     private _state: TabState = {
-        accounts: [], filtered: [], search: '', statusFilter: 'all',
+        accounts: [], assemblyRoles: [], filtered: [], search: '', statusFilter: 'all',
         roleFilter: 'all', sortField: 'name', sortAsc: true,
         statFilter: null, selectedIds: new Set(), loading: true,
     }
@@ -295,7 +305,12 @@ export class AccountsTab implements WorkspaceTab {
 
     private async _loadAccounts(): Promise<void> {
         try {
-            this._state.accounts = await listAccounts()
+            const [accounts, roles] = await Promise.all([
+                listAccounts(),
+                listAssemblyRoles()
+            ])
+            this._state.accounts = accounts
+            this._state.assemblyRoles = roles
             this._state.loading = false
         } catch (err) {
             console.error('[AccountsTab] load error', err)
@@ -307,7 +322,12 @@ export class AccountsTab implements WorkspaceTab {
     private async _reload(): Promise<void> {
         if (this._destroyed) return
         try {
-            this._state.accounts = await listAccounts()
+            const [accounts, roles] = await Promise.all([
+                listAccounts(),
+                listAssemblyRoles()
+            ])
+            this._state.accounts = accounts
+            this._state.assemblyRoles = roles
             this._applyFilters()
             this._statsGroup?.update()
             this._renderContent()
@@ -413,6 +433,7 @@ export class AccountsTab implements WorkspaceTab {
             { value: 'all', label: 'All Roles' },
             { value: 'admin', label: 'Administrator' },
             { value: 'member', label: 'Member' },
+            ...this._state.assemblyRoles.map(r => ({ value: r.id, label: r.name })),
         ]
 
         this._toolbar = new Toolbar(wrap, {
@@ -495,7 +516,15 @@ export class AccountsTab implements WorkspaceTab {
 
             const status = getAccountStatus(a)
             const matchStatus = statusFilter === 'all' || status === statusFilter
-            const matchRole = roleFilter === 'all' || a.role === roleFilter
+
+            // Match role. If roleFilter is 'all', match.
+            // If it's a system role ('admin', 'member'), check a.role.
+            // Otherwise, assume it's an assemblyRole ID and match against a.assemblyRoleId (from UserProfileSummary, check shape below).
+            let matchRole = false
+            if (roleFilter === 'all') matchRole = true
+            else if (roleFilter === 'admin' || roleFilter === 'member') matchRole = a.role === roleFilter
+            else matchRole = (a as any).assemblyRoleId === roleFilter
+
             const matchStat = !statFilter || statFilter === 'all'
                 || (statFilter === 'active' && a.isActive)
                 || (statFilter === 'inactive' && !a.isActive)
@@ -608,7 +637,7 @@ export class AccountsTab implements WorkspaceTab {
             const ringCls = avatarRingClass(status)
             const sel = selectedIds.has(a.id)
             const delay = Math.min(i * 35, 350)
-            const roleDisplay = getDisplayRole(a.role)
+            const roleDisplay = getDisplayRole(a)
 
             return `
       <div class="aw-table-row acct-row-grid${sel ? ' selected' : ''}"
@@ -633,7 +662,7 @@ export class AccountsTab implements WorkspaceTab {
         </div>
         <div class="aw-col-cell acct-col-role">
           <span class="aw-role-pill">
-            <i class="bi bi-${getRoleIcon(a.role)}"></i>
+            <i class="bi bi-${getRoleIcon(a)}"></i>
             ${roleDisplay}
           </span>
         </div>
@@ -644,20 +673,24 @@ export class AccountsTab implements WorkspaceTab {
                     : `<span class="acct-link-chip unlinked"><i class="bi bi-link-slash"></i>Unlinked</span>`}
         </div>
         <div class="aw-col-cell acct-col-provisioned" style="flex-direction:column;align-items:flex-start;gap:1px;">
-          <span style="font-size:12px;color:var(--text-secondary);">${a.role === 'admin' ? 'Administrator' : 'Member'}</span>
+          <span style="font-size:12px;color:var(--text-secondary);">${roleDisplay}</span>
           <span style="font-size:10px;color:var(--text-muted);">ID: ${a.id.slice(0, 8)}…</span>
         </div>
         <div class="aw-col-cell" style="justify-content:flex-end;gap:2px;">
-          <button class="acct-row-action ${a.isActive ? 'toggle-on' : 'toggle-off'}"
-                  title="${a.isActive ? 'Deactivate' : 'Activate'}" data-toggle-id="${a.id}">
+          ${(() => {
+            const locked = !!this._isProtected(a)
+            return `
+          <button class="acct-row-action ${a.isActive ? 'toggle-on' : 'toggle-off'}${locked ? ' acct-locked' : ''}"
+                  title="${locked ? 'Protected account' : (a.isActive ? 'Deactivate' : 'Activate')}" data-toggle-id="${a.id}"${locked ? ' disabled' : ''}>
             <i class="bi bi-toggle-${a.isActive ? 'on' : 'off'}" style="font-size:20px;"></i>
           </button>
-          <button class="acct-row-action" title="Reset password" data-reset-id="${a.id}">
+          <button class="acct-row-action${locked ? ' acct-locked' : ''}" title="${locked ? 'Protected account' : 'Reset password'}" data-reset-id="${a.id}"${locked ? ' disabled' : ''}>
             <i class="bi bi-key-fill"></i>
           </button>
           <button class="acct-row-action" title="More options" data-ctx-id="${a.id}">
             <i class="bi bi-three-dots-vertical"></i>
-          </button>
+          </button>`
+          })()}
         </div>
       </div>`
         }).join('')
@@ -669,7 +702,7 @@ export class AccountsTab implements WorkspaceTab {
             const avColor = avatarColor(a.fullName)
             const ringCls = avatarRingClass(status)
             const delay = Math.min(i * 35, 350)
-            const roleDisplay = getDisplayRole(a.role)
+            const roleDisplay = getDisplayRole(a)
 
             return `
       <div class="aw-mob-row"
@@ -686,7 +719,7 @@ export class AccountsTab implements WorkspaceTab {
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span class="aw-role-pill" style="font-size:10px;padding:2px 8px;">
-              <i class="bi bi-${getRoleIcon(a.role)}" style="font-size:10px;"></i>
+              <i class="bi bi-${getRoleIcon(a)}" style="font-size:10px;"></i>
               ${roleDisplay}
             </span>
           </div>
@@ -834,6 +867,8 @@ export class AccountsTab implements WorkspaceTab {
     // ── Quick toggle ─────────────────────────────────────────────────────────
 
     private async _quickToggle(account: UserProfileSummary): Promise<void> {
+        const reason = this._isProtected(account)
+        if (reason) { showToast(reason, 'warning'); return }
         const next = !account.isActive
         try {
             await setUserActive(account.id, next)
@@ -841,6 +876,28 @@ export class AccountsTab implements WorkspaceTab {
         } catch (err: any) {
             showToast(err?.message ?? 'Update failed', 'danger')
         }
+    }
+
+    /**
+     * Returns a human-readable reason why this account cannot be modified,
+     * or null if it can be modified freely.
+     *
+     * Rules:
+     *   1. You cannot modify your own account.
+     *   2. You cannot modify the last remaining admin in the assembly.
+     */
+    private _isProtected(account: UserProfileSummary): string | null {
+        const me = getCurrentUser()
+        if (me && account.id === me.id) {
+            return 'You cannot modify your own account.'
+        }
+        if (account.role === 'admin') {
+            const adminCount = this._state.accounts.filter(a => a.role === 'admin').length
+            if (adminCount <= 1) {
+                return 'This is the only admin account — it cannot be modified.'
+            }
+        }
+        return null
     }
 
     // ── Bulk actions ─────────────────────────────────────────────────────────
@@ -897,12 +954,14 @@ export class AccountsTab implements WorkspaceTab {
         account: UserProfileSummary,
         canManage: boolean
     ): void {
+        const protectionReason = this._isProtected(account)
+
         const items = [
             {
                 id: 'view', label: 'View Profile', icon: 'eye-fill', variant: 'default' as const,
                 onClick: () => showToast(`Opening profile for ${account.fullName}`, 'info'),
             },
-            ...(canManage ? [
+            ...(canManage && !protectionReason ? [
                 {
                     id: 'edit', label: 'Edit Account', icon: 'pencil-fill', variant: 'default' as const,
                     divider: false,
@@ -921,8 +980,8 @@ export class AccountsTab implements WorkspaceTab {
                     onClick: () => this._quickToggle(account),
                 },
                 {
-                    id: 'unlink', label: 'Unlink Member', icon: 'link-slash', variant: 'danger' as const,
-                    onClick: () => this._openUnlinkModal(account),
+                    id: 'delete', label: 'Delete Account', icon: 'trash3-fill', variant: 'danger' as const,
+                    onClick: () => this._openDeleteModal(account),
                 },
             ] : []),
         ]
@@ -960,10 +1019,11 @@ export class AccountsTab implements WorkspaceTab {
       </div>
 
       <div class="aw-form-group">
-        <label class="aw-form-label">System Role</label>
+        <label class="aw-form-label">Role</label>
         <select class="aw-form-select" id="prov-role">
           <option value="member">Member</option>
           <option value="admin">Administrator</option>
+          <option disabled>──────────</option>
           ${assemblyRoles.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
         </select>
       </div>
@@ -1085,9 +1145,13 @@ export class AccountsTab implements WorkspaceTab {
             submitBtn.innerHTML = `<span class="aw-spinner"></span> Provisioning…`
 
             try {
-                const payload: any = { memberId, role, path: selectedPath }
+                const sysRole = role === 'admin' || role === 'member' ? role : 'member'
+                const payload: any = { memberId, role: sysRole, path: selectedPath }
                 if (selectedPath === 'custom_password') payload.password = password
-                await provisionUser(payload)
+                const res = await provisionUser(payload)
+                if (role !== 'admin' && role !== 'member') {
+                     await assignRoleToUser(res.userId, role)
+                }
                 close()
                 showToast(`Account provisioned successfully`, 'success')
                 await this._reload()
@@ -1104,7 +1168,6 @@ export class AccountsTab implements WorkspaceTab {
 
     private _openEditModal(account: UserProfileSummary): void {
         const status = getAccountStatus(account)
-        const roleDisplay = getDisplayRole(account.role)
 
         const body = `
       <div class="aw-form-group">
@@ -1112,10 +1175,12 @@ export class AccountsTab implements WorkspaceTab {
         <input type="text" class="aw-form-inp" id="edit-name" value="${account.fullName}">
       </div>
       <div class="aw-form-group">
-        <label class="aw-form-label">System Role</label>
+        <label class="aw-form-label">Role</label>
         <select class="aw-form-select" id="edit-role">
-          <option value="member"${account.role === 'member' ? ' selected' : ''}>Member</option>
+          <option value="member"${account.role === 'member' && !(account as any).assemblyRoleId ? ' selected' : ''}>Member</option>
           <option value="admin"${account.role === 'admin' ? ' selected' : ''}>Administrator</option>
+          <option disabled>──────────</option>
+          ${this._state.assemblyRoles.map(r => `<option value="${r.id}"${(account as any).assemblyRoleId === r.id ? ' selected' : ''}>${r.name}</option>`).join('')}
         </select>
       </div>
       <div class="aw-form-group">
@@ -1166,7 +1231,7 @@ export class AccountsTab implements WorkspaceTab {
         overlay.querySelector('#edit-cancel')?.addEventListener('click', close)
 
         overlay.querySelector('#edit-save')?.addEventListener('click', async () => {
-            const role = overlay.querySelector<HTMLSelectElement>('#edit-role')?.value ?? 'member'
+            const roleSelection = overlay.querySelector<HTMLSelectElement>('#edit-role')?.value ?? 'member'
             const newStatus = overlay.querySelector<HTMLSelectElement>('#edit-status')?.value === 'active'
             const saveBtn = overlay.querySelector<HTMLButtonElement>('#edit-save')!
 
@@ -1174,8 +1239,12 @@ export class AccountsTab implements WorkspaceTab {
             saveBtn.innerHTML = `<span class="aw-spinner"></span> Saving…`
 
             try {
+                const sysRole = roleSelection === 'admin' || roleSelection === 'member' ? roleSelection : 'member'
+                const assemblyRole = roleSelection === 'admin' || roleSelection === 'member' ? null : roleSelection
+
                 await Promise.all([
-                    updateUserRole(account.id, role as any),
+                    updateUserRole(account.id, sysRole as any),
+                    assignRoleToUser(account.id, assemblyRole),
                     account.isActive !== newStatus ? setUserActive(account.id, newStatus) : Promise.resolve(),
                 ])
                 close()
@@ -1192,6 +1261,8 @@ export class AccountsTab implements WorkspaceTab {
     // ── Reset Password Modal ──────────────────────────────────────────────────
 
     private _openResetModal(account: UserProfileSummary): void {
+        const reason = this._isProtected(account)
+        if (reason) { showToast(reason, 'warning'); return }
         const av = initials(account.fullName)
         const avColor = avatarColor(account.fullName)
         const ringCls = avatarRingClass(getAccountStatus(account))
@@ -1297,44 +1368,45 @@ export class AccountsTab implements WorkspaceTab {
         })
     }
 
-    // ── Unlink Modal ──────────────────────────────────────────────────────────
+    // ── Delete Account Modal ──────────────────────────────────────────────────
 
-    private _openUnlinkModal(account: UserProfileSummary): void {
-        const memberIdDisplay = account.memberId ?? '—'
-
+    private _openDeleteModal(account: UserProfileSummary): void {
+        const reason = this._isProtected(account)
+        if (reason) { showToast(reason, 'warning'); return }
         const body = `
-      <div class="acct-info-banner danger">
+      <div class="acct-info-banner danger" style="margin-bottom:16px;">
         <i class="bi bi-exclamation-triangle-fill" style="font-size:20px;"></i>
         <div>
           <p style="font-size:13px;font-weight:600;color:var(--text-primary);margin:0 0 4px;">
-            This action cannot be easily undone
+            This action is permanent and cannot be undone
           </p>
           <p style="margin:0;">
-            Unlinking will remove the connection between 
-            <strong style="color:var(--text-primary);">${account.fullName}</strong> 
-            and their member record. The login account will remain but will be marked as unlinked.
+            Deleting this account will permanently remove
+            <strong style="color:var(--text-primary);">${account.fullName}</strong>'s
+            login credentials, system profile, and all session data.
+            The member record will be preserved but will no longer have a linked account.
           </p>
         </div>
       </div>
       <div class="aw-form-group">
-        <label class="aw-form-label">Type the member ID to confirm</label>
-        <input type="text" class="aw-form-inp acct-confirm-id" id="unlink-confirm"
-               placeholder="${memberIdDisplay}" autocomplete="off">
-        <div class="aw-form-error" id="unlink-err">Member ID does not match.</div>
+        <label class="aw-form-label">Type the account holder's full name to confirm</label>
+        <input type="text" class="aw-form-inp" id="delete-confirm"
+               placeholder="${account.fullName}" autocomplete="off">
+        <div class="aw-form-error" id="delete-err">Name does not match. Please type it exactly.</div>
       </div>`
 
         const footer = `
-      <button class="aw-tbtn" id="unlink-cancel">Cancel</button>
-      <button class="aw-tbtn aw-tbtn-danger" id="unlink-submit">
-        <i class="bi bi-link-slash"></i>
-        <span>Unlink Member</span>
+      <button class="aw-tbtn" id="delete-cancel">Cancel</button>
+      <button class="aw-tbtn aw-tbtn-danger" id="delete-submit">
+        <i class="bi bi-trash3-fill"></i>
+        <span>Delete Account</span>
       </button>`
 
         const close = openModal({
-            title: 'Unlink Member',
+            title: 'Delete Account',
             subtitle: account.fullName,
-            icon: 'link-slash',
-            iconBg: 'rgba(198,0,38,0.1)',
+            icon: 'trash3-fill',
+            iconBg: 'rgba(198,0,38,0.12)',
             iconColor: 'var(--caci-red)',
             body,
             footer,
@@ -1342,32 +1414,37 @@ export class AccountsTab implements WorkspaceTab {
 
         const overlay = document.getElementById('aw-shared-modal')!
 
-        overlay.querySelector('#unlink-cancel')?.addEventListener('click', close)
+        overlay.querySelector('#delete-cancel')?.addEventListener('click', close)
 
-        overlay.querySelector('#unlink-submit')?.addEventListener('click', async () => {
-            const confirmVal = overlay.querySelector<HTMLInputElement>('#unlink-confirm')?.value.trim() ?? ''
-            const errEl = overlay.querySelector<HTMLElement>('#unlink-err')!
-            const submitBtn = overlay.querySelector<HTMLButtonElement>('#unlink-submit')!
+        overlay.querySelector('#delete-submit')?.addEventListener('click', async () => {
+            const confirmVal = overlay.querySelector<HTMLInputElement>('#delete-confirm')?.value.trim() ?? ''
+            const errEl = overlay.querySelector<HTMLElement>('#delete-err')!
+            const submitBtn = overlay.querySelector<HTMLButtonElement>('#delete-submit')!
 
-            // Enforce confirmation
-            if (confirmVal !== memberIdDisplay) {
+            if (confirmVal !== account.fullName) {
                 errEl.classList.add('show')
                 return
             }
             errEl.classList.remove('show')
 
             submitBtn.disabled = true
-            submitBtn.innerHTML = `<span class="aw-spinner"></span> Unlinking…`
+            submitBtn.innerHTML = `<span class="aw-spinner"></span> Deleting…`
 
             try {
                 await deleteMemberAuth(account.memberId ?? account.id)
+                // Optimistically remove from local state so the row disappears instantly
+                this._state.accounts = this._state.accounts.filter(a => a.id !== account.id)
+                this._applyFilters()
+                this._statsGroup?.update()
+                this._renderContent()
                 close()
-                showToast('Member unlinked from account', 'warning')
-                await this._reload()
+                showToast(`${account.fullName}'s account has been permanently deleted`, 'success')
+                // Background sync to confirm server state
+                this._reload()
             } catch (err: any) {
                 submitBtn.disabled = false
-                submitBtn.innerHTML = `<i class="bi bi-link-slash"></i> Unlink Member`
-                showToast(err?.message ?? 'Unlink failed', 'danger')
+                submitBtn.innerHTML = `<i class="bi bi-trash3-fill"></i> Delete Account`
+                showToast(err?.message ?? 'Delete failed', 'danger')
             }
         })
     }

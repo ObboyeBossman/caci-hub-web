@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { S3Client, DeleteObjectCommand } from 'https://esm.sh/@aws-sdk/client-s3@3'
+import { DeleteObjectCommand } from 'https://esm.sh/@aws-sdk/client-s3@3'
+import { getR2Client } from '../_shared/r2.ts'
 
 serve(async (_req) => {
   const supabase = createClient(
@@ -8,14 +9,7 @@ serve(async (_req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  const r2 = new S3Client({
-    region: 'auto',
-    endpoint: `https://${Deno.env.get('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: Deno.env.get('R2_ACCESS_KEY_ID')!,
-      secretAccessKey: Deno.env.get('R2_SECRET_ACCESS_KEY')!
-    }
-  })
+  const r2 = getR2Client()
 
   const now = new Date().toISOString()
 

@@ -30,7 +30,7 @@ import { renderBreadcrumbs }           from '../../../shell/Breadcrumbs'
 import { debounce }                    from '@shared/utils/debounce'
 import { navigate }                    from '@core/router'
 import type { Database }               from '../../../types/database.types'
-import { renderMembershipTab, bindMembershipTabEvents } from '../widgets/MembershipTab'
+import type { WorkspaceTab }           from '@shell/WorkspaceShell'
 
 // ── DB row type aliases ───────────────────────────────────────────────────────
 type PastoralCase   = Database['public']['Tables']['pastoral_cases']['Row']
@@ -1495,9 +1495,13 @@ async function _populateUserSelects(): Promise<void> {
 }
 
 // ── Main render ───────────────────────────────────────────────────────────────
-const PastoralCare: PageModule = {
+export function createPastoralTab(): WorkspaceTab {
+  const tab: WorkspaceTab = {
+    id: 'pastoral',
+    label: 'Pastoral Care',
+    icon: 'heart-fill',
 
-  async render(container: HTMLElement): Promise<void> {
+    async render(container: HTMLElement): Promise<void> {
     _destroyed    = false
     _container    = container
     _activeView   = 'cases'
@@ -1520,14 +1524,13 @@ const PastoralCare: PageModule = {
     try {
       await Promise.all([_loadCases(), _loadPrayers()])
     } catch (err) {
-      renderError(container, err, { retry: () => PastoralCare.render(container) })
+      renderError(container, err, { retry: () => tab.render(container) })
       return
     }
     if (_destroyed) return
 
     container.innerHTML = /* html */`
     <div class="pc-page">
-      ${renderMembershipTab('pastoral')}
 
       <!-- Breadcrumbs -->
       <div id="pc-breadcrumbs"></div>
@@ -1906,8 +1909,6 @@ const PastoralCare: PageModule = {
     container.querySelector('#pc-vm-save')?.addEventListener('click', () => _submitVisit())
     container.querySelector('#pc-pm-save')?.addEventListener('click', () => _submitPrayer())
 
-    bindMembershipTabEvents(container)
-
     // Keyboard
     const _onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') container.querySelectorAll('.pc-modal-backdrop').forEach(m => m.classList.remove('open'))
@@ -1926,6 +1927,6 @@ const PastoralCare: PageModule = {
     if (handler) document.removeEventListener('keydown', handler)
     document.getElementById('pc-toast')?.remove()
   },
+ }
+ return tab
 }
-
-export default PastoralCare

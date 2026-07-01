@@ -1,9 +1,19 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { S3Client, GetObjectCommand } from 'https://esm.sh/@aws-sdk/client-s3@3'
+import { GetObjectCommand } from 'https://esm.sh/@aws-sdk/client-s3@3'
+import { getR2Client } from '../_shared/r2.ts'
 import { getSignedUrl } from 'https://esm.sh/@aws-sdk/s3-request-presigner@3'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -19,16 +29,18 @@ serve(async (req) => {
     .is('deleted_at', null)
     .single()
 
-  if (!attachment) return new Response('Not found', { status: 404 })
+  if (!attachment) {
+    return new Response(JSON.stringify({ error: 'Not found' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 })
+  }
 
   const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('assembly_id, assembly_role_id')
-    .eq('id', requester_id)
+    .from('members_view')
+    .select('assembly_id')
+    .eq('auth_user_id', requester_id)
     .single()
 
   if (profile?.assembly_id !== attachment.assembly_id) {
-    return new Response('Forbidden', { status: 403 })
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 })
   }
 
   if (attachment.is_sensitive) {
@@ -47,14 +59,7 @@ serve(async (req) => {
       .createSignedUrl(attachment.storage_path, EXPIRY_SECONDS)
     signedUrl = data!.signedUrl
   } else {
-    const r2 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${Deno.env.get('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: Deno.env.get('R2_ACCESS_KEY_ID')!,
-        secretAccessKey: Deno.env.get('R2_SECRET_ACCESS_KEY')!
-      }
-    })
+    const r2 = getR2Client()
     signedUrl = await getSignedUrl(
       r2,
       new GetObjectCommand({
@@ -73,6 +78,6 @@ serve(async (req) => {
   })
 
   return new Response(JSON.stringify({ url: signedUrl, expires_in: EXPIRY_SECONDS }), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
 })

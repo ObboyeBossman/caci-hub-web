@@ -9,7 +9,10 @@ export class CommunicationService {
   static async getCampaigns(assemblyId: string) {
     const { data, error } = await db
       .from('communication_campaigns')
-      .select('*')
+      .select(`
+        *,
+        attachment:communication_attachments!attachment_id (media_category)
+      `)
       .eq('assembly_id', assemblyId)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -263,25 +266,25 @@ export class CommunicationService {
 
   // In communication.service.ts — add these two static methods:
 
-static async updateCampaign(id: string, updates: Partial<Campaign>): Promise<Campaign> {
-  const { data, error } = await db
-    .from('communication_campaigns')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-  if (error) throw error
-  return data as Campaign
-}
+  static async updateCampaign(id: string, updates: Partial<Campaign>): Promise<Campaign> {
+    const { data, error } = await db
+      .from('communication_campaigns')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data as Campaign
+  }
 
-static async deleteCampaign(id: string): Promise<void> {
-  const { error } = await db
-    .from('communication_campaigns')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
+  static async deleteCampaign(id: string): Promise<void> {
+    const { error } = await db
+      .from('communication_campaigns')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
 
-  if (error) throw error
-}
+    if (error) throw error
+  }
 }
 
 

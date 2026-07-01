@@ -18,7 +18,7 @@ import {
   type AssemblyRole,
 } from '../repository'
 import { getAll as getAllPermissions } from '@core/authorization/permission-registry'
-import type { WorkspaceTab }          from '../workspace/AdminWorkspaceShell'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import {
   injectWidgetCSS,
   StatsCardGroup,
@@ -377,11 +377,13 @@ export class RolesTab implements WorkspaceTab {
   // ── Member count per role ────────────────────────────────────────────────
 
   private _memberCountForRole(roleId: string): number {
-    return this._accounts.filter((a: any) => a.assemblyRoleId === roleId).length
+    return this._membersForRole(roleId).length
   }
 
-  private _membersForRole(roleId: string) {
-    return this._accounts.filter((a: any) => a.assemblyRoleId === roleId)
+  private _membersForRole(roleId: string): any[] {
+    const role = this._roles.find(r => r.id === roleId)
+    if (!role) return []
+    return this._accounts.filter((a: any) => a.effectiveRoleName === role.name)
   }
 
   // ── Build UI ─────────────────────────────────────────────────────────────
@@ -439,9 +441,11 @@ export class RolesTab implements WorkspaceTab {
   }
 
   private _renderStats(container: HTMLElement): void {
-    const total   = this._roles.length
+    const total   = this._roles.length + 2
     const perms   = this._roles.reduce((n, r) => n + r.permissions.length, 0)
-    const withPerms = this._roles.filter(r => r.permissions.length > 0).length
+    const withPerms = this._roles.filter(r => r.permissions.length > 0).length + 1
+
+    const assignedCount = this._accounts.filter((a: any) => a.assemblyRoleId || a.role === 'admin' || a.role === 'member').length
 
     container.innerHTML = ''
 
@@ -463,7 +467,7 @@ export class RolesTab implements WorkspaceTab {
         {
           id: 'users', label: 'Assigned Users', icon: 'person-check-fill',
           accentColor: '#d29922', glowColor: 'rgba(210,153,34,0.15)',
-          getValue: () => this._accounts.filter((a: any) => a.assemblyRoleId).length,
+          getValue: () => assignedCount,
         },
       ],
       () => {} // stats are display-only here
@@ -480,28 +484,95 @@ export class RolesTab implements WorkspaceTab {
     const meta = this._container?.querySelector<HTMLElement>('#rol-meta')
     if (!grid) return
 
+    const sysCount = this._search ? 0 : 2
+
     if (meta) {
-      meta.innerHTML = `<span>Showing <strong>${this._filtered.length}</strong> role${this._filtered.length !== 1 ? 's' : ''}</span>`
+      const totalCards = this._filtered.length + sysCount
+      meta.innerHTML = `<span>Showing <strong>${totalCards}</strong> role${totalCards !== 1 ? 's' : ''}</span>`
     }
 
-    if (!this._filtered.length) {
+    if (!this._filtered.length && this._search) {
       grid.innerHTML = ''
       renderEmptyState(grid, {
         icon:        'shield-slash',
-        title:       this._search ? 'No roles found' : 'No roles yet',
-        description: this._search
-          ? 'No roles match your search. Try a different term.'
-          : 'Create your first role to control what members can access.',
+        title:       'No roles match your search',
+        description: 'Try a different search term.',
         action: {
-          label:   'Create Role',
-          icon:    'plus-lg',
-          onClick: () => this._openCreateModal(),
+          label:   'Clear Search',
+          icon:    'x-lg',
+          onClick: () => { this._toolbar?.clearSearch(); this._search = ''; this._applyFilters(); this._refreshGrid() },
         },
       })
       return
     }
 
-    grid.innerHTML = this._filtered.map((role, i) => {
+    const renderSystemCard = (
+      id: string, name: string, desc: string, icon: string,
+      accounts: any[], permsCountText: string | number, chipsHtml: string
+    ) => {
+      const count = accounts.length
+      const sliced = accounts.slice(0, 3)
+      const avatarStack = sliced.length > 0
+        ? `<div class="rol-av-stack">
+            ${sliced.map(m => `
+              <div class="rol-av" style="background:${avatarColor(m.fullName)};" title="${m.fullName}">
+                ${initials(m.fullName)}
+              </div>`).join('')}
+            ${count > 3 ? `<div class="rol-av rol-av-more">+${count - 3}</div>` : ''}
+           </div>`
+        : `<span style="font-size:11px;color:var(--text-muted);">No users assigned</span>`
+
+      return `
+      <div class="rol-card system" data-system-role-id="${id}">
+        <div class="rol-card-accent"></div>
+        <div class="rol-card-inner">
+          <div class="rol-card-header">
+            <div class="rol-card-icon">
+              <i class="bi bi-${icon}"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p class="rol-card-name">${name} <span class="rol-system-badge" style="margin-left:6px;"><i class="bi bi-shield-fill-check"></i> SYSTEM</span></p>
+              <p class="rol-card-desc">${desc}</p>
+            </div>
+          </div>
+
+          <div class="rol-card-stats">
+            <div class="rol-stat-item">
+              <span class="rol-stat-value">${permsCountText}</span>
+              <span class="rol-stat-label">Permissions</span>
+            </div>
+            <div class="rol-stat-divider"></div>
+            <div class="rol-stat-item">
+              <span class="rol-stat-value">${count}</span>
+              <span class="rol-stat-label">Users</span>
+            </div>
+            <div class="rol-stat-divider"></div>
+            <div class="rol-stat-item">
+              ${avatarStack}
+            </div>
+          </div>
+
+          <div class="rol-perm-chips">${chipsHtml}</div>
+
+          <div class="rol-card-footer">
+            <button class="rol-card-action-btn rol-btn-perms" disabled style="opacity:0.6;cursor:not-allowed;" title="System roles cannot be modified">
+              <i class="bi bi-lock-fill" style="font-size:12px;"></i>
+              Locked
+            </button>
+          </div>
+        </div>
+      </div>`
+    }
+
+    const adminAccounts = this._accounts.filter((a: any) => a.effectiveRoleName === 'Administrator')
+    const memberAccounts = this._accounts.filter((a: any) => a.effectiveRoleName === 'Member')
+
+    const sysHtml = this._search ? '' : [
+      renderSystemCard('admin', 'Administrator', 'Full system access and privileges.', 'shield-lock-fill', adminAccounts, 'All', '<span class="rol-perm-chip">system.*</span>'),
+      renderSystemCard('member', 'Member', 'Default access for all registered members.', 'person-fill', memberAccounts, 'Basic', '<span class="rol-perm-chip">auth.login</span><span class="rol-perm-chip">hub.view</span>')
+    ].join('')
+
+    grid.innerHTML = sysHtml + this._filtered.map((role, i) => {
       const memberCount  = this._memberCountForRole(role.id)
       const roleMembers  = this._membersForRole(role.id).slice(0, 3)
       const permCount    = role.permissions.length

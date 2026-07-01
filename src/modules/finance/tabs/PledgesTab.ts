@@ -623,5 +623,11 @@ export function createPledgesTab() {
     if (el) el.textContent = val
   }
 
-  return { render, destroy: () => {} }
+  return {
+    id: 'pledges',
+    label: 'Pledges',
+    icon: 'hand-thumbs-up',
+    render,
+    destroy: () => {},
+  }
 }

@@ -1,14 +1,19 @@
 // src/modules/membership/pages/Reports.ts
 // Reports overview page — charts and export.
 
-import type { PageModule } from '../../../types/module.types'
+import type { WorkspaceTab } from '@shell/WorkspaceShell'
 import { Toast } from '@shared/components/Toast'
 import { navigate } from '@core/router'
 import { listMembers } from '../repository'
 import { injectMembershipCSS } from '../utils/member-helpers'
 
-const Reports: PageModule = {
-  async render(container) {
+export function createReportsTab(): WorkspaceTab {
+  return {
+    id: 'reports',
+    label: 'Reports',
+    icon: 'bar-chart-fill',
+
+    async render(container: HTMLElement): Promise<void> {
     injectMembershipCSS()
 
     // Load fresh data for charts
@@ -113,6 +118,5 @@ const Reports: PageModule = {
   },
 
   destroy() {},
+  }
 }
-
-export default Reports

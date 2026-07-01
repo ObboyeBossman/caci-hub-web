@@ -38,6 +38,7 @@ export async function uploadAudio(
   const fileId = crypto.randomUUID()
   const storagePath = `${assemblyId}/audio/${year}/${month}/${fileId}.${ext}`
 
+  // 1. Upload the blob to Supabase Storage
   const { error: uploadError } = await supabase.storage
     .from('messages-media-private')
     .upload(storagePath, blob, {
@@ -50,38 +51,35 @@ export async function uploadAudio(
     return { success: false, error: uploadError.message }
   }
 
-  const session = (await supabase.auth.getSession()).data.session
-  const response = await fetch('/api/communications/attachments/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${session?.access_token}`
-    },
-    body: JSON.stringify({
-      assembly_id: assemblyId,
-      campaign_id: params.campaignId ?? null,
+  // 2. Register the attachment directly in the DB (no /api route needed)
+  const { data: attachment, error: dbError } = await supabase
+    .from('communication_attachments')
+    .insert({
+      assembly_id:       assemblyId,
+      campaign_id:       params.campaignId ?? null,
       thread_message_id: params.threadMessageId ?? null,
-      storage_bucket: 'messages-media-private',
-      storage_path: storagePath,
-      mime_type: mimeType,
-      file_size_bytes: blob.size,
+      storage_bucket:    'messages-media-private',
+      storage_path:      storagePath,
+      storage_provider:  'supabase',
+      storage_tier:      'hot',
+      mime_type:         mimeType,
+      file_size_bytes:   blob.size,
       checksum,
-      duration_seconds: durationSeconds,
-      waveform_data: waveformData,
-      is_sensitive: false,
-      is_public_broadcast: params.isPublicBroadcast
+      duration_seconds:  durationSeconds,
+      waveform_data:     waveformData,
+      is_sensitive:      false,
+      uploaded_by:       (await supabase.auth.getUser()).data.user?.id,
     })
-  })
+    .select('id')
+    .single()
 
-  if (!response.ok) {
+  if (dbError) {
+    // Roll back the storage upload if DB insert fails
     await supabase.storage
       .from('messages-media-private')
       .remove([storagePath])
-
-    const err = await response.json()
-    return { success: false, error: err.message ?? 'Registration failed' }
+    return { success: false, error: dbError.message }
   }
 
-  const { attachmentId } = await response.json()
-  return { success: true, attachmentId, storagePath }
+  return { success: true, attachmentId: attachment.id, storagePath }
 }
