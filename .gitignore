@@ -41,3 +41,4 @@ playwright/.cache/
 
 # Vite
 *.local
+prod_backup_*.sql
