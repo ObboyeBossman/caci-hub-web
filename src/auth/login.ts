@@ -13,6 +13,7 @@ import bgImage from '../asset/image/caci-congregation.jpg'
 import { supabase } from '../core/supabase'
 import { guardRoute } from './auth-guard'
 import { showToast } from '../core/toast'
+import { formatGhanaLocalDigits, isValidGhanaPhone as validateGhanaPhone, normalizeGhanaPhone } from '../core/phone'
 
 export function renderLoginView(app: HTMLElement): void {
   app.id = 'auth-root'
@@ -186,40 +187,25 @@ function _buildLoginHTML(): string {
 // Numbers not starting with 0 are left as raw digits (no formatting).
 
 function _formatPhoneInput(el: HTMLInputElement): void {
-  let digits = el.value.replace(/\D/g, '')
-
-  if (digits.startsWith('0')) {
-    digits = digits.slice(0, 10) // cap at 10 digits: 0 + 9 local
-    if (digits.length > 6) {
-      el.value = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`
-    } else if (digits.length > 3) {
-      el.value = `${digits.slice(0, 3)} ${digits.slice(3)}`
-    } else {
-      el.value = digits
-    }
-  } else {
-    // No leading zero — strip non-digits only, cap at 12 digits
-    el.value = digits.slice(0, 12)
+  const formatted = formatGhanaLocalDigits(el.value)
+  if (formatted) {
+    el.value = formatted
+    return
   }
+
+  el.value = el.value.replace(/\D/g, '').slice(0, 12)
 }
 
-// Converts a display value into E.164 Supabase phone format: 
-// 13-character string starting with +233.
 function _resolvePhone(raw: string): string {
-  let digits = raw.replace(/\D/g, '')
-  if (digits.startsWith('0')) {
-    return '+233' + digits.slice(1) // 0244123456 → +233244123456
+  const normalized = normalizeGhanaPhone(raw)
+  if (!normalized) {
+    return raw.replace(/\D/g, '')
   }
-  return '+' + digits // If they started with 233, prefix with +
+  return `+${normalized}`
 }
 
-// Returns true if local 10-digit format (starts with 0) or 12-digit format (233...)
 function _isValidGhanaPhone(raw: string): boolean {
-  const digits = raw.replace(/\D/g, '')
-  if (digits.startsWith('0')) {
-    return digits.length === 10
-  }
-  return digits.length === 12
+  return validateGhanaPhone(raw)
 }
 
 

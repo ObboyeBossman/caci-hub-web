@@ -1,6 +1,7 @@
-import { MOCK_MEMBERS, MOCK_MEMBER_PERMISSIONS, MOCK_AUDIT_LOGS, adminState, notifyAdminStateChange, syncAdminData, getSession } from '../store';
+import { members, memberPermissions, auditLogs, adminState, notifyAdminStateChange, syncAdminData, getSession } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
+import { formatGhanaPhoneForDisplay, formatGhanaLocalDigits, normalizeGhanaPhone } from '../../core/phone';
 import { Tables } from '../../types/database.types';
 
 export function renderMembersTab(container: HTMLElement, modalsContainer: HTMLElement) {
@@ -63,13 +64,15 @@ export function renderMembersTab(container: HTMLElement, modalsContainer: HTMLEl
 }
 
 function renderMembersRows() {
-  const filtered = MOCK_MEMBERS.filter((m: Tables<'members'>) => {
+  const filtered = members.filter((m: Tables<'members'>) => {
     let matches = true;
     const q = adminState.searchQuery.toLowerCase();
+    const qDigits = q.replace(/\D/g, '');
     if (q) {
       matches = (m.full_name?.toLowerCase().includes(q) ?? false) || 
                 (m.membership_number?.toLowerCase().includes(q) ?? false) || 
-                (m.phone_number?.includes(q) ?? false);
+                (m.phone_number?.includes(qDigits) ?? false) ||
+                (formatGhanaPhoneForDisplay(m.phone_number)?.replace(/\D/g, '').includes(qDigits) ?? false);
     }
     if (adminState.memberStatusFilter === 'active' && (!m.is_active || m.membership_status !== 'active')) matches = false;
     if (adminState.memberStatusFilter === 'inactive' && m.is_active && m.membership_status === 'active') matches = false;
@@ -91,14 +94,17 @@ function renderMembersRows() {
             <img src="${avatarUrl}" class="w-8 h-8 rounded-full border border-gray-200 object-cover shrink-0">
             <div>
               <p class="font-bold text-gray-900">${m.title || ''} ${m.full_name}</p>
-              <p class="text-[10px] text-gray-500 capitalize">${m.gender || ''} • ${m.marital_status || ''}</p>
+              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <p class="text-[10px] text-gray-500 capitalize">${m.gender || ''} • ${m.marital_status || ''}</p>
+                ${m.assembly_role ? `<span class="text-[9px] bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.5 rounded capitalize">${m.assembly_role}</span>` : ''}
+              </div>
             </div>
           </div>
         </td>
         <td class="py-3 px-4">
-          <p class="font-semibold text-gray-800">${m.phone_number || ''}</p>
+          <p class="font-semibold text-gray-800">${formatGhanaPhoneForDisplay(m.phone_number) || m.phone_number || ''}</p>
           <p class="text-[10px] text-green-600 font-bold flex items-center gap-1 mt-0.5">
-            <i data-lucide="message-circle" class="w-3 h-3"></i> WA: ${m.whatsapp_number || ''}
+            <i data-lucide="message-circle" class="w-3 h-3"></i> WA: ${formatGhanaPhoneForDisplay(m.whatsapp_number) || m.whatsapp_number || ''}
           </p>
         </td>
         <td class="py-3 px-4 text-gray-600 font-medium">${m.location || ''}</td>
@@ -187,6 +193,11 @@ function renderModals(modalsContainer: HTMLElement) {
                 <option value="visitor">Visitor</option>
               </select>
             </div>
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] text-gray-500 font-bold block">Assembly Role / Ministry</label>
+            <input type="text" id="form-assembly-role" placeholder="e.g. Usher, Elder, Choir Member, Youth Leader, Pastor" class="w-full border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs bg-white focus:outline-none focus:border-caci-blue focus:ring-1 focus:ring-caci-blue">
+            <p class="text-[9px] text-gray-400 mt-0.5">Free text — type the member's ministry or service role. Leave blank if none.</p>
           </div>
           <hr class="border-gray-150">
           <div>
@@ -306,6 +317,24 @@ function renderModals(modalsContainer: HTMLElement) {
   document.getElementById('member-modal-cancel')?.addEventListener('click', closeMemberModal);
   document.getElementById('member-modal-backdrop')?.addEventListener('click', closeMemberModal);
   
+  document.getElementById('form-phone')?.addEventListener('input', (e) => {
+    const el = e.currentTarget as HTMLInputElement;
+    const formatted = formatGhanaLocalDigits(el.value);
+    if (formatted !== null) el.value = formatted;
+  });
+
+  document.getElementById('form-whatsapp')?.addEventListener('input', (e) => {
+    const el = e.currentTarget as HTMLInputElement;
+    const formatted = formatGhanaLocalDigits(el.value);
+    if (formatted !== null) el.value = formatted;
+  });
+
+  document.getElementById('form-emergency-phone')?.addEventListener('input', (e) => {
+    const el = e.currentTarget as HTMLInputElement;
+    const formatted = formatGhanaLocalDigits(el.value);
+    if (formatted !== null) el.value = formatted;
+  });
+
   document.getElementById('btn-save-member')?.addEventListener('click', saveMemberFormData);
 
   document.getElementById('permissions-modal-close')?.addEventListener('click', closePermissionsModal);
@@ -380,12 +409,13 @@ export function launchNewMemberModal() {
   (document.getElementById("form-emergency-phone") as HTMLInputElement).value = "";
   (document.getElementById("form-join-date") as HTMLInputElement).value = new Date().toISOString().split('T')[0];
   (document.getElementById("form-avatar") as HTMLInputElement).value = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200";
+  (document.getElementById("form-assembly-role") as HTMLInputElement).value = "";
 
   document.getElementById("member-modal")?.classList.remove("hidden");
 }
 
 function launchEditMemberModal(id: string) {
-  const m = MOCK_MEMBERS.find((item: Tables<'members'>) => item.id === id);
+  const m = members.find((item: Tables<'members'>) => item.id === id);
   if (!m) return;
 
   document.getElementById("member-modal-title")!.innerText = `Edit: ${m.title || ''} ${m.full_name} Records`;
@@ -399,13 +429,14 @@ function launchEditMemberModal(id: string) {
   (document.getElementById("form-status") as HTMLSelectElement).value = m.membership_status || 'active';
   (document.getElementById("form-occupation") as HTMLInputElement).value = m.occupation || '';
   (document.getElementById("form-location") as HTMLInputElement).value = m.location || '';
-  (document.getElementById("form-phone") as HTMLInputElement).value = m.phone_number || '';
-  (document.getElementById("form-whatsapp") as HTMLInputElement).value = m.whatsapp_number || '';
+  (document.getElementById("form-phone") as HTMLInputElement).value = formatGhanaPhoneForDisplay(m.phone_number) || m.phone_number || '';
+  (document.getElementById("form-whatsapp") as HTMLInputElement).value = formatGhanaPhoneForDisplay(m.whatsapp_number) || m.whatsapp_number || '';
   (document.getElementById("form-emergency-name") as HTMLInputElement).value = m.emergency_contact_name || '';
   (document.getElementById("form-emergency-relationship") as HTMLInputElement).value = m.emergency_contact_relationship || '';
-  (document.getElementById("form-emergency-phone") as HTMLInputElement).value = m.emergency_contact_phone || '';
+  (document.getElementById("form-emergency-phone") as HTMLInputElement).value = formatGhanaPhoneForDisplay(m.emergency_contact_phone) || m.emergency_contact_phone || '';
   (document.getElementById("form-join-date") as HTMLInputElement).value = m.join_date || '';
   (document.getElementById("form-avatar") as HTMLInputElement).value = m.profile_photo_url || '';
+  (document.getElementById("form-assembly-role") as HTMLInputElement).value = m.assembly_role || '';
 
   document.getElementById("member-modal")?.classList.remove("hidden");
 }
@@ -417,11 +448,37 @@ export function closeMemberModal() {
 async function saveMemberFormData() {
   const id = (document.getElementById("form-member-id") as HTMLInputElement).value;
   const fullName = (document.getElementById("form-full-name") as HTMLInputElement).value.trim();
-  const phone = (document.getElementById("form-phone") as HTMLInputElement).value.trim();
+  const phoneValue = (document.getElementById("form-phone") as HTMLInputElement).value.trim();
+  const whatsappValue = (document.getElementById("form-whatsapp") as HTMLInputElement).value.trim();
+  const emergencyPhoneValue = (document.getElementById("form-emergency-phone") as HTMLInputElement).value.trim();
 
-  if (!fullName || !phone) {
+  if (!fullName || !phoneValue) {
     showToast("Error", "Full Name and Primary Mobile Line are mandatory database fields.", "error");
     return;
+  }
+
+  const normalizedPhone = normalizeGhanaPhone(phoneValue);
+  if (!normalizedPhone) {
+    showToast("Error", "Primary Mobile Line must be a valid Ghana phone number.", "error");
+    return;
+  }
+
+  let normalizedWhatsapp: string | null = null;
+  if (whatsappValue) {
+    normalizedWhatsapp = normalizeGhanaPhone(whatsappValue);
+    if (!normalizedWhatsapp) {
+      showToast("Error", "WhatsApp number must be a valid Ghana phone number.", "error");
+      return;
+    }
+  }
+
+  let normalizedEmergency: string | null = null;
+  if (emergencyPhoneValue) {
+    normalizedEmergency = normalizeGhanaPhone(emergencyPhoneValue);
+    if (!normalizedEmergency) {
+      showToast("Error", "Emergency contact phone must be a valid Ghana phone number.", "error");
+      return;
+    }
   }
 
   const formPayload = {
@@ -433,13 +490,14 @@ async function saveMemberFormData() {
     membership_status: (document.getElementById("form-status") as HTMLSelectElement).value as any,
     occupation: (document.getElementById("form-occupation") as HTMLInputElement).value.trim() || null,
     location: (document.getElementById("form-location") as HTMLInputElement).value.trim() || null,
-    phone_number: phone,
-    whatsapp_number: (document.getElementById("form-whatsapp") as HTMLInputElement).value.trim() || null,
+    phone_number: normalizedPhone,
+    whatsapp_number: normalizedWhatsapp,
     emergency_contact_name: (document.getElementById("form-emergency-name") as HTMLInputElement).value.trim() || null,
     emergency_contact_relationship: (document.getElementById("form-emergency-relationship") as HTMLInputElement).value.trim() || null,
-    emergency_contact_phone: (document.getElementById("form-emergency-phone") as HTMLInputElement).value.trim() || null,
+    emergency_contact_phone: normalizedEmergency,
     join_date: (document.getElementById("form-join-date") as HTMLInputElement).value || null,
     profile_photo_url: (document.getElementById("form-avatar") as HTMLInputElement).value.trim() || null,
+    assembly_role: (document.getElementById("form-assembly-role") as HTMLInputElement).value.trim() || null,
     is_active: true
   };
 
@@ -464,15 +522,15 @@ async function saveMemberFormData() {
 }
 
 function launchPermissionsModal(memberId: string) {
-  const m = MOCK_MEMBERS.find((item: Tables<'members'>) => item.id === memberId);
+  const m = members.find((item: Tables<'members'>) => item.id === memberId);
   if (!m) return;
 
   (document.getElementById("permissions-member-id") as HTMLInputElement).value = memberId;
   document.getElementById("permissions-modal-title")!.innerText = `Manage Scope: ${m.full_name}`;
 
-  (document.getElementById("perm-members-read") as HTMLInputElement).checked = MOCK_MEMBER_PERMISSIONS.some((mp: Tables<'member_permissions'>) => mp.member_id === memberId && mp.permission === "members.read");
-  (document.getElementById("perm-members-write") as HTMLInputElement).checked = MOCK_MEMBER_PERMISSIONS.some((mp: Tables<'member_permissions'>) => mp.member_id === memberId && mp.permission === "members.write");
-  (document.getElementById("perm-broadcasts-read") as HTMLInputElement).checked = MOCK_MEMBER_PERMISSIONS.some((mp: Tables<'member_permissions'>) => mp.member_id === memberId && mp.permission === "broadcasts.read");
+  (document.getElementById("perm-members-read") as HTMLInputElement).checked = memberPermissions.some((mp: Tables<'member_permissions'>) => mp.member_id === memberId && mp.permission === "members.read");
+  (document.getElementById("perm-members-write") as HTMLInputElement).checked = memberPermissions.some((mp: Tables<'member_permissions'>) => mp.member_id === memberId && mp.permission === "members.write");
+  (document.getElementById("perm-broadcasts-read") as HTMLInputElement).checked = memberPermissions.some((mp: Tables<'member_permissions'>) => mp.member_id === memberId && mp.permission === "broadcasts.read");
 
   document.getElementById("permissions-modal")?.classList.remove("hidden");
 }

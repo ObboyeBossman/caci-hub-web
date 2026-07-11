@@ -1,6 +1,7 @@
-import { MOCK_USER_PROFILES, MOCK_MEMBERS, notifyAdminStateChange, syncAdminData, getSession } from '../store';
+import { userProfiles, members, notifyAdminStateChange, syncAdminData, getSession } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
+import { formatGhanaLocalDigits, normalizeGhanaPhone } from '../../core/phone';
 import { Tables } from '../../types/database.types';
 
 export function renderAccountsTab(container: HTMLElement, modalsContainer: HTMLElement) {
@@ -46,11 +47,11 @@ export function renderAccountsTab(container: HTMLElement, modalsContainer: HTMLE
 }
 
 function renderAccountsRows() {
-  if (MOCK_USER_PROFILES.length === 0) {
+  if (userProfiles.length === 0) {
     return `<tr><td colspan="5" class="py-8 text-center text-gray-400">No user accounts found.</td></tr>`;
   }
-  return MOCK_USER_PROFILES.map((u: Tables<'user_profiles'>) => {
-    const linkedMember = MOCK_MEMBERS.find((m: Tables<'members'>) => m.auth_user_id === u.id);
+  return userProfiles.map((u: Tables<'user_profiles'>) => {
+    const linkedMember = members.find((m: Tables<'members'>) => m.auth_user_id === u.id);
     const linkedMemberStr = linkedMember ? `${linkedMember.membership_number} — ${linkedMember.full_name}` : 'System Base / Unlinked';
 
     return `
@@ -99,7 +100,7 @@ function renderModals(modalsContainer: HTMLElement) {
     modalsContainer.appendChild(modal);
   }
 
-  const memberOptions = MOCK_MEMBERS.map((m: Tables<'members'>) => `<option value="${m.id}">${m.membership_number} — ${m.full_name}</option>`).join('');
+  const memberOptions = members.map((m: Tables<'members'>) => `<option value="${m.id}">${m.membership_number} — ${m.full_name}</option>`).join('');
 
   modal.innerHTML = `
     <div id="account-modal-backdrop" class="fixed inset-0 bg-black/60 transition-opacity cursor-pointer"></div>
@@ -154,6 +155,12 @@ function renderModals(modalsContainer: HTMLElement) {
   document.getElementById('account-modal-cancel')?.addEventListener('click', closeAccountModal);
   document.getElementById('account-modal-backdrop')?.addEventListener('click', closeAccountModal);
 
+  document.getElementById('acc-form-phone')?.addEventListener('input', (e) => {
+    const el = e.currentTarget as HTMLInputElement;
+    const formatted = formatGhanaLocalDigits(el.value);
+    if (formatted !== null) el.value = formatted;
+  });
+
   document.getElementById('btn-save-account')?.addEventListener('click', async () => {
     const name = (document.getElementById('acc-form-name') as HTMLInputElement).value.trim();
     const phoneInput = (document.getElementById('acc-form-phone') as HTMLInputElement).value.trim();
@@ -166,15 +173,13 @@ function renderModals(modalsContainer: HTMLElement) {
       return;
     }
 
-    // Format phone: 0244123456 -> +233244123456
-    let digits = phoneInput.replace(/\D/g, '');
-    let resolvedPhone = digits;
-    if (digits.startsWith('0')) {
-      resolvedPhone = '+233' + digits.slice(1);
-    } else if (!digits.startsWith('+')) {
-      resolvedPhone = '+' + digits;
+    const resolvedDigits = normalizeGhanaPhone(phoneInput)
+    if (!resolvedDigits) {
+      showToast("Error", "Please enter a valid Ghana phone number.", "error");
+      return;
     }
 
+    const resolvedPhone = `+${resolvedDigits}`
     showToast("Info", "Signing up credentials in GoTrue Auth...", "info");
 
     const { data, error: signUpErr } = await supabase.auth.signUp({
@@ -229,7 +234,7 @@ function attachHandlers(container: HTMLElement) {
     btn.addEventListener('click', async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (!id) return;
-      const user = MOCK_USER_PROFILES.find((u: Tables<'user_profiles'>) => u.id === id);
+      const user = userProfiles.find((u: Tables<'user_profiles'>) => u.id === id);
       if (user) {
         const newActiveState = !user.is_active;
         const { error } = await supabase
@@ -251,7 +256,7 @@ function attachHandlers(container: HTMLElement) {
     btn.addEventListener('click', async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (!id) return;
-      const user = MOCK_USER_PROFILES.find((u: Tables<'user_profiles'>) => u.id === id);
+      const user = userProfiles.find((u: Tables<'user_profiles'>) => u.id === id);
       if (user) {
         const { error } = await supabase
           .from('user_profiles')
@@ -272,7 +277,7 @@ function attachHandlers(container: HTMLElement) {
     btn.addEventListener('click', async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
       if (!id) return;
-      const user = MOCK_USER_PROFILES.find((u: Tables<'user_profiles'>) => u.id === id);
+      const user = userProfiles.find((u: Tables<'user_profiles'>) => u.id === id);
       if (user) {
         const { error } = await supabase
           .from('user_profiles')

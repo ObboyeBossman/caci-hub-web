@@ -1,6 +1,7 @@
 // src/admin_portal/tabs/dashboard.ts
-import { MOCK_MEMBERS, MOCK_GROUPS, MOCK_BROADCASTS, MOCK_AUDIT_LOGS } from '../store';
+import { members, groups, broadcasts, auditLogs } from '../store';
 import { AdminEventBus } from '../home';
+import { formatGhanaPhoneForDisplay } from '../../core/phone';
 
 export function renderDashboardTab(container: HTMLElement) {
   container.innerHTML = `
@@ -25,7 +26,7 @@ export function renderDashboardTab(container: HTMLElement) {
         <div class="bg-white border border-[#e6edf3] p-5 rounded-2xl shadow-3xs flex items-center justify-between">
           <div>
             <span class="text-xs text-gray-400 uppercase font-extrabold tracking-wider block">Total Members</span>
-            <span class="text-3xl font-black text-gray-900 block mt-1">${MOCK_MEMBERS.length}</span>
+            <span class="text-3xl font-black text-gray-900 block mt-1">${members.length}</span>
           </div>
           <div class="w-12 h-12 bg-blue-50 text-caci-blue rounded-full flex items-center justify-center">
             <i data-lucide="users" class="w-6 h-6"></i>
@@ -35,7 +36,7 @@ export function renderDashboardTab(container: HTMLElement) {
         <div class="bg-white border border-[#e6edf3] p-5 rounded-2xl shadow-3xs flex items-center justify-between">
           <div>
             <span class="text-xs text-gray-400 uppercase font-extrabold tracking-wider block">Active Departments</span>
-            <span class="text-3xl font-black text-gray-900 block mt-1">${MOCK_GROUPS.length}</span>
+            <span class="text-3xl font-black text-gray-900 block mt-1">${groups.length}</span>
           </div>
           <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center">
             <i data-lucide="layers" class="w-6 h-6"></i>
@@ -45,7 +46,7 @@ export function renderDashboardTab(container: HTMLElement) {
         <div class="bg-white border border-[#e6edf3] p-5 rounded-2xl shadow-3xs flex items-center justify-between">
           <div>
             <span class="text-xs text-gray-400 uppercase font-extrabold tracking-wider block">Broadcasts Dispatched</span>
-            <span class="text-3xl font-black text-gray-900 block mt-1">${MOCK_BROADCASTS.length}</span>
+            <span class="text-3xl font-black text-gray-900 block mt-1">${broadcasts.length}</span>
           </div>
           <div class="w-12 h-12 bg-red-50 text-caci-red rounded-full flex items-center justify-center">
             <i data-lucide="megaphone" class="w-6 h-6"></i>
@@ -55,7 +56,7 @@ export function renderDashboardTab(container: HTMLElement) {
         <div class="bg-white border border-[#e6edf3] p-5 rounded-2xl shadow-3xs flex items-center justify-between">
           <div>
             <span class="text-xs text-gray-400 uppercase font-extrabold tracking-wider block">System Security Alerts</span>
-            <span class="text-3xl font-black text-amber-600 block mt-1">${MOCK_AUDIT_LOGS.length}</span>
+            <span class="text-3xl font-black text-amber-600 block mt-1">${auditLogs.length}</span>
           </div>
           <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
             <i data-lucide="shield-alert" class="w-6 h-6"></i>
@@ -120,7 +121,7 @@ export function renderDashboardTab(container: HTMLElement) {
 }
 
 function renderRecentMembers() {
-  const reversed = [...MOCK_MEMBERS].reverse().slice(0, 5);
+  const reversed = [...members].reverse().slice(0, 5);
   return reversed.map(m => `
     <tr class="border-b border-gray-50 hover:bg-gray-50/50">
       <td class="py-3 px-2">
@@ -133,7 +134,7 @@ function renderRecentMembers() {
         </div>
       </td>
       <td class="py-3 px-2 font-mono text-gray-500">${m.membership_number}</td>
-      <td class="py-3 px-2 font-semibold text-gray-600">${m.phone_number}</td>
+      <td class="py-3 px-2 font-semibold text-gray-600">${formatGhanaPhoneForDisplay(m.phone_number) || m.phone_number || ''}</td>
       <td class="py-3 px-2">
         ${m.is_active 
           ? `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">Active</span>`
@@ -145,7 +146,7 @@ function renderRecentMembers() {
 }
 
 function renderRecentLogs() {
-  const reversed = [...MOCK_AUDIT_LOGS].reverse().slice(0, 5);
+  const reversed = [...auditLogs].reverse().slice(0, 5);
   if (reversed.length === 0) {
     return `<p class="text-xs text-gray-400 py-4 text-center">No recent ledger entries.</p>`;
   }
