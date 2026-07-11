@@ -4,15 +4,11 @@
 // Entry point for every page load.
 // Renders the branded splash, enforces a 2-second minimum display time,
 // checks for an existing Supabase session, then routes accordingly:
-//   • Session found  → Stage 4 (src/core/loading.ts)
-//   • No session     → Stage 2 (AssemblySelection /select-assembly)
+//   • Session found  → auth-guard → app shell (Stage 4)
+//   • No session     → auth-guard → login screen
 
-import { supabase }         from './supabase'
-import { registerModule }   from './registry'
-import { startRouter, navigate } from './router'
-import { mountFullscreen }  from '../shell/Shell'
-import AuthModule           from '../modules/auth/index'
-import { renderUpgradeView } from './upgrade'
+import { supabase } from './supabase'
+import { guardRoute } from '../auth/auth-guard'
 
 export async function runSplash(): Promise<void> {
   const app = document.getElementById('app')
@@ -173,6 +169,7 @@ export async function runSplash(): Promise<void> {
     new Promise<void>(resolve => setTimeout(resolve, 2000)),
   ])
 
-  // ── Show upgrade screen after splash ──────────────────────────────────────
-  renderUpgradeView(app)
+  // ── Route based on session ────────────────────────────────────────────────
+  const session = (sessionRes as { data: { session: import('@supabase/supabase-js').Session | null } })?.data?.session ?? null
+  guardRoute(app, session)
 }

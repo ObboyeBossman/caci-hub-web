@@ -42,3 +42,7 @@ playwright/.cache/
 # Vite
 *.local
 prod_backup_*.sql
+
+# Local References and Backups
+ref/
+*.bak

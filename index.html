@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,9 +12,44 @@
   <link rel="apple-touch-icon" href="/caci-logo.jpeg" />
 
   <title>CACI Hub</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            caci: {
+              red: '#C60026',
+              redLight: '#FF1A46',
+              redDim: '#8C001A',
+              blue: '#004BA0',
+              blueLight: '#4D9FFF',
+              blueDim: '#003578',
+              success: '#1a7f37',
+              successBg: '#dafbe1',
+              warning: '#9a6700',
+              warningBg: '#fff8c5',
+              night: '#0d1117'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
-  <div id="app"></div>
+<body class="h-full text-caci-night antialiased flex flex-col">
+  <div id="app" class="flex-1 flex flex-col h-full overflow-hidden"></div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

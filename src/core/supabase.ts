@@ -1,8 +1,6 @@
 // core/supabase.ts
 // Typed Supabase client singleton.
-// Mirrors: supabase_client.dart (Flutter) — same project URL + anon key.
-// Both the Flutter app and this web app point at the same Supabase project:
-//   Project ID: cyjkjzcthbpkufbsyosz
+// Active production project: rtmwlpvjcdoyxyyiiynv
 
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../types/database.types'

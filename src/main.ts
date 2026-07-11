@@ -8,29 +8,14 @@
 //   Stage 4 (loading.ts)        → profile + modules + shell + router [authenticated path]
 
 import './styles/theme.css'
-import './modules/auth/styles/auth.css'
-import './modules/settings/styles/settings.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'notyf/notyf.min.css'
 
 import { runSplash } from './core/splash'
-import { registerModule } from './core/registry'
-import SettingsModule  from './modules/settings'
-
-
-import { applyAppearance, initThemeListener } from './core/theme'
 
 async function boot(): Promise<void> {
   console.log('[main] CACI Hub Web starting…')
-
-  // Register modules
-  registerModule(SettingsModule)
-
-
-  // Initialize theme and appearance (Manual pref or System default)
-  applyAppearance()
-  initThemeListener()
 
   // Hand off to the splash boot flow (Stages 1 → 4)
   await runSplash()
