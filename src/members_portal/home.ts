@@ -22,35 +22,45 @@ export const AppEventBus = new EventTarget();
 let _currentSession: Session | null = null;
 
 export async function renderMembersHome(app: HTMLElement, session: Session): Promise<void> {
+  console.log('[members-home] Initializing...');
   _currentSession = session;
-  app.id = 'mp-root';
-  
-  // Sync member data from Supabase before rendering the shell
-  await syncMemberData(session.user.id);
 
-  app.innerHTML = buildShellHtml();
-  
-  attachShellHandlers();
-  
-  // Initial render
-  updateActiveTab();
-  
-  // Trigger initial tab
-  switchTab('inbox');
-  
-  // Re-render when state changes
-  subscribe(() => {
+  try {
+    // Sync member data from Supabase before rendering the shell
+    await syncMemberData(session.user.id);
+    console.log('[members-home] Data sync complete');
+
+    app.id = 'mp-root';
+    app.innerHTML = buildShellHtml();
+
+    attachShellHandlers();
+
+    // Initial render
     updateActiveTab();
+
+    // Trigger initial tab
+    switchTab('inbox');
+
+    // Re-render when state changes
+    subscribe(() => {
+      updateActiveTab();
+      refreshBadgeCounts();
+    });
+
     refreshBadgeCounts();
-  });
-  
-  refreshBadgeCounts();
-  lucide.createIcons();
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  } catch (err: any) {
+    console.error('[members-home] Render failed:', err);
+    throw err; // Let guardRoute catch it and show a toast
+  }
 }
 
 function buildShellHtml() {
-  const initials = MOCK_MEMBER.full_name.split(' ').map(n => n[0]).join('').substring(0, 2);
-  const firstName = MOCK_MEMBER.full_name.split(' ')[0];
+  const name = MOCK_MEMBER?.full_name || 'Member';
+  const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const firstName = name.split(' ')[0];
 
   return `
     <style>
@@ -143,7 +153,7 @@ function buildShellHtml() {
                 <span class="font-extrabold text-[11px] text-white uppercase tracking-wider">${initials}</span>
               </div>
               <div class="flex flex-col justify-center min-w-0 py-0.5">
-                <span class="text-[11.5px] font-bold text-white truncate leading-tight tracking-wide">${MOCK_MEMBER.full_name}</span>
+                <span class="text-[11.5px] font-bold text-white truncate leading-tight tracking-wide">${name}</span>
                 <span class="text-[8.5px] text-blue-200/70 truncate leading-tight uppercase font-extrabold tracking-widest mt-0.5">Member</span>
               </div>
             </div>
@@ -179,7 +189,6 @@ function buildShellHtml() {
                 <div class="flex items-center space-x-3"><i data-lucide="home" class="w-5 h-5"></i><span>Home</span></div>
                 <span id="mobile-unread-badge" class="bg-caci-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
               </button>
-              <!-- other buttons... -->
               <button data-tab="broadcasts" class="mobile-tab-btn w-full flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-white/80 hover:bg-white/10">
                 <div class="flex items-center space-x-3"><i data-lucide="megaphone" class="w-5 h-5"></i><span>Announcements</span></div>
               </button>
@@ -224,7 +233,7 @@ function buildShellHtml() {
           </div>
           <div class="flex items-center space-x-4">
             <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-caci-blue border border-blue-100 font-mono">
-              ID: ${MOCK_MEMBER.membership_number}
+              ID: ${MOCK_MEMBER?.membership_number || '---'}
             </span>
             <div class="h-4 w-[1px] bg-gray-200 hidden sm:block"></div>
             <span class="text-xs text-gray-500 font-medium" id="top-bar-date-display"></span>
@@ -330,14 +339,17 @@ function buildShellHtml() {
 
 function attachShellHandlers() {
   const options = { weekday: 'long' as const, year: 'numeric' as const, month: 'long' as const, day: 'numeric' as const };
-  document.getElementById("top-bar-date-display")!.innerText = new Date().toLocaleDateString(undefined, options);
+  const dateEl = document.getElementById("top-bar-date-display");
+  if (dateEl) dateEl.innerText = new Date().toLocaleDateString(undefined, options);
 
   // Search input
   const searchInput = document.getElementById("global-search-input") as HTMLInputElement;
-  searchInput.addEventListener('input', (e) => {
-    globalState.searchQuery = (e.target as HTMLInputElement).value;
-    notifyStateChange();
-  });
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      globalState.searchQuery = (e.target as HTMLInputElement).value;
+      notifyStateChange();
+    });
+  }
 
   // Tab switching desktop
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -382,9 +394,10 @@ function attachShellHandlers() {
 
   // Logout
   const handleLogout = () => {
-    const initials = MOCK_MEMBER.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const name = MOCK_MEMBER?.full_name || 'Member';
+    const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
     showSignOutModal({
-      userName: MOCK_MEMBER.full_name,
+      userName: name,
       userRole: `Member · ${MOCK_MEMBER.membership_number}`,
       initials,
       onConfirm: async () => {
@@ -601,18 +614,34 @@ function openAttachmentModalDirectly(broadcastId: string) {
     }
   }
   document.getElementById("attachment-modal")?.classList.remove("hidden");
-  lucide.createIcons();
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
 
   const close = () => {
     document.getElementById("attachment-modal")?.classList.add("hidden");
     globalState.currentSelectedBroadcast = null;
   };
-  document.getElementById("modal-close-btn")!.onclick = close;
-  document.getElementById("modal-btn-cancel")!.onclick = close;
-  document.getElementById("attachment-modal-backdrop")!.onclick = close;
+  const closeBtn = document.getElementById("modal-close-btn");
+  if (closeBtn) closeBtn.onclick = close;
   
-  document.getElementById("modal-btn-download")!.onclick = () => {
-    showToast("Success", `R2 Signature validated. Download of '${globalState.currentSelectedBroadcast.attachment_url}' complete!`, "success");
-    close();
-  };
+  const cancelBtn = document.getElementById("modal-btn-cancel");
+  if (cancelBtn) cancelBtn.onclick = close;
+
+  const backdrop = document.getElementById("attachment-modal-backdrop");
+  if (backdrop) backdrop.onclick = close;
+
+  const downloadBtn = document.getElementById("modal-btn-download");
+  if (downloadBtn) {
+    downloadBtn.onclick = () => {
+      showToast("Success", `R2 Signature validated. Download complete!`, "success");
+      close();
+    };
+  }
+}
+
+declare global {
+  interface Window {
+    lucide: any;
+  }
 }

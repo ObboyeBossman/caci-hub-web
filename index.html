@@ -13,6 +13,30 @@
 
   <title>CACI Hub</title>
 
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      const app = document.getElementById('app');
+      if (app) {
+        app.innerHTML = '<div style="padding: 20px; color: red; font-family: sans-serif;">' +
+          '<h2>Frontend Error Detected</h2>' +
+          '<p><strong>Message:</strong> ' + msg + '</p>' +
+          '<p><strong>File:</strong> ' + url + '</p>' +
+          '<p><strong>Line:</strong> ' + line + '</p>' +
+          '</div>';
+      }
+      return false;
+    };
+    window.onunhandledrejection = function(event) {
+      const app = document.getElementById('app');
+      if (app) {
+        app.innerHTML = '<div style="padding: 20px; color: red; font-family: sans-serif;">' +
+          '<h2>Unhandled Rejection</h2>' +
+          '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
+          '</div>';
+      }
+    };
+  </script>
+
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>

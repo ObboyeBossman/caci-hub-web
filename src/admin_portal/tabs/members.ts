@@ -1,7 +1,7 @@
 import { members, memberPermissions, auditLogs, adminState, notifyAdminStateChange, syncAdminData, getSession } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
-import { formatGhanaPhoneForDisplay, formatGhanaLocalDigits, normalizeGhanaPhone } from '../../core/phone';
+import { formatGhanaPhoneForDisplay, normalizeGhanaPhone, attachPhoneInputFormatter } from '../../core/phone';
 import { Tables } from '../../types/database.types';
 
 export function renderMembersTab(container: HTMLElement, modalsContainer: HTMLElement) {
@@ -317,23 +317,9 @@ function renderModals(modalsContainer: HTMLElement) {
   document.getElementById('member-modal-cancel')?.addEventListener('click', closeMemberModal);
   document.getElementById('member-modal-backdrop')?.addEventListener('click', closeMemberModal);
   
-  document.getElementById('form-phone')?.addEventListener('input', (e) => {
-    const el = e.currentTarget as HTMLInputElement;
-    const formatted = formatGhanaLocalDigits(el.value);
-    if (formatted !== null) el.value = formatted;
-  });
-
-  document.getElementById('form-whatsapp')?.addEventListener('input', (e) => {
-    const el = e.currentTarget as HTMLInputElement;
-    const formatted = formatGhanaLocalDigits(el.value);
-    if (formatted !== null) el.value = formatted;
-  });
-
-  document.getElementById('form-emergency-phone')?.addEventListener('input', (e) => {
-    const el = e.currentTarget as HTMLInputElement;
-    const formatted = formatGhanaLocalDigits(el.value);
-    if (formatted !== null) el.value = formatted;
-  });
+  attachPhoneInputFormatter(document.getElementById('form-phone') as HTMLInputElement);
+  attachPhoneInputFormatter(document.getElementById('form-whatsapp') as HTMLInputElement);
+  attachPhoneInputFormatter(document.getElementById('form-emergency-phone') as HTMLInputElement);
 
   document.getElementById('btn-save-member')?.addEventListener('click', saveMemberFormData);
 

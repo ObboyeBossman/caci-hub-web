@@ -1,4 +1,4 @@
-import { member } from '../store';
+import { MOCK_MEMBER as member } from '../store';
 import { showToast } from '../../core/toast';
 import { formatGhanaPhoneForDisplay } from '../../core/phone';
 
@@ -86,7 +86,7 @@ export function renderProfileTab(container: HTMLElement) {
             </div>
             <div class="space-y-1">
               <span class="text-[10px] text-gray-400 uppercase font-bold">Mobile Line</span>
-              <p class="text-xs font-semibold text-gray-800">${member.emergency_contact_phone}</p>
+              <p class="text-xs font-semibold text-gray-800">${formatGhanaPhoneForDisplay(member.emergency_contact_phone) || member.emergency_contact_phone || '—'}</p>
             </div>
           </div>
         </div>

@@ -287,6 +287,7 @@ export type Database = {
           title: string | null
           updated_at: string
           whatsapp_number: string | null
+          assembly_role: string | null
         }
         Insert: {
           auth_user_id?: string | null
@@ -314,6 +315,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           whatsapp_number?: string | null
+          assembly_role?: string | null
         }
         Update: {
           auth_user_id?: string | null
@@ -341,6 +343,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           whatsapp_number?: string | null
+          assembly_role?: string | null
         }
         Relationships: []
       }

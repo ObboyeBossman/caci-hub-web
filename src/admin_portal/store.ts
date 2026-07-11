@@ -22,6 +22,16 @@ export let MOCK_USER_PROFILES: Tables<'user_profiles'>[] = [];
 export let MOCK_MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
 export let MOCK_AUDIT_LOGS: Tables<'member_audit_log'>[] = [];
 
+// Compatibility exports for admin portal tabs that expect plain names.
+// Use live binding aliases so tab imports stay in sync after data sync.
+export { MOCK_MEMBERS as members };
+export { MOCK_GROUPS as groups };
+export { MOCK_GROUP_MEMBERS as groupMembers };
+export { MOCK_BROADCASTS as broadcasts };
+export { MOCK_USER_PROFILES as userProfiles };
+export { MOCK_MEMBER_PERMISSIONS as memberPermissions };
+export { MOCK_AUDIT_LOGS as auditLogs };
+
 // Session reference
 let currentSession: Session | null = null;
 

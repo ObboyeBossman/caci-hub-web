@@ -20,31 +20,40 @@ export const AdminEventBus = new EventTarget();
 let _currentSession: Session | null = null;
 
 export async function renderAdminHome(app: HTMLElement, session: Session): Promise<void> {
+  console.log('[admin-home] Initializing...');
   _currentSession = session;
   setSession(session);
-  app.id = 'admin-root';
-  
-  // Sync admin data from Supabase before rendering the shell
-  await syncAdminData();
 
-  app.innerHTML = buildAdminShellHtml();
+  try {
+    // Sync admin data from Supabase before rendering the shell
+    await syncAdminData();
+    console.log('[admin-home] Data sync complete');
 
-  attachShellHandlers();
-  
-  // Initial render
-  updateActiveTab();
-  
-  // Trigger initial tab
-  switchAdminTab('dashboard');
-  
-  // Re-render when state changes
-  subscribeAdmin(() => {
+    app.id = 'admin-root';
+    app.innerHTML = buildAdminShellHtml();
+
+    attachShellHandlers();
+
+    // Initial render
     updateActiveTab();
+
+    // Trigger initial tab
+    switchAdminTab('dashboard');
+
+    // Re-render when state changes
+    subscribeAdmin(() => {
+      updateActiveTab();
+      refreshBadges();
+    });
+
     refreshBadges();
-  });
-  
-  refreshBadges();
-  lucide.createIcons();
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  } catch (err: any) {
+    console.error('[admin-home] Render failed:', err);
+    throw err;
+  }
 }
 
 function buildAdminShellHtml() {
@@ -175,7 +184,6 @@ function buildAdminShellHtml() {
           <div class="flex-1 overflow-y-auto p-4 space-y-6">
             <div class="space-y-1">
               <p class="text-[10px] uppercase font-black text-blue-300/70 px-3 mb-2 tracking-widest">Controls</p>
-              <!-- Links populated similarly -->
               <button data-tab="dashboard" class="admin-mobile-tab-btn w-full flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-white/85 hover:bg-white/10">
                 <div class="flex items-center space-x-3"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Overview</span></div>
               </button>
@@ -208,7 +216,6 @@ function buildAdminShellHtml() {
       </div>
 
       <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <!-- Top header strip -->
         <div class="h-14 bg-white border-b border-[#e6edf3] px-6 flex items-center justify-between shrink-0 shadow-3xs">
           <div class="flex items-center space-x-2 text-xs font-semibold text-gray-500">
             <span class="text-caci-blue uppercase tracking-widest font-bold">CACI Admin</span>
@@ -233,7 +240,8 @@ function buildAdminShellHtml() {
 }
 
 function attachShellHandlers() {
-  document.getElementById('admin-top-bar-date')!.innerText = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const dateEl = document.getElementById('admin-top-bar-date');
+  if (dateEl) dateEl.innerText = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   // Tab switching desktop
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
@@ -255,10 +263,10 @@ function attachShellHandlers() {
   document.getElementById("admin-mobile-close")?.addEventListener("click", () => toggleAdminMobileDrawer(false));
   document.getElementById("admin-mobile-backdrop")?.addEventListener("click", () => toggleAdminMobileDrawer(false));
 
-  // Modals Event Listeners attached directly in their specific tab modules or via EventBus
+  // Shared bus
   AdminEventBus.addEventListener('switchTab', (e: any) => switchAdminTab(e.detail));
 
-  // Switch to Member Portal (no sign-out)
+  // Switch to Member Portal
   const handleSwitchToMember = async () => {
     showSwitchPortalModal({
       targetLabel: 'Member Portal',
@@ -302,7 +310,8 @@ function switchAdminTab(tabId: string) {
     'accounts': 'Manage User Accounts',
     'audit': 'Audit Log Registry'
   };
-  document.getElementById("admin-top-bar-breadcrumb")!.innerText = breadcrumbs[tabId] || tabId;
+  const breadcrumbEl = document.getElementById("admin-top-bar-breadcrumb");
+  if (breadcrumbEl) breadcrumbEl.innerText = breadcrumbs[tabId] || tabId;
 
   // Visuals Reset
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
@@ -323,7 +332,6 @@ function updateActiveTab() {
   const container = document.getElementById("admin-tab-content-root");
   if (!container) return;
 
-  // Clear modal containers so we don't have multiple modals hidden
   const modalsContainer = document.getElementById("admin-modals-container");
   if (modalsContainer) modalsContainer.innerHTML = "";
 

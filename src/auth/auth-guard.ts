@@ -4,15 +4,10 @@
 // Decides what to render next:
 //   • Valid session  → renders the Members Portal homepage
 //   • No session     → renders the login screen
-//
-// This is the ONLY place that makes the authenticated vs. unauthenticated
-// routing decision. Import and call guardRoute() from splash.ts.
 
 import type { Session } from '@supabase/supabase-js'
-import { renderLoginView } from './login'
-import { renderMembersHome } from '../members_portal/home'
-import { renderAdminHome } from '../admin_portal/home'
 import { supabase } from '../core/supabase'
+import { showToast } from '../core/toast'
 
 /**
  * Evaluates the session and routes to the correct next view.
@@ -20,6 +15,8 @@ import { supabase } from '../core/supabase'
  * @param session  The Supabase session (null = unauthenticated).
  */
 export async function guardRoute(app: HTMLElement, session: Session | null): Promise<void> {
+  console.log('[auth-guard] Evaluating route. Session:', session ? 'Active' : 'None')
+
   if (session) {
     console.log('[auth-guard] Session valid — user:', session.user.phone || session.user.email)
     
@@ -31,22 +28,39 @@ export async function guardRoute(app: HTMLElement, session: Session | null): Pro
         .eq('id', session.user.id)
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('[auth-guard] Profile query error:', error)
+        throw new Error(`Profile Error: ${error.message} (${error.code || 'no code'})`)
+      }
 
-      if (profile?.role === 'admin') {
+      if (!profile) {
+        throw new Error('User profile record missing in public.user_profiles table.')
+      }
+
+      if (profile.role === 'admin') {
         console.log('[auth-guard] Admin role detected — routing to Admin Portal.')
+        showToast('Access Granted', 'Welcome to the Admin Portal.', 'success')
+        const { renderAdminHome } = await import('../admin_portal/home')
         await renderAdminHome(app, session)
       } else {
         console.log('[auth-guard] Member role detected — routing to Members Portal.')
+        showToast('Access Granted', 'Welcome to the Member Portal.', 'success')
+        const { renderMembersHome } = await import('../members_portal/home')
         await renderMembersHome(app, session)
       }
-    } catch (err) {
-      console.error('[auth-guard] Failed to render authenticated home:', err)
+    } catch (err: any) {
+      console.error('[auth-guard] Failed to determine role or render home:', err)
+
+      const message = err?.message || 'Failed to load your portal. Please try again.'
+      showToast('Portal Error', message, 'error')
+
+      const { renderLoginView } = await import('./login')
       renderLoginView(app)
     }
   } else {
     // Unauthenticated — show the login screen.
     console.log('[auth-guard] No session — routing to login.')
+    const { renderLoginView } = await import('./login')
     renderLoginView(app)
   }
 }

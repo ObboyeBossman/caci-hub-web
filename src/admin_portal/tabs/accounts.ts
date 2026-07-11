@@ -1,7 +1,7 @@
 import { userProfiles, members, notifyAdminStateChange, syncAdminData, getSession } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
-import { formatGhanaLocalDigits, normalizeGhanaPhone } from '../../core/phone';
+import { attachPhoneInputFormatter, normalizeGhanaPhone, toSupabaseAuthPhone } from '../../core/phone';
 import { Tables } from '../../types/database.types';
 
 export function renderAccountsTab(container: HTMLElement, modalsContainer: HTMLElement) {
@@ -155,11 +155,7 @@ function renderModals(modalsContainer: HTMLElement) {
   document.getElementById('account-modal-cancel')?.addEventListener('click', closeAccountModal);
   document.getElementById('account-modal-backdrop')?.addEventListener('click', closeAccountModal);
 
-  document.getElementById('acc-form-phone')?.addEventListener('input', (e) => {
-    const el = e.currentTarget as HTMLInputElement;
-    const formatted = formatGhanaLocalDigits(el.value);
-    if (formatted !== null) el.value = formatted;
-  });
+  attachPhoneInputFormatter(document.getElementById('acc-form-phone') as HTMLInputElement);
 
   document.getElementById('btn-save-account')?.addEventListener('click', async () => {
     const name = (document.getElementById('acc-form-name') as HTMLInputElement).value.trim();
@@ -173,13 +169,13 @@ function renderModals(modalsContainer: HTMLElement) {
       return;
     }
 
-    const resolvedDigits = normalizeGhanaPhone(phoneInput)
-    if (!resolvedDigits) {
+    // toSupabaseAuthPhone normalizes to 233XXXXXXXXX — no + prefix (Supabase rejects it)
+    const resolvedPhone = toSupabaseAuthPhone(phoneInput)
+    if (!resolvedPhone) {
       showToast("Error", "Please enter a valid Ghana phone number.", "error");
       return;
     }
 
-    const resolvedPhone = `+${resolvedDigits}`
     showToast("Info", "Signing up credentials in GoTrue Auth...", "info");
 
     const { data, error: signUpErr } = await supabase.auth.signUp({

@@ -2,7 +2,11 @@
 import { supabase } from '../core/supabase';
 import { Tables } from '../types/database.types';
 
-export let MOCK_MEMBER: Tables<'members'> = {} as any;
+export let MOCK_MEMBER: Tables<'members'> = {
+  full_name: 'Unknown Member',
+  membership_number: 'PENDING'
+} as any;
+
 export let MOCK_MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
 export let MOCK_GROUPS: (Tables<'groups'> & { role?: string })[] = [];
 export let MOCK_BROADCASTS: Tables<'broadcasts'>[] = [];
@@ -90,17 +94,29 @@ export function notifyStateChange() {
 }
 
 export async function syncMemberData(authUserId: string) {
+  console.log('[store] Syncing member data for:', authUserId);
   try {
-    const { data: memberData } = await supabase.from('members').select('*').eq('auth_user_id', authUserId).single();
+    const { data: memberData, error: memberError } = await supabase
+      .from('members')
+      .select('*')
+      .eq('auth_user_id', authUserId)
+      .single();
+
+    if (memberError) {
+      console.error('[store] Error fetching member record:', memberError);
+      throw new Error(`Sync Error: ${memberError.message} (Code: ${memberError.code})`);
+    }
+
     if (memberData) {
       MOCK_MEMBER = memberData;
-      
+      console.log('[store] Member found:', memberData.full_name);
+
       const { data: perms } = await supabase.from('member_permissions').select('*').eq('member_id', memberData.id);
       MOCK_MEMBER_PERMISSIONS = perms || [];
 
       const { data: gm } = await supabase.from('group_members').select('group_id').eq('member_id', memberData.id);
       if (gm && gm.length > 0) {
-        const groupIds = gm.map(g => g.group_id);
+        const groupIds = gm.map((g: any) => g.group_id);
         const { data: groups } = await supabase.from('groups').select('*').in('id', groupIds);
         MOCK_GROUPS = groups || [];
       } else {
@@ -110,10 +126,10 @@ export async function syncMemberData(authUserId: string) {
       const { data: broadcasts } = await supabase.from('broadcasts').select('*').order('sent_at', { ascending: false });
       if (broadcasts) {
         const groupIds = MOCK_GROUPS.map(g => g.id);
-        MOCK_BROADCASTS = broadcasts.filter(b => 
+        MOCK_BROADCASTS = broadcasts.filter((b: any) => 
           b.targeting_mode === 'assembly' || 
           (b.targeting_mode === 'group' && groupIds.includes(b.target_group_id as string)) ||
-          b.targeting_mode === 'members' // Assuming a broadcast_recipients join or logic handles this later
+          b.targeting_mode === 'members'
         );
       } else {
         MOCK_BROADCASTS = [];
@@ -121,9 +137,13 @@ export async function syncMemberData(authUserId: string) {
 
       const { data: notifs } = await supabase.from('notifications').select('*').eq('member_id', memberData.id).order('created_at', { ascending: false });
       notifications = notifs || [];
+    } else {
+      throw new Error('Member data is null.');
     }
+
     notifyStateChange();
   } catch (error) {
-    console.error("Failed to sync member data", error);
+    console.error("[store] syncMemberData failed:", error);
+    throw error; // Re-throw so the UI can handle it
   }
 }

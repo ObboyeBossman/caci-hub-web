@@ -13,7 +13,7 @@ import bgImage from '../asset/image/caci-congregation.jpg'
 import { supabase } from '../core/supabase'
 import { guardRoute } from './auth-guard'
 import { showToast } from '../core/toast'
-import { formatGhanaLocalDigits, isValidGhanaPhone as validateGhanaPhone, normalizeGhanaPhone } from '../core/phone'
+import { attachPhoneInputFormatter, isValidGhanaPhone, toSupabaseAuthPhone } from '../core/phone'
 
 export function renderLoginView(app: HTMLElement): void {
   app.id = 'auth-root'
@@ -182,31 +182,7 @@ function _buildLoginHTML(): string {
   `
 }
 
-// ── Phone formatting ──────────────────────────────────────────────────────────
-// Formats live input to Ghanaian local format: 0XX XXX XXXX (groups of 3-3-4).
-// Numbers not starting with 0 are left as raw digits (no formatting).
-
-function _formatPhoneInput(el: HTMLInputElement): void {
-  const formatted = formatGhanaLocalDigits(el.value)
-  if (formatted) {
-    el.value = formatted
-    return
-  }
-
-  el.value = el.value.replace(/\D/g, '').slice(0, 12)
-}
-
-function _resolvePhone(raw: string): string {
-  const normalized = normalizeGhanaPhone(raw)
-  if (!normalized) {
-    return raw.replace(/\D/g, '')
-  }
-  return `+${normalized}`
-}
-
-function _isValidGhanaPhone(raw: string): boolean {
-  return validateGhanaPhone(raw)
-}
+// Phone helpers are imported directly from core/phone.
 
 
 
@@ -223,7 +199,7 @@ function _attachLoginHandlers(app: HTMLElement): void {
   const submitIcon = app.querySelector<HTMLSpanElement>('#auth-submit-icon')!
 
   // ── Live phone formatting ───────────────────────────────────────────────────
-  phoneInp.addEventListener('input', () => _formatPhoneInput(phoneInp))
+  attachPhoneInputFormatter(phoneInp)
 
   // ── Toggle password visibility ──────────────────────────────────────────────
   toggleBtn.addEventListener('click', () => {
@@ -244,12 +220,14 @@ function _attachLoginHandlers(app: HTMLElement): void {
       return
     }
 
-    if (!_isValidGhanaPhone(rawPhone)) {
+    if (!isValidGhanaPhone(rawPhone)) {
       showToast('Invalid Phone', 'Please enter a valid 10-digit Ghana number.', 'warning')
       return
     }
 
-    const phone = _resolvePhone(rawPhone) // → 233XXXXXXXXX
+    const phone = toSupabaseAuthPhone(rawPhone)! // → 233XXXXXXXXX
+
+    console.log('[login] Attempting sign-in');
 
     // Loading state
     submitBtn.disabled = true
@@ -259,23 +237,33 @@ function _attachLoginHandlers(app: HTMLElement): void {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ phone, password })
 
-      if (error) throw error
+      if (error) {
+        console.error('[login] Supabase error:', error);
+        throw error
+      }
 
       if (!data.session) {
+        console.error('[login] No session returned');
         throw new Error('Sign-in succeeded but no session was returned.')
       }
 
-      console.log('[login] Authenticated:', data.session.user.phone)
+      console.log('[login] Authenticated successfully:', data.session.user.id)
+
+      showToast('Welcome Back', 'Successfully signed in to CACI Hub.', 'success')
 
       app.id = 'app'
-      guardRoute(app, data.session)
+      console.log('[login] Handoff to guardRoute');
+      await guardRoute(app, data.session)
 
     } catch (err: unknown) {
+      console.error('[login] Catch block reached:', err);
       const msg = err instanceof Error
         ? _friendlyAuthError(err.message)
         : 'An unexpected error occurred. Please try again.'
+
       showToast('Authentication Failed', msg, 'error')
     } finally {
+      console.log('[login] Sign-in flow finished');
       submitBtn.disabled = false
       submitLbl.textContent = 'Sign in'
       submitIcon.classList.remove('spin')
@@ -286,13 +274,14 @@ function _attachLoginHandlers(app: HTMLElement): void {
 function _friendlyAuthError(raw: string): string {
   const lower = raw.toLowerCase()
   if (lower.includes('invalid login') || lower.includes('invalid credentials')) {
-    return 'Incorrect phone number or password. Please try again.'
+    return 'Incorrect phone number or password.'
   }
   if (lower.includes('too many requests') || lower.includes('rate limit')) {
-    return 'Too many sign-in attempts. Please wait a few minutes and try again.'
+    return 'Too many attempts. Please wait a few minutes.'
   }
   if (lower.includes('network') || lower.includes('failed to fetch')) {
-    return 'Network error. Please check your connection and try again.'
+    return 'Network error. Please check your connection.'
   }
-  return raw
+  // Return the raw error for everything else (like "Database error querying schema")
+  return `Auth Error: ${raw}`
 }

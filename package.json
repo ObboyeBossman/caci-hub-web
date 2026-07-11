@@ -16,12 +16,12 @@
     "db:local:push": "supabase db push --local",
     "db:local:studio": "supabase studio",
 
-    "db:dev:push": "supabase link --project-ref ladwecxjhyvyzcrngneh && supabase db push",
-    "db:dev:diff": "supabase link --project-ref ladwecxjhyvyzcrngneh && supabase db diff",
+    "db:dev:push": "supabase link --project-ref vyflxqspjsfwrrotobjt && supabase db push",
+    "db:dev:diff": "supabase link --project-ref vyflxqspjsfwrrotobjt && supabase db diff",
 
     "db:prod:push": "supabase db push --project-ref cyjkjzcthbpkufbsyosz",
 
-    "gen:types:dev": "supabase gen types typescript --project-id ladwecxjhyvyzcrngneh > src/types/database.types.ts",
+    "gen:types:dev": "supabase gen types typescript --project-id vyflxqspjsfwrrotobjt > src/types/database.types.ts",
     "gen:types:prod": "supabase gen types typescript --project-id cyjkjzcthbpkufbsyosz > src/types/database.types.ts",
     "gen:types:local": "supabase gen types typescript --local > src/types/database.types.ts",
 
