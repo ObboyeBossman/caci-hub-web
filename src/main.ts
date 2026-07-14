@@ -10,6 +10,15 @@ import 'notyf/notyf.min.css'
 
 import { runSplash } from './core/splash'
 
+// Register PWA Service Worker
+import { registerSW } from 'virtual:pwa-register'
+registerSW({
+  onNeedRefresh() {},
+  onOfflineReady() {
+    console.log('[pwa] Offline ready')
+  },
+})
+
 async function boot(): Promise<void> {
   console.log('[main] CACI Hub Web boot() starting…')
 

@@ -8,6 +8,7 @@ import { adminState, MOCK_MEMBERS, MOCK_GROUPS, MOCK_BROADCASTS, MOCK_USER_PROFI
 import { renderDashboardTab } from './tabs/dashboard';
 import { renderMembersTab, launchNewMemberModal, closeMemberModal } from './tabs/members';
 import { renderGroupsTab, closeGroupModal, closeEnrollmentModal } from './tabs/groups';
+import { renderGroupDetails } from './tabs/group_details';
 import { renderAccountsTab, closeAccountModal } from './tabs/accounts';
 import { renderBroadcastsTab } from './tabs/broadcasts';
 import { renderAuditTab } from './tabs/audit';
@@ -33,17 +34,16 @@ export async function renderAdminHome(app: HTMLElement, session: Session): Promi
     app.innerHTML = buildAdminShellHtml();
 
     attachShellHandlers();
-
-    // Initial render
-    updateActiveTab();
-
-    // Trigger initial tab
-    switchAdminTab('dashboard');
+    initRouter();
 
     // Re-render when state changes
     subscribeAdmin(() => {
       updateActiveTab();
       refreshBadges();
+      syncUrlWithState();
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
     });
 
     refreshBadges();
@@ -298,20 +298,56 @@ function attachShellHandlers() {
   document.getElementById("admin-mobile-logout")?.addEventListener("click", handleLogout);
 }
 
+function initRouter() {
+  window.addEventListener('popstate', () => {
+    adminState.isNavigating = true;
+    parseUrlToState();
+    adminState.isNavigating = false;
+    notifyAdminStateChange();
+  });
+
+  parseUrlToState();
+}
+
+function parseUrlToState() {
+  const path = window.location.pathname;
+  if (path.startsWith('/admin/departments/')) {
+    const parts = path.split('/').filter(Boolean);
+    adminState.activeTab = 'groups';
+    adminState.selectedGroupId = parts[2] || null;
+    adminState.groupDetailTab = (parts[3] as any) || 'overview';
+  } else {
+    const tab = path.split('/').filter(Boolean)[1];
+    if (tab && ['dashboard', 'members', 'groups', 'broadcasts', 'accounts', 'audit'].includes(tab)) {
+      adminState.activeTab = tab;
+    } else {
+      adminState.activeTab = 'dashboard';
+    }
+    adminState.selectedGroupId = null;
+  }
+}
+
+function syncUrlWithState() {
+  if (adminState.isNavigating) return;
+
+  let newPath = `/admin/${adminState.activeTab}`;
+  if (adminState.activeTab === 'groups' && adminState.selectedGroupId) {
+    newPath = `/admin/departments/${adminState.selectedGroupId}/${adminState.groupDetailTab}`;
+  }
+
+  if (window.location.pathname !== newPath) {
+    window.history.pushState(null, '', newPath);
+  }
+}
+
 function switchAdminTab(tabId: string) {
   adminState.activeTab = tabId;
   adminState.searchQuery = "";
 
-  const breadcrumbs: Record<string, string> = {
-    'dashboard': 'Dashboard Overview',
-    'members': 'Manage Members',
-    'groups': 'Departments / Groups',
-    'broadcasts': 'Announcements',
-    'accounts': 'Manage User Accounts',
-    'audit': 'Audit Log Registry'
-  };
-  const breadcrumbEl = document.getElementById("admin-top-bar-breadcrumb");
-  if (breadcrumbEl) breadcrumbEl.innerText = breadcrumbs[tabId] || tabId;
+  // Reset group selection when switching tabs unless we are already in groups
+  if (tabId !== 'groups') {
+    adminState.selectedGroupId = null;
+  }
 
   // Visuals Reset
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
@@ -335,10 +371,21 @@ function updateActiveTab() {
   const modalsContainer = document.getElementById("admin-modals-container");
   if (modalsContainer) modalsContainer.innerHTML = "";
 
+  const breadcrumbEl = document.getElementById("admin-top-bar-breadcrumb");
+
   switch (adminState.activeTab) {
     case 'dashboard': renderDashboardTab(container); break;
     case 'members': renderMembersTab(container, modalsContainer!); break;
-    case 'groups': renderGroupsTab(container, modalsContainer!); break;
+    case 'groups':
+      if (adminState.selectedGroupId) {
+        const group = MOCK_GROUPS.find(g => g.id === adminState.selectedGroupId);
+        if (breadcrumbEl && group) breadcrumbEl.innerText = `Departments / ${group.name}`;
+        renderGroupDetails(container, modalsContainer!);
+      } else {
+        if (breadcrumbEl) breadcrumbEl.innerText = 'Departments / Groups';
+        renderGroupsTab(container, modalsContainer!);
+      }
+      break;
     case 'broadcasts': renderBroadcastsTab(container); break;
     case 'accounts': renderAccountsTab(container, modalsContainer!); break;
     case 'audit': renderAuditTab(container); break;

@@ -9,8 +9,13 @@ export let adminState = {
   searchQuery: '',
   memberStatusFilter: 'all', // all, active, inactive, visitor
   memberGenderFilter: 'all', // all, male, female
+  groupSearchQuery: '',
+  groupStatusFilter: 'all', // all, active, archived
   enrollmentGroupId: null as string | null,
-  enrollmentSearchQuery: ''
+  enrollmentSearchQuery: '',
+  selectedGroupId: null as string | null,
+  groupDetailTab: 'overview' as 'overview' | 'members' | 'leadership' | 'communication' | 'settings',
+  isNavigating: false
 };
 
 // Data stores (retaining MOCK_* naming to avoid breaking existing imports)

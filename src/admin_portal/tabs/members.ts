@@ -400,7 +400,7 @@ export function launchNewMemberModal() {
   document.getElementById("member-modal")?.classList.remove("hidden");
 }
 
-function launchEditMemberModal(id: string) {
+export function launchEditMemberModal(id: string) {
   const m = members.find((item: Tables<'members'>) => item.id === id);
   if (!m) return;
 

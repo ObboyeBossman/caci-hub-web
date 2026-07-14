@@ -1,8 +1,11 @@
-import { userProfiles, members, notifyAdminStateChange, syncAdminData, getSession } from '../store';
+import { userProfiles, members, syncAdminData } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
-import { attachPhoneInputFormatter, normalizeGhanaPhone, toSupabaseAuthPhone } from '../../core/phone';
+import { toSupabaseAuthPhone } from '../../core/phone';
 import { Tables } from '../../types/database.types';
+
+let selectedMemberIds: string[] = [];
+let memberSearchQuery = "";
 
 export function renderAccountsTab(container: HTMLElement, modalsContainer: HTMLElement) {
   container.innerHTML = `
@@ -100,53 +103,101 @@ function renderModals(modalsContainer: HTMLElement) {
     modalsContainer.appendChild(modal);
   }
 
-  const memberOptions = members.map((m: Tables<'members'>) => `<option value="${m.id}">${m.membership_number} — ${m.full_name}</option>`).join('');
-
   modal.innerHTML = `
     <div id="account-modal-backdrop" class="fixed inset-0 bg-black/60 transition-opacity cursor-pointer"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-100 transition-all">
-      <div class="p-5 border-b border-gray-150 bg-caci-blue text-white flex justify-between items-center">
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-100 transition-all flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-gray-150 bg-caci-blue text-white flex justify-between items-center shrink-0">
         <div>
-          <span class="text-[9px] bg-caci-red px-2.5 py-0.5 rounded text-white uppercase font-black tracking-widest">Table: user_profiles</span>
-          <h3 class="font-extrabold text-sm mt-1">Provision New Credentials</h3>
+          <span class="text-[9px] bg-caci-red px-2.5 py-0.5 rounded text-white uppercase font-black tracking-widest">Provisioning Engine</span>
+          <h3 class="font-extrabold text-sm mt-1">Batch Provision User Accounts</h3>
         </div>
         <button id="account-modal-close" class="text-white hover:bg-caci-blueDim p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-6 space-y-4 text-left">
-        <div class="space-y-1">
-          <label class="text-[10px] text-gray-500 font-bold block">User Profile Full Name *</label>
-          <input type="text" id="acc-form-name" placeholder="First Name & Last Name" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
-        </div>
-        <div class="space-y-1">
-          <label class="text-[10px] text-gray-500 font-bold block">Phone Number *</label>
-          <input type="tel" id="acc-form-phone" placeholder="e.g. 024 412 3456" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="space-y-1">
-            <label class="text-[10px] text-gray-500 font-bold block">System Access Role *</label>
-            <select id="acc-form-role" class="w-full border border-gray-200 rounded-xl px-2.5 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
-              <option value="member">Member Scope</option>
-              <option value="admin">Admin Portal Scope</option>
-            </select>
+
+      <div class="p-6 space-y-6 text-left overflow-y-auto">
+        <!-- Step 1: Member Selection -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Step 1: Select Members without accounts</label>
+            <span id="selected-count-badge" class="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">0 selected</span>
           </div>
-          <div class="space-y-1">
-            <label class="text-[10px] text-gray-500 font-bold block">Link to Member Profile</label>
-            <select id="acc-form-member-id" class="w-full border border-gray-200 rounded-xl px-2.5 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
-              <option value="">None (System Base)</option>
-              ${memberOptions}
-            </select>
+          <div class="relative">
+            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-400"></i>
+            <input type="text" id="acc-member-search" placeholder="Search by name, ID or phone..." class="w-full border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+          </div>
+          <div id="acc-member-list" class="border border-gray-100 rounded-xl max-h-44 overflow-y-auto p-1 bg-gray-50/50 space-y-1">
+            <!-- Members rendered dynamically -->
           </div>
         </div>
-        <div class="space-y-1">
-          <label class="text-[10px] text-gray-500 font-bold block">Temporary Password (Stored Encrypted) *</label>
-          <input type="text" id="acc-form-password" value="CACI#Adabraka2026" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-gray-50 font-mono focus:outline-none">
+
+        <div class="h-px bg-gray-100"></div>
+
+        <!-- Step 2: Configuration -->
+        <div class="space-y-4">
+          <label class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Step 2: Account Configuration</label>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="text-[10px] text-gray-500 font-bold block">Access Role</label>
+              <select id="acc-form-role" class="w-full border border-gray-200 rounded-xl px-2.5 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+                <option value="member">Member Portal</option>
+                <option value="admin">Admin Portal</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] text-gray-500 font-bold block">Password Mode</label>
+              <select id="acc-password-mode" class="w-full border border-gray-200 rounded-xl px-2.5 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+                <option value="manual">Manual Entry</option>
+                <option value="auto">Auto-Generate Secure</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="acc-password-container" class="space-y-1">
+            <label class="text-[10px] text-gray-500 font-bold block">Temporary Password *</label>
+            <div class="relative">
+              <input type="text" id="acc-form-password" value="CACI#Adabraka2026" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white font-mono focus:outline-none focus:border-caci-blue">
+              <button id="btn-toggle-pass-visibility" class="absolute right-3 top-2 text-gray-400 hover:text-gray-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-1">
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <div class="relative flex items-center">
+                <input type="checkbox" id="acc-force-reset" checked class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-caci-blue checked:border-caci-blue transition-all">
+                <i data-lucide="check" class="absolute w-3 h-3 text-white left-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+              </div>
+              <span class="text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">Force password change on first login</span>
+            </label>
+
+            <label class="flex items-center gap-3 cursor-pointer group opacity-60">
+              <div class="relative flex items-center">
+                <input type="checkbox" id="acc-notify-sms" class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-green-600 checked:border-green-600 transition-all" disabled>
+                <i data-lucide="check" class="absolute w-3 h-3 text-white left-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+              </div>
+              <span class="text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">Send SMS credentials notification <span class="text-[9px] font-black uppercase text-amber-600 ml-1">Coming Soon</span></span>
+            </label>
+
+            <label class="flex items-center gap-3 cursor-pointer group opacity-60">
+              <div class="relative flex items-center">
+                <input type="checkbox" id="acc-notify-email" class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-green-600 checked:border-green-600 transition-all" disabled>
+                <i data-lucide="check" class="absolute w-3 h-3 text-white left-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+              </div>
+              <span class="text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">Send Email credentials notification <span class="text-[9px] font-black uppercase text-amber-600 ml-1">Coming Soon</span></span>
+            </label>
+          </div>
         </div>
       </div>
-      <div class="p-4 bg-gray-50 border-t border-gray-150 flex items-center justify-end space-x-2.5">
-        <button id="account-modal-cancel" class="px-4 py-2 border border-gray-200 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-100">Cancel</button>
-        <button id="btn-save-account" class="px-5 py-2 bg-caci-blue hover:bg-caci-blueDim text-white rounded-xl text-xs font-bold">Provision User Profile</button>
+
+      <div class="p-4 bg-gray-50 border-t border-gray-150 flex items-center justify-end space-x-2.5 shrink-0">
+        <button id="account-modal-cancel" class="px-4 py-2 border border-gray-200 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-100 transition-colors">Cancel</button>
+        <button id="btn-save-account" disabled class="px-5 py-2 bg-caci-blue hover:bg-caci-blueDim text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95">
+          Provision User Profile
+        </button>
       </div>
     </div>
   `;
@@ -155,72 +206,176 @@ function renderModals(modalsContainer: HTMLElement) {
   document.getElementById('account-modal-cancel')?.addEventListener('click', closeAccountModal);
   document.getElementById('account-modal-backdrop')?.addEventListener('click', closeAccountModal);
 
-  attachPhoneInputFormatter(document.getElementById('acc-form-phone') as HTMLInputElement);
+  document.getElementById('acc-member-search')?.addEventListener('input', (e) => {
+    memberSearchQuery = (e.target as HTMLInputElement).value;
+    renderMemberList();
+  });
+
+  document.getElementById('acc-password-mode')?.addEventListener('change', (e) => {
+    const mode = (e.target as HTMLSelectElement).value;
+    const container = document.getElementById('acc-password-container');
+    const input = document.getElementById('acc-form-password') as HTMLInputElement;
+    if (mode === 'auto') {
+      if (container) container.classList.add('opacity-50', 'pointer-events-none');
+      if (input) input.value = "******** (Auto-Generated)";
+    } else {
+      if (container) container.classList.remove('opacity-50', 'pointer-events-none');
+      if (input) input.value = "CACI#Adabraka2026";
+    }
+  });
 
   document.getElementById('btn-save-account')?.addEventListener('click', async () => {
-    const name = (document.getElementById('acc-form-name') as HTMLInputElement).value.trim();
-    const phoneInput = (document.getElementById('acc-form-phone') as HTMLInputElement).value.trim();
+    if (selectedMemberIds.length === 0) return;
+
     const role = (document.getElementById('acc-form-role') as HTMLSelectElement).value;
-    const memberId = (document.getElementById('acc-form-member-id') as HTMLSelectElement).value;
-    const password = (document.getElementById('acc-form-password') as HTMLInputElement).value.trim();
+    const passwordMode = (document.getElementById('acc-password-mode') as HTMLSelectElement).value;
+    const manualPassword = (document.getElementById('acc-form-password') as HTMLInputElement).value.trim();
+    const forceReset = (document.getElementById('acc-force-reset') as HTMLInputElement).checked;
     
-    if (!name || !phoneInput || !password) {
-      showToast("Error", "Name, Phone Number, and Temporary Password are required.", "error");
-      return;
-    }
+    const saveBtn = document.getElementById('btn-save-account') as HTMLButtonElement;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i> Processing...`;
+    lucide.createIcons({ root: saveBtn });
 
-    // toSupabaseAuthPhone normalizes to 233XXXXXXXXX — no + prefix (Supabase rejects it)
-    const resolvedPhone = toSupabaseAuthPhone(phoneInput)
-    if (!resolvedPhone) {
-      showToast("Error", "Please enter a valid Ghana phone number.", "error");
-      return;
-    }
+    let successCount = 0;
+    let failCount = 0;
 
-    showToast("Info", "Signing up credentials in GoTrue Auth...", "info");
+    for (const memberId of selectedMemberIds) {
+      const member = members.find(m => m.id === memberId);
+      if (!member || !member.phone_number) {
+        failCount++;
+        continue;
+      }
 
-    const { data, error: signUpErr } = await supabase.auth.signUp({
-      phone: resolvedPhone,
-      password: password
-    });
+      const password = passwordMode === 'auto' ? generateSecurePassword() : manualPassword;
+      const resolvedPhone = toSupabaseAuthPhone(member.phone_number);
 
-    if (signUpErr) {
-      showToast("Error", signUpErr.message, "error");
-      return;
-    }
+      if (!resolvedPhone) {
+        failCount++;
+        continue;
+      }
 
-    if (!data.user) {
-      showToast("Error", "Auth user provision succeeded but no UUID returned.", "error");
-      return;
-    }
+      try {
+        const { data, error: signUpErr } = await supabase.auth.signUp({
+          phone: resolvedPhone,
+          password: password
+        });
 
-    const { error: profileErr } = await supabase.from('user_profiles').insert({
-      id: data.user.id,
-      full_name: name,
-      role: role as 'admin' | 'member',
-      is_active: true,
-      must_change_password: true
-    });
+        if (signUpErr) throw signUpErr;
+        if (!data.user) throw new Error("No user returned");
 
-    if (profileErr) {
-      showToast("Error", `Auth created, but profile insertion failed: ${profileErr.message}`, "error");
-      return;
-    }
+        const { error: profileErr } = await supabase.from('user_profiles').insert({
+          id: data.user.id,
+          full_name: member.full_name || 'Unnamed Member',
+          role: role as 'admin' | 'member',
+          is_active: true,
+          must_change_password: forceReset
+        });
 
-    if (memberId) {
-      const { error: memberLinkErr } = await supabase
-        .from('members')
-        .update({ auth_user_id: data.user.id })
-        .eq('id', memberId);
+        if (profileErr) throw profileErr;
 
-      if (memberLinkErr) {
-        showToast("Warning", `User provisioned, but linking to member failed: ${memberLinkErr.message}`, "warning");
+        const { error: memberLinkErr } = await supabase
+          .from('members')
+          .update({ auth_user_id: data.user.id })
+          .eq('id', memberId);
+
+        if (memberLinkErr) throw memberLinkErr;
+
+        successCount++;
+      } catch (err: any) {
+        console.error(`Failed to provision account for member ${memberId}:`, err);
+        failCount++;
       }
     }
 
-    showToast("Success", `Account provisioned successfully for ${resolvedPhone}`, "success");
+    if (successCount > 0) {
+      showToast("Success", `Provisioned ${successCount} account(s) successfully.`, "success");
+    }
+    if (failCount > 0) {
+      showToast("Error", `Failed to provision ${failCount} account(s).`, "error");
+    }
+
     closeAccountModal();
     await syncAdminData();
   });
+
+  lucide.createIcons({ root: modal });
+  renderMemberList();
+}
+
+function renderMemberList() {
+  const container = document.getElementById('acc-member-list');
+  if (!container) return;
+
+  const membersWithoutAccounts = members.filter(m => !m.auth_user_id && m.is_active);
+  const filtered = membersWithoutAccounts.filter(m => {
+    const q = memberSearchQuery.toLowerCase();
+    return (m.full_name?.toLowerCase().includes(q) ||
+           m.membership_number?.toLowerCase().includes(q) ||
+           m.phone_number?.toLowerCase().includes(q));
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="p-4 text-center text-gray-400 text-[10px] font-medium">No eligible members found.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(m => `
+    <label class="flex items-center justify-between p-2 hover:bg-white rounded-xl cursor-pointer transition-all border border-transparent hover:border-gray-200 group">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="relative flex items-center">
+          <input type="checkbox" class="acc-member-checkbox peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-caci-blue checked:border-caci-blue transition-all"
+            value="${m.id}" ${selectedMemberIds.includes(m.id) ? 'checked' : ''}>
+          <i data-lucide="check" class="absolute w-3 h-3 text-white left-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold text-gray-900 truncate group-hover:text-caci-blue transition-colors">${m.full_name}</p>
+          <p class="text-[9px] text-gray-500 font-mono flex items-center gap-1.5">
+            <span class="bg-gray-100 px-1 rounded">${m.membership_number}</span>
+            <span>•</span>
+            <span>${m.phone_number}</span>
+          </p>
+        </div>
+      </div>
+      <i data-lucide="user-plus" class="w-3.5 h-3.5 text-gray-300 group-hover:text-indigo-400 transition-colors"></i>
+    </label>
+  `).join('');
+
+  lucide.createIcons({ root: container });
+
+  container.querySelectorAll('.acc-member-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const checkbox = e.target as HTMLInputElement;
+      if (checkbox.checked) {
+        if (!selectedMemberIds.includes(checkbox.value)) {
+          selectedMemberIds.push(checkbox.value);
+        }
+      } else {
+        selectedMemberIds = selectedMemberIds.filter(id => id !== checkbox.value);
+      }
+      updateProvisionButton();
+    });
+  });
+}
+
+function updateProvisionButton() {
+  const btn = document.getElementById('btn-save-account') as HTMLButtonElement;
+  const badge = document.getElementById('selected-count-badge');
+  if (badge) badge.innerText = `${selectedMemberIds.length} selected`;
+
+  if (!btn) return;
+  const count = selectedMemberIds.length;
+  btn.disabled = count === 0;
+  btn.innerText = count > 0 ? `Provision ${count} Account${count > 1 ? 's' : ''}` : 'Provision User Profile';
+}
+
+function generateSecurePassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+  let pass = "";
+  for (let i = 0; i < 12; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return pass;
 }
 
 function attachHandlers(container: HTMLElement) {
@@ -292,15 +447,26 @@ function attachHandlers(container: HTMLElement) {
 }
 
 export function launchNewAccountModal() {
-  const nameInp = document.getElementById('acc-form-name') as HTMLInputElement;
-  const phoneInp = document.getElementById('acc-form-phone') as HTMLInputElement;
-  const roleInp = document.getElementById('acc-form-role') as HTMLSelectElement;
-  const memInp = document.getElementById('acc-form-member-id') as HTMLSelectElement;
+  selectedMemberIds = [];
+  memberSearchQuery = "";
   
-  if (nameInp) nameInp.value = "";
-  if (phoneInp) phoneInp.value = "";
+  const searchInp = document.getElementById('acc-member-search') as HTMLInputElement;
+  if (searchInp) searchInp.value = "";
+
+  const roleInp = document.getElementById('acc-form-role') as HTMLSelectElement;
   if (roleInp) roleInp.value = "member";
-  if (memInp) memInp.value = "";
+
+  const passMode = document.getElementById('acc-password-mode') as HTMLSelectElement;
+  if (passMode) passMode.value = "manual";
+
+  const passInp = document.getElementById('acc-form-password') as HTMLInputElement;
+  if (passInp) passInp.value = "CACI#Adabraka2026";
+
+  const forceReset = document.getElementById('acc-force-reset') as HTMLInputElement;
+  if (forceReset) forceReset.checked = true;
+
+  renderMemberList();
+  updateProvisionButton();
 
   document.getElementById('account-modal')?.classList.remove('hidden');
 }

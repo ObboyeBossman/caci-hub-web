@@ -6,20 +6,30 @@ import { Tables } from '../../types/database.types';
 export function renderGroupsTab(container: HTMLElement, modalsContainer: HTMLElement) {
   container.innerHTML = `
     <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <i data-lucide="layers" class="text-indigo-600"></i>
-            <span>Enrolled Assembly Departments</span>
-          </h2>
-          <p class="text-xs text-gray-500 mt-0.5">Configure target ministries, define access messaging modes and audit enrollments.</p>
+      <div class="bg-white border border-[#e6edf3] p-4 rounded-2xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 shadow-3xs">
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="absolute left-3 top-2.5 h-4 w-4 text-gray-400"></i>
+          <input
+            type="text"
+            id="groups-search-input"
+            placeholder="Search departments by name or description..."
+            value="${adminState.groupSearchQuery}"
+            class="w-full pl-9 pr-4 py-1.5 border border-gray-200 rounded-xl text-xs bg-white focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
+          />
         </div>
-        <button id="btn-create-group" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
-          <i data-lucide="plus" class="w-4 h-4"></i><span>Create Department Group</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="groups-filter-status" class="border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs bg-white focus:outline-none">
+            <option value="all" ${adminState.groupStatusFilter === 'all' ? 'selected' : ''}>All Departments</option>
+            <option value="active" ${adminState.groupStatusFilter === 'active' ? 'selected' : ''}>Active Only</option>
+            <option value="archived" ${adminState.groupStatusFilter === 'archived' ? 'selected' : ''}>Archived Only</option>
+          </select>
+          <button id="btn-create-group" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i><span>Create Department Group</span>
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="groups-grid-container">
         ${renderGroupsGrid()}
       </div>
     </div>
@@ -31,14 +41,25 @@ export function renderGroupsTab(container: HTMLElement, modalsContainer: HTMLEle
 }
 
 function renderGroupsGrid() {
-  if (MOCK_GROUPS.length === 0) {
-    return `<div class="col-span-full py-12 text-center text-gray-400">No departments created.</div>`;
+  const filtered = MOCK_GROUPS.filter((g: Tables<'groups'>) => {
+    let matches = true;
+    const q = adminState.groupSearchQuery.toLowerCase();
+    if (q) {
+      matches = (g.name?.toLowerCase().includes(q) ?? false) || (g.description?.toLowerCase().includes(q) ?? false);
+    }
+    if (adminState.groupStatusFilter === 'active' && !g.is_active) matches = false;
+    if (adminState.groupStatusFilter === 'archived' && g.is_active) matches = false;
+    return matches;
+  });
+
+  if (filtered.length === 0) {
+    return `<div class="col-span-full py-12 text-center text-gray-400">No departments matching current filters.</div>`;
   }
-  return MOCK_GROUPS.map((g: Tables<'groups'>) => {
+  return filtered.map((g: Tables<'groups'>) => {
     const leader = MOCK_MEMBERS.find((m: Tables<'members'>) => m.id === g.leader_id);
     const count = MOCK_GROUP_MEMBERS.filter((gm: Tables<'group_members'>) => gm.group_id === g.id).length;
     return `
-      <div class="bg-white border border-[#e6edf3] rounded-2xl p-5 shadow-3xs flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div class="group-card bg-white border border-[#e6edf3] rounded-2xl p-5 shadow-3xs flex flex-col justify-between hover:shadow-md transition-all cursor-pointer hover:border-indigo-200 active:scale-[0.98]" data-id="${g.id}">
         <div>
           <div class="flex items-center justify-between mb-3">
             <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
@@ -48,7 +69,7 @@ function renderGroupsGrid() {
               ${g.messaging_mode} Comms
             </span>
           </div>
-          <h3 class="font-bold text-gray-900 text-base">${g.name}</h3>
+          <h3 class="font-bold text-gray-900 text-base group-hover:text-indigo-600 transition-colors">${g.name}</h3>
           <p class="text-xs text-gray-500 mt-1 line-clamp-2">${g.description || 'No description provided.'}</p>
           <div class="mt-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
             <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest block mb-1">Department Head</span>
@@ -65,8 +86,8 @@ function renderGroupsGrid() {
             <i data-lucide="users" class="w-4 h-4"></i>
             <span class="text-xs font-bold">${count} Enrolled</span>
           </div>
-          <button class="btn-manage-enrollment text-xs font-bold text-indigo-600 hover:underline" data-id="${g.id}">
-            Manage Roster &rarr;
+          <button class="btn-manage-roster-link text-xs font-bold text-indigo-600 hover:underline flex items-center" data-id="${g.id}">
+            Manage Roster <i data-lucide="chevron-right" class="w-3.5 h-3.5 ml-0.5"></i>
           </button>
         </div>
       </div>
@@ -201,10 +222,45 @@ function renderModals(modalsContainer: HTMLElement) {
 function attachHandlers(container: HTMLElement) {
   document.getElementById('btn-create-group')?.addEventListener('click', launchNewGroupModal);
 
-  container.querySelectorAll('.btn-manage-enrollment').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+  document.getElementById('groups-search-input')?.addEventListener('input', (e) => {
+    adminState.groupSearchQuery = (e.target as HTMLInputElement).value;
+    const grid = document.getElementById('groups-grid-container');
+    if (grid) {
+      grid.innerHTML = renderGroupsGrid();
+      attachHandlers(container); // Re-attach for new elements
+      lucide.createIcons({ root: grid });
+    }
+  });
+
+  document.getElementById('groups-filter-status')?.addEventListener('change', (e) => {
+    adminState.groupStatusFilter = (e.target as HTMLSelectElement).value;
+    const grid = document.getElementById('groups-grid-container');
+    if (grid) {
+      grid.innerHTML = renderGroupsGrid();
+      attachHandlers(container);
+      lucide.createIcons({ root: grid });
+    }
+  });
+
+  container.querySelectorAll('.group-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Prevent navigation if clicking on "Manage Roster" button specifically (which we handle below)
+      if ((e.target as HTMLElement).closest('.btn-manage-roster-link')) return;
+
       const id = (e.currentTarget as HTMLElement).dataset.id!;
-      launchEnrollmentModal(id);
+      adminState.selectedGroupId = id;
+      adminState.groupDetailTab = 'overview';
+      notifyAdminStateChange();
+    });
+  });
+
+  container.querySelectorAll('.btn-manage-roster-link').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = (e.currentTarget as HTMLElement).dataset.id!;
+      adminState.selectedGroupId = id;
+      adminState.groupDetailTab = 'members';
+      notifyAdminStateChange();
     });
   });
 }
