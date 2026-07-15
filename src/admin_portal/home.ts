@@ -46,6 +46,11 @@ export async function renderAdminHome(app: HTMLElement, session: Session): Promi
       }
     });
 
+    // Render the initial tab now that the shell is in the DOM.
+    // syncAdminData() fires notifyAdminStateChange() before innerHTML is set,
+    // so the subscriber above missed the first notification — render manually.
+    updateActiveTab();
+
     refreshBadges();
     if (window.lucide) {
       window.lucide.createIcons();
