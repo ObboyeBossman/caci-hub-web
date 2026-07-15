@@ -75,7 +75,7 @@ function buildShellHtml() {
     <header class="bg-caci-blue text-white py-3.5 px-4 flex items-center justify-between shadow-md lg:hidden sticky top-0 z-40">
       <div class="flex items-center space-x-3">
         <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center border-2 border-caci-red overflow-hidden shadow-sm">
-          <span class="font-extrabold text-[10px] text-caci-blue">CACI</span>
+          <img src="/caci-logo.jpeg" alt="CACI Logo" class="w-full h-full object-cover">
         </div>
         <div>
           <h1 class="font-black text-sm tracking-wide">CACI HUB</h1>
@@ -172,7 +172,7 @@ function buildShellHtml() {
             <div class="flex justify-between items-start">
               <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center border-2 border-caci-red shrink-0">
-                  <span class="font-bold text-xs text-caci-blue">CACI</span>
+                  <img src="/caci-logo.jpeg" alt="CACI Logo" class="w-full h-full object-cover">
                 </div>
                 <div>
                   <h3 class="font-extrabold text-sm tracking-wide text-white">CACI Hub</h3>

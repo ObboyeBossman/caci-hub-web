@@ -1,4 +1,6 @@
-import { showToast } from '../../core/toast';
+import fs from 'fs';
+
+const content = `import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
 
 export async function renderSettingsTab(container: HTMLElement) {
@@ -17,7 +19,7 @@ export async function renderSettingsTab(container: HTMLElement) {
   const contactEmail = settingsData?.contact_email || '';
   const forceReset = settingsData?.force_password_reset !== false;
 
-  container.innerHTML = `
+  container.innerHTML = \`
     <div class="space-y-6 pb-20">
       <div class="bg-white border border-[#e6edf3] p-6 rounded-2xl shadow-3xs">
         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -36,7 +38,7 @@ export async function renderSettingsTab(container: HTMLElement) {
             <div class="space-y-1.5">
               <label class="text-[11px] font-bold text-gray-700">Provisioning Default Password</label>
               <div class="relative">
-                <input type="text" id="set-default-password" value="${defaultPassword}" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white font-mono focus:outline-none focus:border-caci-blue">
+                <input type="text" id="set-default-password" value="\${defaultPassword}" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white font-mono focus:outline-none focus:border-caci-blue">
                 <p class="text-[9px] text-gray-400 mt-1">This password will be pre-filled when provisioning new member accounts.</p>
               </div>
             </div>
@@ -44,7 +46,7 @@ export async function renderSettingsTab(container: HTMLElement) {
             <div class="pt-2">
               <label class="flex items-center gap-3 cursor-pointer group">
                 <div class="relative flex items-center">
-                  <input type="checkbox" id="set-force-reset" ${forceReset ? 'checked' : ''} class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-caci-blue checked:border-caci-blue transition-all">
+                  <input type="checkbox" id="set-force-reset" \${forceReset ? 'checked' : ''} class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-caci-blue checked:border-caci-blue transition-all">
                   <i data-lucide="check" class="absolute w-3 h-3 text-white left-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
                 </div>
                 <span class="text-xs text-gray-700 font-medium">Always force password change on first login</span>
@@ -60,11 +62,11 @@ export async function renderSettingsTab(container: HTMLElement) {
           <div class="p-6 space-y-4 flex-1">
             <div class="space-y-1.5">
               <label class="text-[11px] font-bold text-gray-700">Display Assembly Name</label>
-              <input type="text" id="set-assembly-name" value="${assemblyName}" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+              <input type="text" id="set-assembly-name" value="\${assemblyName}" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
             </div>
             <div class="space-y-1.5">
               <label class="text-[11px] font-bold text-gray-700">Assembly Location / District</label>
-              <input type="text" id="set-assembly-location" value="${assemblyLocation}" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+              <input type="text" id="set-assembly-location" value="\${assemblyLocation}" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
             </div>
           </div>
         </div>
@@ -77,17 +79,17 @@ export async function renderSettingsTab(container: HTMLElement) {
             <div class="space-y-4">
               <div class="space-y-1.5">
                 <label class="text-[11px] font-bold text-gray-700">Physical Address</label>
-                <textarea id="set-assembly-address" rows="4" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">${assemblyAddress}</textarea>
+                <textarea id="set-assembly-address" rows="4" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">\${assemblyAddress}</textarea>
               </div>
             </div>
             <div class="space-y-4">
               <div class="space-y-1.5">
                 <label class="text-[11px] font-bold text-gray-700">Contact Phone Number</label>
-                <input type="text" id="set-contact-phone" value="${contactPhone}" placeholder="+233..." class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+                <input type="text" id="set-contact-phone" value="\${contactPhone}" placeholder="+233..." class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
               </div>
               <div class="space-y-1.5">
                 <label class="text-[11px] font-bold text-gray-700">Contact Email Address</label>
-                <input type="email" id="set-contact-email" value="${contactEmail}" placeholder="info@assembly.org" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
+                <input type="email" id="set-contact-email" value="\${contactEmail}" placeholder="info@assembly.org" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-caci-blue">
               </div>
             </div>
           </div>
@@ -147,7 +149,7 @@ export async function renderSettingsTab(container: HTMLElement) {
         </button>
       </div>
     </div>
-  `;
+  \`;
   lucide.createIcons({ root: container });
 
   const saveBtn = document.getElementById('btn-save-settings');
@@ -196,3 +198,6 @@ export async function renderSettingsTab(container: HTMLElement) {
     }
   });
 }
+`;
+
+fs.writeFileSync('src/admin_portal/tabs/settings.ts', content);

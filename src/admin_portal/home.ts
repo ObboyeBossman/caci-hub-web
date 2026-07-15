@@ -12,6 +12,7 @@ import { renderGroupDetails } from './tabs/group_details';
 import { renderAccountsTab, closeAccountModal } from './tabs/accounts';
 import { renderBroadcastsTab } from './tabs/broadcasts';
 import { renderAuditTab } from './tabs/audit';
+import { renderSermonsTab } from './tabs/sermons';
 import { renderSettingsTab } from './tabs/settings';
 import { renderMembersHome } from '../members_portal/home';
 
@@ -71,7 +72,7 @@ function buildAdminShellHtml() {
     <header class="bg-caci-blue text-white py-3.5 px-4 flex items-center justify-between shadow-md lg:hidden sticky top-0 z-40">
       <div class="flex items-center space-x-3">
         <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center border-2 border-caci-red overflow-hidden shadow-sm">
-          <span class="font-extrabold text-[10px] text-caci-blue">CACI</span>
+          <img src="/caci-logo.jpeg" alt="CACI Logo" class="w-full h-full object-cover">
         </div>
         <div>
           <h1 class="font-black text-sm tracking-wide text-white">CACI ADMIN</h1>
@@ -89,7 +90,7 @@ function buildAdminShellHtml() {
         <div class="flex flex-col">
           <div class="p-6 border-b border-white/10 flex items-center space-x-3">
             <div class="w-10 h-10 bg-white/15 rounded-full flex items-center justify-center border border-white/20 overflow-hidden shrink-0">
-              <span class="font-black text-xs text-white">CACI</span>
+              <img src="/caci-logo.jpeg" alt="CACI Logo" class="w-full h-full object-cover">
             </div>
             <div>
               <h2 class="font-black text-base uppercase tracking-wider leading-none text-white">CACI <span class="text-caci-redLight font-extrabold">Hub</span></h2>
@@ -130,7 +131,16 @@ function buildAdminShellHtml() {
             </div>
 
             <div class="space-y-1.5">
-              <p class="text-[10px] uppercase font-bold text-blue-300/70 px-3 tracking-widest mb-1">System Security</p>
+              
+            <div class="space-y-1.5 mb-6">
+              <button data-tab="sermons" class="admin-tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-tab text-white hover:bg-white/10">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="book-open" class="w-4.5 h-4.5"></i><span>Sermons</span>
+                </div>
+              </button>
+            </div>
+            
+            <p class="text-[10px] uppercase font-bold text-blue-300/70 px-3 tracking-widest mb-1">System Security</p>
               <button data-tab="accounts" class="admin-tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-tab text-white hover:bg-white/10">
                 <div class="flex items-center space-x-3">
                   <i data-lucide="shield" class="w-4.5 h-4.5"></i><span>Manage User Accounts</span>
@@ -327,7 +337,7 @@ function parseUrlToState() {
     adminState.groupDetailTab = (parts[3] as any) || 'overview';
   } else {
     const tab = path.split('/').filter(Boolean)[1];
-    if (tab && ['dashboard', 'members', 'groups', 'broadcasts', 'accounts', 'audit', 'settings'].includes(tab)) {
+    if (tab && ['dashboard', 'members', 'groups', 'broadcasts', 'accounts', 'audit', 'settings', 'sermons'].includes(tab)) {
       adminState.activeTab = tab;
     } else {
       adminState.activeTab = 'dashboard';
@@ -398,6 +408,7 @@ function updateActiveTab() {
     case 'broadcasts': renderBroadcastsTab(container); break;
     case 'accounts': renderAccountsTab(container, modalsContainer!); break;
     case 'audit': renderAuditTab(container); break;
+    case 'sermons': renderSermonsTab(container); break;
     case 'settings': renderSettingsTab(container); break;
   }
 }

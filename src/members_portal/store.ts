@@ -42,17 +42,7 @@ export const GROUP_DIRECTORY: Record<string, any> = {
   }
 };
 
-export const SERMONS = [
-  {
-    id: "sermon-001",
-    title: "The Covenant of Restoration",
-    speaker: "Apostle Dr. Joseph Kwabena Osei",
-    passage: "Joel 2:25",
-    date: "2026-07-05",
-    audio_duration: "45 mins",
-    description: "Understanding God's supernatural timeline for restoring years, resources, and spiritual momentum."
-  }
-];
+
 
 export let mockChatMessages: Record<string, any[]> = {
   "g1": [
@@ -142,9 +132,16 @@ export async function syncMemberData(authUserId: string) {
     const { data: notifs } = await supabase.from('notifications').select('*').eq('member_id', memberData.id).order('created_at', { ascending: false });
     notifications = notifs || [];
 
+    
+    const { data: sermons } = await supabase.from('sermons').select('*').order('date', { ascending: false });
+    SERMONS = sermons || [];
+
     notifyStateChange();
   } catch (error) {
     console.error("[store] syncMemberData failed:", error);
     throw error; // Re-throw so the UI can handle it
   }
 }
+
+export let SERMONS: any[] = [];
+export { SERMONS as sermons };

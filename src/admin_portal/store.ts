@@ -25,6 +25,7 @@ export let GROUP_MEMBERS: Tables<'group_members'>[] = [];
 export let BROADCASTS: Tables<'broadcasts'>[] = [];
 export let USER_PROFILES: Tables<'user_profiles'>[] = [];
 export let MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
+export let SERMONS: Tables<'sermons'>[] = [];
 export let AUDIT_LOGS: Tables<'member_audit_log'>[] = [];
 
 // Compatibility exports for admin portal tabs that expect plain names.
@@ -35,6 +36,7 @@ export { GROUP_MEMBERS as groupMembers };
 export { BROADCASTS as broadcasts };
 export { USER_PROFILES as userProfiles };
 export { MEMBER_PERMISSIONS as memberPermissions };
+export { SERMONS as sermons };
 export { AUDIT_LOGS as auditLogs };
 
 // Session reference
@@ -125,7 +127,15 @@ export async function syncAdminData() {
     if (alErr) throw alErr;
     AUDIT_LOGS = auditLogs || [];
 
-    // Notify listeners that data has updated
+    
+    // 8. Fetch sermons
+    const { data: sermonsData, error: sermonsErr } = await supabase
+      .from('sermons')
+      .select('*')
+      .order('date', { ascending: false });
+    if (sermonsErr) throw sermonsErr;
+    SERMONS = sermonsData || [];
+// Notify listeners that data has updated
     notifyAdminStateChange();
   } catch (error) {
     console.error('Failed to sync admin portal data from database:', error);

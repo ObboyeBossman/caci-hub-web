@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+                  sermons: {
+        Row: {
+          id: string
+          title: string
+          speaker: string
+          date: string
+          description: string | null
+          scripture_reference: string | null
+          audio_url: string | null
+          video_url: string | null
+          cover_image_url: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          speaker: string
+          date: string
+          description?: string | null
+          scripture_reference?: string | null
+          audio_url?: string | null
+          video_url?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          speaker?: string
+          date?: string
+          description?: string | null
+          scripture_reference?: string | null
+          audio_url?: string | null
+          video_url?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Relationships: []
+      },
+assembly_settings: {
+        Row: {
+          id: string
+          assembly_name: string
+          assembly_location: string
+          assembly_address: string | null
+          contact_phone: string | null
+          contact_email: string | null
+          default_password: string
+          force_password_reset: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          assembly_name?: string
+          assembly_location?: string
+          assembly_address?: string | null
+          contact_phone?: string | null
+          contact_email?: string | null
+          default_password?: string
+          force_password_reset?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          assembly_name?: string
+          assembly_location?: string
+          assembly_address?: string | null
+          contact_phone?: string | null
+          contact_email?: string | null
+          default_password?: string
+          force_password_reset?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       broadcast_recipients: {
         Row: {
           broadcast_id: string
