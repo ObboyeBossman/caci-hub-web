@@ -1,4 +1,4 @@
-import { MOCK_GROUPS, MOCK_GROUP_MEMBERS, MOCK_MEMBERS, adminState, notifyAdminStateChange, syncAdminData } from '../store';
+import { GROUPS, GROUP_MEMBERS, MEMBERS, adminState, notifyAdminStateChange, syncAdminData } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
 import { Tables } from '../../types/database.types';
@@ -6,7 +6,7 @@ import { Tables } from '../../types/database.types';
 let isActionProcessing = false;
 
 export function renderGroupDetails(container: HTMLElement, modalsContainer: HTMLElement) {
-  const group = MOCK_GROUPS.find(g => g.id === adminState.selectedGroupId);
+  const group = GROUPS.find(g => g.id === adminState.selectedGroupId);
   if (!group) {
     container.innerHTML = `
       <div class="flex flex-col items-center justify-center py-20 text-center">
@@ -28,8 +28,8 @@ export function renderGroupDetails(container: HTMLElement, modalsContainer: HTML
     return;
   }
 
-  const leader = MOCK_MEMBERS.find(m => m.id === group.leader_id);
-  const memberCount = MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id).length;
+  const leader = MEMBERS.find(m => m.id === group.leader_id);
+  const memberCount = GROUP_MEMBERS.filter(gm => gm.group_id === group.id).length;
 
   container.innerHTML = `
     <div class="space-y-6">
@@ -105,7 +105,7 @@ function renderTabContent(group: Tables<'groups'>) {
 }
 
 function renderOverview(group: Tables<'groups'>) {
-  const enrollment = MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
+  const enrollment = GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
   const createdDate = new Date(group.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
   return `
@@ -181,8 +181,8 @@ function renderOverview(group: Tables<'groups'>) {
 }
 
 function renderMembers(group: Tables<'groups'>) {
-  const enrollment = MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
-  const groupMembers = enrollment.map(e => MOCK_MEMBERS.find(m => m.id === e.member_id)).filter(Boolean);
+  const enrollment = GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
+  const groupMembers = enrollment.map(e => MEMBERS.find(m => m.id === e.member_id)).filter(Boolean);
 
   return `
     <div class="bg-white border border-[#e6edf3] rounded-2xl shadow-3xs overflow-hidden">
@@ -246,7 +246,7 @@ function renderMembersRows(members: Tables<'members'>[], group: Tables<'groups'>
 }
 
 function renderLeadership(group: Tables<'groups'>) {
-  const leader = MOCK_MEMBERS.find(m => m.id === group.leader_id);
+  const leader = MEMBERS.find(m => m.id === group.leader_id);
 
   return `
     <div class="space-y-6">
@@ -396,8 +396,8 @@ function renderModals(modalsContainer: HTMLElement, group: Tables<'groups'>) {
     modalsContainer.appendChild(leaderModal);
   }
 
-  const enrollment = MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
-  const eligibleLeaders = enrollment.map(e => MOCK_MEMBERS.find(m => m.id === e.member_id)).filter(Boolean);
+  const enrollment = GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
+  const eligibleLeaders = enrollment.map(e => MEMBERS.find(m => m.id === e.member_id)).filter(Boolean);
 
   leaderModal.innerHTML = `
     <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" id="assign-leader-modal-backdrop"></div>
@@ -488,8 +488,8 @@ function attachDetailsHandlers(container: HTMLElement, group: Tables<'groups'>) 
   });
 
   document.getElementById('btn-export-roster')?.addEventListener('click', () => {
-    const enrollment = MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
-    const members = enrollment.map(e => MOCK_MEMBERS.find(m => m.id === e.member_id)).filter(Boolean) as Tables<'members'>[];
+    const enrollment = GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
+    const members = enrollment.map(e => MEMBERS.find(m => m.id === e.member_id)).filter(Boolean) as Tables<'members'>[];
 
     let csv = 'Full Name,Membership Number,Phone Number,Location\n';
     members.forEach(m => {
@@ -560,8 +560,8 @@ function attachDetailsHandlers(container: HTMLElement, group: Tables<'groups'>) 
        const tbody = document.getElementById('dept-members-tbody');
        if (!tbody) return;
 
-       const enrollment = MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
-       const members = enrollment.map(e => MOCK_MEMBERS.find(m => m.id === e.member_id)).filter(Boolean) as Tables<'members'>[];
+       const enrollment = GROUP_MEMBERS.filter(gm => gm.group_id === group.id);
+       const members = enrollment.map(e => MEMBERS.find(m => m.id === e.member_id)).filter(Boolean) as Tables<'members'>[];
        const filtered = members.filter(m => m.full_name?.toLowerCase().includes(query) || m.membership_number?.toLowerCase().includes(query));
 
        tbody.innerHTML = renderMembersRows(filtered, group);
@@ -637,7 +637,7 @@ function attachDetailsHandlers(container: HTMLElement, group: Tables<'groups'>) 
     document.getElementById('btn-delete-dept-permanent')?.addEventListener('click', async () => {
       if (isActionProcessing) return;
 
-      const confirmMsg = `WARNING: This will permanently delete '${group.name}' and ALL ${MOCK_GROUP_MEMBERS.filter(gm => gm.group_id === group.id).length} enrollment records. This cannot be undone. Type 'DELETE' to confirm.`;
+      const confirmMsg = `WARNING: This will permanently delete '${group.name}' and ALL ${GROUP_MEMBERS.filter(gm => gm.group_id === group.id).length} enrollment records. This cannot be undone. Type 'DELETE' to confirm.`;
       const val = prompt(confirmMsg);
       if (val !== 'DELETE') return;
 

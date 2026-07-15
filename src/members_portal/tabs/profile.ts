@@ -1,4 +1,4 @@
-import { MOCK_MEMBER as member } from '../store';
+import { MEMBER as member } from '../store';
 import { showToast } from '../../core/toast';
 import { formatGhanaPhoneForDisplay } from '../../core/phone';
 

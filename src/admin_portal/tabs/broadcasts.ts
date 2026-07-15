@@ -1,4 +1,4 @@
-import { MOCK_BROADCASTS, MOCK_GROUPS, notifyAdminStateChange, syncAdminData, getSession, MOCK_USER_PROFILES } from '../store';
+import { BROADCASTS, GROUPS, notifyAdminStateChange, syncAdminData, getSession, USER_PROFILES } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
 
@@ -33,7 +33,7 @@ export function renderBroadcastsTab(container: HTMLElement) {
                 <label class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wide block">Specific Group Module</label>
                 <select id="bc-select-group" disabled class="w-full border border-gray-200 rounded-xl px-2.5 py-2 text-xs bg-white focus:outline-none disabled:bg-gray-50 disabled:text-gray-400">
                   <option value="">Select Group...</option>
-                  ${MOCK_GROUPS.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
+                  ${GROUPS.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
                 </select>
               </div>
             </div>
@@ -73,18 +73,18 @@ export function renderBroadcastsTab(container: HTMLElement) {
 }
 
 function renderBroadcastHistory() {
-  if (MOCK_BROADCASTS.length === 0) {
+  if (BROADCASTS.length === 0) {
     return `<p class="text-xs text-gray-400">No broadcasts have been sent yet.</p>`;
   }
 
-  return [...MOCK_BROADCASTS].reverse().map(bc => {
+  return [...BROADCASTS].reverse().map(bc => {
     let targetLabel = "Assembly-Wide";
     if (bc.targeting_mode === "group" && bc.target_group_id) {
-      const g = MOCK_GROUPS.find(gr => gr.id === bc.target_group_id);
+      const g = GROUPS.find(gr => gr.id === bc.target_group_id);
       targetLabel = g ? `Group: ${g.name}` : "Group (Unknown)";
     }
 
-    const senderProfile = MOCK_USER_PROFILES.find(u => u.id === bc.sent_by);
+    const senderProfile = USER_PROFILES.find(u => u.id === bc.sent_by);
     const senderName = senderProfile ? senderProfile.full_name : "Assembly Admin";
 
     return `

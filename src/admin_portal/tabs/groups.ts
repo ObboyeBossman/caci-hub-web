@@ -1,4 +1,4 @@
-import { MOCK_GROUPS, MOCK_GROUP_MEMBERS, MOCK_MEMBERS, adminState, notifyAdminStateChange, syncAdminData } from '../store';
+import { GROUPS, GROUP_MEMBERS, MEMBERS, adminState, notifyAdminStateChange, syncAdminData } from '../store';
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
 import { Tables } from '../../types/database.types';
@@ -41,7 +41,7 @@ export function renderGroupsTab(container: HTMLElement, modalsContainer: HTMLEle
 }
 
 function renderGroupsGrid() {
-  const filtered = MOCK_GROUPS.filter((g: Tables<'groups'>) => {
+  const filtered = GROUPS.filter((g: Tables<'groups'>) => {
     let matches = true;
     const q = adminState.groupSearchQuery.toLowerCase();
     if (q) {
@@ -56,8 +56,8 @@ function renderGroupsGrid() {
     return `<div class="col-span-full py-12 text-center text-gray-400">No departments matching current filters.</div>`;
   }
   return filtered.map((g: Tables<'groups'>) => {
-    const leader = MOCK_MEMBERS.find((m: Tables<'members'>) => m.id === g.leader_id);
-    const count = MOCK_GROUP_MEMBERS.filter((gm: Tables<'group_members'>) => gm.group_id === g.id).length;
+    const leader = MEMBERS.find((m: Tables<'members'>) => m.id === g.leader_id);
+    const count = GROUP_MEMBERS.filter((gm: Tables<'group_members'>) => gm.group_id === g.id).length;
     return `
       <div class="group-card bg-white border border-[#e6edf3] rounded-2xl p-5 shadow-3xs flex flex-col justify-between hover:shadow-md transition-all cursor-pointer hover:border-indigo-200 active:scale-[0.98]" data-id="${g.id}">
         <div>
@@ -277,7 +277,7 @@ export function closeGroupModal() {
 }
 
 export function launchEnrollmentModal(groupId: string) {
-  const grp = MOCK_GROUPS.find((g: Tables<'groups'>) => g.id === groupId);
+  const grp = GROUPS.find((g: Tables<'groups'>) => g.id === groupId);
   if (!grp) return;
 
   adminState.enrollmentGroupId = groupId;
@@ -307,7 +307,7 @@ export function renderEnrollmentCandidates() {
   const container = document.getElementById("enrollment-candidates-list");
   if (!container) return;
 
-  const activeMembers = MOCK_MEMBERS.filter((m: Tables<'members'>) => m.is_active);
+  const activeMembers = MEMBERS.filter((m: Tables<'members'>) => m.is_active);
   const filtered = activeMembers.filter((m: Tables<'members'>) => (m.full_name?.toLowerCase().includes(query) ?? false));
 
   if (filtered.length === 0) {
@@ -316,7 +316,7 @@ export function renderEnrollmentCandidates() {
   }
 
   container.innerHTML = filtered.map((m: Tables<'members'>) => {
-    const isEnrolled = MOCK_GROUP_MEMBERS.some((gm: Tables<'group_members'>) => gm.group_id === groupId && gm.member_id === m.id);
+    const isEnrolled = GROUP_MEMBERS.some((gm: Tables<'group_members'>) => gm.group_id === groupId && gm.member_id === m.id);
     return `
       <div class="flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg">
         <div class="min-w-0">

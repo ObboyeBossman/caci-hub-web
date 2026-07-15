@@ -1,4 +1,4 @@
-import { MOCK_FORUM_ACTIVE_USERS, MOCK_MEMBER, mockForumMessages } from '../store';
+import { FORUM_ACTIVE_USERS, MEMBER, mockForumMessages } from '../store';
 import { showToast } from '../../core/toast';
 
 export function renderForumTab(container: HTMLElement) {
@@ -52,7 +52,7 @@ export function renderForumTab(container: HTMLElement) {
     const timeStr = new Date().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
     
     mockForumMessages.push({
-      sender: MOCK_MEMBER.full_name,
+      sender: MEMBER.full_name,
       title: "Member",
       body: text,
       time: timeStr,
@@ -85,13 +85,13 @@ function renderForumActiveUsers(container: HTMLElement) {
       <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
     </span>
     <div class="min-w-0">
-      <p class="text-xs font-bold text-gray-950 truncate">${MOCK_MEMBER.full_name} (You)</p>
-      <p class="text-[9px] text-green-700 leading-none">${MOCK_MEMBER.occupation}</p>
+      <p class="text-xs font-bold text-gray-950 truncate">${MEMBER.full_name} (You)</p>
+      <p class="text-[9px] text-green-700 leading-none">${MEMBER.occupation}</p>
     </div>
   `;
   list.appendChild(meItem);
 
-  MOCK_FORUM_ACTIVE_USERS.forEach(usr => {
+  FORUM_ACTIVE_USERS.forEach(usr => {
     const item = document.createElement("div");
     item.className = "flex items-center space-x-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors";
     item.innerHTML = `
@@ -110,7 +110,7 @@ function renderForumChatMessages(container: HTMLElement) {
   list.innerHTML = "";
 
   mockForumMessages.forEach((msg: any) => {
-    const isMe = msg.is_self || msg.sender === MOCK_MEMBER.full_name;
+    const isMe = msg.is_self || msg.sender === MEMBER.full_name;
     const bubble = document.createElement("div");
     bubble.className = `flex flex-col max-w-[85%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`;
 

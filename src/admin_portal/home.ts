@@ -3,7 +3,7 @@ import { Session } from '@supabase/supabase-js';
 import { supabase } from '../core/supabase';
 import { showToast } from '../core/toast';
 import { showSwitchPortalModal, showSignOutModal } from '../core/PortalModal';
-import { adminState, MOCK_MEMBERS, MOCK_GROUPS, MOCK_BROADCASTS, MOCK_USER_PROFILES, MOCK_AUDIT_LOGS, subscribeAdmin, notifyAdminStateChange, syncAdminData, setSession } from './store';
+import { adminState, MEMBERS, GROUPS, BROADCASTS, USER_PROFILES, AUDIT_LOGS, subscribeAdmin, notifyAdminStateChange, syncAdminData, setSession } from './store';
 
 import { renderDashboardTab } from './tabs/dashboard';
 import { renderMembersTab, launchNewMemberModal, closeMemberModal } from './tabs/members';
@@ -383,7 +383,7 @@ function updateActiveTab() {
     case 'members': renderMembersTab(container, modalsContainer!); break;
     case 'groups':
       if (adminState.selectedGroupId) {
-        const group = MOCK_GROUPS.find(g => g.id === adminState.selectedGroupId);
+        const group = GROUPS.find(g => g.id === adminState.selectedGroupId);
         if (breadcrumbEl && group) breadcrumbEl.innerText = `Departments / ${group.name}`;
         renderGroupDetails(container, modalsContainer!);
       } else {
@@ -407,11 +407,11 @@ function toggleAdminMobileDrawer(isOpen: boolean) {
 
 function refreshBadges() {
   const membersBadge = document.getElementById("badge-total-members");
-  if (membersBadge) membersBadge.innerText = MOCK_MEMBERS.length.toString();
+  if (membersBadge) membersBadge.innerText = MEMBERS.length.toString();
 
   const groupsBadge = document.getElementById("badge-total-groups");
-  if (groupsBadge) groupsBadge.innerText = MOCK_GROUPS.length.toString();
+  if (groupsBadge) groupsBadge.innerText = GROUPS.length.toString();
 
   const accountsBadge = document.getElementById("badge-total-accounts");
-  if (accountsBadge) accountsBadge.innerText = MOCK_USER_PROFILES.length.toString();
+  if (accountsBadge) accountsBadge.innerText = USER_PROFILES.length.toString();
 }

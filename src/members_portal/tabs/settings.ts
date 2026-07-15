@@ -1,4 +1,4 @@
-import { MOCK_MEMBER, MOCK_MEMBER_PERMISSIONS } from '../store';
+import { MEMBER, MEMBER_PERMISSIONS } from '../store';
 
 export function renderSettingsTab(container: HTMLElement) {
   container.innerHTML = `
@@ -17,7 +17,7 @@ export function renderSettingsTab(container: HTMLElement) {
           <div>
             <h4 class="text-xs font-bold text-gray-800">Database & RLS Compliance</h4>
             <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">
-              All communications are bound to your unique account code <span class="font-mono text-gray-700 font-bold bg-gray-200 px-1 py-0.2 rounded">${MOCK_MEMBER.membership_number}</span>. Profile photo modifications undergo automated logging in compliance with data tracking guidelines.
+              All communications are bound to your unique account code <span class="font-mono text-gray-700 font-bold bg-gray-200 px-1 py-0.2 rounded">${MEMBER.membership_number}</span>. Profile photo modifications undergo automated logging in compliance with data tracking guidelines.
             </p>
           </div>
         </div>
@@ -31,7 +31,7 @@ export function renderSettingsTab(container: HTMLElement) {
   `;
 
   const badgesGrid = container.querySelector('#permissions-badges-grid')!;
-  MOCK_MEMBER_PERMISSIONS.forEach(perm => {
+  MEMBER_PERMISSIONS.forEach(perm => {
     const span = document.createElement("span");
     span.className = "text-[11px] font-bold px-2.5 py-1 bg-blue-50 text-caci-blue border border-blue-200 rounded-lg flex items-center space-x-1";
     span.innerHTML = `<i data-lucide="shield" class="w-3 h-3 text-caci-blue"></i> <span class="capitalize">${perm.permission.replace('.', ' ')}</span>`;

@@ -3,7 +3,7 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../core/supabase';
 import { showToast } from '../core/toast';
-import { globalState, MOCK_MEMBER, MOCK_BROADCASTS, MOCK_GROUPS, notifications, notifyStateChange, subscribe, syncMemberData } from './store';
+import { globalState, MEMBER, BROADCASTS, GROUPS, notifications, notifyStateChange, subscribe, syncMemberData } from './store';
 import { renderAdminHome } from '../admin_portal/home';
 import { showSwitchPortalModal, showSignOutModal } from '../core/PortalModal';
 
@@ -58,7 +58,7 @@ export async function renderMembersHome(app: HTMLElement, session: Session): Pro
 }
 
 function buildShellHtml() {
-  const name = MOCK_MEMBER?.full_name || 'Member';
+  const name = MEMBER?.full_name || 'Member';
   const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
   const firstName = name.split(' ')[0];
 
@@ -233,7 +233,7 @@ function buildShellHtml() {
           </div>
           <div class="flex items-center space-x-4">
             <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-caci-blue border border-blue-100 font-mono">
-              ID: ${MOCK_MEMBER?.membership_number || '---'}
+              ID: ${MEMBER?.membership_number || '---'}
             </span>
             <div class="h-4 w-[1px] bg-gray-200 hidden sm:block"></div>
             <span class="text-xs text-gray-500 font-medium" id="top-bar-date-display"></span>
@@ -377,11 +377,11 @@ function attachShellHandlers() {
 
   // Switch to Admin Portal (no sign-out)
   const handleSwitchToAdmin = () => {
-    const initials = MOCK_MEMBER.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const initials = MEMBER.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     showSwitchPortalModal({
       targetLabel: 'Admin Portal',
-      userName: MOCK_MEMBER.full_name,
-      userRole: `${MOCK_MEMBER.title || ''} · ${MOCK_MEMBER.membership_number}`.trim(),
+      userName: MEMBER.full_name,
+      userRole: `${MEMBER.title || ''} · ${MEMBER.membership_number}`.trim(),
       initials,
       onConfirm: async () => {
         const app = document.getElementById('app') ?? document.body;
@@ -394,11 +394,11 @@ function attachShellHandlers() {
 
   // Logout
   const handleLogout = () => {
-    const name = MOCK_MEMBER?.full_name || 'Member';
+    const name = MEMBER?.full_name || 'Member';
     const initials = name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
     showSignOutModal({
       userName: name,
-      userRole: `Member · ${MOCK_MEMBER.membership_number}`,
+      userRole: `Member · ${MEMBER.membership_number}`,
       initials,
       onConfirm: async () => {
         await supabase.auth.signOut();
@@ -545,10 +545,10 @@ function refreshBadgeCounts() {
   }
 
   const broadcastBadge = document.getElementById("badge-broadcast-count");
-  if (broadcastBadge) broadcastBadge.innerText = MOCK_BROADCASTS.length.toString();
+  if (broadcastBadge) broadcastBadge.innerText = BROADCASTS.length.toString();
 
   const groupsBadge = document.getElementById("badge-groups-count");
-  if (groupsBadge) groupsBadge.innerText = MOCK_GROUPS.length.toString();
+  if (groupsBadge) groupsBadge.innerText = GROUPS.length.toString();
 }
 
 function renderQuickMinistries() {
@@ -556,7 +556,7 @@ function renderQuickMinistries() {
   if(!container) return;
   container.innerHTML = "";
   
-  MOCK_GROUPS.slice(0, 2).forEach(g => {
+  GROUPS.slice(0, 2).forEach(g => {
     const item = document.createElement("div");
     item.className = "flex items-center justify-between p-2.5 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer";
     item.onclick = () => {
@@ -583,7 +583,7 @@ function renderQuickMinistries() {
 }
 
 function openAttachmentModalDirectly(broadcastId: string) {
-  const bc = MOCK_BROADCASTS.find(b => b.id === broadcastId);
+  const bc = BROADCASTS.find(b => b.id === broadcastId);
   if (!bc) {
     showToast("Error", "Broadcast parent details were soft deleted.", "error");
     return;

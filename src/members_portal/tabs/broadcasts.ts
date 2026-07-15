@@ -1,8 +1,8 @@
-import { globalState, MOCK_BROADCASTS, MOCK_GROUPS } from '../store';
+import { globalState, BROADCASTS, GROUPS } from '../store';
 import { AppEventBus } from '../home';
 
 export function renderBroadcastsTab(container: HTMLElement) {
-  const filtered = MOCK_BROADCASTS.filter(bc => {
+  const filtered = BROADCASTS.filter(bc => {
     const matchesSearch = bc.title.toLowerCase().includes(globalState.searchQuery.toLowerCase()) || 
                           bc.body.toLowerCase().includes(globalState.searchQuery.toLowerCase());
     const matchesType = globalState.broadcastFilter === 'all' || 
@@ -40,7 +40,7 @@ export function renderBroadcastsTab(container: HTMLElement) {
   }
 
   filtered.forEach(bc => {
-    const groupName = bc.target_group_id ? MOCK_GROUPS.find(g => g.id === bc.target_group_id)?.name : null;
+    const groupName = bc.target_group_id ? GROUPS.find(g => g.id === bc.target_group_id)?.name : null;
     const isAssembly = bc.targeting_mode === 'assembly';
 
     const card = document.createElement("div");

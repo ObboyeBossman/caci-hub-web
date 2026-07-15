@@ -1,4 +1,4 @@
-import { globalState, MOCK_GROUPS, MOCK_GROUP_DIRECTORY, mockChatMessages, MOCK_MEMBER, notifyStateChange } from '../store';
+import { globalState, GROUPS, GROUP_DIRECTORY, mockChatMessages, MEMBER, notifyStateChange } from '../store';
 import { AppEventBus } from '../home';
 import { showToast } from '../../core/toast';
 
@@ -100,7 +100,7 @@ function renderGroupsGrid(container: HTMLElement) {
   const list = container.querySelector('#groups-cards-list')!;
   list.innerHTML = "";
 
-  MOCK_GROUPS.forEach(grp => {
+  GROUPS.forEach(grp => {
     const card = document.createElement("div");
     card.className = "bg-white border border-[#e6edf3] p-5 rounded-xl shadow-xs flex flex-col justify-between hover:border-indigo-400 transition-all cursor-pointer hover:shadow-md";
     card.onclick = () => {
@@ -131,7 +131,7 @@ function renderGroupsGrid(container: HTMLElement) {
 }
 
 function launchChatroom(container: HTMLElement, groupId: string) {
-  const grp = MOCK_GROUPS.find(g => g.id === groupId);
+  const grp = GROUPS.find(g => g.id === groupId);
   if (!grp) return;
 
   container.querySelector('#chat-header-group-name')!.textContent = grp.name;
@@ -150,7 +150,7 @@ function launchChatroom(container: HTMLElement, groupId: string) {
     container.querySelector('#chat-input-bar')!.classList.add("hidden");
   }
 
-  const directory = MOCK_GROUP_DIRECTORY[groupId] || { staff: [], members: [] };
+  const directory = GROUP_DIRECTORY[groupId] || { staff: [], members: [] };
   container.querySelector('#chat-header-members-count')!.textContent = `${directory.members.length + directory.staff.length} enrolled users`;
 
   // Staff
@@ -235,7 +235,7 @@ function dispatchChatMessage(container: HTMLElement) {
   const text = input.value.trim();
   if (!text || !globalState.activeChatGroupId) return;
 
-  const group = MOCK_GROUPS.find(g => g.id === globalState.activeChatGroupId);
+  const group = GROUPS.find(g => g.id === globalState.activeChatGroupId);
   if (group && group.messaging_mode === 'restricted') {
     showToast("🔒 Unauthorized. Messaging access is restricted to Leaders.", "error");
     return;
@@ -243,7 +243,7 @@ function dispatchChatMessage(container: HTMLElement) {
 
   const timeStr = new Date().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
   mockChatMessages[globalState.activeChatGroupId].push({
-    sender: MOCK_MEMBER.full_name,
+    sender: MEMBER.full_name,
     sender_role: "Member",
     body: text,
     time: timeStr,

@@ -1,8 +1,8 @@
-import { globalState, MOCK_SERMONS } from '../store';
+import { globalState, SERMONS } from '../store';
 import { showToast } from '../../core/toast';
 
 export function renderSermonsTab(container: HTMLElement) {
-  const filtered = MOCK_SERMONS.filter(s => {
+  const filtered = SERMONS.filter(s => {
     return s.title.toLowerCase().includes(globalState.searchQuery.toLowerCase()) || 
            s.speaker.toLowerCase().includes(globalState.searchQuery.toLowerCase()) || 
            s.passage.toLowerCase().includes(globalState.searchQuery.toLowerCase());

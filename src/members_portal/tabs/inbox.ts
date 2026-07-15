@@ -1,4 +1,4 @@
-import { globalState, notifications, notifyStateChange, MOCK_MEMBER, BIBLE_VERSES } from '../store';
+import { globalState, notifications, notifyStateChange, MEMBER, BIBLE_VERSES } from '../store';
 import { AppEventBus } from '../home';
 import { showToast } from '../../core/toast';
 
@@ -23,10 +23,10 @@ export function renderInboxTab(container: HTMLElement) {
             <span class="ml-1">Christ Apostolic Church International</span>
           </p>
           <h1 class="text-2xl font-black text-gray-900 tracking-tight mt-1">
-            Blessed Day, ${MOCK_MEMBER.title} ${MOCK_MEMBER.full_name.split(' ')[0]}!
+            Blessed Day, ${MEMBER.title} ${MEMBER.full_name.split(' ')[0]}!
           </h1>
           <p class="text-xs text-gray-500 mt-0.5">
-            Assembly Registry Reference: <strong class="text-gray-800 font-mono">${MOCK_MEMBER.membership_number}</strong>
+            Assembly Registry Reference: <strong class="text-gray-800 font-mono">${MEMBER.membership_number}</strong>
           </p>
         </div>
         <div class="p-3 bg-amber-50/70 border border-caci-warningBg rounded-xl max-w-sm text-left shadow-2xs">

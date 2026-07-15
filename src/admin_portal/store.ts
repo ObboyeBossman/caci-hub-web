@@ -18,24 +18,24 @@ export let adminState = {
   isNavigating: false
 };
 
-// Data stores (retaining MOCK_* naming to avoid breaking existing imports)
-export let MOCK_MEMBERS: Tables<'members'>[] = [];
-export let MOCK_GROUPS: Tables<'groups'>[] = [];
-export let MOCK_GROUP_MEMBERS: Tables<'group_members'>[] = [];
-export let MOCK_BROADCASTS: Tables<'broadcasts'>[] = [];
-export let MOCK_USER_PROFILES: Tables<'user_profiles'>[] = [];
-export let MOCK_MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
-export let MOCK_AUDIT_LOGS: Tables<'member_audit_log'>[] = [];
+// Data stores (retaining * naming to avoid breaking existing imports)
+export let MEMBERS: Tables<'members'>[] = [];
+export let GROUPS: Tables<'groups'>[] = [];
+export let GROUP_MEMBERS: Tables<'group_members'>[] = [];
+export let BROADCASTS: Tables<'broadcasts'>[] = [];
+export let USER_PROFILES: Tables<'user_profiles'>[] = [];
+export let MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
+export let AUDIT_LOGS: Tables<'member_audit_log'>[] = [];
 
 // Compatibility exports for admin portal tabs that expect plain names.
 // Use live binding aliases so tab imports stay in sync after data sync.
-export { MOCK_MEMBERS as members };
-export { MOCK_GROUPS as groups };
-export { MOCK_GROUP_MEMBERS as groupMembers };
-export { MOCK_BROADCASTS as broadcasts };
-export { MOCK_USER_PROFILES as userProfiles };
-export { MOCK_MEMBER_PERMISSIONS as memberPermissions };
-export { MOCK_AUDIT_LOGS as auditLogs };
+export { MEMBERS as members };
+export { GROUPS as groups };
+export { GROUP_MEMBERS as groupMembers };
+export { BROADCASTS as broadcasts };
+export { USER_PROFILES as userProfiles };
+export { MEMBER_PERMISSIONS as memberPermissions };
+export { AUDIT_LOGS as auditLogs };
 
 // Session reference
 let currentSession: Session | null = null;
@@ -71,7 +71,7 @@ export async function syncAdminData() {
       .order('created_at', { ascending: false });
 
     if (membersErr) throw membersErr;
-    MOCK_MEMBERS = members || [];
+    MEMBERS = members || [];
 
     // 2. Fetch groups
     const { data: groups, error: groupsErr } = await supabase
@@ -80,7 +80,7 @@ export async function syncAdminData() {
       .order('name', { ascending: true });
 
     if (groupsErr) throw groupsErr;
-    MOCK_GROUPS = groups || [];
+    GROUPS = groups || [];
 
     // 3. Fetch group members
     const { data: groupMembers, error: gmErr } = await supabase
@@ -88,7 +88,7 @@ export async function syncAdminData() {
       .select('*');
 
     if (gmErr) throw gmErr;
-    MOCK_GROUP_MEMBERS = groupMembers || [];
+    GROUP_MEMBERS = groupMembers || [];
 
     // 4. Fetch broadcasts
     const { data: broadcasts, error: broadcastsErr } = await supabase
@@ -97,7 +97,7 @@ export async function syncAdminData() {
       .order('sent_at', { ascending: false });
 
     if (broadcastsErr) throw broadcastsErr;
-    MOCK_BROADCASTS = broadcasts || [];
+    BROADCASTS = broadcasts || [];
 
     // 5. Fetch user profiles
     const { data: userProfiles, error: upErr } = await supabase
@@ -106,7 +106,7 @@ export async function syncAdminData() {
       .order('full_name', { ascending: true });
 
     if (upErr) throw upErr;
-    MOCK_USER_PROFILES = userProfiles || [];
+    USER_PROFILES = userProfiles || [];
 
     // 6. Fetch member permissions
     const { data: memberPerms, error: mpErr } = await supabase
@@ -114,7 +114,7 @@ export async function syncAdminData() {
       .select('*');
 
     if (mpErr) throw mpErr;
-    MOCK_MEMBER_PERMISSIONS = memberPerms || [];
+    MEMBER_PERMISSIONS = memberPerms || [];
 
     // 7. Fetch audit logs
     const { data: auditLogs, error: alErr } = await supabase
@@ -123,7 +123,7 @@ export async function syncAdminData() {
       .order('changed_at', { ascending: false });
 
     if (alErr) throw alErr;
-    MOCK_AUDIT_LOGS = auditLogs || [];
+    AUDIT_LOGS = auditLogs || [];
 
     // Notify listeners that data has updated
     notifyAdminStateChange();

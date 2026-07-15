@@ -1,5 +1,5 @@
 // src/admin_portal/tabs/audit.ts
-import { MOCK_AUDIT_LOGS, MOCK_MEMBERS } from '../store';
+import { AUDIT_LOGS, MEMBERS } from '../store';
 
 export function renderAuditTab(container: HTMLElement) {
   container.innerHTML = `
@@ -38,7 +38,7 @@ export function renderAuditTab(container: HTMLElement) {
 }
 
 function renderAuditRows() {
-  const reversedLogs = [...MOCK_AUDIT_LOGS].reverse();
+  const reversedLogs = [...AUDIT_LOGS].reverse();
 
   if (reversedLogs.length === 0) {
     return `
@@ -49,7 +49,7 @@ function renderAuditRows() {
   }
 
   return reversedLogs.map(log => {
-    const targetMember = MOCK_MEMBERS.find(m => m.id === log.member_id);
+    const targetMember = MEMBERS.find(m => m.id === log.member_id);
     return `
       <tr class="border-b border-[#e6edf3] hover:bg-gray-50/50">
         <td class="py-3 px-4 font-mono font-semibold text-gray-400">${log.id}</td>

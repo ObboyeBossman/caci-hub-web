@@ -2,17 +2,17 @@
 import { supabase } from '../core/supabase';
 import { Tables } from '../types/database.types';
 
-export let MOCK_MEMBER: Tables<'members'> = {
+export let MEMBER: Tables<'members'> = {
   full_name: 'Unknown Member',
   membership_number: 'PENDING'
 } as any;
 
-export let MOCK_MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
-export let MOCK_GROUPS: (Tables<'groups'> & { role?: string })[] = [];
-export let MOCK_BROADCASTS: Tables<'broadcasts'>[] = [];
+export let MEMBER_PERMISSIONS: Tables<'member_permissions'>[] = [];
+export let GROUPS: (Tables<'groups'> & { role?: string })[] = [];
+export let BROADCASTS: Tables<'broadcasts'>[] = [];
 export let notifications: Tables<'notifications'>[] = [];
 
-export const MOCK_GROUP_DIRECTORY: Record<string, any> = {
+export const GROUP_DIRECTORY: Record<string, any> = {
   "g1": {
     staff: [
       { name: "Elder James Owusu", title: "Youth President", role: "Leader", photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100" },
@@ -42,7 +42,7 @@ export const MOCK_GROUP_DIRECTORY: Record<string, any> = {
   }
 };
 
-export const MOCK_SERMONS = [
+export const SERMONS = [
   {
     id: "sermon-001",
     title: "The Covenant of Restoration",
@@ -64,7 +64,7 @@ export let mockForumMessages = [
   { sender: "Elder James Owusu", title: "Assembly Secretary", body: "Blessings and shalom to the entire Adabraka Assembly body!", time: "08:30 AM", initials: "JO" }
 ];
 
-export const MOCK_FORUM_ACTIVE_USERS = [
+export const FORUM_ACTIVE_USERS = [
   { name: "Elder James Owusu", title: "Assembly Secretary" }
 ];
 
@@ -108,31 +108,31 @@ export async function syncMemberData(authUserId: string) {
     }
 
     if (memberData) {
-      MOCK_MEMBER = memberData;
+      MEMBER = memberData;
       console.log('[store] Member found:', memberData.full_name);
 
       const { data: perms } = await supabase.from('member_permissions').select('*').eq('member_id', memberData.id);
-      MOCK_MEMBER_PERMISSIONS = perms || [];
+      MEMBER_PERMISSIONS = perms || [];
 
       const { data: gm } = await supabase.from('group_members').select('group_id').eq('member_id', memberData.id);
       if (gm && gm.length > 0) {
         const groupIds = gm.map((g: any) => g.group_id);
         const { data: groups } = await supabase.from('groups').select('*').in('id', groupIds);
-        MOCK_GROUPS = groups || [];
+        GROUPS = groups || [];
       } else {
-        MOCK_GROUPS = [];
+        GROUPS = [];
       }
 
       const { data: broadcasts } = await supabase.from('broadcasts').select('*').order('sent_at', { ascending: false });
       if (broadcasts) {
-        const groupIds = MOCK_GROUPS.map(g => g.id);
-        MOCK_BROADCASTS = broadcasts.filter((b: any) => 
+        const groupIds = GROUPS.map(g => g.id);
+        BROADCASTS = broadcasts.filter((b: any) => 
           b.targeting_mode === 'assembly' || 
           (b.targeting_mode === 'group' && groupIds.includes(b.target_group_id as string)) ||
           b.targeting_mode === 'members'
         );
       } else {
-        MOCK_BROADCASTS = [];
+        BROADCASTS = [];
       }
 
       const { data: notifs } = await supabase.from('notifications').select('*').eq('member_id', memberData.id).order('created_at', { ascending: false });
