@@ -42,7 +42,7 @@ export function renderGroupsTab(container: HTMLElement) {
             <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-4 max-h-[380px] bg-gray-50/50"></div>
             <div id="chat-restricted-banner" class="hidden bg-amber-50 border-t border-amber-200 p-3 flex items-center space-x-2 text-amber-800 text-xs shrink-0">
               <i data-lucide="lock" class="w-4 h-4 shrink-0 text-amber-600"></i>
-              <span>This workspace is in <strong>Read-Only Broadcast</strong> mode. Only leaders and staff may publish announcements.</span>
+              <span>This workspace is in <strong>Read-Only Broadcast</strong> mode. Only authorized leaders and executives may publish announcements.</span>
             </div>
             <div id="chat-input-bar" class="p-3 bg-white border-t border-gray-200 flex items-center gap-2 shrink-0">
               <input type="text" id="chat-text-input" placeholder="Type a message to the group..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-caci-blue focus:ring-1 focus:ring-caci-blue bg-white"/>
@@ -58,7 +58,7 @@ export function renderGroupsTab(container: HTMLElement) {
               <p id="chat-group-description" class="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100"></p>
             </div>
             <div class="flex-1 flex flex-col overflow-hidden min-h-[220px]">
-              <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Staff & Leaders</h4>
+              <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Group Leadership</h4>
               <div id="chat-group-staff-list" class="space-y-2.5 overflow-y-auto pr-1"></div>
               <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-5 mb-3">Enrolled Members</h4>
               <div id="chat-group-members-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
@@ -150,13 +150,13 @@ function launchChatroom(container: HTMLElement, groupId: string) {
     container.querySelector('#chat-input-bar')!.classList.add("hidden");
   }
 
-  const directory = GROUP_DIRECTORY[groupId] || { staff: [], members: [] };
-  container.querySelector('#chat-header-members-count')!.textContent = `${directory.members.length + directory.staff.length} enrolled users`;
+  const directory = GROUP_DIRECTORY[groupId] || { leadership: [], members: [] };
+  container.querySelector('#chat-header-members-count')!.textContent = `${directory.members.length + directory.leadership.length} enrolled users`;
 
-  // Staff
+  // Leadership
   const staffList = container.querySelector('#chat-group-staff-list')!;
   staffList.innerHTML = "";
-  directory.staff.forEach((person: any) => {
+  directory.leadership.forEach((person: any) => {
     const item = document.createElement("div");
     item.className = "flex items-center space-x-3 bg-gray-50/70 p-2 rounded-lg border border-gray-150";
     item.innerHTML = `

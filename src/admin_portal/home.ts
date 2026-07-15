@@ -12,6 +12,7 @@ import { renderGroupDetails } from './tabs/group_details';
 import { renderAccountsTab, closeAccountModal } from './tabs/accounts';
 import { renderBroadcastsTab } from './tabs/broadcasts';
 import { renderAuditTab } from './tabs/audit';
+import { renderSettingsTab } from './tabs/settings';
 import { renderMembersHome } from '../members_portal/home';
 
 // Shared event bus for modals and cross-tab communication
@@ -142,6 +143,12 @@ function buildAdminShellHtml() {
                   <i data-lucide="shield-alert" class="w-4.5 h-4.5"></i><span>Audit Log Registry</span>
                 </div>
               </button>
+
+              <button data-tab="settings" class="admin-tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-tab text-white hover:bg-white/10">
+                <div class="flex items-center space-x-3">
+                  <i data-lucide="settings" class="w-4.5 h-4.5"></i><span>Assembly Settings</span>
+                </div>
+              </button>
             </div>
           </nav>
         </div>
@@ -157,7 +164,7 @@ function buildAdminShellHtml() {
               </div>
               <div class="flex flex-col justify-center min-w-0 py-0.5">
                 <span class="text-[11.5px] font-bold text-white truncate leading-tight tracking-wide">Assembly Admin</span>
-                <span class="text-[8.5px] text-blue-200/70 truncate leading-tight uppercase font-extrabold tracking-widest mt-0.5">Super User</span>
+                <span class="text-[8.5px] text-blue-200/70 truncate leading-tight uppercase font-extrabold tracking-widest mt-0.5">Administrator</span>
               </div>
             </div>
             <button id="admin-btn-logout" title="Sign Out" class="w-8 h-8 flex items-center justify-center rounded-full text-white/40 hover:text-white hover:bg-caci-red transition-all shrink-0 mr-0.5">
@@ -228,9 +235,6 @@ function buildAdminShellHtml() {
             <span id="admin-top-bar-breadcrumb" class="text-gray-800 capitalize font-bold">Dashboard Overview</span>
           </div>
           <div class="flex items-center space-x-4">
-            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-caci-red border border-red-100 font-mono uppercase">
-              Supabase Public Schema v1
-            </span>
             <div class="h-4 w-[1px] bg-gray-200 hidden sm:block"></div>
             <span class="text-xs text-gray-500 font-medium" id="admin-top-bar-date"></span>
           </div>
@@ -323,7 +327,7 @@ function parseUrlToState() {
     adminState.groupDetailTab = (parts[3] as any) || 'overview';
   } else {
     const tab = path.split('/').filter(Boolean)[1];
-    if (tab && ['dashboard', 'members', 'groups', 'broadcasts', 'accounts', 'audit'].includes(tab)) {
+    if (tab && ['dashboard', 'members', 'groups', 'broadcasts', 'accounts', 'audit', 'settings'].includes(tab)) {
       adminState.activeTab = tab;
     } else {
       adminState.activeTab = 'dashboard';
@@ -394,6 +398,7 @@ function updateActiveTab() {
     case 'broadcasts': renderBroadcastsTab(container); break;
     case 'accounts': renderAccountsTab(container, modalsContainer!); break;
     case 'audit': renderAuditTab(container); break;
+    case 'settings': renderSettingsTab(container); break;
   }
 }
 

@@ -2,6 +2,7 @@ import { members, memberPermissions, auditLogs, adminState, notifyAdminStateChan
 import { showToast } from '../../core/toast';
 import { supabase } from '../../core/supabase';
 import { formatGhanaPhoneForDisplay, normalizeGhanaPhone, attachPhoneInputFormatter } from '../../core/phone';
+import { getInitials } from '../../core/utils';
 import { Tables } from '../../types/database.types';
 
 export function renderMembersTab(container: HTMLElement, modalsContainer: HTMLElement) {
@@ -85,13 +86,17 @@ function renderMembersRows() {
   }
 
   return filtered.map((m: Tables<'members'>) => {
-    const avatarUrl = m.profile_photo_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200";
+    const initials = getInitials(m.full_name);
+    const avatarHtml = m.profile_photo_url
+      ? `<img src="${m.profile_photo_url}" class="w-8 h-8 rounded-full border border-gray-200 object-cover shrink-0">`
+      : `<div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-[10px] shrink-0 border border-indigo-100">${initials}</div>`;
+
     return `
       <tr class="border-b border-[#e6edf3] hover:bg-gray-50/50">
         <td class="py-3 px-4 font-mono font-semibold text-gray-500">${m.membership_number}</td>
         <td class="py-3 px-4">
           <div class="flex items-center space-x-3">
-            <img src="${avatarUrl}" class="w-8 h-8 rounded-full border border-gray-200 object-cover shrink-0">
+            ${avatarHtml}
             <div>
               <p class="font-bold text-gray-900">${m.title || ''} ${m.full_name}</p>
               <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">

@@ -22,19 +22,28 @@ export async function guardRoute(app: HTMLElement, session: Session | null): Pro
     
     try {
       // Query user role to determine routing
+      // Use maybeSingle() to avoid PGRST116 error if profile is missing
       const { data: profile, error } = await supabase
         .from('user_profiles')
-        .select('role')
+        .select('role, is_active')
         .eq('id', session.user.id)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error('[auth-guard] Profile query error:', error)
-        throw new Error(`Profile Error: ${error.message} (${error.code || 'no code'})`)
+        throw new Error(`Database Error: ${error.message} (Code: ${error.code})`)
       }
 
       if (!profile) {
-        throw new Error('User profile record missing in public.user_profiles table.')
+        console.error('[auth-guard] Profile missing for UID:', session.user.id);
+        // Force sign out because the user exists in Auth but has no application profile
+        await supabase.auth.signOut();
+        throw new Error('Account Incomplete: Your login exists but no CACI profile was found. Please contact your Assembly Admin to provision your account correctly.');
+      }
+
+      if (!profile.is_active) {
+        await supabase.auth.signOut();
+        throw new Error('Account Suspended: Your access to CACI Hub has been deactivated by an administrator.');
       }
 
       if (profile.role === 'admin') {

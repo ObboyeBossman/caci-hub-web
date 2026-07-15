@@ -239,11 +239,13 @@ function renderModals(modalsContainer: HTMLElement) {
 
     let successCount = 0;
     let failCount = 0;
+    let lastError = "";
 
     for (const memberId of selectedMemberIds) {
       const member = members.find(m => m.id === memberId);
       if (!member || !member.phone_number) {
         failCount++;
+        lastError = "Member has no valid phone number.";
         continue;
       }
 
@@ -252,18 +254,38 @@ function renderModals(modalsContainer: HTMLElement) {
 
       if (!resolvedPhone) {
         failCount++;
+        lastError = `Invalid Ghana phone format: ${member.phone_number}`;
         continue;
       }
 
       try {
+        // Use signUp for provisioning (client-side workaround)
+        // NOTE: Supabase may rate-limit this if many are done in rapid succession.
         const { data, error: signUpErr } = await supabase.auth.signUp({
           phone: resolvedPhone,
-          password: password
+          password: password,
+          options: {
+            data: {
+              full_name: member.full_name
+            }
+          }
         });
 
-        if (signUpErr) throw signUpErr;
-        if (!data.user) throw new Error("No user returned");
+        if (signUpErr) {
+          // Improve error reporting for common provisioning issues
+          if (signUpErr.message.toLowerCase().includes("registered") ||
+              signUpErr.message.toLowerCase().includes("already exists")) {
+             throw new Error(`Phone ${resolvedPhone} is already in use by another login.`);
+          }
+          if (signUpErr.status === 429) {
+             throw new Error("Batch rate limit reached. Please wait a minute before trying more.");
+          }
+          throw signUpErr;
+        }
 
+        if (!data.user) throw new Error("Authentication engine returned empty user object.");
+
+        // Create the public user_profile
         const { error: profileErr } = await supabase.from('user_profiles').insert({
           id: data.user.id,
           full_name: member.full_name || 'Unnamed Member',
@@ -274,6 +296,7 @@ function renderModals(modalsContainer: HTMLElement) {
 
         if (profileErr) throw profileErr;
 
+        // Link member record to auth user
         const { error: memberLinkErr } = await supabase
           .from('members')
           .update({ auth_user_id: data.user.id })
@@ -282,17 +305,23 @@ function renderModals(modalsContainer: HTMLElement) {
         if (memberLinkErr) throw memberLinkErr;
 
         successCount++;
+
+        // Small delay to avoid aggressive rate limiting during batch provisioning
+        if (selectedMemberIds.length > 1) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
       } catch (err: any) {
-        console.error(`Failed to provision account for member ${memberId}:`, err);
+        console.error(`[provisioning] Failed for ${memberId}:`, err);
         failCount++;
+        lastError = err.message || "Unknown database error.";
       }
     }
 
     if (successCount > 0) {
-      showToast("Success", `Provisioned ${successCount} account(s) successfully.`, "success");
+      showToast("Provisioning Complete", `Successfully created ${successCount} account(s).`, "success");
     }
     if (failCount > 0) {
-      showToast("Error", `Failed to provision ${failCount} account(s).`, "error");
+      showToast("Provisioning Failure", `Failed to create ${failCount} account(s). Last Error: ${lastError}`, "error");
     }
 
     closeAccountModal();
@@ -311,8 +340,8 @@ function renderMemberList() {
   const filtered = membersWithoutAccounts.filter(m => {
     const q = memberSearchQuery.toLowerCase();
     return (m.full_name?.toLowerCase().includes(q) ||
-           m.membership_number?.toLowerCase().includes(q) ||
-           m.phone_number?.toLowerCase().includes(q));
+           (m.membership_number && m.membership_number.toLowerCase().includes(q)) ||
+           (m.phone_number && m.phone_number.toLowerCase().includes(q)));
   });
 
   if (filtered.length === 0) {
@@ -320,26 +349,32 @@ function renderMemberList() {
     return;
   }
 
-  container.innerHTML = filtered.map(m => `
-    <label class="flex items-center justify-between p-2 hover:bg-white rounded-xl cursor-pointer transition-all border border-transparent hover:border-gray-200 group">
+  container.innerHTML = filtered.map(m => {
+    const hasPhone = !!m.phone_number;
+    return `
+    <label class="flex items-center justify-between p-2 hover:bg-white rounded-xl cursor-pointer transition-all border border-transparent hover:border-gray-200 group ${!hasPhone ? 'opacity-50 grayscale' : ''}">
       <div class="flex items-center gap-3 min-w-0">
         <div class="relative flex items-center">
           <input type="checkbox" class="acc-member-checkbox peer h-4 w-4 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-caci-blue checked:border-caci-blue transition-all"
-            value="${m.id}" ${selectedMemberIds.includes(m.id) ? 'checked' : ''}>
+            value="${m.id}" ${selectedMemberIds.includes(m.id) ? 'checked' : ''} ${!hasPhone ? 'disabled' : ''}>
           <i data-lucide="check" class="absolute w-3 h-3 text-white left-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
         </div>
         <div class="min-w-0">
           <p class="text-[11px] font-bold text-gray-900 truncate group-hover:text-caci-blue transition-colors">${m.full_name}</p>
           <p class="text-[9px] text-gray-500 font-mono flex items-center gap-1.5">
-            <span class="bg-gray-100 px-1 rounded">${m.membership_number}</span>
+            <span class="bg-gray-100 px-1 rounded">${m.membership_number || 'NO-ID'}</span>
             <span>•</span>
-            <span>${m.phone_number}</span>
+            <span class="${!hasPhone ? 'text-red-500 font-bold' : ''}">${m.phone_number || 'MISSING PHONE'}</span>
           </p>
         </div>
       </div>
-      <i data-lucide="user-plus" class="w-3.5 h-3.5 text-gray-300 group-hover:text-indigo-400 transition-colors"></i>
+      ${hasPhone
+        ? `<i data-lucide="user-plus" class="w-3.5 h-3.5 text-gray-300 group-hover:text-indigo-400 transition-colors"></i>`
+        : `<i data-lucide="alert-circle" title="Missing phone number" class="w-3.5 h-3.5 text-red-400"></i>`
+      }
     </label>
-  `).join('');
+  `;
+  }).join('');
 
   lucide.createIcons({ root: container });
 
@@ -450,6 +485,8 @@ export function launchNewAccountModal() {
   selectedMemberIds = [];
   memberSearchQuery = "";
   
+  const defaultPassword = localStorage.getItem('caci_default_password') || 'CACI#Adabraka2026';
+
   const searchInp = document.getElementById('acc-member-search') as HTMLInputElement;
   if (searchInp) searchInp.value = "";
 
@@ -460,7 +497,7 @@ export function launchNewAccountModal() {
   if (passMode) passMode.value = "manual";
 
   const passInp = document.getElementById('acc-form-password') as HTMLInputElement;
-  if (passInp) passInp.value = "CACI#Adabraka2026";
+  if (passInp) passInp.value = defaultPassword;
 
   const forceReset = document.getElementById('acc-force-reset') as HTMLInputElement;
   if (forceReset) forceReset.checked = true;

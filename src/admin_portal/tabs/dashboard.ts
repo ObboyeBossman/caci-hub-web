@@ -2,6 +2,7 @@
 import { MEMBERS, GROUPS, BROADCASTS, AUDIT_LOGS } from '../store';
 import { AdminEventBus } from '../home';
 import { formatGhanaPhoneForDisplay } from '../../core/phone';
+import { getInitials } from '../../core/utils';
 
 export function renderDashboardTab(container: HTMLElement) {
   container.innerHTML = `
@@ -122,11 +123,17 @@ export function renderDashboardTab(container: HTMLElement) {
 
 function renderRecentMembers() {
   const reversed = [...MEMBERS].reverse().slice(0, 5);
-  return reversed.map(m => `
+  return reversed.map(m => {
+    const initials = getInitials(m.full_name);
+    const avatarHtml = m.profile_photo_url
+      ? `<img src="${m.profile_photo_url}" class="w-8 h-8 rounded-full border border-gray-200 object-cover shrink-0">`
+      : `<div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-[10px] shrink-0 border border-indigo-100">${initials}</div>`;
+
+    return `
     <tr class="border-b border-gray-50 hover:bg-gray-50/50">
       <td class="py-3 px-2">
         <div class="flex items-center space-x-3">
-          <img src="${m.profile_photo_url}" class="w-8 h-8 rounded-full border border-gray-200 object-cover shrink-0">
+          ${avatarHtml}
           <div>
             <p class="font-bold text-gray-900">${m.title} ${m.full_name}</p>
             <p class="text-[10px] text-gray-500">${m.location}</p>
@@ -142,7 +149,8 @@ function renderRecentMembers() {
         }
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function renderRecentLogs() {

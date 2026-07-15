@@ -1,0 +1,12 @@
+/**
+ * Extracts initials from a full name.
+ * @param fullName The full name string.
+ * @returns Up to two characters of initials.
+ */
+export function getInitials(fullName: string | null | undefined): string {
+  if (!fullName) return '??';
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}

@@ -1,19 +1,27 @@
-import { MEMBER as member } from '../store';
+import { MEMBER as member, syncMemberData } from '../store';
 import { showToast } from '../../core/toast';
 import { formatGhanaPhoneForDisplay } from '../../core/phone';
+import { getInitials } from '../../core/utils';
+import { supabase } from '../../core/supabase';
 
 export function renderProfileTab(container: HTMLElement) {
+  const initials = getInitials(member.full_name);
+  const avatarHtml = member.profile_photo_url
+    ? `<img id="profile-avatar-img" src="${member.profile_photo_url}" alt="Avatar" class="w-full h-full object-cover">`
+    : `<div id="profile-avatar-placeholder" class="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-700 font-bold text-xl">${initials}</div>`;
+
   container.innerHTML = `
     <div class="bg-white border border-[#e6edf3] rounded-2xl shadow-xs overflow-hidden">
       <div class="p-6 bg-gradient-to-r from-caci-blue to-caci-blueDim text-white">
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="relative">
-            <div class="w-20 h-20 rounded-full overflow-hidden bg-white border-2 border-white shadow-sm">
-              <img src="${member.profile_photo_url}" alt="Avatar" class="w-full h-full object-cover">
+            <div id="avatar-container" class="w-20 h-20 rounded-full overflow-hidden bg-white border-2 border-white shadow-sm flex items-center justify-center">
+              ${avatarHtml}
             </div>
             <button id="btn-edit-photo" class="absolute -bottom-1 -right-1 bg-caci-red hover:bg-caci-redDim text-white p-1.5 rounded-full shadow transition-all">
-              <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+              <i data-lucide="camera" class="w-3.5 h-3.5"></i>
             </button>
+            <input type="file" id="profile-photo-input" class="hidden" accept="image/*">
           </div>
           <div class="text-center sm:text-left">
             <span class="bg-green-500 text-white text-[9px] uppercase font-extrabold tracking-widest px-2.5 py-0.5 rounded-full">
@@ -26,6 +34,7 @@ export function renderProfileTab(container: HTMLElement) {
           </div>
         </div>
       </div>
+      <!-- ... rest of the file ... -->
       <div class="p-6 space-y-6">
         <div>
           <h3 class="text-xs font-bold uppercase text-gray-400 tracking-wider mb-3">Personal Information</h3>
@@ -95,7 +104,59 @@ export function renderProfileTab(container: HTMLElement) {
   `;
 
   container.querySelector('#btn-edit-photo')?.addEventListener('click', () => {
-    showToast("Access Token authorized. Choose a small graphic block file under 1MB to upload to Supabase bucket storage.", "info");
+    (document.getElementById('profile-photo-input') as HTMLInputElement).click();
+  });
+
+  container.querySelector('#profile-photo-input')?.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Error", "File size too large. Maximum 2MB allowed.", "error");
+      return;
+    }
+
+    const btn = document.getElementById('btn-edit-photo') as HTMLButtonElement;
+    const originalIcon = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>`;
+    lucide.createIcons({ root: btn });
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${member.id}-${Math.random()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('members')
+        .update({ profile_photo_url: publicUrl })
+        .eq('id', member.id);
+
+      if (updateError) throw updateError;
+
+      showToast("Success", "Profile photo updated successfully.", "success");
+
+      // Sync local state
+      await syncMemberData(member.auth_user_id!);
+
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      showToast("Error", err.message || "Failed to upload photo.", "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalIcon;
+      lucide.createIcons({ root: btn });
+    }
   });
 
   lucide.createIcons({ root: container });

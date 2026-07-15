@@ -14,9 +14,9 @@ export let notifications: Tables<'notifications'>[] = [];
 
 export const GROUP_DIRECTORY: Record<string, any> = {
   "g1": {
-    staff: [
+    leadership: [
       { name: "Elder James Owusu", title: "Youth President", role: "Leader", photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100" },
-      { name: "Deaconess Grace Appiah", title: "Patroness", role: "Staff Adviser", photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100" }
+      { name: "Deaconess Grace Appiah", title: "Patroness", role: "Leader", photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100" }
     ],
     members: [
       { name: "Brother Emmanuel Boateng", title: "Member" },
@@ -25,7 +25,7 @@ export const GROUP_DIRECTORY: Record<string, any> = {
     ]
   },
   "g2": {
-    staff: [
+    leadership: [
       { name: "Deaconess Grace Appiah", title: "Choir Director", role: "Leader", photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100" }
     ],
     members: [
@@ -33,7 +33,7 @@ export const GROUP_DIRECTORY: Record<string, any> = {
     ]
   },
   "g3": {
-    staff: [
+    leadership: [
       { name: "Elder Ebenezer Lartey", title: "Men's President", role: "Leader", photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100" }
     ],
     members: [
