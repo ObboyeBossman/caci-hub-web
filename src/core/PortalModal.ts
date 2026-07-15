@@ -222,9 +222,11 @@ function buildModal(opts: ModalOptions): void {
 
     const loadingLabel = isSwitch ? `Launching ${opts.targetLabel}…` : 'Signing out…';
     const removeLoading = showLoadingScreen(loadingLabel);
-    await new Promise(r => setTimeout(r, 1400));
-    removeLoading();
-    await opts.onConfirm();
+    try {
+      await opts.onConfirm();
+    } finally {
+      removeLoading();
+    }
   });
 
   cancelBtn.focus();
