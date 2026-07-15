@@ -100,46 +100,47 @@ export async function syncMemberData(authUserId: string) {
       .from('members')
       .select('*')
       .eq('auth_user_id', authUserId)
-      .single();
+      .maybeSingle();
 
     if (memberError) {
       console.error('[store] Error fetching member record:', memberError);
       throw new Error(`Sync Error: ${memberError.message} (Code: ${memberError.code})`);
     }
 
-    if (memberData) {
-      MEMBER = memberData;
-      console.log('[store] Member found:', memberData.full_name);
-
-      const { data: perms } = await supabase.from('member_permissions').select('*').eq('member_id', memberData.id);
-      MEMBER_PERMISSIONS = perms || [];
-
-      const { data: gm } = await supabase.from('group_members').select('group_id').eq('member_id', memberData.id);
-      if (gm && gm.length > 0) {
-        const groupIds = gm.map((g: any) => g.group_id);
-        const { data: groups } = await supabase.from('groups').select('*').in('id', groupIds);
-        GROUPS = groups || [];
-      } else {
-        GROUPS = [];
-      }
-
-      const { data: broadcasts } = await supabase.from('broadcasts').select('*').order('sent_at', { ascending: false });
-      if (broadcasts) {
-        const groupIds = GROUPS.map(g => g.id);
-        BROADCASTS = broadcasts.filter((b: any) => 
-          b.targeting_mode === 'assembly' || 
-          (b.targeting_mode === 'group' && groupIds.includes(b.target_group_id as string)) ||
-          b.targeting_mode === 'members'
-        );
-      } else {
-        BROADCASTS = [];
-      }
-
-      const { data: notifs } = await supabase.from('notifications').select('*').eq('member_id', memberData.id).order('created_at', { ascending: false });
-      notifications = notifs || [];
-    } else {
-      throw new Error('Member data is null.');
+    if (!memberData) {
+      console.warn('[store] No member record linked to auth user:', authUserId);
+      throw new Error('Member record not found: Your account exists but is not yet linked to a member profile. Please contact your Assembly Admin.');
     }
+
+    MEMBER = memberData;
+    console.log('[store] Member found:', memberData.full_name);
+
+    const { data: perms } = await supabase.from('member_permissions').select('*').eq('member_id', memberData.id);
+    MEMBER_PERMISSIONS = perms || [];
+
+    const { data: gm } = await supabase.from('group_members').select('group_id').eq('member_id', memberData.id);
+    if (gm && gm.length > 0) {
+      const groupIds = gm.map((g: any) => g.group_id);
+      const { data: groups } = await supabase.from('groups').select('*').in('id', groupIds);
+      GROUPS = groups || [];
+    } else {
+      GROUPS = [];
+    }
+
+    const { data: broadcasts } = await supabase.from('broadcasts').select('*').order('sent_at', { ascending: false });
+    if (broadcasts) {
+      const groupIds = GROUPS.map(g => g.id);
+      BROADCASTS = broadcasts.filter((b: any) => 
+        b.targeting_mode === 'assembly' || 
+        (b.targeting_mode === 'group' && groupIds.includes(b.target_group_id as string)) ||
+        b.targeting_mode === 'members'
+      );
+    } else {
+      BROADCASTS = [];
+    }
+
+    const { data: notifs } = await supabase.from('notifications').select('*').eq('member_id', memberData.id).order('created_at', { ascending: false });
+    notifications = notifs || [];
 
     notifyStateChange();
   } catch (error) {

@@ -7,6 +7,9 @@ import type { Database } from '../types/database.types'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
+export const SUPABASE_URL = url;
+export const SUPABASE_ANON_KEY = key;
+
 console.log('[supabase] Initializing with URL:', url ? 'Defined' : 'MISSING');
 
 if (!url || url.trim() === '') {

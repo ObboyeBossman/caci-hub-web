@@ -25,7 +25,7 @@ export async function guardRoute(app: HTMLElement, session: Session | null): Pro
       // Use maybeSingle() to avoid PGRST116 error if profile is missing
       const { data: profile, error } = await supabase
         .from('user_profiles')
-        .select('role, is_active')
+        .select('role, is_active, full_name')
         .eq('id', session.user.id)
         .maybeSingle()
 
@@ -36,9 +36,21 @@ export async function guardRoute(app: HTMLElement, session: Session | null): Pro
 
       if (!profile) {
         console.error('[auth-guard] Profile missing for UID:', session.user.id);
-        // Force sign out because the user exists in Auth but has no application profile
+        // Sign out so the user isn't stuck in a broken state
         await supabase.auth.signOut();
-        throw new Error('Account Incomplete: Your login exists but no CACI profile was found. Please contact your Assembly Admin to provision your account correctly.');
+        throw new Error('Account setup incomplete: Your login exists but no CACI profile was found. Please contact your Assembly Admin to complete provisioning.');
+      }
+
+      // Patch missing full_name if the profile row exists but name is blank
+      // (can happen if provisioning was interrupted after auth.signUp but before profile insert completed)
+      if (!profile.full_name || profile.full_name.trim() === '') {
+        const phone = session.user.phone ?? '';
+        const fallbackName = session.user.user_metadata?.full_name || `User (${phone.slice(-4)})`;
+        console.warn('[auth-guard] Profile missing full_name — patching with:', fallbackName);
+        await supabase
+          .from('user_profiles')
+          .update({ full_name: fallbackName })
+          .eq('id', session.user.id);
       }
 
       if (!profile.is_active) {

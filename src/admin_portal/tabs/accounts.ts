@@ -1,8 +1,9 @@
 import { userProfiles, members, syncAdminData } from '../store';
 import { showToast } from '../../core/toast';
-import { supabase } from '../../core/supabase';
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../../core/supabase';
 import { toSupabaseAuthPhone } from '../../core/phone';
 import { Tables } from '../../types/database.types';
+import { createClient } from '@supabase/supabase-js';
 
 let selectedMemberIds: string[] = [];
 let memberSearchQuery = "";
@@ -259,9 +260,12 @@ function renderModals(modalsContainer: HTMLElement) {
       }
 
       try {
-        // Use signUp for provisioning (client-side workaround)
-        // NOTE: Supabase may rate-limit this if many are done in rapid succession.
-        const { data, error: signUpErr } = await supabase.auth.signUp({
+        // Use a non-persisting client for provisioning to avoid signing out the admin
+        const provisioningClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+          auth: { persistSession: false }
+        });
+
+        const { data, error: signUpErr } = await provisioningClient.auth.signUp({
           phone: resolvedPhone,
           password: password,
           options: {
@@ -285,21 +289,36 @@ function renderModals(modalsContainer: HTMLElement) {
 
         if (!data.user) throw new Error("Authentication engine returned empty user object.");
 
-        // Create the public user_profile
+        // Detect "ghost" signUp response: Supabase returns an existing user stub
+        // with an empty identities array when phone confirmation is disabled and
+        // the phone is already registered. The returned ID is NOT the real auth UID.
+        if (data.user.identities && data.user.identities.length === 0) {
+          throw new Error(`Phone ${resolvedPhone} is already registered in the auth system. Delete the existing auth user first, or use the existing account.`);
+        }
+
+        const authUserId = data.user.id;
+
+        // Create the public user_profile using the confirmed auth user ID
         const { error: profileErr } = await supabase.from('user_profiles').insert({
-          id: data.user.id,
+          id: authUserId,
           full_name: member.full_name || 'Unnamed Member',
           role: role as 'admin' | 'member',
           is_active: true,
           must_change_password: forceReset
         });
 
-        if (profileErr) throw profileErr;
+        if (profileErr) {
+          // If the profile already exists (duplicate provision attempt), surface a clear message
+          if (profileErr.code === '23505') {
+            throw new Error(`A user profile already exists for ${member.full_name}. Account may have been provisioned already.`);
+          }
+          throw profileErr;
+        }
 
         // Link member record to auth user
         const { error: memberLinkErr } = await supabase
           .from('members')
-          .update({ auth_user_id: data.user.id })
+          .update({ auth_user_id: authUserId })
           .eq('id', memberId);
 
         if (memberLinkErr) throw memberLinkErr;

@@ -239,7 +239,7 @@ function buildShellHtml() {
             <span class="text-xs text-gray-500 font-medium" id="top-bar-date-display"></span>
           </div>
         </div>
-        
+
         <div class="bg-white border-b border-[#e6edf3] px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
           <div class="relative flex-1 max-w-md">
             <i data-lucide="search" class="absolute left-3 top-2.5 h-4 w-4 text-gray-400"></i>
@@ -257,7 +257,7 @@ function buildShellHtml() {
           <div class="xl:col-span-8 space-y-6" id="tab-content-root">
             <!-- Dynamic tab content renders here -->
           </div>
-          
+
           <!-- Right Sidebar -->
           <aside class="xl:col-span-4 space-y-6">
             <div class="bg-white border border-[#e6edf3] rounded-2xl p-5 shadow-xs">
