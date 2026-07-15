@@ -304,7 +304,7 @@ function buildShellHtml() {
       <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-100 transition-all">
         <div class="p-5 border-b border-gray-150 bg-gradient-to-r from-caci-blue to-caci-blueDim text-white flex justify-between items-center">
           <div>
-            <span class="text-[9px] bg-caci-red px-2.5 py-0.5 rounded text-white uppercase font-black tracking-widest">Cloudflare R2 Storage</span>
+            <span class="text-[9px] bg-caci-red px-2.5 py-0.5 rounded text-white uppercase font-black tracking-widest">Document Attachment</span>
             <h3 id="modal-filename" class="font-extrabold text-sm truncate mt-1 leading-none"></h3>
           </div>
           <button id="modal-close-btn" class="text-white hover:bg-caci-blueDim p-1 rounded-lg transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -314,7 +314,7 @@ function buildShellHtml() {
             <i data-lucide="file-text" class="w-8 h-8 text-caci-blue shrink-0"></i>
             <div class="overflow-hidden">
               <p id="modal-desc-filename" class="text-xs font-bold text-gray-800 truncate"></p>
-              <p class="text-[10px] text-gray-500 uppercase font-semibold">Authentic Document &bull; Verified Security Signature</p>
+              <p class="text-[10px] text-gray-500 uppercase font-semibold">Authentic Document Preview</p>
             </div>
           </div>
           <div class="space-y-1">
@@ -590,26 +590,33 @@ function openAttachmentModalDirectly(broadcastId: string) {
   }
   globalState.currentSelectedBroadcast = bc;
   
-  document.getElementById("modal-filename")!.innerText = bc.attachment_url || "";
-  document.getElementById("modal-desc-filename")!.innerText = bc.attachment_url || "";
+  const fileUrl = bc.attachment_url || "";
+  let fileName = fileUrl;
+  try {
+    const urlParts = fileUrl.split('/');
+    fileName = urlParts[urlParts.length - 1].split('?')[0]; // basic extraction
+  } catch(e) {}
+
+  document.getElementById("modal-filename")!.innerText = fileName;
+  document.getElementById("modal-desc-filename")!.innerText = fileName;
   document.getElementById("modal-broadcast-title")!.innerText = bc.title;
   document.getElementById("modal-broadcast-body")!.innerText = bc.body;
 
   const placeholder = document.getElementById("modal-attachment-placeholder");
   if(placeholder) {
-    if (bc.attachment_url?.endsWith('.pdf')) {
+    const lowerUrl = fileUrl.toLowerCase();
+    const isImage = lowerUrl.includes('.png') || lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg') || lowerUrl.includes('.gif') || lowerUrl.includes('.webp');
+    
+    if (isImage) {
       placeholder.innerHTML = `
-        <i data-lucide="file-text" class="w-12 h-12 text-caci-red mx-auto mb-2"></i>
-        <span class="text-xs font-bold text-gray-700 block">PDF Assembly Guideline</span>
-        <span class="text-[10px] text-gray-500">Fast streaming preview locks via IFrame constraint</span>
+        <img src="${fileUrl}" class="max-w-full h-auto max-h-48 object-contain rounded-lg border border-gray-200 mb-2" alt="Attachment" />
+        <span class="text-xs font-bold text-gray-700 block">${fileName}</span>
       `;
     } else {
       placeholder.innerHTML = `
-        <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-2 border border-gray-300">
-          <i data-lucide="image" class="w-8 h-8 text-gray-400"></i>
-        </div>
-        <span class="text-xs font-bold text-gray-700 block">${bc.attachment_url}</span>
-        <span class="text-[10px] text-gray-500">Secure Image signature verified on Cloudflare R2</span>
+        <i data-lucide="file-text" class="w-12 h-12 text-caci-blue mx-auto mb-2"></i>
+        <span class="text-xs font-bold text-gray-700 block">${fileName}</span>
+        <a href="${fileUrl}" target="_blank" class="text-[10px] text-caci-blue font-bold hover:underline mt-1 inline-block">Click here to open document</a>
       `;
     }
   }
@@ -634,7 +641,7 @@ function openAttachmentModalDirectly(broadcastId: string) {
   const downloadBtn = document.getElementById("modal-btn-download");
   if (downloadBtn) {
     downloadBtn.onclick = () => {
-      showToast("Success", `R2 Signature validated. Download complete!`, "success");
+      window.open(fileUrl, '_blank');
       close();
     };
   }

@@ -38,13 +38,14 @@ export function renderBroadcastsTab(container: HTMLElement) {
               </div>
             </div>
 
-            <!-- Simulation file upload to Cloudflare R2 -->
+            <!-- File upload to Supabase Storage -->
             <div class="p-3.5 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-              <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wide block mb-1">Signed Attachment Upload (R2 Storage)</span>
+              <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wide block mb-1">Attachment Upload (Supabase Storage)</span>
               <div class="flex items-center gap-2">
-                <input type="text" id="bc-input-attachment" placeholder="No file signed and uploaded yet..." readonly class="flex-1 bg-white border border-gray-200 rounded-lg px-2 py-1 text-[10px] focus:outline-none text-gray-500">
-                <button id="btn-simulate-r2" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-bold px-3 py-2 border border-gray-300 rounded-lg shrink-0">
-                  Upload File
+                <input type="file" id="bc-file-input" class="hidden" accept="image/*,.pdf,.doc,.docx">
+                <input type="text" id="bc-input-attachment" placeholder="No file selected..." readonly class="flex-1 bg-white border border-gray-200 rounded-lg px-2 py-1 text-[10px] focus:outline-none text-gray-500 cursor-pointer" onclick="document.getElementById('bc-file-input').click()">
+                <button id="btn-select-file" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-bold px-3 py-2 border border-gray-300 rounded-lg shrink-0" onclick="document.getElementById('bc-file-input').click()">
+                  Select File
                 </button>
               </div>
             </div>
@@ -109,7 +110,7 @@ function renderBroadcastHistory() {
 function attachBroadcastHandlers(container: HTMLElement) {
   const modeSelect = container.querySelector('#bc-select-mode') as HTMLSelectElement;
   const groupSelect = container.querySelector('#bc-select-group') as HTMLSelectElement;
-  const uploadBtn = container.querySelector('#btn-simulate-r2') as HTMLButtonElement;
+  const fileInput = container.querySelector('#bc-file-input') as HTMLInputElement;
   const attachInput = container.querySelector('#bc-input-attachment') as HTMLInputElement;
   const dispatchBtn = container.querySelector('#btn-dispatch-broadcast') as HTMLButtonElement;
 
@@ -122,13 +123,12 @@ function attachBroadcastHandlers(container: HTMLElement) {
     }
   });
 
-  uploadBtn.addEventListener('click', () => {
-    showToast("Info", "Accessing pre-signed URL validation from Edge Function...", "info");
-    setTimeout(() => {
-      const simulatedFileName = `attachment_doc_${Math.floor(Math.random() * 1000)}.pdf`;
-      attachInput.value = simulatedFileName;
-      showToast("Success", `Completed direct file upload to Cloudflare R2 bucket. Signature verification passed!`, "success");
-    }, 1000);
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files.length > 0) {
+      attachInput.value = fileInput.files[0].name;
+    } else {
+      attachInput.value = '';
+    }
   });
 
   dispatchBtn.addEventListener('click', async () => {
@@ -139,7 +139,6 @@ function attachBroadcastHandlers(container: HTMLElement) {
     const body = bodyInput.value.trim();
     const mode = modeSelect.value;
     const targetGrp = groupSelect.value;
-    const attachment = attachInput.value.trim();
 
     if (!title || !body) {
       showToast("Error", "A clear Title and Announcement content body are required.", "error");
@@ -156,14 +155,64 @@ function attachBroadcastHandlers(container: HTMLElement) {
       return;
     }
 
+    let attachmentUrl = null;
+
+    if (fileInput.files && fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `announcements/${fileName}`;
+
+      dispatchBtn.disabled = true;
+      dispatchBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Uploading Attachment...</span>`;
+      if (window.lucide) window.lucide.createIcons();
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('broadcasts_attachments')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        // Fallback to older bucket name if the new one fails due to migration not running
+        const { data: uploadDataFallback, error: uploadErrorFallback } = await supabase.storage
+          .from('broadcast_attachments')
+          .upload(filePath, file);
+
+        if (uploadErrorFallback) {
+           showToast("Error", "Failed to upload attachment: " + uploadErrorFallback.message, "error");
+           dispatchBtn.disabled = false;
+           dispatchBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Broadcast Announcement Bulletin</span>`;
+           if (window.lucide) window.lucide.createIcons();
+           return;
+        } else {
+           const { data: { publicUrl } } = supabase.storage
+              .from('broadcast_attachments')
+              .getPublicUrl(filePath);
+           attachmentUrl = publicUrl;
+        }
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('broadcasts_attachments')
+          .getPublicUrl(filePath);
+        attachmentUrl = publicUrl;
+      }
+    } else {
+       dispatchBtn.disabled = true;
+       dispatchBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Broadcasting...</span>`;
+       if (window.lucide) window.lucide.createIcons();
+    }
+
     const { error } = await supabase.from('broadcasts').insert({
       title,
       body,
       targeting_mode: mode,
       target_group_id: mode === "group" ? targetGrp : null,
-      attachment_url: attachment || null,
+      attachment_url: attachmentUrl,
       sent_by: session.user.id
     });
+
+    dispatchBtn.disabled = false;
+    dispatchBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>Broadcast Announcement Bulletin</span>`;
+    if (window.lucide) window.lucide.createIcons();
 
     if (error) {
       showToast("Error", error.message, "error");
@@ -171,6 +220,16 @@ function attachBroadcastHandlers(container: HTMLElement) {
     }
 
     showToast("Success", "Announcement broadcasted! Notifications generated inside recipient workspaces.", "success");
+    titleInput.value = '';
+    bodyInput.value = '';
+    attachInput.value = '';
+    fileInput.value = '';
+    if (mode === 'group') {
+      groupSelect.value = '';
+      groupSelect.setAttribute('disabled', 'true');
+      modeSelect.value = 'assembly';
+    }
+    
     await syncAdminData();
   });
 }
