@@ -26,7 +26,7 @@ $$;
 
 -- ── 2. Fix has_permission() ───────────────────────────────────────────────────
 
-CREATE OR REPLACE FUNCTION public.has_permission(permission_key text)
+CREATE OR REPLACE FUNCTION public.has_permission(permission text)
 RETURNS boolean
 LANGUAGE sql
 STABLE
