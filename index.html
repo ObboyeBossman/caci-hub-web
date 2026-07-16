@@ -6,12 +6,13 @@
   <meta name="description" content="CACI Hub — Church Assembly Management Platform" />
   <meta name="theme-color" content="#C60026" />
 
-  <!-- PWA -->
+  <!-- PWA & Favicon -->
   <link rel="icon" type="image/jpeg" href="/caci-logo.jpeg" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="shortcut icon" href="/caci-logo.jpeg" type="image/jpeg" />
   <link rel="apple-touch-icon" href="/caci-logo.jpeg" />
+  <link rel="manifest" href="/manifest.json" />
 
-  <title>CACI Hub</title>
+  <title>Nexus Hub | CACI</title>
 
   <script>
     window.onerror = function(msg, url, line, col, error) {
@@ -61,8 +62,25 @@
               successBg: '#dafbe1',
               warning: '#9a6700',
               warningBg: '#fff8c5',
-              night: '#0d1117'
+              night: '#050b18'
+            },
+            nexus: {
+              bg: '#050b18',
+              card: 'rgba(255, 255, 255, 0.03)',
+              border: 'rgba(255, 255, 255, 0.08)',
+              accent: '#3b82f6',
+              text: '#f8fafc',
+              dim: '#94a3b8'
             }
+          },
+          backdropBlur: {
+            xs: '2px',
+            nexus: '12px',
+          },
+          borderRadius: {
+            '2xl': '1rem',
+            '3xl': '1.5rem',
+            'nexus': '24px'
           }
         }
       }
