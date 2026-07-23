@@ -1,53 +1,61 @@
 // src/main.ts
 // CACI Hub Web — App Entry Point
-//
-// The boot sequence is now orchestrated by the splash screen:
-//   Stage 1 (splash.ts)        → 2s branded splash + session check
-//   Stage 2 (AssemblySelection) → public assembly picker  [unauthenticated path]
-//   Stage 3 (Login)             → assembly-branded sign-in [unauthenticated path]
-//   Stage 4 (loading.ts)        → profile + modules + shell + router [authenticated path]
+
+console.log('[main] Script evaluation started');
 
 import './styles/theme.css'
-import './modules/auth/styles/auth.css'
-import './modules/settings/styles/settings.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'notyf/notyf.min.css'
 
 import { runSplash } from './core/splash'
-import { registerModule } from './core/registry'
-import SettingsModule  from './modules/settings'
 
-
-import { applyAppearance, initThemeListener } from './core/theme'
+// Register PWA Service Worker
+import { registerSW } from 'virtual:pwa-register'
+registerSW({
+  onNeedRefresh() {},
+  onOfflineReady() {
+    console.log('[pwa] Offline ready')
+  },
+})
 
 async function boot(): Promise<void> {
-  console.log('[main] CACI Hub Web starting…')
+  console.log('[main] CACI Hub Web boot() starting…')
 
-  // Register modules
-  registerModule(SettingsModule)
-
-
-  // Initialize theme and appearance (Manual pref or System default)
-  applyAppearance()
-  initThemeListener()
-
-  // Hand off to the splash boot flow (Stages 1 → 4)
-  await runSplash()
+  try {
+    // Hand off to the splash boot flow (Stages 1 → 4)
+    await runSplash()
+    console.log('[main] runSplash() completed')
+  } catch (err) {
+    console.error('[main] runSplash failed:', err)
+    throw err; // Re-throw to be caught by boot().catch()
+  }
 }
 
+console.log('[main] Calling boot()');
 boot().catch((err) => {
   console.error('[main] Boot failed:', err)
-  document.getElementById('app')!.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;
-      justify-content:center;min-height:100vh;font-family:sans-serif;
-      color:#656D76;gap:1rem">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <rect x="9" y="0" width="4" height="22" rx="2" fill="#004BA0"/>
-        <rect x="0" y="9" width="22" height="4" rx="2" fill="#004BA0"/>
-      </svg>
-      <h1 style="font-size: var(--text-lg);font-weight:600;color:#0D1117;margin:0">Failed to start</h1>
-      <p style="font-size: var(--text-base);margin:0">Check the console for details.</p>
-    </div>
-  `
+  const app = document.getElementById('app')
+  if (app) {
+    app.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;
+        justify-content:center;min-height:100vh;font-family:sans-serif;
+        color:#656D76;gap:1rem;background:#f8f9fa;text-align:center;padding:2rem;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h1 style="font-size: 1.5rem;font-weight:600;color:#0D1117;margin:0">Unable to Start App</h1>
+        <p style="font-size: 1rem;margin:0;max-width:400px;">
+          ${err instanceof Error ? err.message : 'An unknown error occurred during initialization.'}
+        </p>
+        <button onclick="window.location.reload()" style="margin-top:1rem;padding:0.5rem 1rem;background:#004BA0;color:white;border:none;border-radius:4px;cursor:pointer;">
+          Retry
+        </button>
+      </div>
+    `
+  } else {
+    alert('Critical Error: App element not found and boot failed: ' + err)
+  }
 })
