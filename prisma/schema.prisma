@@ -1,0 +1,280 @@
+// ============================================================
+// CACI HUB — Prisma Schema
+// Adapted from Supabase/Postgres spec to SQLite.
+// Enums become TEXT with app-level validation.
+// UUIDs become cuid() strings.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Auth & Users ----
+
+model UserProfile {
+  id                   String   @id @default(cuid()) // mirrors an auth user id
+  role                 String   @default("member") // 'admin' | 'member'
+  fullName             String
+  isActive             Boolean  @default(true)
+  mustChangePassword   Boolean  @default(false)
+  // For demo auth: phone + password (E.164 stored as 233XXXXXXXXX)
+  phone                String   @unique
+  passwordHash         String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  members              Member[] @relation("MemberAuthUser")
+  membersCreated       Member[] @relation("MemberCreatedBy")
+  broadcastsSent       Broadcast[]
+  groupsCreated        Group[]
+  permissionsGranted   MemberPermission[] @relation("PermissionGrantedBy")
+  sermonsCreated       Sermon[]
+  auditEntries         MemberAuditLog[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+model MemberCounter {
+  id          Int     @id @default(1)
+  lastNumber  Int     @default(0)
+
+  // SQLite has no CHECK constraint DSL in Prisma; enforce id=1 in app.
+}
+
+// ---- Members ----
+
+model Member {
+  id                              String    @id @default(cuid())
+  membershipNumber                String?   @unique
+  title                           String?   // Mr, Mrs, Rev, Elder, Brother, Sister
+  fullName                        String
+  dateOfBirth                     DateTime?
+  gender                          String?   // 'male' | 'female'
+  maritalStatus                   String?   // 'single' | 'married' | 'divorced' | 'widowed' | 'other'
+  occupation                      String?
+  location                        String?
+  phoneNumber                     String?   // E.164 '233XXXXXXXXX'
+  whatsappNumber                  String?
+  membershipStatus                String    @default("visitor") // 'visitor' | 'active' | 'inactive'
+  assemblyRole                    String?   // free text: Usher, Pastor, Elder...
+  joinDate                        DateTime?
+  profilePhotoUrl                 String?
+  emergencyContactName            String?
+  emergencyContactPhone           String?
+  emergencyContactRelationship    String?
+  isActive                        Boolean   @default(true)
+  deletedAt                       DateTime?
+  authUserId                      String?   @unique
+  authUser                        UserProfile? @relation("MemberAuthUser", fields: [authUserId], references: [id], onDelete: SetNull)
+  createdById                     String?
+  createdBy                       UserProfile? @relation("MemberCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt                       DateTime  @default(now())
+  updatedAt                       DateTime  @updatedAt
+
+  groups                          GroupMember[]
+  permissions                     MemberPermission[]
+  notifications                   Notification[]
+  broadcastRecipients             BroadcastRecipient[]
+  forumMessages                   ForumMessage[]
+  groupMessages                   GroupMessage[]
+  auditLogs                       MemberAuditLog[]
+  ledGroups                       Group[]
+
+  @@index([membershipStatus])
+  @@index([isActive])
+  @@index([authUserId])
+}
+
+model MemberPermission {
+  id          String   @id @default(cuid())
+  memberId    String
+  permission  String   // FK to system_permissions.key
+  grantedById String
+  grantedBy   UserProfile @relation("PermissionGrantedBy", fields: [grantedById], references: [id])
+  grantedAt   DateTime @default(now())
+
+  member      Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, permission])
+  @@index([memberId])
+}
+
+model SystemPermission {
+  key         String   @id
+  label       String
+  description String
+  module      String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+// ---- Groups ----
+
+model Group {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  description    String?
+  leaderId       String?
+  messagingMode  String   @default("open") // 'open' | 'restricted'
+  isActive       Boolean  @default(true)
+  createdById    String?
+  createdBy      UserProfile? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  leader         Member?  @relation(fields: [leaderId], references: [id], onDelete: SetNull)
+  members        GroupMember[]
+  broadcasts     Broadcast[]
+  messages       GroupMessage[]
+
+  @@index([isActive])
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  memberId  String
+  joinedAt  DateTime @default(now())
+
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, memberId])
+  @@index([groupId])
+  @@index([memberId])
+}
+
+// ---- Broadcasts & Notifications ----
+
+model Broadcast {
+  id             String   @id @default(cuid())
+  sentById       String
+  sentBy         UserProfile @relation(fields: [sentById], references: [id])
+  title          String
+  body           String
+  targetGroupId  String?
+  targetingMode  String   @default("assembly") // 'assembly' | 'group' | 'members'
+  attachmentUrl  String?
+  sentAt         DateTime @default(now())
+
+  targetGroup    Group?   @relation(fields: [targetGroupId], references: [id], onDelete: SetNull)
+  recipients     BroadcastRecipient[]
+  notifications  Notification[]
+
+  @@index([sentAt])
+  @@index([targetingMode])
+}
+
+model BroadcastRecipient {
+  id          String   @id @default(cuid())
+  broadcastId String
+  memberId    String
+
+  broadcast   Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([broadcastId, memberId])
+  @@index([broadcastId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  memberId    String
+  broadcastId String?
+  title       String
+  body        String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  member      Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  broadcast   Broadcast? @relation(fields: [broadcastId], references: [id], onDelete: SetNull)
+
+  @@index([memberId, isRead, createdAt])
+  @@index([memberId, createdAt])
+}
+
+// ---- Audit ----
+
+model MemberAuditLog {
+  id           String   @id @default(cuid())
+  memberId     String
+  changedById  String?
+  fieldChanged String
+  oldValue     String?
+  newValue     String?
+  changedAt    DateTime @default(now())
+
+  member       Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  changedBy    UserProfile? @relation(fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([memberId, changedAt])
+}
+
+// ---- Assembly Settings (single-row) ----
+
+model AssemblySetting {
+  id                  String   @id @default(cuid())
+  assemblyName        String   @default("Assakae Central Assembly")
+  assemblyLocation    String   @default("Assakae District")
+  assemblyAddress     String?
+  contactPhone        String?
+  contactEmail        String?
+  defaultPassword     String   @default("CACI@2026!")
+  forcePasswordReset  Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ---- Sermons ----
+
+model Sermon {
+  id                String   @id @default(cuid())
+  title             String
+  speaker           String
+  date              DateTime
+  description       String?
+  scriptureReference String?
+  audioUrl          String?
+  videoUrl          String?
+  coverImageUrl     String?
+  createdById       String?
+  createdBy         UserProfile? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([date])
+}
+
+// ---- Forum (assembly-wide message board) ----
+
+model ForumMessage {
+  id         String   @id @default(cuid())
+  memberId   String
+  content    String
+  createdAt  DateTime @default(now())
+
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+}
+
+// ---- Group Chat Messages (extension for group chat feature) ----
+
+model GroupMessage {
+  id         String   @id @default(cuid())
+  groupId    String
+  memberId   String
+  content    String
+  createdAt  DateTime @default(now())
+
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, createdAt])
+}

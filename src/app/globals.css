@@ -1,0 +1,410 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   CACI HUB — Brand Design System
+   Christ Apostolic Church International Ghana
+   ============================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* CACI brand tokens */
+  --color-caci-red: #c60026;
+  --color-caci-red-light: #ff1a46;
+  --color-caci-red-dim: #8c001a;
+  --color-caci-red-bg: #fff0f2;
+  --color-caci-blue: #004ba0;
+  --color-caci-blue-light: #4d9fff;
+  --color-caci-blue-dim: #003578;
+  --color-caci-blue-bg: #eff5ff;
+  --color-night: #010409;
+  --color-n50: #f6f8fa;
+  --color-n100: #e6edf3;
+  --color-n200: #c9d1d9;
+  --color-n300: #8b949e;
+  --color-n400: #6e7681;
+  --color-n500: #484f58;
+  --color-n700: #21262d;
+  --color-n900: #0d1117;
+  --color-success: #1a7f37;
+  --color-success-bg: #dafbe1;
+  --color-warning: #9a6700;
+  --color-warning-bg: #fff8c5;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.5rem;
+  /* Page background = n50, cards = white */
+  --background: #f6f8fa;
+  --foreground: #0d1117;
+  --card: #ffffff;
+  --card-foreground: #0d1117;
+  --popover: #ffffff;
+  --popover-foreground: #0d1117;
+  /* Primary = CACI Red */
+  --primary: #c60026;
+  --primary-foreground: #ffffff;
+  /* Secondary = CACI Blue */
+  --secondary: #eff5ff;
+  --secondary-foreground: #004ba0;
+  --muted: #f6f8fa;
+  --muted-foreground: #6e7681;
+  --accent: #fff0f2;
+  --accent-foreground: #8c001a;
+  --destructive: #c60026;
+  --border: #e6edf3;
+  --input: #e6edf3;
+  --ring: #004ba0;
+  --chart-1: #c60026;
+  --chart-2: #004ba0;
+  --chart-3: #1a7f37;
+  --chart-4: #9a6700;
+  --chart-5: #4d9fff;
+  /* Sidebar = CACI Blue (admin desktop) */
+  --sidebar: #004ba0;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #c60026;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #003578;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: #4d9fff;
+}
+
+.dark {
+  --background: #0d1117;
+  --foreground: #f6f8fa;
+  --card: #161b22;
+  --card-foreground: #f6f8fa;
+  --popover: #161b22;
+  --popover-foreground: #f6f8fa;
+  --primary: #ff1a46;
+  --primary-foreground: #ffffff;
+  --secondary: #1c2330;
+  --secondary-foreground: #4d9fff;
+  --muted: #161b22;
+  --muted-foreground: #8b949e;
+  --accent: #2a1015;
+  --accent-foreground: #ff1a46;
+  --destructive: #ff1a46;
+  --border: #21262d;
+  --input: #21262d;
+  --ring: #4d9fff;
+  --chart-1: #ff1a46;
+  --chart-2: #4d9fff;
+  --chart-3: #2ea043;
+  --chart-4: #d29922;
+  --chart-5: #4d9fff;
+  --sidebar: #003578;
+  --sidebar-foreground: #f6f8fa;
+  --sidebar-primary: #ff1a46;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #002a5e;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #4d9fff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    @apply bg-background text-foreground;
+    /* iOS Safari auto-zoom prevention: inputs never below 16px */
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Safe area for iOS notch / home indicator */
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* Force 16px on all inputs to prevent iOS zoom */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* ============================================================
+   CACI Brand Utilities
+   ============================================================ */
+@layer utilities {
+  /* Brand text colors */
+  .text-caci-red {
+    color: #c60026;
+  }
+  .text-caci-blue {
+    color: #004ba0;
+  }
+  .text-n300 {
+    color: #8b949e;
+  }
+  .text-n400 {
+    color: #6e7681;
+  }
+  .text-n500 {
+    color: #484f58;
+  }
+  .text-n700 {
+    color: #21262d;
+  }
+  .text-n900 {
+    color: #0d1117;
+  }
+
+  /* Brand bg colors */
+  .bg-caci-red {
+    background-color: #c60026;
+  }
+  .bg-caci-blue {
+    background-color: #004ba0;
+  }
+  .bg-caci-red-bg {
+    background-color: #fff0f2;
+  }
+  .bg-caci-blue-bg {
+    background-color: #eff5ff;
+  }
+  .bg-n50 {
+    background-color: #f6f8fa;
+  }
+  .bg-n100 {
+    background-color: #e6edf3;
+  }
+  .bg-success-bg {
+    background-color: #dafbe1;
+  }
+  .bg-warning-bg {
+    background-color: #fff8c5;
+  }
+
+  /* Brand border */
+  .border-caci-blue {
+    border-color: #004ba0;
+  }
+  .border-n100 {
+    border-color: #e6edf3;
+  }
+
+  /* Spring physics transitions */
+  .transition-spring {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition-duration: 200ms;
+  }
+  .transition-tap {
+    transition: transform 80ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .transition-input {
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  }
+
+  /* Tactile button squish */
+  .tap-squish:active {
+    transform: scale(0.97);
+  }
+
+  /* Safe area helpers (iOS) */
+  .pt-safe {
+    padding-top: var(--safe-top);
+  }
+  .pb-safe {
+    padding-bottom: calc(var(--safe-bottom) + 0.25rem);
+  }
+  .h-safe-bottom {
+    height: var(--safe-bottom);
+  }
+
+  /* Hide scrollbar indicators globally while preserving scrolling capability */
+  *, .scroll-caci, .scrollbar-none {
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  *::-webkit-scrollbar, .scroll-caci::-webkit-scrollbar, .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome, Safari & Opera */
+    width: 0;
+    height: 0;
+  }
+}
+
+/* ============================================================
+   Keyframe Animations — CACI Motion
+   ============================================================ */
+@keyframes caci-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+.animate-shake {
+  animation: caci-shake 300ms ease-in-out;
+}
+
+@keyframes caci-pulse-loading {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.animate-pulse-loading {
+  animation: caci-pulse-loading 1.2s ease-in-out infinite;
+}
+
+@keyframes caci-skeleton {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.skeleton-caci {
+  background: linear-gradient(
+    90deg,
+    #e6edf3 0%,
+    #f6f8fa 50%,
+    #e6edf3 100%
+  );
+  background-size: 200% 100%;
+  animation: caci-skeleton 1.6s ease-in-out infinite;
+}
+
+@keyframes caci-slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-up {
+  animation: caci-slide-up 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes caci-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: caci-fade-in 220ms ease-out;
+}
+
+@keyframes caci-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-scale-in {
+  animation: caci-scale-in 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes caci-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-caci {
+  animation: caci-spin 700ms linear infinite;
+}
+
+/* CACI logo shield gradient */
+.caci-shield {
+  background: linear-gradient(135deg, #c60026 0%, #8c001a 100%);
+  box-shadow:
+    0 4px 14px rgba(198, 0, 38, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Subtle card shadow on hover (desktop) */
+.card-hover {
+  transition:
+    box-shadow 180ms ease-out,
+    transform 180ms ease-out,
+    border-color 180ms ease-out;
+}
+.card-hover:hover {
+  box-shadow: 0 6px 20px rgba(13, 17, 23, 0.07);
+  transform: translateY(-1px);
+}
+
+/* Bottom-nav active pill */
+.nav-pill-active {
+  background-color: #fff0f2;
+  color: #c60026;
+}

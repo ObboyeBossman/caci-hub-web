@@ -1,31 +1,42 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "vite-plugin-pwa/client"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "paths": {
-      "@core/*":    ["./src/core/*"],
-      "@shared/*":  ["./src/shared/*"],
-      "@types/*":   ["./src/types/*"],
-      "@modules/*": ["./src/modules/*"],
-      "@shell/*":   ["./src/shell/*"]
-    },
-    "useDefineForClassFields": true,
+    "strict": true,
+    "noEmit": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
