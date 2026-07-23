@@ -4,21 +4,11 @@
 // Full application boot sequence shown after successful auth.
 // Runs all initialization steps (profile, modules, shell) while displaying
 // a progress UI, then hands off to the router.
+//
+// NOTE: This stage is temporarily inactive while the upgrade screen is displayed.
+// Module imports will be restored when the modules are re-added to the project.
 
 import { supabase } from './supabase'
-import { emit, on } from './events'
-import { loadCurrentUser, getCurrentUser } from './auth'
-import { registerModule, initModules } from './registry'
-import { startRouter, navigate } from './router'
-import { can } from './authorization/authorization-service'
-
-// Modules (same list as before — kept here so main.ts stays minimal)
-import AuthModule from '../modules/auth/index'
-import MembershipModule from '../modules/membership/index'
-import AdminModule from '../modules/admin/index'
-import ServicesModule from '../modules/events/index'
-import FinanceModule from '../modules/finance/index'
-import CommunicationModule from '../modules/communication/index'
 
 export async function runLoading(): Promise<void> {
   const app = document.getElementById('app')
@@ -65,81 +55,22 @@ export async function runLoading(): Promise<void> {
     if (label) label.textContent = text
   }
 
-  // Yield to the browser paint cycle so each setProgress update is rendered
-  // before the next heavy synchronous operation begins.
   const tick = () => new Promise<void>(r => requestAnimationFrame(() => setTimeout(r, 0)))
 
   try {
-    // Step 1: Load user profile ──────────────────────────────────────────────
-    setProgress(20, 'Loading your profile…')
+    // Verify Supabase session is still valid
+    setProgress(20, 'Verifying session…')
     await tick()
-    await loadCurrentUser()
-    const user = getCurrentUser()
-    console.log('[loading] Profile load result:', { userId: user?.id, role: user?.role })
+    const { data: { session } } = await supabase.auth.getSession()
 
-    if (!user) {
-      // No valid profile → kick back to login
-      console.warn('[loading] No valid profile found. Redirecting to login.')
-
-      // MUST register AuthModule and mount layout before router can handle /login
-      registerModule(AuthModule)
-      const appContainer = document.getElementById('app')
-      if (appContainer) {
-        appContainer.innerHTML = '<div id="page-content"></div>'
-      }
-
-      startRouter()
-      navigate('/login')
+    if (!session) {
+      console.warn('[loading] Session lost. Please refresh.')
+      setProgress(100, 'Session expired')
       return
     }
 
-
-    // Step 2: Register modules ───────────────────────────────────────────────
-    setProgress(40, 'Registering modules…')
-    await tick()
-    registerModule(AuthModule)
-    registerModule(MembershipModule)
-    registerModule(AdminModule)
-    registerModule(ServicesModule)
-    registerModule(FinanceModule)
-    registerModule(CommunicationModule)
-
-    // Step 3: Mount base container ───────────────────────────────────────────
-    setProgress(60, 'Mounting base container…')
-    await tick()
-    const appContainer = document.getElementById('app')
-    if (appContainer) {
-      appContainer.innerHTML = '<div id="page-content"></div>'
-    }
-
-    // Step 4: Run module init hooks ──────────────────────────────────────────
-    setProgress(80, 'Starting services…')
-    await tick()
-    await initModules({
-      supabase,
-      eventBus: { emit, on },
-      permissions: { hasPermission: can },
-      currentUser: getCurrentUser,
-    })
-
-    // Step 5: Kick off router ────────────────────────────────────────────────
-    console.log('[loading] Step 5: Ready. Starting router.')
     setProgress(100, 'Ready')
     await tick()
-    emit('app:ready')
-
-    // If we're still on an auth-related page (login, select-assembly),
-    // or if the hash is empty, redirect to the dashboard (/).
-    const path = location.hash.slice(1)
-    const isAuthPage = !path || path === '/' || path.startsWith('/login') || path.startsWith('/select-assembly') || path.startsWith('/forgot-password')
-
-    if (isAuthPage) {
-      console.log('[loading] On auth page, redirecting to /')
-      location.hash = '#/'
-    }
-
-    startRouter()
-
 
   } catch (err) {
     console.error('[loading] Boot failed:', err)
