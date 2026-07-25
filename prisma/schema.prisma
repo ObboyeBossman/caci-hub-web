@@ -1,8 +1,6 @@
 // ============================================================
 // CACI HUB — Prisma Schema
-// Adapted from Supabase/Postgres spec to SQLite.
-// Enums become TEXT with app-level validation.
-// UUIDs become cuid() strings.
+// Provider: Supabase / PostgreSQL
 // ============================================================
 
 generator client {
@@ -10,8 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ---- Auth & Users ----
